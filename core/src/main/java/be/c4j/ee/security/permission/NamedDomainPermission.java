@@ -18,15 +18,19 @@
  */
 package be.c4j.ee.security.permission;
 
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
+import org.apache.shiro.authz.permission.DomainPermission;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public class NamedDomainPermission extends DomainPermission {
 
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CustomPermissionCheck {
-    Class<? extends AbstractAccessDecisionVoter>[] value();
+    private String name;
+
+    public NamedDomainPermission(String someName, String someDomain, String actions, String targets) {
+        super(actions, targets);
+        setDomain(someDomain);
+        name = someName;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

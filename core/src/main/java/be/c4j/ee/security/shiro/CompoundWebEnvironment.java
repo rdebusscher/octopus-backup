@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.shiro;
 
-import be.c4j.ee.security.SecurityModuleConfig;
+import be.c4j.ee.security.config.SecurityModuleConfig;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;

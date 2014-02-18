@@ -16,17 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package be.c4j.ee.security.permission;
+package be.c4j.ee.security.config;
 
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
+public class VoterNameFactory {
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+    public String generatePermissionBeanName(String permissionName) {
+        String[] parts = permissionName.toLowerCase().split("_");
+        if (parts.length > 1) {
+            for (int i = 1; i < parts.length; i++) {
+                parts[i] = capitalize(parts[i]);
+            }
+        }
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            result.append(part);
+        }
+        result.append("PermissionVoter");
+        return result.toString();
 
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CustomPermissionCheck {
-    Class<? extends AbstractAccessDecisionVoter>[] value();
+    }
+
+    private String capitalize(String line) {
+        return Character.toUpperCase(line.charAt(0)) + line.substring(1);
+    }
 }
