@@ -20,6 +20,8 @@
 package be.c4j.ee.security.beans;
 
 import org.apache.myfaces.extensions.cdi.core.impl.util.DefaultLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.spi.Bean;
@@ -29,7 +31,6 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Copied and modified from DeltaSpike.
@@ -44,7 +45,7 @@ import java.util.logging.Logger;
  * </p>
  */
 public abstract class BaseImmutableBean<T> implements Bean<T> {
-    private static final Logger LOG = Logger.getLogger(BaseImmutableBean.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseImmutableBean.class);
 
     private final Class<?> beanClass;
 
@@ -99,7 +100,7 @@ public abstract class BaseImmutableBean<T> implements Bean<T> {
         if (qualifiers == null) {
             this.qualifiers = Collections.<Annotation>singleton(new DefaultLiteral());
 
-            LOG.finest("No qualifers provided for bean class " + beanClass + ", using singleton set of @Default");
+            LOGGER.debug("No qualifers provided for bean class " + beanClass + ", using singleton set of @Default");
         } else {
             this.qualifiers = new HashSet<Annotation>(qualifiers);
         }
@@ -107,7 +108,7 @@ public abstract class BaseImmutableBean<T> implements Bean<T> {
         if (scope == null) {
             this.scope = Dependent.class;
 
-            LOG.finest("No scope provided for bean class " + beanClass + ", using @Dependent");
+            LOGGER.debug("No scope provided for bean class " + beanClass + ", using @Dependent");
         } else {
             this.scope = scope;
         }
@@ -124,7 +125,7 @@ public abstract class BaseImmutableBean<T> implements Bean<T> {
             this.types.add(Object.class);
             this.types.add(beanClass);
 
-            LOG.finest("No types provided for bean class " + beanClass + ", using [java.lang.Object.class, " + beanClass
+            LOGGER.debug("No types provided for bean class " + beanClass + ", using [java.lang.Object.class, " + beanClass
                     .getName() + ".class]");
         } else {
             this.types = new HashSet<Type>(types);

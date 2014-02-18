@@ -18,6 +18,8 @@
  */
 package be.c4j.ee.security.exception;
 
+import be.c4j.ee.security.config.SecurityModuleConfig;
+import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
-    private static final Logger log = LoggerFactory.getLogger(AuthorizationExceptionHandler.class.getCanonicalName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationExceptionHandler.class.getCanonicalName());
 
     private ExceptionHandler wrapped;
 
@@ -71,7 +73,7 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
                 try {
 
                     //log error ?
-                    log.error("Critical Exception!", t);
+                    LOGGER.error("Critical Exception!", t);
 
                     externalContext.getFlash().setKeepMessages(true);
                     facesContext.addMessage(null,
@@ -80,10 +82,11 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
                     //redirect error page
                     requestMap.put("exceptionMessage", t.getMessage());
                     try {
-                        externalContext.redirect(externalContext.getRequestContextPath() +"/unauthorized.xhtml");
+                        SecurityModuleConfig config = CodiUtils.getContextualReferenceByClass(SecurityModuleConfig.class);
+                        externalContext.redirect(externalContext.getRequestContextPath() + config.getUnauthorizedExceptionPage());
 
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Redirect to unauthorized page failed", e);
                     }
                     facesContext.renderResponse();
 

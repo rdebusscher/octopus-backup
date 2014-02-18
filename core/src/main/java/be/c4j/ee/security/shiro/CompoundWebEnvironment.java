@@ -24,19 +24,23 @@ import be.c4j.ee.security.config.SecurityModuleConfig;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
+import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.web.config.IniFilterChainResolverFactory;
 import org.apache.shiro.web.env.IniWebEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CompoundWebEnvironment extends IniWebEnvironment {
 
     private static final String APP_URL = "";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompoundWebEnvironment.class);
 
-    private SecurityModuleConfig securityModuleConfig;
+    private SecurityModuleConfig config;
 
     @Override
     public void init() {
-        // securityModuleConfig used by setIni which is called by super.init().
-        securityModuleConfig = BeanManagerProvider.getInstance().getContextualReference(SecurityModuleConfig.class);
+        // config used by setIni which is called by super.init().
+        config = BeanManagerProvider.getInstance().getContextualReference(SecurityModuleConfig.class);
         super.init();
     }
 
@@ -44,12 +48,13 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     public void setIni(Ini ini) {
 
         try {
-            Ini iniWithURLS = getSpecifiedIni(new String[]{securityModuleConfig.getLocationSecuredURLProperties()});
+            Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});
 
             iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
             ini.put(IniFilterChainResolverFactory.URLS, iniWithURLS.getSection(APP_URL));
+            ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME).put("user.loginUrl", config.getLoginPage());
         } catch (ConfigurationException ex) {
-            ;// FIXME Logging
+            LOGGER.error("Exception during configuration of Apache Shiro", ex);
         }
 
         super.setIni(ini);

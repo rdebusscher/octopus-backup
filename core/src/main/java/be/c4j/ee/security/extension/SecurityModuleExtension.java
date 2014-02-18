@@ -46,7 +46,9 @@ public class SecurityModuleExtension implements Extension {
 
         createPermissionVoters(afterBeanDiscovery, beanManager);
 
-        setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
+        if (config.getAliasNameLoginbean() != null) {
+            setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
+        }
 
     }
 

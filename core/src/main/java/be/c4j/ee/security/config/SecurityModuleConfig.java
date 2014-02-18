@@ -82,6 +82,16 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
         return configProperties.getProperty("aliasNameLoginBean", null);
     }
 
+    @ConfigEntry
+    public String getLoginPage() {
+        return configProperties.getProperty("loginPage", "/login.xhtml");
+    }
+
+    @ConfigEntry
+    public String getUnauthorizedExceptionPage() {
+        return configProperties.getProperty("unauthorizedExceptionPage", "/unauthorized.xhtml");
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null) {
 
