@@ -154,6 +154,9 @@ public class BeanBuilder<T> {
      * @param qualifiers the additional qualifiers to use
      */
     public BeanBuilder<T> addQualifiers(Annotation... qualifiers) {
+        if (this.qualifiers == null) {
+            this.qualifiers = new HashSet<Annotation>();
+        }
         this.qualifiers.addAll(new HashSet<Annotation>(Arrays.asList(qualifiers)));
         return this;
     }
@@ -164,6 +167,9 @@ public class BeanBuilder<T> {
      * @param qualifiers the additional qualifiers to use
      */
     public BeanBuilder<T> addQualifiers(Collection<Annotation> qualifiers) {
+        if (this.qualifiers == null) {
+            this.qualifiers = new HashSet<Annotation>();
+        }
         this.qualifiers.addAll(qualifiers);
         return this;
     }
@@ -251,6 +257,9 @@ public class BeanBuilder<T> {
      * @param types the additional types to use
      */
     public BeanBuilder<T> addTypes(Type... types) {
+        if (this.types == null) {
+            this.types = new HashSet<Type>();
+        }
         this.types.addAll(new HashSet<Type>(Arrays.asList(types)));
         return this;
     }
@@ -261,6 +270,9 @@ public class BeanBuilder<T> {
      * @param types the additional types to use
      */
     public BeanBuilder<T> addTypes(Collection<Type> types) {
+        if (this.types == null) {
+            this.types = new HashSet<Type>();
+        }
         this.types.addAll(types);
         return this;
     }

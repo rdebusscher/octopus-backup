@@ -9,14 +9,13 @@ import org.apache.shiro.web.util.WebUtils;
 
 import javax.enterprise.inject.Model;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
 import java.io.IOException;
 
 @Model
 public class LoginBean {
-
-    private static final String HOME_URL = "/";
 
     private String username;
 
@@ -27,12 +26,13 @@ public class LoginBean {
     public void doLogin() throws IOException {
         try {
             SecurityUtils.getSubject().login(new UsernamePasswordToken(username, password, remember));
+            ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
             SavedRequest savedRequest = WebUtils
-                    .getAndClearSavedRequest((ServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+                    .getAndClearSavedRequest((ServletRequest) externalContext
                                                                           .getRequest());
 
-            FacesContext.getCurrentInstance().getExternalContext()
-                        .redirect(savedRequest != null ? savedRequest.getRequestUrl() : HOME_URL);
+            externalContext
+                        .redirect(savedRequest != null ? savedRequest.getRequestUrl() : getRootUrl(externalContext));
         } catch (IncorrectCredentialsException e) {
             FacesContext.getCurrentInstance()
                         .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid password, " +
@@ -44,6 +44,16 @@ public class LoginBean {
                                 "please try again", "Unknown user, please try again"));
 
         }
+    }
+
+    private String getRootUrl(ExternalContext externalContext) {
+        return externalContext.getRequestContextPath();
+    }
+
+    public void logout() throws IOException {
+        SecurityUtils.getSubject().logout();
+        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        externalContext.redirect(getRootUrl(externalContext));
     }
 
     public String getUsername() {

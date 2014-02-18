@@ -26,6 +26,7 @@ import be.c4j.ee.security.beans.BeanBuilder;
 import be.c4j.ee.security.beans.metadata.DelegatingContextualLifecycle;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
+import be.c4j.ee.security.view.model.LoginBean;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.myfaces.extensions.cdi.core.impl.util.NamedLiteral;
 
@@ -33,12 +34,24 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
+import java.util.Set;
 
-public class PermissionVoterExtension implements Extension {
+public class SecurityModuleExtension implements Extension {
 
-    void createPermissionVoters(final @Observes AfterBeanDiscovery afterBeanDiscovery, final BeanManager beanManager) {
+    private SecurityModuleConfig config;
+
+    void configModule(final @Observes AfterBeanDiscovery afterBeanDiscovery, final BeanManager beanManager) {
+
+        config = CodiUtils.getContextualReferenceByClass(beanManager, SecurityModuleConfig.class);
+
+        createPermissionVoters(afterBeanDiscovery, beanManager);
+
+        setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
+
+    }
+
+    private void createPermissionVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
         VoterNameFactory nameFactory = CodiUtils.getContextualReferenceByClass(beanManager, VoterNameFactory.class);
-        SecurityModuleConfig config = CodiUtils.getContextualReferenceByClass(beanManager, SecurityModuleConfig.class);
 
         Class<? extends NamedPermission> c = config.getNamedPermissionClass();
 
@@ -65,6 +78,27 @@ public class PermissionVoterExtension implements Extension {
         }
     }
 
+    private void setAlternativeNameForLoginBean(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
+        Set<Bean<?>> beans = beanManager.getBeans("loginBean");
+
+        AnnotatedType<LoginBean> loginBeanAnnotatedType = beanManager
+                .createAnnotatedType(LoginBean.class);
+        InjectionTarget<LoginBean> loginInjectionTarget = beanManager
+                .createInjectionTarget(loginBeanAnnotatedType);
+
+        for (Bean<?> bean : beans) {
+
+            Bean<LoginBean> newBean = new BeanBuilder<LoginBean>(beanManager)
+                    .passivationCapable(false).beanClass(LoginBean.class)
+                    .injectionPoints(bean.getInjectionPoints()).name(config.getAliasNameLoginbean())
+                    .scope(bean.getScope()).addQualifiers(bean.getQualifiers())
+                    .addTypes(bean.getTypes()).alternative(bean.isAlternative()).nullable(bean.isNullable())
+                    .stereotypes(bean.getStereotypes())
+                    .beanLifecycle(new DelegatingContextualLifecycle(loginInjectionTarget)).create();
+            afterBeanDiscovery.addBean(newBean);
+
+        }
+    }
 
 
     private static class LifecycleCallback extends DelegatingContextualLifecycle<GenericPermissionVoter> {

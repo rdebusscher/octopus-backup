@@ -18,5 +18,5 @@
 #####################################################################################
 
 # support for @ProjectStageActivated
-be.c4j.ee.security.extension.PermissionVoterExtension
+be.c4j.ee.security.extension.SecurityModuleExtension
 

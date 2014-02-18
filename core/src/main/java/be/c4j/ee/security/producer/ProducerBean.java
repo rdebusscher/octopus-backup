@@ -25,6 +25,7 @@ import org.apache.shiro.subject.Subject;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
+import javax.inject.Named;
 
 public class ProducerBean {
 
@@ -34,4 +35,9 @@ public class ProducerBean {
         return SecurityUtils.getSubject();
     }
 
+    @Produces
+    @Named("loggedInUser")
+    public String produceUser() {
+        return SecurityUtils.getSubject().getPrincipal().toString();
+    }
 }
