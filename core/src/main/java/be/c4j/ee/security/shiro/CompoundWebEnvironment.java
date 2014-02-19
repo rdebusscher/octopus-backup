@@ -21,7 +21,7 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.SecurityModuleConfig;
-import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
+import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -29,6 +29,8 @@ import org.apache.shiro.web.config.IniFilterChainResolverFactory;
 import org.apache.shiro.web.env.IniWebEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class CompoundWebEnvironment extends IniWebEnvironment {
 
@@ -40,7 +42,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     @Override
     public void init() {
         // config used by setIni which is called by super.init().
-        config = BeanManagerProvider.getInstance().getContextualReference(SecurityModuleConfig.class);
+        config = CodiUtils.getContextualReferenceByClass(SecurityModuleConfig.class);
         super.init();
     }
 
@@ -48,15 +50,31 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     public void setIni(Ini ini) {
 
         try {
+            ini.addSection(IniFilterChainResolverFactory.URLS); // Create the empty section
+            addURLsWithNamedPermission(ini);
+
             Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});
 
             iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
-            ini.put(IniFilterChainResolverFactory.URLS, iniWithURLS.getSection(APP_URL));
+
+            addManuallyConfiguredUrls(ini.getSection(IniFilterChainResolverFactory.URLS), iniWithURLS
+                    .getSection(APP_URL));
             ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME).put("user.loginUrl", config.getLoginPage());
         } catch (ConfigurationException ex) {
             LOGGER.error("Exception during configuration of Apache Shiro", ex);
         }
 
         super.setIni(ini);
+    }
+
+    private void addManuallyConfiguredUrls(Ini.Section target, Ini.Section source) {
+        for (Map.Entry<String, String> entry: source.entrySet()) {
+            target.put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void addURLsWithNamedPermission(Ini someIni) {
+        URLPermissionProtector protector = CodiUtils.getContextualReferenceByClass(URLPermissionProtector.class);
+        protector.configurePermissions(someIni.getSection(IniFilterChainResolverFactory.URLS));
     }
 }
