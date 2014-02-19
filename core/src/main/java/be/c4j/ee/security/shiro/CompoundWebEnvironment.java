@@ -22,6 +22,7 @@ package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.SecurityModuleConfig;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -30,6 +31,8 @@ import org.apache.shiro.web.env.IniWebEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public class CompoundWebEnvironment extends IniWebEnvironment {
@@ -53,18 +56,41 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             ini.addSection(IniFilterChainResolverFactory.URLS); // Create the empty section
             addURLsWithNamedPermission(ini);
 
-            Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});
-
-            iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
+            Ini iniWithURLS = readURLPatterns();
 
             addManuallyConfiguredUrls(ini.getSection(IniFilterChainResolverFactory.URLS), iniWithURLS
                     .getSection(APP_URL));
+
             ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME).put("user.loginUrl", config.getLoginPage());
+
+            String hashAlgorithmName = config.getHashAlgorithmName();
+            if (hashAlgorithmName != null) {
+                try {
+                    MessageDigest.getInstance(hashAlgorithmName);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new IllegalArgumentException("Hash algorithm name unknown : " + hashAlgorithmName, e);
+                }
+                addHashedCredentialsConfig(ini, hashAlgorithmName);
+            }
         } catch (ConfigurationException ex) {
             LOGGER.error("Exception during configuration of Apache Shiro", ex);
         }
 
         super.setIni(ini);
+    }
+
+    private void addHashedCredentialsConfig(Ini ini, String someHashAlgorithmName) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("credentialsMatcher", HashedCredentialsMatcher.class.getName());
+        mainSection.put("credentialsMatcher.hashAlgorithmName",someHashAlgorithmName);
+        mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
+    }
+
+    private Ini readURLPatterns() {
+        Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});
+
+        iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
+        return iniWithURLS;
     }
 
     private void addManuallyConfiguredUrls(Ini.Section target, Ini.Section source) {

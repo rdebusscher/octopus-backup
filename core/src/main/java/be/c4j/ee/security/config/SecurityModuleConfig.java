@@ -92,6 +92,16 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
         return configProperties.getProperty("unauthorizedExceptionPage", "/unauthorized.xhtml");
     }
 
+    @ConfigEntry
+    public String getHashAlgorithmName() {
+        return configProperties.getProperty("hashAlgorithmName", null);
+    }
+
+    @ConfigEntry
+    public String getSaltLength() {
+        return configProperties.getProperty("saltLength", "0");
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null) {
 
