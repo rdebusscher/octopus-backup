@@ -21,6 +21,7 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.SecurityModuleConfig;
+import be.c4j.ee.security.realm.CDIModularRealmAuthenticator;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
@@ -72,11 +73,19 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                 }
                 addHashedCredentialsConfig(ini, hashAlgorithmName);
             }
+
+            addAuthenticationListener(ini);
         } catch (ConfigurationException ex) {
             LOGGER.error("Exception during configuration of Apache Shiro", ex);
         }
 
         super.setIni(ini);
+    }
+
+    private void addAuthenticationListener(Ini ini) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("CDIAuthenticator", CDIModularRealmAuthenticator.class.getName());
+        mainSection.put("securityManager.authenticator", "$CDIAuthenticator");
     }
 
     private void addHashedCredentialsConfig(Ini ini, String someHashAlgorithmName) {
