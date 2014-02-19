@@ -23,7 +23,7 @@ package be.c4j.ee.security.model;
 import java.io.Serializable;
 import java.security.Principal;
 
-public class UserPrincipal implements Principal {
+public class UserPrincipal implements Principal, Serializable {
 
     private Serializable id;
 
