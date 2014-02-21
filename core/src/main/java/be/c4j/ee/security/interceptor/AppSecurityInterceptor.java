@@ -24,6 +24,7 @@ import be.c4j.ee.security.config.SecurityModuleConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.permission.CustomPermissionCheck;
 import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.util.AnnotationUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
@@ -42,7 +43,6 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -126,7 +126,7 @@ public class AppSecurityInterceptor implements Serializable {
 
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
 
-        for ( Object permissionConstant :  getValue(customNamedCheck)) {
+        for ( Object permissionConstant :  AnnotationUtil.getValue(customNamedCheck)) {
                 String beanName = nameFactory.generatePermissionBeanName( ((NamedPermission) permissionConstant).name());
 
                 AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
@@ -134,24 +134,6 @@ public class AppSecurityInterceptor implements Serializable {
                 result.addAll(voter.checkPermission(invocationContext));
 
         }
-        return result;
-    }
-
-    private <T extends NamedPermission> T[] getValue(Annotation someCustomNamedCheck) {
-        T[] result = null;
-        for (Method method : someCustomNamedCheck.getClass().getDeclaredMethods()) {
-            if ("value".equals(method.getName())) {
-                try {
-                    result = (T[]) method.invoke(someCustomNamedCheck, null);
-
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
         return result;
     }
 

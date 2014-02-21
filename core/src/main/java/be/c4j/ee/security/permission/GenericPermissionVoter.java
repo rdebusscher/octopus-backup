@@ -18,7 +18,6 @@
  */
 package be.c4j.ee.security.permission;
 
-import be.c4j.ee.security.permission.NamedDomainPermission;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
 import org.apache.shiro.authz.AuthorizationException;

@@ -40,7 +40,7 @@ public class SecurityModuleExtension implements Extension {
 
     private SecurityModuleConfig config;
 
-    void configModule(final @Observes AfterBeanDiscovery afterBeanDiscovery, final BeanManager beanManager) {
+    void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
         config = CodiUtils.getContextualReferenceByClass(beanManager, SecurityModuleConfig.class);
 
