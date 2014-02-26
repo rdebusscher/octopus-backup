@@ -1,2 +1,34 @@
 This chapter gives an explanation of the concepts which are used throughout this manual and the software.
 
+
+=== Authentication
+
+Authentication is the process of verifying the credentials the user has entered to make sure that the user of our application is who he is.  Well, we can never be sure, but the classic approach is that we verify the user name and password submitted by the user with the values we have stored somewhere.
+
+=== Authorization
+
+Authorization is then in a second step, to shield some parts of the application from certain users because they are not allowed to see the information or execute the actions which are foreseen in that area.
+
+=== Permission
+
+A +Permission+ represents the ability to perform an action or access a resource. A Permission is the most granular, or atomic, unit in a system's security policy.
+
+=== Domain permission
+
+This concept is taken from Apache Shiro.
+In case of a domain permission, you enlarge the concept of having a permission.  The permission is divided in 3 parts, the functional area it is assigned to, called the domain, and also that the action and the target of to the permission.
+In our example, we can define all the permissions related to the functional area department as having the the _domain_ *department*. And we can imagine that we have _actions_ like read, create, list and so on.
+And in the case we have a very fine grained authorization policy, we can define that some of those actions are only allowed for a certain department. For example the department where the employee is working in.  The _target_ could then be the value +own+.  Other actions, like list the name of the departments, should probably allowed by every one.  And then we can specify ere the wildcard *.
+
+The wildcard can be very handy when we need to define a person which has all permissions for the domain. Then we can specify the * for the value of _actions_.
+
+So from now on we will indicate the domain permissions in the following format: #domain:actions:target#, for example #department:list:*#
+
+Other features of Apache Shiro related to the domain permission are also available in the framework. See ??? for some more examples.
+
+=== Named (domain) permission
+
+The named permission which is used by Octopus framework, can be seen as a kind of simplification. There are situations that don't need the more fine grained approach of domain, actions and targets.  They have enough with a simple name.
+But if you do use the domain permission concepts, we would like to refer to this permission in a programmatic style, by defining a variable for it.  So we could refer to department:list:* with +DEPARTMENT_READ+
+
+
