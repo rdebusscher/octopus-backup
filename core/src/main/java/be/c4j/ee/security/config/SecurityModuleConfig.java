@@ -18,6 +18,7 @@
  */
 package be.c4j.ee.security.config;
 
+import be.c4j.ee.security.exception.ConfigurationException;
 import be.c4j.ee.security.permission.NamedPermission;
 import org.apache.myfaces.extensions.cdi.core.api.config.AbstractAttributeAware;
 import org.apache.myfaces.extensions.cdi.core.api.config.CodiConfig;
@@ -117,10 +118,13 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     public Class<? extends NamedPermission> getNamedPermissionClass() {
         if (namedPermissionClass == null) {
 
+            if (getNamedPermission() == null) {
+                throw new ConfigurationException("configuration option 'namedPermission' is required.");
+            }
             try {
                 namedPermissionClass = (Class<? extends NamedPermission>) Class.forName(getNamedPermission());
             } catch (ClassNotFoundException e) {
-                LOGGER.error("Class defined in configuration property namedPermissionCheck is not found", e);
+                LOGGER.error("Class defined in configuration property 'namedPermission' is not found", e);
             }
         }
         return namedPermissionClass;

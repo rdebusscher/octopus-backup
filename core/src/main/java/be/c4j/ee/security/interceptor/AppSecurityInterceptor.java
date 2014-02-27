@@ -97,12 +97,15 @@ public class AppSecurityInterceptor implements Serializable {
                 subject.checkPermissions(permissions.value());
             }
 
-            Annotation namedPermissionCheck = getAnnotation(annotations, config.getNamedPermissionCheckClass());
-            if (namedPermissionCheck != null) {
-                Set<SecurityViolation> securityViolations = performCustomNamedChecks(namedPermissionCheck, context);
-                if (!securityViolations.isEmpty()) {
+            if (config.getNamedPermissionCheckClass() != null) {
 
-                    throw new UnauthorizedException(getMessage(securityViolations));
+                Annotation namedPermissionCheck = getAnnotation(annotations, config.getNamedPermissionCheckClass());
+                if (namedPermissionCheck != null) {
+                    Set<SecurityViolation> securityViolations = performCustomNamedChecks(namedPermissionCheck, context);
+                    if (!securityViolations.isEmpty()) {
+
+                        throw new UnauthorizedException(getMessage(securityViolations));
+                    }
                 }
             }
 

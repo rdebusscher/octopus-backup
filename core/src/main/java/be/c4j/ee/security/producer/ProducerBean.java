@@ -38,6 +38,11 @@ public class ProducerBean {
     @Produces
     @Named("loggedInUser")
     public String produceUser() {
-        return SecurityUtils.getSubject().getPrincipal().toString();
+        Object principal = SecurityUtils.getSubject().getPrincipal();
+        if (principal != null) {
+            return principal.toString();
+        } else {
+            return null;
+        }
     }
 }
