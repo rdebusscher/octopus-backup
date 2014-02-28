@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+<h:head>
+
+</h:head>
+<h:body>
+    <h2>Login</h2>
+    <h:form id="login">
+        <h:panelGrid columns="2">
+            <p:outputLabel for="username" value="Username:"/>
+            <p:inputText id="username" value="#{loginBean.username}" required="true"/>
+
+            <p:outputLabel for="password" value="Password:"/>
+            <p:password id="password" value="#{loginBean.password}" required="true" feedback="" />
+
+            <p:outputLabel for="rememberMe" value="Remember Me:"/>
+            <p:selectBooleanCheckbox id="rememberMe" value="#{loginBean.remember}"/>
+
+            <h:panelGroup/>
+            <p:commandButton value="Login" actionListener="#{loginBean.doLogin}"/>
+
+        </h:panelGrid>
+        <p:messages globalOnly="true" layout="table" autoUpdate="true"/>
+    </h:form>
+    Fot this starter, password is the same as username and any username will be accepted.
+</h:body>
+</html>
