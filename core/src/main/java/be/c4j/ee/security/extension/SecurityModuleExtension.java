@@ -57,26 +57,29 @@ public class SecurityModuleExtension implements Extension {
 
         Class<? extends NamedPermission> c = config.getNamedPermissionClass();
 
-        Object[] constants = c.getEnumConstants();
+        if (c != null) {
 
-        AnnotatedType<GenericPermissionVoter> permissionVoterAnnotatedType = beanManager
-                .createAnnotatedType(GenericPermissionVoter.class);
-        InjectionTarget<GenericPermissionVoter> voterInjectionTarget = beanManager
-                .createInjectionTarget(permissionVoterAnnotatedType);
+            Object[] constants = c.getEnumConstants();
 
-        NamedPermission namedPermission;
-        String beanName;
+            AnnotatedType<GenericPermissionVoter> permissionVoterAnnotatedType = beanManager
+                    .createAnnotatedType(GenericPermissionVoter.class);
+            InjectionTarget<GenericPermissionVoter> voterInjectionTarget = beanManager
+                    .createInjectionTarget(permissionVoterAnnotatedType);
 
-        for (Object permission : constants) {
-            namedPermission = (NamedPermission) permission;
-            beanName = nameFactory.generatePermissionBeanName(namedPermission.name());
+            NamedPermission namedPermission;
+            String beanName;
 
-            Bean<GenericPermissionVoter> bean = new BeanBuilder<GenericPermissionVoter>(beanManager)
-                    .passivationCapable(false).beanClass(GenericPermissionVoter.class)
-                    .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
-                    .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
-                    .beanLifecycle(new LifecycleCallback(voterInjectionTarget, namedPermission)).create();
-            afterBeanDiscovery.addBean(bean);
+            for (Object permission : constants) {
+                namedPermission = (NamedPermission) permission;
+                beanName = nameFactory.generatePermissionBeanName(namedPermission.name());
+
+                Bean<GenericPermissionVoter> bean = new BeanBuilder<GenericPermissionVoter>(beanManager)
+                        .passivationCapable(false).beanClass(GenericPermissionVoter.class)
+                        .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
+                        .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
+                        .beanLifecycle(new LifecycleCallback(voterInjectionTarget, namedPermission)).create();
+                afterBeanDiscovery.addBean(bean);
+            }
         }
     }
 

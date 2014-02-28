@@ -118,13 +118,12 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     public Class<? extends NamedPermission> getNamedPermissionClass() {
         if (namedPermissionClass == null) {
 
-            if (getNamedPermission() == null) {
-                throw new ConfigurationException("configuration option 'namedPermission' is required.");
-            }
-            try {
-                namedPermissionClass = (Class<? extends NamedPermission>) Class.forName(getNamedPermission());
-            } catch (ClassNotFoundException e) {
-                LOGGER.error("Class defined in configuration property 'namedPermission' is not found", e);
+            if (getNamedPermission() != null) {
+                try {
+                    namedPermissionClass = (Class<? extends NamedPermission>) Class.forName(getNamedPermission());
+                } catch (ClassNotFoundException e) {
+                    LOGGER.error("Class defined in configuration property 'namedPermission' is not found", e);
+                }
             }
         }
         return namedPermissionClass;
