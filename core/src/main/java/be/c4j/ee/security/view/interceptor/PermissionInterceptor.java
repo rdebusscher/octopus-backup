@@ -23,7 +23,7 @@ package be.c4j.ee.security.view.interceptor;
 
 import be.c4j.ee.security.view.component.SecuredComponent;
 import be.c4j.ee.security.view.component.SecuredComponentData;
-import be.c4j.ee.security.view.component.service.PermissionService;
+import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
 import org.apache.myfaces.extensions.validator.core.interceptor.RendererInterceptor;
 import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipAfterInterceptorsException;
 import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipBeforeInterceptorsException;
@@ -44,7 +44,7 @@ public class PermissionInterceptor implements RendererInterceptor {
 
     private Set<UIComponent> componentSet = new HashSet<UIComponent>();
 
-    private static PermissionService permissionService;
+    private ComponentAuthorizationService componentAuthorizationService;
 
     @Override
     public String getInterceptorId() {
@@ -99,7 +99,7 @@ public class PermissionInterceptor implements RendererInterceptor {
         SecuredComponentData data = (SecuredComponentData) someUiComponent.getAttributes().get(SecuredComponent.DATA);
         if (data != null) {
             checkPermissionService();
-            result = permissionService.hasAccess(data);
+            result = componentAuthorizationService.hasAccess(data);
         }
         return result;
     }
@@ -169,9 +169,9 @@ public class PermissionInterceptor implements RendererInterceptor {
         // No implementation required.
     }
 
-    private static void checkPermissionService() {
-        if (permissionService == null) {
-            permissionService = new PermissionService();
+    private void checkPermissionService() {
+        if (componentAuthorizationService == null) {
+            componentAuthorizationService = new ComponentAuthorizationService();
         }
     }
 

@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.el.ValueExpression;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
 import javax.interceptor.InvocationContext;
@@ -41,13 +42,14 @@ import java.util.Set;
 /**
  * @author Rudy De Busscher
  */
-public class PermissionService {
+@ApplicationScoped
+public class ComponentAuthorizationService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     private BeanManager beanManager;
 
-    public PermissionService() {
+    public ComponentAuthorizationService() {
         beanManager = BeanManagerProvider.getInstance().getBeanManager();
     }
 

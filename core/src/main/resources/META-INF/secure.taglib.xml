@@ -35,7 +35,19 @@
         <attribute>
             <description>Defines the voter(s) that will be used for this. multiple names separated by a ,</description>
             <name>voter</name>
-            <required>true</required>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Defines the permission(s) that will be used for this. multiple names separated by a ,</description>
+            <name>permission</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Defines the role(s) that will be used for this. multiple names separated by a ,</description>
+            <name>role</name>
+            <required>false</required>
             <type>java.lang.String</type>
         </attribute>
         <attribute>

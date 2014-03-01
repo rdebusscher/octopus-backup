@@ -21,7 +21,9 @@
 
 package be.c4j.ee.security.view.component;
 
-import be.c4j.ee.security.view.component.service.PermissionService;
+import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
+import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.myfaces.extensions.validator.util.JsfUtils;
 
 import javax.el.ValueExpression;
@@ -41,7 +43,12 @@ import java.util.List;
  * @author Rudy De Busscher
  */
 public class SecuredComponentHandler extends ComponentHandler {
-    private static PermissionService permissionService;
+
+    // ComponentAuthorizationService is a CDI bean, but this bean is not CDI managed
+    private ComponentAuthorizationService componentAuthorizationService;
+
+    // VoterNameFactory is a CDI bean, but this bean is not CDI managed
+    private VoterNameFactory voterNameFactory;
 
     public SecuredComponentHandler(ComponentConfig config) {
         super(config);
@@ -50,7 +57,10 @@ public class SecuredComponentHandler extends ComponentHandler {
     @Override
     public void onComponentPopulated(FaceletContext ctx, UIComponent component, UIComponent parent) {
         super.onComponentPopulated(ctx, component, parent);
-        String voter = findValue(component, "voter", String.class);
+        checkServices();
+
+        String voter = getVoterName(component);
+
         Boolean not = findValue(component, "not", Boolean.class);
         if (not == null) {
             not = Boolean.FALSE;
@@ -69,8 +79,7 @@ public class SecuredComponentHandler extends ComponentHandler {
 
         if (JsfUtils.isRenderResponsePhase() && !data.hasAtRuntimeParameter()) {
 
-            checkPermissionService();
-            if (!permissionService.hasAccess(data)) {
+            if (!componentAuthorizationService.hasAccess(data)) {
                 for (UIComponent targetComponent : targets) {
                     SecuredComponentData dataForTarget = new SecuredComponentData(data);
                     dataForTarget.setTargetComponent(targetComponent);
@@ -85,6 +94,23 @@ public class SecuredComponentHandler extends ComponentHandler {
                 targetComponent.getAttributes().put(SecuredComponent.DATA, dataForTarget);
             }
         }
+    }
+
+    private String getVoterName(UIComponent component) {
+        String voter = findValue(component, "voter", String.class);
+        if (voter == null || voter.length() == 0) {
+            String permission = findValue(component, "permission", String.class);
+            if (permission != null && permission.length() != 0) {
+                voter = voterNameFactory.generatePermissionBeanName(permission);
+            }
+        }
+        if (voter == null || voter.length() == 0) {
+            String role = findValue(component, "role", String.class);
+            if (role != null && role.length() != 0) {
+                voter = voterNameFactory.generateRoleBeanName(role);
+            }
+        }
+        return voter;
     }
 
     private static void setNoAccess(final UIComponent targetComponent, final SecuredComponentData dataForTarget) {
@@ -177,9 +203,10 @@ public class SecuredComponentHandler extends ComponentHandler {
         return result;
     }
 
-    private static void checkPermissionService() {
-        if (permissionService == null) {
-            permissionService = new PermissionService();
+    private void checkServices() {
+        if (componentAuthorizationService == null) {
+            componentAuthorizationService = CodiUtils.getContextualReferenceByClass(ComponentAuthorizationService.class);
+            voterNameFactory = CodiUtils.getContextualReferenceByClass(VoterNameFactory.class);
         }
     }
 
