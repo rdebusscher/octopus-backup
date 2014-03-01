@@ -24,6 +24,7 @@ import be.c4j.ee.security.config.SecurityModuleConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.permission.CustomPermissionCheck;
 import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
@@ -101,7 +102,19 @@ public class AppSecurityInterceptor implements Serializable {
 
                 Annotation namedPermissionCheck = getAnnotation(annotations, config.getNamedPermissionCheckClass());
                 if (namedPermissionCheck != null) {
-                    Set<SecurityViolation> securityViolations = performCustomNamedChecks(namedPermissionCheck, context);
+                    Set<SecurityViolation> securityViolations = performNamedPermissionChecks(namedPermissionCheck, context);
+                    if (!securityViolations.isEmpty()) {
+
+                        throw new UnauthorizedException(getMessage(securityViolations));
+                    }
+                }
+            }
+
+            if (config.getNamedRoleCheckClass() != null) {
+
+                Annotation namedRoleCheck = getAnnotation(annotations, config.getNamedRoleCheckClass());
+                if (namedRoleCheck != null) {
+                    Set<SecurityViolation> securityViolations = performNamedRoleChecks(namedRoleCheck, context);
                     if (!securityViolations.isEmpty()) {
 
                         throw new UnauthorizedException(getMessage(securityViolations));
@@ -124,17 +137,33 @@ public class AppSecurityInterceptor implements Serializable {
         return context.proceed();
     }
 
-    private Set<SecurityViolation> performCustomNamedChecks(Annotation customNamedCheck, InvocationContext invocationContext) {
+    private Set<SecurityViolation> performNamedPermissionChecks(Annotation customNamedCheck, InvocationContext invocationContext) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
 
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
 
-        for ( Object permissionConstant :  AnnotationUtil.getValue(customNamedCheck)) {
+        for ( Object permissionConstant :  AnnotationUtil.getPermissionValues(customNamedCheck)) {
                 String beanName = nameFactory.generatePermissionBeanName( ((NamedPermission) permissionConstant).name());
 
                 AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
                                                                                            , AbstractAccessDecisionVoter.class);
                 result.addAll(voter.checkPermission(invocationContext));
+
+        }
+        return result;
+    }
+
+    private Set<SecurityViolation> performNamedRoleChecks(Annotation customNamedCheck, InvocationContext invocationContext) {
+        Set<SecurityViolation> result = new HashSet<SecurityViolation>();
+
+        BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
+
+        for ( Object permissionConstant :  AnnotationUtil.getRoleValues(customNamedCheck)) {
+            String beanName = nameFactory.generateRoleBeanName( ((NamedRole) permissionConstant).name());
+
+            AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
+                    , AbstractAccessDecisionVoter.class);
+            result.addAll(voter.checkPermission(invocationContext));
 
         }
         return result;
@@ -167,7 +196,9 @@ public class AppSecurityInterceptor implements Serializable {
         if (config.getNamedPermissionCheckClass() != null) {
             result.add(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
         }
-
+        if (config.getNamedRoleCheckClass() != null) {
+            result.add(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
+        }
         result.add(getAnnotation(someClassType, PermitAll.class));
         result.add(getAnnotation(someClassType, RequiresAuthentication.class));
         result.add(getAnnotation(someClassType, RequiresGuest.class));
@@ -177,7 +208,9 @@ public class AppSecurityInterceptor implements Serializable {
         if (config.getNamedPermissionCheckClass() != null) {
             result.add(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
         }
-
+        if (config.getNamedRoleCheckClass() != null) {
+            result.add(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
+        }
         result.remove(null);
         return result;
     }

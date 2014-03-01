@@ -6,6 +6,10 @@ import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
+import be.c4j.ee.security.role.GenericRoleVoter;
+import be.c4j.ee.security.role.NamedApplicationRole;
+import be.c4j.ee.security.role.NamedRole;
+import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
@@ -17,7 +21,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 
-public class NamedPermissionProducer {
+public class NamedRoleProducer {
 
     @Inject
     private SecurityModuleConfig config;
@@ -26,40 +30,40 @@ public class NamedPermissionProducer {
     private VoterNameFactory nameFactory;
 
     @Inject
-    private PermissionLookup<? extends NamedPermission> lookup;
+    private RoleLookup<? extends NamedRole> lookup;
 
     @Produces
-    public GenericPermissionVoter getVoter(InjectionPoint injectionPoint) {
-        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedPermissionCheckClass());
+    public GenericRoleVoter getVoter(InjectionPoint injectionPoint) {
+        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedRoleCheckClass());
         if (annotation == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for GenericPermissionVoter needs an additional " + config.getNamedPermissionCheck() +
+                    "Injection points for GenericRoleVoter needs an additional " + config.getNamedRoleCheck() +
                             " annotation to determine the correct bean");
         }
-        NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
-        if (permissions.length>1) {
-            throw new AmbiguousResolutionException("Only one named permission can be specified.");
+        NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
+        if (roles.length>1) {
+            throw new AmbiguousResolutionException("Only one named role can be specified.");
         }
 
 
         return CodiUtils.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
-                .generatePermissionBeanName(permissions[0].name()), GenericPermissionVoter.class);
+                .generateRoleBeanName(roles[0].name()), GenericRoleVoter.class);
     }
 
     @Produces
-    public NamedDomainPermission getPermission(InjectionPoint injectionPoint) {
-        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedPermissionCheckClass());
+    public NamedApplicationRole getRole(InjectionPoint injectionPoint) {
+        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedRoleCheckClass());
         if (annotation == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for NamedDomainPermission needs an additional " + config.getNamedPermissionCheck() +
+                    "Injection points for NamedApplicationRole needs an additional " + config.getNamedPermissionCheck() +
                             " annotation to determine the correct bean");
         }
-        NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
-        if (permissions.length>1) {
-            throw new AmbiguousResolutionException("Only one named permission can be specified.");
+        NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
+        if (roles.length>1) {
+            throw new AmbiguousResolutionException("Only one named role can be specified.");
         }
 
-        return lookup.getPermission(permissions[0].name());
+        return lookup.getRole(roles[0].name());
 
     }
 

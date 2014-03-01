@@ -18,8 +18,8 @@
  */
 package be.c4j.ee.security.config;
 
-import be.c4j.ee.security.exception.ConfigurationException;
 import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.role.NamedRole;
 import org.apache.myfaces.extensions.cdi.core.api.config.AbstractAttributeAware;
 import org.apache.myfaces.extensions.cdi.core.api.config.CodiConfig;
 import org.apache.myfaces.extensions.cdi.core.api.config.ConfigEntry;
@@ -43,6 +43,10 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     private Class<? extends Annotation> namedPermissionCheckClass;
 
     private Class<? extends NamedPermission> namedPermissionClass;
+
+    private Class<? extends Annotation> namedRoleCheckClass;
+
+    private Class<? extends NamedRole> namedRoleClass;
 
     protected SecurityModuleConfig() {
 
@@ -79,6 +83,16 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     }
 
     @ConfigEntry
+    public String getNamedRole() {
+        return configProperties.getProperty("namedRole", null);
+    }
+
+    @ConfigEntry
+    public String getNamedRoleCheck() {
+        return configProperties.getProperty("namedRoleCheck", null);
+    }
+
+    @ConfigEntry
     public String getAliasNameLoginbean() {
         return configProperties.getProperty("aliasNameLoginBean", null);
     }
@@ -104,7 +118,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     }
 
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
-        if (namedPermissionCheckClass == null) {
+        if (namedPermissionCheckClass == null && getNamedPermissionCheck() != null) {
 
             try {
                 namedPermissionCheckClass = (Class<? extends Annotation>) Class.forName(getNamedPermissionCheck());
@@ -129,5 +143,29 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
         return namedPermissionClass;
     }
 
+    public Class<? extends Annotation> getNamedRoleCheckClass() {
+        if (namedRoleCheckClass == null && getNamedRoleCheck() != null) {
 
+            try {
+                namedRoleCheckClass = (Class<? extends Annotation>) Class.forName(getNamedRoleCheck());
+            } catch (ClassNotFoundException e) {
+                LOGGER.error("Class defined in configuration property namedPermissionCheck is not found", e);
+            }
+        }
+        return namedRoleCheckClass;
+    }
+
+    public Class<? extends NamedRole> getNamedRoleClass() {
+        if (namedRoleClass == null) {
+
+            if (getNamedRole() != null) {
+                try {
+                    namedRoleClass = (Class<? extends NamedRole>) Class.forName(getNamedRole());
+                } catch (ClassNotFoundException e) {
+                    LOGGER.error("Class defined in configuration property 'namedRole' is not found", e);
+                }
+            }
+        }
+        return namedRoleClass;
+    }
 }

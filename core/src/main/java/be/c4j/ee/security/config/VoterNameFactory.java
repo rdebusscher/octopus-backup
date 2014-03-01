@@ -21,7 +21,21 @@ package be.c4j.ee.security.config;
 public class VoterNameFactory {
 
     public String generatePermissionBeanName(String permissionName) {
-        String[] parts = permissionName.toLowerCase().split("_");
+        StringBuilder result = transformName(permissionName);
+        result.append("PermissionVoter");
+        return result.toString();
+
+    }
+
+    public String generateRoleBeanName(String roleName) {
+        StringBuilder result = transformName(roleName);
+        result.append("RoleVoter");
+        return result.toString();
+
+    }
+
+    private StringBuilder transformName(String roleName) {
+        String[] parts = roleName.toLowerCase().split("_");
         if (parts.length > 1) {
             for (int i = 1; i < parts.length; i++) {
                 parts[i] = capitalize(parts[i]);
@@ -31,9 +45,7 @@ public class VoterNameFactory {
         for (String part : parts) {
             result.append(part);
         }
-        result.append("PermissionVoter");
-        return result.toString();
-
+        return result;
     }
 
     private String capitalize(String line) {

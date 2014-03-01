@@ -26,6 +26,9 @@ import be.c4j.ee.security.beans.BeanBuilder;
 import be.c4j.ee.security.beans.metadata.DelegatingContextualLifecycle;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
+import be.c4j.ee.security.role.GenericRoleVoter;
+import be.c4j.ee.security.role.NamedRole;
+import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.view.model.LoginBean;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.myfaces.extensions.cdi.core.impl.util.NamedLiteral;
@@ -45,6 +48,7 @@ public class SecurityModuleExtension implements Extension {
         config = CodiUtils.getContextualReferenceByClass(beanManager, SecurityModuleConfig.class);
 
         createPermissionVoters(afterBeanDiscovery, beanManager);
+        createRoleVoters(afterBeanDiscovery, beanManager);
 
         if (config.getAliasNameLoginbean() != null) {
             setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
@@ -77,7 +81,38 @@ public class SecurityModuleExtension implements Extension {
                         .passivationCapable(false).beanClass(GenericPermissionVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
                         .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
-                        .beanLifecycle(new LifecycleCallback(voterInjectionTarget, namedPermission)).create();
+                        .beanLifecycle(new PermissionLifecycleCallback(voterInjectionTarget, namedPermission)).create();
+                afterBeanDiscovery.addBean(bean);
+            }
+        }
+    }
+
+    private void createRoleVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
+        VoterNameFactory nameFactory = CodiUtils.getContextualReferenceByClass(beanManager, VoterNameFactory.class);
+
+        Class<? extends NamedRole> c = config.getNamedRoleClass();
+
+        if (c != null) {
+
+            Object[] constants = c.getEnumConstants();
+
+            AnnotatedType<GenericRoleVoter> roleVoterAnnotatedType = beanManager
+                    .createAnnotatedType(GenericRoleVoter.class);
+            InjectionTarget<GenericRoleVoter> voterInjectionTarget = beanManager
+                    .createInjectionTarget(roleVoterAnnotatedType);
+
+            NamedRole namedRole;
+            String beanName;
+
+            for (Object permission : constants) {
+                namedRole = (NamedRole) permission;
+                beanName = nameFactory.generateRoleBeanName(namedRole.name());
+
+                Bean<GenericRoleVoter> bean = new BeanBuilder<GenericRoleVoter>(beanManager)
+                        .passivationCapable(false).beanClass(GenericRoleVoter.class)
+                        .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
+                        .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
+                        .beanLifecycle(new RoleLifecycleCallback(voterInjectionTarget, namedRole)).create();
                 afterBeanDiscovery.addBean(bean);
             }
         }
@@ -106,11 +141,11 @@ public class SecurityModuleExtension implements Extension {
     }
 
 
-    private static class LifecycleCallback extends DelegatingContextualLifecycle<GenericPermissionVoter> {
+    private static class PermissionLifecycleCallback extends DelegatingContextualLifecycle<GenericPermissionVoter> {
 
         private NamedPermission namedPermission;
 
-        public LifecycleCallback(InjectionTarget<GenericPermissionVoter> injectionTarget, NamedPermission
+        public PermissionLifecycleCallback(InjectionTarget<GenericPermissionVoter> injectionTarget, NamedPermission
                 someNamedPermission) {
             super(injectionTarget);
             namedPermission = someNamedPermission;
@@ -134,6 +169,38 @@ public class SecurityModuleExtension implements Extension {
         @Override
         public void destroy(Bean<GenericPermissionVoter> bean, GenericPermissionVoter instance,
                             CreationalContext<GenericPermissionVoter> creationalContext) {
+            super.destroy(bean, instance, creationalContext);
+        }
+    }
+
+    private static class RoleLifecycleCallback extends DelegatingContextualLifecycle<GenericRoleVoter> {
+
+        private NamedRole namedRole;
+
+        public RoleLifecycleCallback(InjectionTarget<GenericRoleVoter> injectionTarget, NamedRole
+                someNamedRole) {
+            super(injectionTarget);
+            namedRole = someNamedRole;
+        }
+
+        @Override
+        public GenericRoleVoter create(Bean<GenericRoleVoter> bean,
+                                             CreationalContext<GenericRoleVoter> creationalContext) {
+            GenericRoleVoter result = super.create(bean, creationalContext);
+
+            // We can't move this to the Extension itself.
+            // The producer of this PermissionLookup goes to the database and this isn't possible until we are completely ready.
+
+            RoleLookup<? extends NamedRole> roleLookup = CodiUtils.getContextualReferenceByClass(RoleLookup.class);
+
+
+            result.setNamedRole(roleLookup.getRole(namedRole.name()));
+            return result;
+        }
+
+        @Override
+        public void destroy(Bean<GenericRoleVoter> bean, GenericRoleVoter instance,
+                            CreationalContext<GenericRoleVoter> creationalContext) {
             super.destroy(bean, instance, creationalContext);
         }
     }
