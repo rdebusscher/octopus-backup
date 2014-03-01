@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package be.c4j.ee.security.permission;
+package be.c4j.ee.security.custom;
 
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 
@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
 // FIXME This must become CustomAuthzCheck
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CustomPermissionCheck {
+public @interface CustomAuthzCheck {
     Class<? extends AbstractAccessDecisionVoter>[] value();
 }

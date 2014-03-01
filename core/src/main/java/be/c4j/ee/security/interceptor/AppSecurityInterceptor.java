@@ -22,7 +22,7 @@ package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.config.SecurityModuleConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
-import be.c4j.ee.security.permission.CustomPermissionCheck;
+import be.c4j.ee.security.custom.CustomAuthzCheck;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
@@ -122,7 +122,7 @@ public class AppSecurityInterceptor implements Serializable {
                 }
             }
 
-            CustomPermissionCheck customCheck = getAnnotation(annotations, CustomPermissionCheck.class);
+            CustomAuthzCheck customCheck = getAnnotation(annotations, CustomAuthzCheck.class);
 
             if (customCheck != null) {
                 Set<SecurityViolation> securityViolations = performCustomChecks(customCheck, context);
@@ -159,7 +159,7 @@ public class AppSecurityInterceptor implements Serializable {
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
 
         for ( Object permissionConstant :  AnnotationUtil.getRoleValues(customNamedCheck)) {
-            String beanName = nameFactory.generateRoleBeanName( ((NamedRole) permissionConstant).name());
+            String beanName = nameFactory.generateRoleBeanName(((NamedRole) permissionConstant).name());
 
             AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
                     , AbstractAccessDecisionVoter.class);
@@ -173,7 +173,7 @@ public class AppSecurityInterceptor implements Serializable {
         return securityViolations.iterator().next().getReason();
     }
 
-    private Set<SecurityViolation> performCustomChecks(CustomPermissionCheck customCheck, InvocationContext invocationContext) {
+    private Set<SecurityViolation> performCustomChecks(CustomAuthzCheck customCheck, InvocationContext invocationContext) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
         for ( Class<? extends AbstractAccessDecisionVoter> clsName :  customCheck.value()) {
             AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByClass(clsName);
@@ -192,7 +192,7 @@ public class AppSecurityInterceptor implements Serializable {
         result.add(someMethod.getAnnotation(RequiresUser.class));
         result.add(someMethod.getAnnotation(RequiresRoles.class));
         result.add(someMethod.getAnnotation(RequiresPermissions.class));
-        result.add(someMethod.getAnnotation(CustomPermissionCheck.class));
+        result.add(someMethod.getAnnotation(CustomAuthzCheck.class));
         if (config.getNamedPermissionCheckClass() != null) {
             result.add(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
         }
