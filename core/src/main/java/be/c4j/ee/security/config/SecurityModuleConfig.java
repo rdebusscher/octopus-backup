@@ -74,22 +74,22 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
 
     @ConfigEntry
     public String getNamedPermission() {
-        return configProperties.getProperty("namedPermission", null);
+        return configProperties.getProperty("namedPermission.class", null);
     }
 
     @ConfigEntry
     public String getNamedPermissionCheck() {
-        return configProperties.getProperty("namedPermissionCheck", null);
+        return configProperties.getProperty("namedPermissionCheck.class", null);
     }
 
     @ConfigEntry
     public String getNamedRole() {
-        return configProperties.getProperty("namedRole", null);
+        return configProperties.getProperty("namedRole.class", null);
     }
 
     @ConfigEntry
     public String getNamedRoleCheck() {
-        return configProperties.getProperty("namedRoleCheck", null);
+        return configProperties.getProperty("namedRoleCheck.class", null);
     }
 
     @ConfigEntry
