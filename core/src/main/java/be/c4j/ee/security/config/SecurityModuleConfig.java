@@ -74,27 +74,27 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
 
     @ConfigEntry
     public String getNamedPermission() {
-        return configProperties.getProperty("namedPermission.class", null);
+        return configProperties.getProperty("namedPermission.class", "");
     }
 
     @ConfigEntry
     public String getNamedPermissionCheck() {
-        return configProperties.getProperty("namedPermissionCheck.class", null);
+        return configProperties.getProperty("namedPermissionCheck.class", "");
     }
 
     @ConfigEntry
     public String getNamedRole() {
-        return configProperties.getProperty("namedRole.class", null);
+        return configProperties.getProperty("namedRole.class", "");
     }
 
     @ConfigEntry
     public String getNamedRoleCheck() {
-        return configProperties.getProperty("namedRoleCheck.class", null);
+        return configProperties.getProperty("namedRoleCheck.class", "");
     }
 
     @ConfigEntry
     public String getAliasNameLoginbean() {
-        return configProperties.getProperty("aliasNameLoginBean", null);
+        return configProperties.getProperty("aliasNameLoginBean", "");
     }
 
     @ConfigEntry
@@ -109,7 +109,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
 
     @ConfigEntry
     public String getHashAlgorithmName() {
-        return configProperties.getProperty("hashAlgorithmName", null);
+        return configProperties.getProperty("hashAlgorithmName", "");
     }
 
     @ConfigEntry
@@ -118,7 +118,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     }
 
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
-        if (namedPermissionCheckClass == null && getNamedPermissionCheck() != null) {
+        if (namedPermissionCheckClass == null && getNamedPermissionCheck().length() != 0) {
 
             try {
                 namedPermissionCheckClass = (Class<? extends Annotation>) Class.forName(getNamedPermissionCheck());
@@ -132,7 +132,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     public Class<? extends NamedPermission> getNamedPermissionClass() {
         if (namedPermissionClass == null) {
 
-            if (getNamedPermission() != null) {
+            if (getNamedPermission().length() != 0) {
                 try {
                     namedPermissionClass = (Class<? extends NamedPermission>) Class.forName(getNamedPermission());
                 } catch (ClassNotFoundException e) {
@@ -144,7 +144,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     }
 
     public Class<? extends Annotation> getNamedRoleCheckClass() {
-        if (namedRoleCheckClass == null && getNamedRoleCheck() != null) {
+        if (namedRoleCheckClass == null && getNamedRoleCheck().length() != 0) {
 
             try {
                 namedRoleCheckClass = (Class<? extends Annotation>) Class.forName(getNamedRoleCheck());
@@ -158,7 +158,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     public Class<? extends NamedRole> getNamedRoleClass() {
         if (namedRoleClass == null) {
 
-            if (getNamedRole() != null) {
+            if (getNamedRole().length() != 0) {
                 try {
                     namedRoleClass = (Class<? extends NamedRole>) Class.forName(getNamedRole());
                 } catch (ClassNotFoundException e) {

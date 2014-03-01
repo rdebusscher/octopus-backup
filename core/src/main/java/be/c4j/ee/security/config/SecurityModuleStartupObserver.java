@@ -19,7 +19,7 @@ public class SecurityModuleStartupObserver extends AbstractStartupObserver {
 
     protected void logSecurityModuleConfiguration(@Observes StartupEvent startupEvent) {
         try {
-            StringBuilder info = new StringBuilder("[Started] Java EE Security First Module (C4J) ");
+            StringBuilder info = new StringBuilder("[Started] Octopus framework (C4J) ");
             info.append(separator);
 
             //module config
@@ -29,7 +29,7 @@ public class SecurityModuleStartupObserver extends AbstractStartupObserver {
         //avoid that this log harms the startup
         catch (Exception e) {
             logger.log(Level.WARNING,
-                    "Java EE Security First Module couldn't log the current configuration. Startup will continue!", e);
+                    "Octopus Module couldn't log the current configuration. Startup will continue!", e);
         }
 
     }

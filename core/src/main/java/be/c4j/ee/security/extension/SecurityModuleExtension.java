@@ -50,7 +50,7 @@ public class SecurityModuleExtension implements Extension {
         createPermissionVoters(afterBeanDiscovery, beanManager);
         createRoleVoters(afterBeanDiscovery, beanManager);
 
-        if (config.getAliasNameLoginbean() != null) {
+        if (config.getAliasNameLoginbean().length() != 0) {
             setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
         }
 

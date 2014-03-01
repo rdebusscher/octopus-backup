@@ -65,7 +65,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME).put("user.loginUrl", config.getLoginPage());
 
             String hashAlgorithmName = config.getHashAlgorithmName();
-            if (hashAlgorithmName != null) {
+            if (hashAlgorithmName.length() != 0) {
                 try {
                     MessageDigest.getInstance(hashAlgorithmName);
                 } catch (NoSuchAlgorithmException e) {
