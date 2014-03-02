@@ -19,7 +19,7 @@
  * /
  */
 
-package be.c4j.ee.security.view.component;
+package be.c4j.ee.security.view.component.secured;
 
 import javax.faces.component.UIComponent;
 

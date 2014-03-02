@@ -22,8 +22,8 @@
 package be.c4j.ee.security.view.component.service;
 
 import be.c4j.ee.security.view.InvocationContextImpl;
-import be.c4j.ee.security.view.component.SecuredComponentData;
-import be.c4j.ee.security.view.component.SecuredComponentDataParameter;
+import be.c4j.ee.security.view.component.secured.SecuredComponentData;
+import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;

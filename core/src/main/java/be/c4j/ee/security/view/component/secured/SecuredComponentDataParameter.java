@@ -19,23 +19,31 @@
  * /
  */
 
-package be.c4j.ee.security.view.component;
-
-import javax.faces.component.FacesComponent;
-import javax.faces.component.UIComponentBase;
+package be.c4j.ee.security.view.component.secured;
 
 /**
  * @author Rudy De Busscher
  */
-@FacesComponent(value = "securedComponent")
-public class SecuredComponent extends UIComponentBase {
+public class SecuredComponentDataParameter {
 
-    public static final String DATA = "be.c4j.ee.security.view.component.SECURE_COMPONENT_DATA";
+    private final Object parameterData;
 
-    public static final String MARKER = "be.c4j.ee.security.view.component.SECURE_MARKER";
+    private final boolean atRuntime;
 
-    @Override
-    public String getFamily() {
-        return "be.c4j.ee.security";
+    public SecuredComponentDataParameter(Object parameterData, boolean atrRuntime) {
+        this.parameterData = parameterData;
+        this.atRuntime = atrRuntime;
+    }
+
+    public SecuredComponentDataParameter(Object parameterData) {
+        this(parameterData, false);
+    }
+
+    public Object getParameterData() {
+        return parameterData;
+    }
+
+    public boolean isAtRuntime() {
+        return atRuntime;
     }
 }

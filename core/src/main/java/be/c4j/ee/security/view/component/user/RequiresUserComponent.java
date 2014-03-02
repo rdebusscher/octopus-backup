@@ -19,7 +19,7 @@
  * /
  */
 
-package be.c4j.ee.security.view.component;
+package be.c4j.ee.security.view.component.user;
 
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
@@ -27,11 +27,11 @@ import javax.faces.component.UIComponentBase;
 /**
  * @author Rudy De Busscher
  */
-@FacesComponent(value = "securedComponentParameter")
-public class SecuredComponentParameter extends UIComponentBase {
+@FacesComponent(value = "requiresUser")
+public class RequiresUserComponent extends UIComponentBase {
+
     @Override
     public String getFamily() {
         return "be.c4j.ee.security";
     }
-
 }

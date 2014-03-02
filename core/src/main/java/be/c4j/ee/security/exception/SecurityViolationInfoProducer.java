@@ -22,6 +22,7 @@ import be.c4j.ee.security.exception.violation.AuthorizationViolation;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
+import be.c4j.ee.security.view.InvocationContextImpl;
 import org.apache.shiro.authz.Permission;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -64,12 +65,14 @@ public class SecurityViolationInfoProducer {
 
     protected String getExceptionPointInfo(InvocationContext invocationContext) {
         StringBuilder result = new StringBuilder();
-        result.append("Class ").append(invocationContext.getTarget().getClass().getName());
-        result.append("<br/>Method ").append(invocationContext.getMethod().getName());
-        result.append("<br/>Parameters ");
-        if (invocationContext.getParameters() != null) {
-            for (Object parameter : invocationContext.getParameters()) {
-                result.append("<br/>").append(parameter.getClass().getName()).append(" = ").append(parameter);
+        if (!(invocationContext instanceof InvocationContextImpl)) {
+            result.append("Class ").append(invocationContext.getTarget().getClass().getName());
+            result.append("<br/>Method ").append(invocationContext.getMethod().getName());
+            result.append("<br/>Parameters ");
+            if (invocationContext.getParameters() != null) {
+                for (Object parameter : invocationContext.getParameters()) {
+                    result.append("<br/>").append(parameter.getClass().getName()).append(" = ").append(parameter);
+                }
             }
         }
         return result.toString();

@@ -30,7 +30,7 @@
         <tag-name>securedComponent</tag-name>
         <component>
             <component-type>securedComponent</component-type>
-            <handler-class>be.c4j.ee.security.view.component.SecuredComponentHandler</handler-class>
+            <handler-class>be.c4j.ee.security.view.component.secured.SecuredComponentHandler</handler-class>
         </component>
         <attribute>
             <description>Defines the voter(s) that will be used for this. multiple names separated by a ,</description>
@@ -87,6 +87,28 @@
             <description></description>
             <name>value</name>
             <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
+        <tag-name>requiresUser</tag-name>
+        <component>
+            <component-type>requiresUser</component-type>
+            <handler-class>be.c4j.ee.security.view.component.user.RequiresUserHandler</handler-class>
+        </component>
+        <attribute>
+            <description>Is access allowed for anonymous users.
+            </description>
+            <name>not</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>Defines the component id's for which this permission check is performed. Multiple id can be
+                separated by ,. If not specified, the parent is the target.
+            </description>
+            <name>for</name>
+            <required>false</required>
             <type>java.lang.String</type>
         </attribute>
     </tag>

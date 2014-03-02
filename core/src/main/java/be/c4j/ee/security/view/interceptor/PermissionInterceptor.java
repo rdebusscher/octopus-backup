@@ -21,8 +21,8 @@
 
 package be.c4j.ee.security.view.interceptor;
 
-import be.c4j.ee.security.view.component.SecuredComponent;
-import be.c4j.ee.security.view.component.SecuredComponentData;
+import be.c4j.ee.security.view.component.secured.SecuredComponent;
+import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
 import org.apache.myfaces.extensions.validator.core.interceptor.RendererInterceptor;
 import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipAfterInterceptorsException;
