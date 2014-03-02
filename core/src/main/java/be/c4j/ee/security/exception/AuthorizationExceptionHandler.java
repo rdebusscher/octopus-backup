@@ -79,8 +79,10 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
                     facesContext.addMessage(null,
                             new FacesMessage(FacesMessage.SEVERITY_ERROR, unauthorized.getMessage(), unauthorized.getMessage()));
 
-                    //redirect error page
-                    requestMap.put("exceptionMessage", t.getMessage());
+                    if (unauthorized instanceof OctopusUnauthorizedException) {
+
+                        externalContext.getFlash().putNow("interceptionInfo", ((OctopusUnauthorizedException) unauthorized ) .getExceptionPointInfo());
+                    }
                     try {
                         SecurityModuleConfig config = CodiUtils.getContextualReferenceByClass(SecurityModuleConfig.class);
                         externalContext.redirect(externalContext.getRequestContextPath() + config.getUnauthorizedExceptionPage());
@@ -103,7 +105,7 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
 
     private Throwable getUnauthorizedException(Throwable someException) {
         Throwable result = null;
-        if (someException.getClass().getName().equals(UnauthorizedException.class.getName())) {
+        if (someException instanceof UnauthorizedException) {
             result = someException;
         } else {
             if (someException.getCause() != null) {

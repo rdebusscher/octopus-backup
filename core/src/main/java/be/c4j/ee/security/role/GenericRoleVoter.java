@@ -20,8 +20,10 @@
  */
 package be.c4j.ee.security.role;
 
+import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.subject.Subject;
 
@@ -50,7 +52,9 @@ public class GenericRoleVoter extends AbstractAccessDecisionVoter {
         try {
             subject.checkPermission(namedRole);
         } catch (AuthorizationException e) {
-            violations.add(newSecurityViolation("TODO : " + namedRole.getRoleName()));
+            SecurityViolationInfoProducer infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
+            violations.add(newSecurityViolation(infoProducer.getViolationInfo(invocationContext, namedRole)));
+
         }
 
     }

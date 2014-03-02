@@ -23,6 +23,8 @@ package be.c4j.ee.security.interceptor;
 import be.c4j.ee.security.config.SecurityModuleConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.custom.CustomAuthzCheck;
+import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
@@ -31,7 +33,6 @@ import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisio
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
@@ -62,6 +63,9 @@ public class AppSecurityInterceptor implements Serializable {
     @Inject
     private VoterNameFactory nameFactory;
 
+    @Inject
+    private SecurityViolationInfoProducer infoProducer;
+
     @AroundInvoke
     public Object interceptShiroSecurity(InvocationContext context) throws Exception {
         Subject subject = SecurityUtils.getSubject();
@@ -71,21 +75,22 @@ public class AppSecurityInterceptor implements Serializable {
         Set<?> annotations = getAllAnnotations(classType, method);
         if (!hasAnnotation(annotations, PermitAll.class)) {
             if (annotations.isEmpty()) {
-                throw new UnauthenticatedException("No Authentication Requirements available");
+                throw new OctopusUnauthorizedException("No Authentication Requirements available", infoProducer.getViolationInfo(context));
             }
 
             if (!subject.isAuthenticated() && hasAnnotation(annotations, RequiresAuthentication.class)) {
-                throw new UnauthenticatedException("Authentication required");
+                throw new OctopusUnauthorizedException("Authentication required", infoProducer.getViolationInfo(context));
             }
 
             if (subject.getPrincipal() != null && hasAnnotation(annotations, RequiresGuest.class)) {
-                throw new UnauthenticatedException("Guest required");
+                throw new OctopusUnauthorizedException("Guest required", infoProducer.getViolationInfo(context));
             }
 
             if (subject.getPrincipal() == null && hasAnnotation(annotations, RequiresUser.class)) {
-                throw new UnauthenticatedException("User required");
+                throw new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(context));
             }
 
+            // TODO Verify how this can be configured. They are the shiro ones.
             RequiresRoles roles = getAnnotation(annotations, RequiresRoles.class);
 
             if (roles != null) {
@@ -105,7 +110,7 @@ public class AppSecurityInterceptor implements Serializable {
                     Set<SecurityViolation> securityViolations = performNamedPermissionChecks(namedPermissionCheck, context);
                     if (!securityViolations.isEmpty()) {
 
-                        throw new UnauthorizedException(getMessage(securityViolations));
+                        throw new OctopusUnauthorizedException(securityViolations);
                     }
                 }
             }
@@ -117,7 +122,7 @@ public class AppSecurityInterceptor implements Serializable {
                     Set<SecurityViolation> securityViolations = performNamedRoleChecks(namedRoleCheck, context);
                     if (!securityViolations.isEmpty()) {
 
-                        throw new UnauthorizedException(getMessage(securityViolations));
+                        throw new OctopusUnauthorizedException(securityViolations);
                     }
                 }
             }
@@ -128,7 +133,7 @@ public class AppSecurityInterceptor implements Serializable {
                 Set<SecurityViolation> securityViolations = performCustomChecks(customCheck, context);
                 if (!securityViolations.isEmpty()) {
 
-                    throw new UnauthorizedException(getMessage(securityViolations));
+                    throw new OctopusUnauthorizedException(securityViolations);
                 }
             }
 
@@ -167,10 +172,6 @@ public class AppSecurityInterceptor implements Serializable {
 
         }
         return result;
-    }
-
-    private String getMessage(Set<SecurityViolation> securityViolations) {
-        return securityViolations.iterator().next().getReason();
     }
 
     private Set<SecurityViolation> performCustomChecks(CustomAuthzCheck customCheck, InvocationContext invocationContext) {
