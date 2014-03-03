@@ -22,18 +22,17 @@ package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.SecurityModuleConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
-import be.c4j.ee.security.permission.GenericPermissionVoter;
-import be.c4j.ee.security.permission.NamedDomainPermission;
-import be.c4j.ee.security.permission.NamedPermission;
-import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
+import be.c4j.ee.security.util.CDIUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.UnsatisfiedResolutionException;
@@ -41,6 +40,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 
+@ApplicationScoped
 public class NamedRoleProducer {
 
     @Inject
@@ -49,8 +49,12 @@ public class NamedRoleProducer {
     @Inject
     private VoterNameFactory nameFactory;
 
-    @Inject
     private RoleLookup<? extends NamedRole> lookup;
+
+    @PostConstruct
+    public void init() {
+        lookup = CDIUtil.getBeanManually(RoleLookup.class);
+    }
 
     @Produces
     public GenericRoleVoter getVoter(InjectionPoint injectionPoint) {

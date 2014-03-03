@@ -22,7 +22,7 @@ package be.c4j.ee.security.role.filter;
 
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import be.c4j.ee.security.util.CDIUtil;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;
 
@@ -55,7 +55,7 @@ public class NamedRoleFilter extends AuthorizationFilter {
     private void checkLookup() {
         // We can't do this in onFilterConfigSet as it is to soon.  Not available at that time
         if (roleLookup == null) {
-            roleLookup = CodiUtils.getContextualReferenceByClass(RoleLookup.class);
+            roleLookup = CDIUtil.getBeanManually(RoleLookup.class);
         }
     }
 }

@@ -27,9 +27,12 @@ import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
+import be.c4j.ee.security.util.CDIUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.UnsatisfiedResolutionException;
@@ -37,6 +40,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 
+@ApplicationScoped
 public class NamedPermissionProducer {
 
     @Inject
@@ -45,8 +49,12 @@ public class NamedPermissionProducer {
     @Inject
     private VoterNameFactory nameFactory;
 
-    @Inject
     private PermissionLookup<? extends NamedPermission> lookup;
+
+    @PostConstruct
+    public void init() {
+        lookup = CDIUtil.getBeanManually(PermissionLookup.class);
+    }
 
     @Produces
     public GenericPermissionVoter getVoter(InjectionPoint injectionPoint) {

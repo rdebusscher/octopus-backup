@@ -19,17 +19,20 @@
 package be.c4j.ee.security.extension;
 
 
-import be.c4j.ee.security.permission.GenericPermissionVoter;
-import be.c4j.ee.security.config.SecurityModuleConfig;
-import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.beans.BeanBuilder;
 import be.c4j.ee.security.beans.metadata.DelegatingContextualLifecycle;
+import be.c4j.ee.security.config.SecurityModuleConfig;
+import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.exception.ConfigurationException;
+import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
+import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.model.LoginBean;
+import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.myfaces.extensions.cdi.core.impl.util.NamedLiteral;
 
@@ -42,6 +45,10 @@ import java.util.Set;
 public class SecurityModuleExtension implements Extension {
 
     private SecurityModuleConfig config;
+
+    void keepProducerMethods(@Observes ProcessProducerMethod producerMethod) {
+        CDIUtil.registerOptionalBean(producerMethod.getAnnotatedProducerMethod().getJavaMember());
+    }
 
     void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
@@ -110,6 +117,7 @@ public class SecurityModuleExtension implements Extension {
 
                 Bean<GenericRoleVoter> bean = new BeanBuilder<GenericRoleVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericRoleVoter.class)
+                        .addTypes(AbstractAccessDecisionVoter.class, GenericRoleVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
                         .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
                         .beanLifecycle(new RoleLifecycleCallback(voterInjectionTarget, namedRole)).create();
@@ -159,9 +167,10 @@ public class SecurityModuleExtension implements Extension {
             // We can't move this to the Extension itself.
             // The producer of this PermissionLookup goes to the database and this isn't possible until we are completely ready.
 
-            PermissionLookup<? extends NamedPermission> permissionLookup = CodiUtils.getContextualReferenceByClass(PermissionLookup.class);
-
-
+            PermissionLookup<? extends NamedPermission> permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class);
+            if (permissionLookup == null) {
+                throw new ConfigurationException("When using the named permissions, please configure them with the PermissionLookup.  See manual ??? TODO");
+            }
             result.setNamedPermission(permissionLookup.getPermission(namedPermission.name()));
             return result;
         }
@@ -189,10 +198,11 @@ public class SecurityModuleExtension implements Extension {
             GenericRoleVoter result = super.create(bean, creationalContext);
 
             // We can't move this to the Extension itself.
-            // The producer of this PermissionLookup goes to the database and this isn't possible until we are completely ready.
-
-            RoleLookup<? extends NamedRole> roleLookup = CodiUtils.getContextualReferenceByClass(RoleLookup.class);
-
+            // The producer of this RoleLookup goes to the database and this isn't possible until we are completely ready.
+            RoleLookup<? extends NamedRole> roleLookup = CDIUtil.getBeanManually(RoleLookup.class);
+            if (roleLookup == null) {
+                throw new ConfigurationException("When using the named roles, please configure them with the RoleLookup.  See manual ??? TODO");
+            }
 
             result.setNamedRole(roleLookup.getRole(namedRole.name()));
             return result;
