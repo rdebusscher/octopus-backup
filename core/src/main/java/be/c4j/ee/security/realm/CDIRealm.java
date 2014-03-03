@@ -31,25 +31,25 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 public class CDIRealm extends AuthorizingRealm {
 
-    private AuthenticationProvider authenticationProvider;
+    private SecurityDataProvider securityDataProvider;
 
 
     @Override
     protected void onInit() {
         super.onInit();
-        authenticationProvider = BeanManagerProvider.getInstance().getContextualReference(AuthenticationProvider.class);
+        securityDataProvider = BeanManagerProvider.getInstance().getContextualReference(SecurityDataProvider.class);
         setCacheManager(new MemoryConstrainedCacheManager());
         setCachingEnabled(true);
     }
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        return authenticationProvider.getAuthorizationInfo(principals);
+        return securityDataProvider.getAuthorizationInfo(principals);
     }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        return authenticationProvider.getAuthenticationInfo(token);
+        return securityDataProvider.getAuthenticationInfo(token);
     }
 
 }

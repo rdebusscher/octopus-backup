@@ -25,7 +25,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 
-public interface AuthenticationProvider {
+public interface SecurityDataProvider {
 
     AuthenticationInfo getAuthenticationInfo(AuthenticationToken token);
 
