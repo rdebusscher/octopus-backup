@@ -1,44 +1,38 @@
 package be.c4j.demo.security;
 
-import be.c4j.demo.security.permission.StarterPermission;
-import be.c4j.ee.security.model.UserPrincipal;
-import be.c4j.ee.security.permission.PermissionLookup;
-import be.c4j.ee.security.realm.AuthenticationProvider;
+import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
+import be.c4j.ee.security.realm.SecurityDataProvider;
+import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
 
 
 @ApplicationScoped
-public class AppAuthentication implements AuthenticationProvider {
+public class AppAuthentication implements SecurityDataProvider {
 
     private int principalId = 0;
 
     @Override
-    public SimpleAuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+    public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
 
-        UserPrincipal principal = new UserPrincipal(principalId++, token.getPrincipal().toString());
+        AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
+        authenticationInfoBuilder.principalId(principalId++).name(token.getPrincipal().toString());
         // TODO: Change for production. Here we use username as password
-        return new SimpleAuthenticationInfo(principal, token.getPrincipal(), "MyApp");
+        authenticationInfoBuilder.realmName("MyApp").password(token.getPrincipal());
+
+        return authenticationInfoBuilder.build();
     }
 
 
     @Override
-    public SimpleAuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
+    public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
 
         // TODO: Change for production. Principal has no assigned no permission not roles.
-        return  new SimpleAuthorizationInfo();
-    }
-
-
-    @Produces
-    @ApplicationScoped
-    public PermissionLookup<StarterPermission> createPermissionLookup() {
-        return null;
+        return new SimpleAuthorizationInfo();
     }
 
 }
