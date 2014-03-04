@@ -26,10 +26,41 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security</groupId>
-    <artifactId>javaEESecurityFirst</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <artifactId>octopus</artifactId>
+    <version>0.9.2</version>
 
     <name>Permission based security for Java EE application</name>
+    <inceptionYear>2014</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</connection>
+        <developerConnection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</developerConnection>
+        <url>https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>rubus</id>
+            <name>Rudy De Busscher</name>
+            <email>rdebusscher@gmail.com</email>
+            <organization>C4J, Belgium</organization>
+            <roles>
+                <role>PMC</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
 
     <properties>
         <myfaces.codi.version>1.0.5</myfaces.codi.version>
@@ -48,16 +79,6 @@
             <url>http://os890-m2-repository.googlecode.com/svn/trunk/os890</url>
         </repository>
 
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>apache-maven-snapshots</id>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-        </repository>
         <repository>
             <id>repository.jboss.org</id>
             <name>JBoss Repository for Maven</name>
