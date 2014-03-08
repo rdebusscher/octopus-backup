@@ -20,14 +20,20 @@
  */
 package be.c4j.ee.security.model;
 
+import javax.enterprise.inject.Typed;
 import java.io.Serializable;
 import java.security.Principal;
 
+@Typed
 public class UserPrincipal implements Principal, Serializable {
 
     private Serializable id;
 
     private String name;
+
+    // Weld needs this to make a proxy
+    public UserPrincipal() {
+    }
 
     public UserPrincipal(Serializable id, String name) {
         if (id == null) {

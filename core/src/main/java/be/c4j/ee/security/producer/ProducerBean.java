@@ -20,6 +20,7 @@
  */
 package be.c4j.ee.security.producer;
 
+import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -33,6 +34,12 @@ public class ProducerBean {
     @RequestScoped
     public Subject produceShiroSubject() {
         return SecurityUtils.getSubject();
+    }
+
+    @Produces
+    @RequestScoped
+    public UserPrincipal producePrincipal() {
+        return (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
     }
 
     @Produces
