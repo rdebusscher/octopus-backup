@@ -20,13 +20,16 @@ package be.c4j.ee.security.exception;
 
 import be.c4j.ee.security.exception.violation.AuthorizationViolation;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
+import be.c4j.ee.security.exception.violation.MethodParameterTypeViolation;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.view.InvocationContextImpl;
+import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
 import org.apache.shiro.authz.Permission;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.interceptor.InvocationContext;
+import java.util.List;
 
 /**
  *
@@ -36,6 +39,14 @@ public class SecurityViolationInfoProducer {
 
     public String getViolationInfo(InvocationContext invocationContext) {
         return getExceptionPointInfo(invocationContext);
+    }
+
+    public String getViolationInfo(InvocationContext invocationContext, SecurityViolation securityViolation) {
+        AuthorizationViolation violation = defineCustomViolation(invocationContext, securityViolation);
+        if (violation == null) {
+            violation = new BasicAuthorizationViolation(securityViolation.getReason(), getExceptionPointInfo(invocationContext));
+        }
+        return violation.toString();
     }
 
     public String getViolationInfo(InvocationContext invocationContext, Permission violatedPermission) {
@@ -63,6 +74,10 @@ public class SecurityViolationInfoProducer {
         return null;
     }
 
+    protected AuthorizationViolation defineCustomViolation(InvocationContext invocationContext, SecurityViolation violation) {
+        return null;
+    }
+
     protected String getExceptionPointInfo(InvocationContext invocationContext) {
         StringBuilder result = new StringBuilder();
         if (!(invocationContext instanceof InvocationContextImpl)) {
@@ -76,5 +91,9 @@ public class SecurityViolationInfoProducer {
             }
         }
         return result.toString();
+    }
+
+    public String getWrongMethodSignatureInfo(InvocationContext invocationContext, List<Class<?>> missingParameterTypes) {
+        return new MethodParameterTypeViolation(getExceptionPointInfo(invocationContext), missingParameterTypes).toString();
     }
 }

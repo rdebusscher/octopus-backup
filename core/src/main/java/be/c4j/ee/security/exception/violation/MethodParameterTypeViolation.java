@@ -18,22 +18,18 @@
  */
 package be.c4j.ee.security.exception.violation;
 
+import java.util.List;
+
 /**
  *
  */
-public class BasicAuthorizationViolation implements AuthorizationViolation {
+public class MethodParameterTypeViolation extends BasicAuthorizationViolation {
 
     private String reason;
-    private String exceptionPoint;
 
-    public BasicAuthorizationViolation(String reason, String exceptionPoint) {
-        this.reason = reason;
-        this.exceptionPoint = exceptionPoint;
-    }
-
-    @Override
-    public String getExceptionPoint() {
-        return exceptionPoint;
+    public MethodParameterTypeViolation(String exceptionPoint, List<Class<?>> missingParameterTypes) {
+        super(null, exceptionPoint);
+        this.reason = getInfoAboutMissingParameterTypes(missingParameterTypes);
     }
 
     @Override
@@ -41,8 +37,17 @@ public class BasicAuthorizationViolation implements AuthorizationViolation {
         return reason;
     }
 
-    @Override
-    public String toString() {
-        return getReason() + '@' + exceptionPoint;
+    private String getInfoAboutMissingParameterTypes(List<Class<?>> missingParameterTypes) {
+        StringBuilder result = new StringBuilder();
+        result.append("Method needs to have parameter(s) of following type :");
+        boolean first = true;
+        for (Class<?> type : missingParameterTypes) {
+            if (!first) {
+                result.append(", ");
+            }
+            result.append(type.getName());
+            first = false;
+        }
+        return result.toString();
     }
 }
