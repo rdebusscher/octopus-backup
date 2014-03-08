@@ -27,7 +27,7 @@
 
     <groupId>be.c4j.ee.security</groupId>
     <artifactId>octopus</artifactId>
-    <version>0.9.2</version>
+    <version>0.9.3-SNAPSHOT</version>
 
     <name>Permission based security for Java EE application</name>
     <inceptionYear>2014</inceptionYear>
