@@ -20,6 +20,9 @@
  */
 package be.c4j.ee.security.role;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.enterprise.inject.Typed;
 import java.util.EnumMap;
 import java.util.List;
@@ -30,6 +33,8 @@ import java.util.Map;
  */
 @Typed
 public class RoleLookup <T extends Enum<T>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleLookup.class);
+
     private Map<T, NamedApplicationRole> map;  // for holding the mapping between the two
 
     private Class<T> enumClazz;
@@ -43,8 +48,14 @@ public class RoleLookup <T extends Enum<T>> {
         map = new EnumMap<T, NamedApplicationRole>(clazz);
         // map the lookups together
         for (NamedApplicationRole item : allRoles) {
-            T key = Enum.valueOf(clazz, item.getRoleName());
-            map.put(key, item);
+            T key;
+
+            try {
+                key = Enum.valueOf(clazz, item.getRoleName());
+                map.put(key, item);
+            } catch (IllegalArgumentException e) {
+                LOGGER.info("There is no type safe equivalent and CDI Bean for named role "+item.getRoleName());
+            }
         }
     }
 
