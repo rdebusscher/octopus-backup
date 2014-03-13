@@ -52,4 +52,11 @@ public class GenericPermissionVoter extends AbstractAccessDecisionVoter {
         }
 
     }
+
+    /*
+    FIXME
+    New issue 6
+    boolean verifyPermission
+    catch and return false
+    */
 }

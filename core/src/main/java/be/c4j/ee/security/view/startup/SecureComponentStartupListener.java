@@ -27,6 +27,7 @@ import org.apache.myfaces.extensions.validator.core.ExtValContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 
 /**
  * @author Rudy De Busscher
@@ -34,7 +35,10 @@ import javax.enterprise.event.Observes;
 @ApplicationScoped
 public class SecureComponentStartupListener {
 
+    @Inject
+    private PermissionInterceptor permissionInterceptor;
+
     protected void init(@Observes StartupEvent startupEvent) {
-        ExtValContext.getContext().registerRendererInterceptor(new PermissionInterceptor());
+        ExtValContext.getContext().registerRendererInterceptor(permissionInterceptor);
     }
 }

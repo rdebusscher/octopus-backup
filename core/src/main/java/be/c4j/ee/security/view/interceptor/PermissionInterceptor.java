@@ -21,30 +21,27 @@
 
 package be.c4j.ee.security.view.interceptor;
 
-import be.c4j.ee.security.view.component.secured.SecuredComponent;
-import be.c4j.ee.security.view.component.secured.SecuredComponentData;
-import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
 import org.apache.myfaces.extensions.validator.core.interceptor.RendererInterceptor;
 import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipAfterInterceptorsException;
 import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipBeforeInterceptorsException;
 import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipRendererDelegationException;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.ConverterException;
 import javax.faces.render.Renderer;
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Rudy De Busscher
  */
+@ApplicationScoped
 public class PermissionInterceptor implements RendererInterceptor {
 
-    private Set<UIComponent> componentSet = new HashSet<UIComponent>();
-
-    private ComponentAuthorizationService componentAuthorizationService;
+    @Inject
+    private SecuredRuntimeManager securedRuntimeManager;
 
     @Override
     public String getInterceptorId() {
@@ -70,38 +67,7 @@ public class PermissionInterceptor implements RendererInterceptor {
                                   final Renderer renderer) throws IOException, SkipBeforeInterceptorsException,
             SkipRendererDelegationException {
 
-        if (uiComponent.isRendered() && !allowed(uiComponent)) {
-            uiComponent.setRendered(false);
-            // Keep an indication that we have changed the state.
-            keepComponent(uiComponent);
-            componentSet.add(uiComponent);
-        }
-    }
-
-    private void keepComponent(UIComponent uiComponent) {
-        String rendererType = uiComponent.getParent().getRendererType();
-        if (rendererType == null) {
-            uiComponent.getParent().setRendererType("Dummy");
-        }
-    }
-
-    /**
-     * If there exists a child in the component named SecuredComponent, the the user must have one of the permissions
-     * specified in
-     * the value attribute of the component.  If no child is found, the viewing is allowed.
-     *
-     * @param someUiComponent The JSF component we have to evaluate for security.
-     * @return Is it allowed to show this component to the user.
-     */
-    private boolean allowed(final UIComponent someUiComponent) {
-
-        boolean result = true;
-        SecuredComponentData data = (SecuredComponentData) someUiComponent.getAttributes().get(SecuredComponent.DATA);
-        if (data != null) {
-            checkPermissionService();
-            result = componentAuthorizationService.hasAccess(data);
-        }
-        return result;
+        securedRuntimeManager.checkRendererStatus(uiComponent);
     }
 
     @Override
@@ -148,18 +114,7 @@ public class PermissionInterceptor implements RendererInterceptor {
                                final Renderer renderer) throws IOException, SkipAfterInterceptorsException {
         // The afterEncodeEnd is not called for not rendered components.  So we catch here the afterEncodeEnd of the
         // parent.
-        if (!componentSet.isEmpty()) {
-            // Try to do something only when there is something to remove -> performance increase.
-            for (UIComponent child : uiComponent.getChildren()) {
-                if (componentSet.contains(child)) {
-                    child.setRendered(true);
-                    componentSet.remove(child);
-                    if ("Dummy".equals(uiComponent.getRendererType())) {
-                        uiComponent.setRendererType(null);
-                    }
-                }
-            }
-        }
+        securedRuntimeManager.resetRenderedStatus(uiComponent);
     }
 
     @Override
@@ -167,12 +122,6 @@ public class PermissionInterceptor implements RendererInterceptor {
                                        final Object submittedValue, final Renderer renderer) throws
             ConverterException, SkipAfterInterceptorsException {
         // No implementation required.
-    }
-
-    private void checkPermissionService() {
-        if (componentAuthorizationService == null) {
-            componentAuthorizationService = new ComponentAuthorizationService();
-        }
     }
 
 }
