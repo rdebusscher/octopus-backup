@@ -23,6 +23,8 @@ package be.c4j.ee.security.model;
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Typed
 public class UserPrincipal implements Principal, Serializable {
@@ -30,6 +32,8 @@ public class UserPrincipal implements Principal, Serializable {
     private Serializable id;
 
     private String name;
+
+    private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
 
     // Weld needs this to make a proxy
     public UserPrincipal() {
@@ -52,6 +56,17 @@ public class UserPrincipal implements Principal, Serializable {
         return name;
     }
 
+    public void addUserInfo(Serializable key, Serializable value) {
+        userInfo.put(key, value);
+    }
+
+    public void addUserInfo(Map<? extends Serializable, ? extends Serializable> values) {
+        userInfo.putAll(values);
+    }
+
+    public Serializable getUserInfo(Serializable key) {
+        return userInfo.get(key);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) {

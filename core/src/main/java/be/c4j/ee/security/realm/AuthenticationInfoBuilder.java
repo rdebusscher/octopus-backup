@@ -7,6 +7,8 @@ import org.apache.shiro.util.ByteSource;
 
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -19,6 +21,8 @@ public class AuthenticationInfoBuilder {
     private Object password;
     private String realmName;
     private ByteSource salt;
+    private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
+
 
     public AuthenticationInfoBuilder principalId(Serializable principalId) {
         this.principalId = principalId;
@@ -46,8 +50,19 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
+    public AuthenticationInfoBuilder addUserInfo(Serializable key, Serializable value) {
+        userInfo.put(key, value);
+        return this;
+    }
+
+    public AuthenticationInfoBuilder addUserInfo(Map<? extends Serializable, ? extends Serializable> values) {
+        userInfo.putAll(values);
+        return this;
+    }
+
     public AuthenticationInfo build() {
         UserPrincipal principal = new UserPrincipal(principalId, name);
+        principal.addUserInfo(userInfo);
         AuthenticationInfo result;
         if (salt == null) {
             result = new SimpleAuthenticationInfo(principal, password, realmName);

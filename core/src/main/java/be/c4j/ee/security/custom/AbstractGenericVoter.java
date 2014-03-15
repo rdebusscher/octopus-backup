@@ -1,6 +1,7 @@
 package be.c4j.ee.security.custom;
 
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
+import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.util.MethodParameterCheck;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
@@ -19,6 +20,9 @@ public abstract class AbstractGenericVoter extends AbstractAccessDecisionVoter {
 
     @Inject
     protected SecurityViolationInfoProducer infoProducer;
+
+    @Inject
+    protected UserPrincipal userPrincipal;
 
     protected void checkMethodHasParameterTypes(Set<SecurityViolation> violations, InvocationContext invocationContext, Class<?>... parameterTypes) {
         SecurityViolation violation = methodParameterCheck.checkMethodHasParameterTypes(invocationContext, parameterTypes);
