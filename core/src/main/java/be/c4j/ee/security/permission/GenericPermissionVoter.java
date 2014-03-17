@@ -53,10 +53,13 @@ public class GenericPermissionVoter extends AbstractAccessDecisionVoter {
 
     }
 
-    /*
-    FIXME
-    New issue 6
-    boolean verifyPermission
-    catch and return false
-    */
+    public boolean verifyPermission() {
+        boolean result = true;
+        try {
+            subject.checkPermission(namedPermission);
+        } catch (AuthorizationException e) {
+            result = false;
+        }
+        return result;
+    }
 }
