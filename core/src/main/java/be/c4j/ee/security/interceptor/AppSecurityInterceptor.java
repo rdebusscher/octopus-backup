@@ -25,6 +25,7 @@ import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.custom.CustomAuthzCheck;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
+import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
@@ -150,8 +151,8 @@ public class AppSecurityInterceptor implements Serializable {
         for ( Object permissionConstant :  AnnotationUtil.getPermissionValues(customNamedCheck)) {
                 String beanName = nameFactory.generatePermissionBeanName( ((NamedPermission) permissionConstant).name());
 
-                AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
-                                                                                           , AbstractAccessDecisionVoter.class);
+            GenericPermissionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
+                                                                                           , GenericPermissionVoter.class);
                 result.addAll(voter.checkPermission(invocationContext));
 
         }
@@ -166,8 +167,8 @@ public class AppSecurityInterceptor implements Serializable {
         for ( Object permissionConstant :  AnnotationUtil.getRoleValues(customNamedCheck)) {
             String beanName = nameFactory.generateRoleBeanName(((NamedRole) permissionConstant).name());
 
-            AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
-                    , AbstractAccessDecisionVoter.class);
+            GenericPermissionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
+                    , GenericPermissionVoter.class);
             result.addAll(voter.checkPermission(invocationContext));
 
         }
