@@ -19,10 +19,10 @@
             <p:selectBooleanCheckbox id="rememberMe" value="#{loginBean.remember}"/>
 
             <h:panelGroup/>
-            <p:commandButton value="Login" actionListener="#{loginBean.doLogin}"/>
+            <p:commandButton value="Login" actionListener="#{loginBean.doLogin}" update="@form" process="@form"/>
 
         </h:panelGrid>
-        <p:messages globalOnly="true" layout="table" autoUpdate="true"/>
+        <p:messages />
     </h:form>
     Fot this starter, password is the same as username and any username will be accepted.
 </h:body>
