@@ -20,6 +20,7 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.event.AuthenticationExceptionListener;
 import be.c4j.ee.security.event.CDIAuthenticationListener;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -35,14 +36,16 @@ public class CDIModularRealmAuthenticator extends ModularRealmAuthenticator {
     @Override
     protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken) throws AuthenticationException {
         if (!listenerConfigured) {
-            configureListener();
+            configureListeners();
         }
         return super.doAuthenticate(authenticationToken);
     }
 
-    private void configureListener() {
+    private void configureListeners() {
         AuthenticationListener listener = CodiUtils.getContextualReferenceByClass(CDIAuthenticationListener.class);
         getAuthenticationListeners().add(listener);
+
+        getAuthenticationListeners().add(new AuthenticationExceptionListener());
         listenerConfigured = true;
     }
 }

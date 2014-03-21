@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
-import javax.faces.application.NavigationHandler;
 import javax.faces.context.ExceptionHandler;
 import javax.faces.context.ExceptionHandlerWrapper;
 import javax.faces.context.ExternalContext;
@@ -35,7 +34,6 @@ import javax.faces.event.ExceptionQueuedEvent;
 import javax.faces.event.ExceptionQueuedEventContext;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 
 public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationExceptionHandler.class.getCanonicalName());
@@ -64,8 +62,6 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
 
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ExternalContext externalContext = facesContext.getExternalContext();
-            Map<String, Object> requestMap = externalContext.getRequestMap();
-            NavigationHandler nav = facesContext.getApplication().getNavigationHandler();
 
             Throwable unauthorized = getUnauthorizedException(t);
             //here you do what ever you want with exception

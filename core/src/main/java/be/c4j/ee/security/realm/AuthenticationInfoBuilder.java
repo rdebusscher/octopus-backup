@@ -1,5 +1,6 @@
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.exception.FrameworkConfigurationException;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
@@ -19,7 +20,7 @@ public class AuthenticationInfoBuilder {
     private Serializable principalId;
     private String name;
     private Object password;
-    private String realmName;
+    private String realmName = "OctopusApp";
     private ByteSource salt;
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
 
@@ -41,6 +42,9 @@ public class AuthenticationInfoBuilder {
     }
 
     public AuthenticationInfoBuilder realmName(String realmName) {
+        if (realmName == null || realmName.trim().length() == 0) {
+            throw new FrameworkConfigurationException("Realm name can't be empty");
+        }
         this.realmName = realmName;
         return this;
     }
