@@ -21,13 +21,13 @@
 package be.c4j.ee.security.realm;
 
 import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 
 public interface SecurityDataProvider {
 
-    AuthenticationInfo getAuthenticationInfo(AuthenticationToken token);
+    AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token);
 
     AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals);
 }

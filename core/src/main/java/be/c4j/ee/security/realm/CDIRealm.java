@@ -24,6 +24,7 @@ import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -49,7 +50,7 @@ public class CDIRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        return securityDataProvider.getAuthenticationInfo(token);
+        return securityDataProvider.getAuthenticationInfo((UsernamePasswordToken) token);
     }
 
 }
