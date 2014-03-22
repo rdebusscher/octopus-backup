@@ -45,7 +45,7 @@ public class MethodParameterCheck {
         }
         SecurityViolation result = null;
         if (!missingClasses.isEmpty()) {
-            result =  new SecurityViolation() {
+            result = new SecurityViolation() {
                 @Override
                 public String getReason() {
                     return infoProducer.getWrongMethodSignatureInfo(invocationContext, missingClasses);
@@ -58,11 +58,16 @@ public class MethodParameterCheck {
     private boolean hasAssignableParameter(Object[] parameters, Class<?> type) {
         boolean result = false;
         int idx = 0;
+        boolean nullValueFound = false;
         while (!result && idx < parameters.length) {
-            result = type.isAssignableFrom(parameters[idx].getClass());
+            if (parameters[idx] == null) {
+                nullValueFound = true;
+            } else {
+                result = type.isAssignableFrom(parameters[idx].getClass());
+            }
             idx++;
         }
-        return result;
+        return result || nullValueFound;
     }
 
     public <T> T getAssignableParameter(InvocationContext invocationContext, Class<T> type) {
@@ -75,7 +80,7 @@ public class MethodParameterCheck {
         Object[] parameters = invocationContext.getParameters();
         T result = null;
         while (result == null && idx < parameters.length) {
-            if (type.isAssignableFrom(parameters[idx].getClass())) {
+            if (parameters[idx] != null && type.isAssignableFrom(parameters[idx].getClass())) {
                 found++;
                 if (found == pos) {
                     result = (T) parameters[idx];
