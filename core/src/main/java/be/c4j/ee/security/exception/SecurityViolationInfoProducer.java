@@ -21,6 +21,7 @@ package be.c4j.ee.security.exception;
 import be.c4j.ee.security.exception.violation.AuthorizationViolation;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import be.c4j.ee.security.exception.violation.MethodParameterTypeViolation;
+import be.c4j.ee.security.exception.violation.OverloadingMethodParameterTypeViolation;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.view.InvocationContextImpl;
@@ -29,6 +30,7 @@ import org.apache.shiro.authz.Permission;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.interceptor.InvocationContext;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -96,4 +98,9 @@ public class SecurityViolationInfoProducer {
     public String getWrongMethodSignatureInfo(InvocationContext invocationContext, List<Class<?>> missingParameterTypes) {
         return new MethodParameterTypeViolation(getExceptionPointInfo(invocationContext), missingParameterTypes).toString();
     }
+
+    public String getWrongOverloadingMethodSignatureInfo(InvocationContext invocationContext, Class<?>... missingParameterTypes) {
+        return new OverloadingMethodParameterTypeViolation(getExceptionPointInfo(invocationContext), Arrays.asList(missingParameterTypes)).toString();
+    }
+
 }

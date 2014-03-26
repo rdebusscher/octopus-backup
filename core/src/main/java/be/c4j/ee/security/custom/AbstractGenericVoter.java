@@ -30,4 +30,9 @@ public abstract class AbstractGenericVoter extends AbstractAccessDecisionVoter {
             violations.add(violation);
         }
     }
+
+    protected boolean verifyMethodHasParameterTypes(InvocationContext invocationContext, Class<?>... parameterTypes) {
+        SecurityViolation violation = methodParameterCheck.checkMethodHasParameterTypes(invocationContext, parameterTypes);
+        return violation == null;
+    }
 }
