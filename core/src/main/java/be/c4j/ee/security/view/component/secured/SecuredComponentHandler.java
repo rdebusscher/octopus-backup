@@ -23,6 +23,7 @@ package be.c4j.ee.security.view.component.secured;
 
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.view.component.ComponentUtil;
+import be.c4j.ee.security.view.component.OctopusComponentHandler;
 import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.myfaces.extensions.validator.util.JsfUtils;
@@ -30,15 +31,13 @@ import org.apache.myfaces.extensions.validator.util.JsfUtils;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIParameter;
 import javax.faces.view.facelets.ComponentConfig;
-import javax.faces.view.facelets.ComponentHandler;
-import javax.faces.view.facelets.FaceletContext;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Rudy De Busscher
  */
-public class SecuredComponentHandler extends ComponentHandler {
+public class SecuredComponentHandler extends OctopusComponentHandler {
 
     // ComponentAuthorizationService is a CDI bean, but this bean is not CDI managed
     private ComponentAuthorizationService componentAuthorizationService;
@@ -51,8 +50,7 @@ public class SecuredComponentHandler extends ComponentHandler {
     }
 
     @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent component, UIComponent parent) {
-        super.onComponentPopulated(ctx, component, parent);
+    protected void handleComponentSecurity(UIComponent component, UIComponent parent) {
         checkServices();
 
         String voter = getVoterName(component);

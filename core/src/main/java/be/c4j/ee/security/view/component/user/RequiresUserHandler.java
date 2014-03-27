@@ -22,28 +22,25 @@
 package be.c4j.ee.security.view.component.user;
 
 import be.c4j.ee.security.view.component.ComponentUtil;
+import be.c4j.ee.security.view.component.OctopusComponentHandler;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
 import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.ComponentConfig;
-import javax.faces.view.facelets.ComponentHandler;
-import javax.faces.view.facelets.FaceletContext;
 import java.util.List;
 
 /**
  * @author Rudy De Busscher
  */
-public class RequiresUserHandler extends ComponentHandler {
+public class RequiresUserHandler extends OctopusComponentHandler {
 
     public RequiresUserHandler(ComponentConfig config) {
         super(config);
     }
 
     @Override
-    public void onComponentPopulated(FaceletContext ctx, UIComponent component, UIComponent parent) {
-        super.onComponentPopulated(ctx, component, parent);
-
+    protected void handleComponentSecurity(UIComponent component, UIComponent parent) {
         Boolean not = ComponentUtil.findValue(component, "not", Boolean.class);
         if (not == null) {
             not = Boolean.FALSE;
@@ -61,13 +58,10 @@ public class RequiresUserHandler extends ComponentHandler {
             notAllowed = !notAllowed;
         }
 
-            if (notAllowed) {
-                for (UIComponent targetComponent : targets) {
-                    ComponentUtil.setNoAccess(targetComponent, null);
-                }
+        if (notAllowed) {
+            for (UIComponent targetComponent : targets) {
+                ComponentUtil.setNoAccess(targetComponent, null);
             }
+        }
     }
-
-
-
 }
