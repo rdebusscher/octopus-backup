@@ -78,7 +78,7 @@ public class UserPrincipal implements Principal, Serializable {
 
         UserPrincipal that = (UserPrincipal) o;
 
-        if (!id.equals(that.id)) {
+        if (!id.equals(that.getId())) {
             return false;
         }
 
