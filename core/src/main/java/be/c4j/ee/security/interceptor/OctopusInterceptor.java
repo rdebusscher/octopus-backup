@@ -20,9 +20,9 @@
  */
 package be.c4j.ee.security.interceptor;
 
-import be.c4j.ee.security.config.SecurityModuleConfig;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
-import be.c4j.ee.security.custom.CustomAuthzCheck;
+import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
@@ -34,7 +34,6 @@ import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisio
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
 
@@ -53,13 +52,13 @@ import java.util.Iterator;
 import java.util.Set;
 
 @Interceptor
-@AppSecured
-public class AppSecurityInterceptor implements Serializable {
+@OctopusInterceptorBinding
+public class OctopusInterceptor implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private SecurityModuleConfig config;
+    private OctopusConfig config;
 
     @Inject
     private VoterNameFactory nameFactory;
@@ -128,7 +127,7 @@ public class AppSecurityInterceptor implements Serializable {
                 }
             }
 
-            CustomAuthzCheck customCheck = getAnnotation(annotations, CustomAuthzCheck.class);
+            CustomVoterCheck customCheck = getAnnotation(annotations, CustomVoterCheck.class);
 
             if (customCheck != null) {
                 Set<SecurityViolation> securityViolations = performCustomChecks(customCheck, context);
@@ -175,7 +174,7 @@ public class AppSecurityInterceptor implements Serializable {
         return result;
     }
 
-    private Set<SecurityViolation> performCustomChecks(CustomAuthzCheck customCheck, InvocationContext invocationContext) {
+    private Set<SecurityViolation> performCustomChecks(CustomVoterCheck customCheck, InvocationContext invocationContext) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
         for ( Class<? extends AbstractAccessDecisionVoter> clsName :  customCheck.value()) {
             AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByClass(clsName);
@@ -194,7 +193,7 @@ public class AppSecurityInterceptor implements Serializable {
         result.add(someMethod.getAnnotation(RequiresUser.class));
         result.add(someMethod.getAnnotation(RequiresRoles.class));
         result.add(someMethod.getAnnotation(RequiresPermissions.class));
-        result.add(someMethod.getAnnotation(CustomAuthzCheck.class));
+        result.add(someMethod.getAnnotation(CustomVoterCheck.class));
         if (config.getNamedPermissionCheckClass() != null) {
             result.add(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
         }

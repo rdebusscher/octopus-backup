@@ -18,16 +18,14 @@
  *  under the License.
  * /
  */
-package be.c4j.ee.security.exception;
+package be.c4j.ee.security.interceptor;
 
-import org.apache.shiro.authc.AuthenticationException;
+import javax.interceptor.InterceptorBinding;
+import java.lang.annotation.*;
 
-/**
- *
- */
-public class FrameworkConfigurationException extends AuthenticationException {
-
-    public FrameworkConfigurationException(String message) {
-        super(message);
-    }
+@Inherited
+@InterceptorBinding
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface OctopusInterceptorBinding {
 }

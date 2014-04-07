@@ -18,14 +18,16 @@
  *  under the License.
  * /
  */
-package be.c4j.ee.security.interceptor;
+package be.c4j.ee.security.exception;
 
-import javax.interceptor.InterceptorBinding;
-import java.lang.annotation.*;
+import org.apache.shiro.authc.AuthenticationException;
 
-@Inherited
-@InterceptorBinding
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface AppSecured {
+/**
+ *
+ */
+public class OctopusConfigurationException extends AuthenticationException {
+
+    public OctopusConfigurationException(String message) {
+        super("Octopus Configuration exception: " + message);
+    }
 }

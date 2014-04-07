@@ -21,9 +21,9 @@ package be.c4j.ee.security.extension;
 
 import be.c4j.ee.security.beans.BeanBuilder;
 import be.c4j.ee.security.beans.metadata.DelegatingContextualLifecycle;
-import be.c4j.ee.security.config.SecurityModuleConfig;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
-import be.c4j.ee.security.exception.ConfigurationException;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
@@ -42,9 +42,9 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
 import java.util.Set;
 
-public class SecurityModuleExtension implements Extension {
+public class OctopusExtension implements Extension {
 
-    private SecurityModuleConfig config;
+    private OctopusConfig config;
 
     void keepProducerMethods(@Observes ProcessProducerMethod producerMethod) {
         CDIUtil.registerOptionalBean(producerMethod.getAnnotatedProducerMethod().getJavaMember());
@@ -52,7 +52,7 @@ public class SecurityModuleExtension implements Extension {
 
     void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
-        config = CodiUtils.getContextualReferenceByClass(beanManager, SecurityModuleConfig.class);
+        config = CodiUtils.getContextualReferenceByClass(beanManager, OctopusConfig.class);
 
         createPermissionVoters(afterBeanDiscovery, beanManager);
         createRoleVoters(afterBeanDiscovery, beanManager);
@@ -169,7 +169,7 @@ public class SecurityModuleExtension implements Extension {
 
             PermissionLookup<? extends NamedPermission> permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class);
             if (permissionLookup == null) {
-                throw new ConfigurationException("When using the named permissions, please configure them with the PermissionLookup.  See manual ??? TODO");
+                throw new OctopusConfigurationException("When using the named permissions, please configure them with the PermissionLookup.  See manual ??? TODO");
             }
             result.setNamedPermission(permissionLookup.getPermission(namedPermission.name()));
             return result;
@@ -201,7 +201,7 @@ public class SecurityModuleExtension implements Extension {
             // The producer of this RoleLookup goes to the database and this isn't possible until we are completely ready.
             RoleLookup<? extends NamedRole> roleLookup = CDIUtil.getBeanManually(RoleLookup.class);
             if (roleLookup == null) {
-                throw new ConfigurationException("When using the named roles, please configure them with the RoleLookup.  See manual ??? TODO");
+                throw new OctopusConfigurationException("When using the named roles, please configure them with the RoleLookup.  See manual ??? TODO");
             }
 
             result.setNamedRole(roleLookup.getRole(namedRole.name()));

@@ -34,9 +34,9 @@ import java.lang.annotation.Annotation;
 import java.util.Properties;
 
 @ApplicationScoped
-public class SecurityModuleConfig extends AbstractAttributeAware implements CodiConfig {
+public class OctopusConfig extends AbstractAttributeAware implements CodiConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityModuleConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OctopusConfig.class);
 
     private Properties configProperties;
 
@@ -48,7 +48,7 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
 
     private Class<? extends NamedRole> namedRoleClass;
 
-    protected SecurityModuleConfig() {
+    protected OctopusConfig() {
 
     }
 
@@ -56,8 +56,8 @@ public class SecurityModuleConfig extends AbstractAttributeAware implements Codi
     public void init() {
         configProperties = new Properties();
         try {
-            InputStream resourceStream = SecurityModuleConfig.class.getClassLoader()
-                                                                   .getResourceAsStream("securityModuleConfig.properties");
+            InputStream resourceStream = OctopusConfig.class.getClassLoader()
+                                                                   .getResourceAsStream("octopusConfig.properties");
             if (resourceStream != null) {
                 configProperties.load(resourceStream);
             }

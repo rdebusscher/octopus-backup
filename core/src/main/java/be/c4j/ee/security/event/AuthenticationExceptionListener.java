@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.event;
 
-import be.c4j.ee.security.exception.FrameworkConfigurationException;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationListener;
@@ -41,7 +41,7 @@ public class AuthenticationExceptionListener implements AuthenticationListener {
 
     @Override
     public void onFailure(AuthenticationToken token, AuthenticationException ae) {
-        if (ae instanceof FrameworkConfigurationException) {
+        if (ae instanceof OctopusConfigurationException) {
             FacesMessage fatalMsg = new FacesMessage(FacesMessage.SEVERITY_FATAL, ae.getMessage(), ae.getMessage());
             FacesContext.getCurrentInstance().addMessage(null, fatalMsg);
         }

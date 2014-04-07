@@ -29,12 +29,12 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 
 @ApplicationScoped
-public class SecurityModuleStartupObserver extends AbstractStartupObserver {
+public class OctopusStartupObserver extends AbstractStartupObserver {
 
     @Inject
-    private SecurityModuleConfig securityModuleConfig;
+    private OctopusConfig octopusConfig;
 
-    protected SecurityModuleStartupObserver() {
+    protected OctopusStartupObserver() {
     }
 
     protected void logSecurityModuleConfiguration(@Observes StartupEvent startupEvent) {
@@ -43,7 +43,7 @@ public class SecurityModuleStartupObserver extends AbstractStartupObserver {
             info.append(separator);
 
             //module config
-            info.append(getConfigInfo(securityModuleConfig));
+            info.append(getConfigInfo(octopusConfig));
             logger.info(info.toString());
         }
         //avoid that this log harms the startup

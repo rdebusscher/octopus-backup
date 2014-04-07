@@ -18,6 +18,7 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authz.permission.DomainPermission;
 
 public class NamedDomainPermission extends DomainPermission {
@@ -27,6 +28,9 @@ public class NamedDomainPermission extends DomainPermission {
     public NamedDomainPermission(String someName, String someDomain, String actions, String targets) {
         super(actions, targets);
         setDomain(someDomain);
+        if (someName == null || someName.trim().length() == 0) {
+            throw new OctopusConfigurationException("Named permission can't be null or empty");
+        }
         name = someName;
     }
 

@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.role;
 
-import be.c4j.ee.security.exception.ConfigurationException;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authz.Permission;
 
 /**
@@ -32,7 +32,7 @@ public class NamedApplicationRole implements Permission {
 
     public NamedApplicationRole(String roleName) {
         if (roleName == null || roleName.trim().length() == 0) {
-            throw new ConfigurationException("role name can't be null or empty");
+            throw new OctopusConfigurationException("Role name can't be null or empty");
         }
         this.roleName = roleName;
     }

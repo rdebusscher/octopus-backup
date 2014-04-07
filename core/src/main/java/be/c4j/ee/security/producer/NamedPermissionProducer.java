@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.producer;
 
-import be.c4j.ee.security.config.SecurityModuleConfig;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
@@ -44,7 +44,7 @@ import java.lang.annotation.Annotation;
 public class NamedPermissionProducer {
 
     @Inject
-    private SecurityModuleConfig config;
+    private OctopusConfig config;
 
     @Inject
     private VoterNameFactory nameFactory;

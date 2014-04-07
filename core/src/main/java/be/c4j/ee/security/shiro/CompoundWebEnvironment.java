@@ -20,8 +20,8 @@
  */
 package be.c4j.ee.security.shiro;
 
-import be.c4j.ee.security.config.SecurityModuleConfig;
-import be.c4j.ee.security.realm.CDIModularRealmAuthenticator;
+import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
@@ -41,12 +41,12 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private static final String APP_URL = "";
     private static final Logger LOGGER = LoggerFactory.getLogger(CompoundWebEnvironment.class);
 
-    private SecurityModuleConfig config;
+    private OctopusConfig config;
 
     @Override
     public void init() {
         // config used by setIni which is called by super.init().
-        config = CodiUtils.getContextualReferenceByClass(SecurityModuleConfig.class);
+        config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
         super.init();
     }
 
@@ -84,8 +84,8 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
     private void addAuthenticationListener(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        mainSection.put("CDIAuthenticator", CDIModularRealmAuthenticator.class.getName());
-        mainSection.put("securityManager.authenticator", "$CDIAuthenticator");
+        mainSection.put("OctopusAuthenticator", OctopusRealmAuthenticator.class.getName());
+        mainSection.put("securityManager.authenticator", "$OctopusAuthenticator");
     }
 
     private void addHashedCredentialsConfig(Ini ini, String someHashAlgorithmName) {

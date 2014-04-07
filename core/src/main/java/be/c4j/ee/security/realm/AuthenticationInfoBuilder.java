@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.realm;
 
-import be.c4j.ee.security.exception.FrameworkConfigurationException;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
@@ -63,7 +63,7 @@ public class AuthenticationInfoBuilder {
 
     public AuthenticationInfoBuilder realmName(String realmName) {
         if (realmName == null || realmName.trim().length() == 0) {
-            throw new FrameworkConfigurationException("Realm name can't be empty");
+            throw new OctopusConfigurationException("Realm name can't be empty");
         }
         this.realmName = realmName;
         return this;

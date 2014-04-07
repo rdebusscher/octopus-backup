@@ -18,47 +18,39 @@
  *  under the License.
  * /
  */
-package be.c4j.ee.security.event;
+package be.c4j.ee.security.realm;
 
-import be.c4j.ee.security.model.UserPrincipal;
+import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationListener;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+public class OctopusRealm extends AuthorizingRealm {
 
-@ApplicationScoped
+    private SecurityDataProvider securityDataProvider;
 
-public class CDIAuthenticationListener implements AuthenticationListener {
-
-    @Inject
-    private Event<LogonEvent> logonEvent;
-
-    @Inject
-    private Event<LogonFailureEvent> logonFailureEvent;
-
-    @Inject
-    private Event<LogoutEvent> logoutEvent;
 
     @Override
-    public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
-        LogonEvent event = new LogonEvent(token, info);
-        logonEvent.fire(event);
+    protected void onInit() {
+        super.onInit();
+        securityDataProvider = BeanManagerProvider.getInstance().getContextualReference(SecurityDataProvider.class);
+        setCacheManager(new MemoryConstrainedCacheManager());
+        setCachingEnabled(true);
     }
 
     @Override
-    public void onFailure(AuthenticationToken token, AuthenticationException ae) {
-        LogonFailureEvent event = new LogonFailureEvent(token, ae);
-        logonFailureEvent.fire(event);
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        return securityDataProvider.getAuthorizationInfo(principals);
     }
 
     @Override
-    public void onLogout(PrincipalCollection principals) {
-        LogoutEvent event = new LogoutEvent((UserPrincipal) principals.getPrimaryPrincipal());
-        logoutEvent.fire(event);
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        return securityDataProvider.getAuthenticationInfo((UsernamePasswordToken) token);
     }
+
 }

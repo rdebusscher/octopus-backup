@@ -17,6 +17,5 @@
 # under the License.
 #####################################################################################
 
-# support for @ProjectStageActivated
-be.c4j.ee.security.extension.SecurityModuleExtension
+be.c4j.ee.security.extension.OctopusExtension
 

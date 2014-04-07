@@ -21,7 +21,7 @@
 package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.event.AuthenticationExceptionListener;
-import be.c4j.ee.security.event.CDIAuthenticationListener;
+import be.c4j.ee.security.event.OctopusAuthenticationListener;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -29,7 +29,7 @@ import org.apache.shiro.authc.AuthenticationListener;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 
-public class CDIModularRealmAuthenticator extends ModularRealmAuthenticator {
+public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
 
     private boolean listenerConfigured = false;
 
@@ -42,7 +42,7 @@ public class CDIModularRealmAuthenticator extends ModularRealmAuthenticator {
     }
 
     private void configureListeners() {
-        AuthenticationListener listener = CodiUtils.getContextualReferenceByClass(CDIAuthenticationListener.class);
+        AuthenticationListener listener = CodiUtils.getContextualReferenceByClass(OctopusAuthenticationListener.class);
         getAuthenticationListeners().add(listener);
 
         getAuthenticationListeners().add(new AuthenticationExceptionListener());

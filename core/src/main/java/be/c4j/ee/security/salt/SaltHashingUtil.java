@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.salt;
 
-import be.c4j.ee.security.config.SecurityModuleConfig;
+import be.c4j.ee.security.config.OctopusConfig;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class SaltHashingUtil {
     private int saltLength;
 
     @Inject
-    private SecurityModuleConfig config;
+    private OctopusConfig config;
 
     @PostConstruct
     public void init() {

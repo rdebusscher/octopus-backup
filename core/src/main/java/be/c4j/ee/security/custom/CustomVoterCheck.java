@@ -27,6 +27,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CustomAuthzCheck {
+public @interface CustomVoterCheck {
     Class<? extends AbstractAccessDecisionVoter>[] value();
 }
