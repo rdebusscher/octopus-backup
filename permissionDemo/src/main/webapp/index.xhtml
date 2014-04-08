@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui" xmlns:sec="http://www.c4j.be/secure">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">Octopus Permission demo</ui:define>
+
+    <ui:define name="body">
+
+        <p:panel header="Welcome">
+            Example application demonstrating the permission based features of Octopus. <br/>
+            TODO refer to the more elaborated explanation in the Hands-On-Lab
+        </p:panel>
+
+        <h:panelGroup>
+            Since you are not authenticated yet, navigating to one of the pages will show a login form.
+            <sec:requiresUser not="true"/>
+        </h:panelGroup>
+
+
+    </ui:define>
+</ui:composition>
+</html>

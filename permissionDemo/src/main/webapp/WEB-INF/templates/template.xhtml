@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+      xmlns:sec="http://www.c4j.be/secure">
+
+<ui:insert name="metadata"/>
+
+<h:head>
+    <title><ui:define name="title">Application Title</ui:define></title>
+    <meta http-equiv="content-type" content="text/xhtml; charset=UTF-8"/>
+    <h:outputStylesheet library="css" name="starter.css"/>
+</h:head>
+
+<h:body>
+    <h:panelGroup layout="block" id="header">Welcome #{loggedInUser}
+        <h:form id="logoutFrm">
+            <h:commandLink id="logoutLink" actionListener="#{loginBean.logout()}">Logout</h:commandLink>
+        </h:form>
+        <sec:requiresUser/>
+    </h:panelGroup>
+
+    <div id="menu">
+        <h:link outcome="/index.xhtml" value="Home"/> <br/>
+        <h:link outcome="/pages/departmentList.xhtml" value="Departments"/> <br/>
+        <h:link outcome="/pages/employeeInfo.xhtml" value="You">
+            <f:param name="you" value="true" />
+        </h:link>
+
+    </div>
+    <div id="main">
+        <p:messages autoUpdate="true" />
+        <h:form id="mainFrm">
+
+            <ui:insert name="body">Default content</ui:insert>
+        </h:form>
+    </div>
+
+</h:body>
+</html>

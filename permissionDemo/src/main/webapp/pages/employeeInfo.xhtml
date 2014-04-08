@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+      xmlns:sec="http://www.c4j.be/secure" xmlns:f="http://java.sun.com/jsf/core">
+
+<body>
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="employeeId" value="#{employeeBean.employeeId}"/>
+            <f:event type="preRenderView" listener="#{employeeBean.loadEmployee}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">Primefaces Sample</ui:define>
+
+    <ui:define name="body">
+
+        <p:panel header="Employee information of #{employeeBean.employee.name}">
+            <p:panelGrid columns="2">
+                <h:outputText value="salary"/> <h:outputText value="#{employeeBean.employee.salary}" />
+                <h:outputText value="department"/>
+                <h:link outcome="/pages/departmentEmployees.xhtml" value="#{employeeBean.employee.department.name}">
+                    <f:param name="departmentId" value="#{employeeBean.employee.department.id}" />
+                </h:link>
+                <h:outputText value="manager"/> <h:outputText value="#{employeeBean.employee.manager.name}" />
+
+            </p:panelGrid>
+            And other confidential information like address but here not shown as it is a demo. <br/>
+            <p:button value="Update salary" outcome="updateSalary.xhtml" >
+                <f:param name="employeeId" value="#{employeeBean.employee.id}" />
+                <sec:securedComponent voter="employeeSalaryUpdateVoter" >
+                    <sec:securedComponentParameter value="#{employeeBean.employee.id}" />
+                </sec:securedComponent>
+            </p:button>
+        </p:panel>
+    </ui:define>
+</ui:composition>
+</body>
+</html>
