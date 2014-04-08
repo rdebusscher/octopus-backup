@@ -46,7 +46,7 @@ public class SaltHashingUtil {
             saltLength = Integer.valueOf(config.getSaltLength());
         } catch (NumberFormatException e) {
             LOGGER.warn("Salt length config parameter can't be converted to integer (value = " + config.getSaltLength()
-                    + " 16 is taken as value");
+                    + ") 16 is taken as value");
         }
     }
 

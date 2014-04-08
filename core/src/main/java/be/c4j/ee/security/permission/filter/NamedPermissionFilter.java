@@ -41,7 +41,7 @@ public class NamedPermissionFilter extends AuthorizationFilter {
         checkLookup();
 
         boolean permitted = true;
-        for(String permissionName : permissions) {
+        for (String permissionName : permissions) {
             if (!subject.isPermitted(permissionLookup.getPermission(permissionName))) {
                 permitted = false;
             }

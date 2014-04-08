@@ -49,7 +49,6 @@ public class OctopusConfig extends AbstractAttributeAware implements CodiConfig 
     private Class<? extends NamedRole> namedRoleClass;
 
     protected OctopusConfig() {
-
     }
 
     @PostConstruct
@@ -57,12 +56,14 @@ public class OctopusConfig extends AbstractAttributeAware implements CodiConfig 
         configProperties = new Properties();
         try {
             InputStream resourceStream = OctopusConfig.class.getClassLoader()
-                                                                   .getResourceAsStream("octopusConfig.properties");
+                                             .getResourceAsStream("octopusConfig.properties");
             if (resourceStream != null) {
                 configProperties.load(resourceStream);
+            } else {
+                LOGGER.warn("File octopusConfig.properties not found.");
             }
         } catch (IOException e) {
-            ;
+            LOGGER.warn("Exception during reading of the octopusConfig.properties file");
         }
 
     }

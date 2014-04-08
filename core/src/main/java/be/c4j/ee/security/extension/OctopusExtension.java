@@ -66,11 +66,11 @@ public class OctopusExtension implements Extension {
     private void createPermissionVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
         VoterNameFactory nameFactory = CodiUtils.getContextualReferenceByClass(beanManager, VoterNameFactory.class);
 
-        Class<? extends NamedPermission> c = config.getNamedPermissionClass();
+        Class<? extends NamedPermission> namedPermissionClass = config.getNamedPermissionClass();
 
-        if (c != null) {
+        if (namedPermissionClass != null) {
 
-            Object[] constants = c.getEnumConstants();
+            Object[] constants = namedPermissionClass.getEnumConstants();
 
             AnnotatedType<GenericPermissionVoter> permissionVoterAnnotatedType = beanManager
                     .createAnnotatedType(GenericPermissionVoter.class);
@@ -97,11 +97,11 @@ public class OctopusExtension implements Extension {
     private void createRoleVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
         VoterNameFactory nameFactory = CodiUtils.getContextualReferenceByClass(beanManager, VoterNameFactory.class);
 
-        Class<? extends NamedRole> c = config.getNamedRoleClass();
+        Class<? extends NamedRole> namedRoleClass = config.getNamedRoleClass();
 
-        if (c != null) {
+        if (namedRoleClass != null) {
 
-            Object[] constants = c.getEnumConstants();
+            Object[] constants = namedRoleClass.getEnumConstants();
 
             AnnotatedType<GenericRoleVoter> roleVoterAnnotatedType = beanManager
                     .createAnnotatedType(GenericRoleVoter.class);

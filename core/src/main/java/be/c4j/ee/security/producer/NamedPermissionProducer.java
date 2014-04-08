@@ -62,10 +62,11 @@ public class NamedPermissionProducer {
         if (annotation == null) {
             throw new UnsatisfiedResolutionException(
                     "Injection points for GenericPermissionVoter needs an additional " + config.getNamedPermissionCheck() +
-                            " annotation to determine the correct bean");
+                            " annotation to determine the correct bean"
+            );
         }
         NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
-        if (permissions.length>1) {
+        if (permissions.length > 1) {
             throw new AmbiguousResolutionException("Only one named permission can be specified.");
         }
 
@@ -80,10 +81,11 @@ public class NamedPermissionProducer {
         if (annotation == null) {
             throw new UnsatisfiedResolutionException(
                     "Injection points for NamedDomainPermission needs an additional " + config.getNamedPermissionCheck() +
-                            " annotation to determine the correct bean");
+                            " annotation to determine the correct bean"
+            );
         }
         NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
-        if (permissions.length>1) {
+        if (permissions.length > 1) {
             throw new AmbiguousResolutionException("Only one named permission can be specified.");
         }
 

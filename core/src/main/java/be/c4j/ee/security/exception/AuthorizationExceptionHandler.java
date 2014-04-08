@@ -55,40 +55,12 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
         Iterator<ExceptionQueuedEvent> i = getUnhandledExceptionQueuedEvents().iterator();
         while (i.hasNext()) {
             ExceptionQueuedEvent event = i.next();
-            ExceptionQueuedEventContext context = (ExceptionQueuedEventContext) event.getSource();
-
-            // get the exception from context
-            Throwable t = context.getException();
-
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ExternalContext externalContext = facesContext.getExternalContext();
+            Throwable t = getThrowable(event);
 
             Throwable unauthorized = getUnauthorizedException(t);
-            //here you do what ever you want with exception
             if (unauthorized != null) {
                 try {
-
-                    //log error ?
-                    LOGGER.error("Critical Exception!", t);
-
-                    externalContext.getFlash().setKeepMessages(true);
-                    facesContext.addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR, unauthorized.getMessage(), unauthorized.getMessage()));
-
-                    if (unauthorized instanceof OctopusUnauthorizedException) {
-
-                        externalContext.getFlash().putNow("interceptionInfo", ((OctopusUnauthorizedException) unauthorized ) .getExceptionPointInfo());
-                    }
-                    try {
-                        OctopusConfig config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
-                        externalContext.redirect(externalContext.getRequestContextPath() + config.getUnauthorizedExceptionPage());
-
-                    } catch (IOException e) {
-                        LOGGER.error("Redirect to unauthorized page failed", e);
-                    }
-                    facesContext.renderResponse();
-
-
+                    handleAuthorizationException(unauthorized);
                 } finally {
                     //remove it from queue
                     i.remove();
@@ -97,6 +69,36 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
         }
         //parent handle
         getWrapped().handle();
+    }
+
+    private void handleAuthorizationException(Throwable unauthorized) {
+        LOGGER.error("Authorization Exception ", unauthorized);
+
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ExternalContext externalContext = facesContext.getExternalContext();
+
+        externalContext.getFlash().setKeepMessages(true);
+        facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, unauthorized.getMessage(), unauthorized.getMessage()));
+
+        if (unauthorized instanceof OctopusUnauthorizedException) {
+
+            externalContext.getFlash().putNow("interceptionInfo", ((OctopusUnauthorizedException) unauthorized ) .getExceptionPointInfo());
+        }
+        try {
+            OctopusConfig config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
+            externalContext.redirect(externalContext.getRequestContextPath() + config.getUnauthorizedExceptionPage());
+
+        } catch (IOException e) {
+            LOGGER.error("Redirect to unauthorized page failed", e);
+        }
+        facesContext.renderResponse();
+    }
+
+    private Throwable getThrowable(ExceptionQueuedEvent event) {
+        ExceptionQueuedEventContext context = (ExceptionQueuedEventContext) event.getSource();
+
+        return context.getException();
     }
 
     private Throwable getUnauthorizedException(Throwable someException) {

@@ -31,7 +31,7 @@ import java.util.List;
  *
  */
 @ApplicationScoped
-public class MethodParameterCheck {
+public class MethodParameterCheckUtil {
 
     @Inject
     private SecurityViolationInfoProducer infoProducer;

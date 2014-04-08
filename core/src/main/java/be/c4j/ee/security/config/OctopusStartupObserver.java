@@ -37,7 +37,7 @@ public class OctopusStartupObserver extends AbstractStartupObserver {
     protected OctopusStartupObserver() {
     }
 
-    protected void logSecurityModuleConfiguration(@Observes StartupEvent startupEvent) {
+    protected void logOctopusConfiguration(@Observes StartupEvent startupEvent) {
         try {
             StringBuilder info = new StringBuilder("[Started] Octopus framework (C4J) ");
             info.append(separator);

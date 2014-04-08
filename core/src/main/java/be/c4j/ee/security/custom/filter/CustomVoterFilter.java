@@ -41,7 +41,6 @@ public class CustomVoterFilter extends AuthorizationFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
 
-
         String[] voters = (String[]) mappedValue;
 
         BeanManager bm = BeanManagerProvider.getInstance().getBeanManager();
@@ -59,6 +58,5 @@ public class CustomVoterFilter extends AuthorizationFilter {
             }
         }
         return permitted;
-
     }
 }

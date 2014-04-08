@@ -32,9 +32,7 @@ public class AuthorizationExceptionHandlerFactory extends ExceptionHandlerFactor
     @Override
     public ExceptionHandler getExceptionHandler() {
 
-        ExceptionHandler handler = new AuthorizationExceptionHandler(parent.getExceptionHandler());
-
-        return handler;
+        return new AuthorizationExceptionHandler(parent.getExceptionHandler());
     }
 
 }
