@@ -1,14 +1,27 @@
-= Java EE Security First
+= Octopus Framework
 C4J - Rudy De Busscher <rudy.debusscher@c4j.be>
-v0.9, 21/02/2014
+v0.9.3-SNAPSHOT, 08/04/2014
 
 == Introduction
+
+include::idea.adi[]
 
 == Concepts
 
 include::concepts.adi[]
 
-== Setup
-
 == Features
 
+include::features.adi[]
+
+== Compatibility
+
+include::compatibility.adi[]
+
+== Setup
+
+include::setup.adi[]
+
+=== SecurityDataProvider
+
+include::SecurityDataProvider.adi[]
