@@ -25,3 +25,11 @@ include::setup.adi[]
 === SecurityDataProvider
 
 include::SecurityDataProvider.adi[]
+
+=== Using Oracle Users for authentication
+
+include::oracleUser.adi[]
+
+=== Appendix
+
+include::appendix.adi[]

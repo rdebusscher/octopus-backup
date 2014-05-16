@@ -21,6 +21,7 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.credentials.OracleCredentialsMatcher;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -72,6 +73,11 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                     throw new IllegalArgumentException("Hash algorithm name unknown : " + hashAlgorithmName, e);
                 }
                 addHashedCredentialsConfig(ini, hashAlgorithmName);
+            } else {
+                String oracleBasedAuthentication = config.getOracleBasedAuthentication();
+                if (oracleBasedAuthentication != null && oracleBasedAuthentication.trim().length() > 0) {
+                    setOracleBasedMatcher(ini);
+                }
             }
 
             addAuthenticationListener(ini);
@@ -92,6 +98,12 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("credentialsMatcher", HashedCredentialsMatcher.class.getName());
         mainSection.put("credentialsMatcher.hashAlgorithmName",someHashAlgorithmName);
+        mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
+    }
+
+    private void setOracleBasedMatcher(Ini ini) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("credentialsMatcher", OracleCredentialsMatcher.class.getName());
         mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
     }
 

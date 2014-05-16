@@ -1,0 +1,127 @@
+=== Appendix
+
+==== Oracle Stored function for OracleCredentialsMatcher
+
+For an oracle 10g database, create this function in the schema of the user used in the connection pool to the database fro the application server (or grant the required executions rights in addition to a public synonym)
+
+[source]
+----
+create or replace FUNCTION check_password(
+    username IN VARCHAR2,
+    password IN VARCHAR2)
+  RETURN VARCHAR2
+IS
+
+  raw_key raw(128):= hextoraw('0123456789ABCDEF');
+
+  raw_ip raw(128);
+  pwd_hash VARCHAR2(16);
+
+  CURSOR c_user (cp_name IN VARCHAR2)
+  IS
+    SELECT password FROM sys.user$ WHERE password IS NOT NULL AND name=cp_name;
+
+PROCEDURE unicode_str(
+    userpwd IN VARCHAR2,
+    unistr OUT raw)
+IS
+  enc_str   VARCHAR2(124):='';
+  tot_len   NUMBER;
+  curr_char CHAR(1);
+  padd_len  NUMBER;
+  ch        CHAR(1);
+  mod_len   NUMBER;
+  debugp    VARCHAR2(256);
+BEGIN
+  tot_len:=LENGTH(userpwd);
+  FOR i IN 1..tot_len
+  LOOP
+    curr_char:=SUBSTR(userpwd,i,1);
+    enc_str  :=enc_str||chr(0)||curr_char;
+  END LOOP;
+  mod_len    := mod((tot_len*2),8);
+  IF (mod_len = 0) THEN
+    padd_len := 0;
+  ELSE
+    padd_len:=8 - mod_len;
+  END IF;
+  FOR i IN 1..padd_len
+  LOOP
+    enc_str:=enc_str||chr(0);
+  END LOOP;
+  unistr:=utl_raw.cast_to_raw(enc_str);
+END;
+
+FUNCTION getHash(
+    userpwd IN raw)
+  RETURN VARCHAR2
+IS
+  enc_raw raw(2048);
+
+  raw_key2 raw(128);
+  pwd_hash raw(2048);
+
+  hexstr        VARCHAR2(2048);
+  LEN           NUMBER;
+  password_hash VARCHAR2(16);
+BEGIN
+  dbms_obfuscation_toolkit.DESEncrypt(input => userpwd, KEY => raw_key, encrypted_data => enc_raw );
+  hexstr  :=rawtohex(enc_raw);
+  LEN     :=LENGTH(hexstr);
+  raw_key2:=hextoraw(SUBSTR(hexstr,(LEN-16+1),16));
+  dbms_obfuscation_toolkit.DESEncrypt(input => userpwd, KEY => raw_key2, encrypted_data => pwd_hash );
+  hexstr       :=hextoraw(pwd_hash);
+  LEN          :=LENGTH(hexstr);
+  password_hash:=SUBSTR(hexstr,(LEN-16+1),16);
+  RETURN(password_hash);
+END;
+BEGIN
+  OPEN c_user(upper(username));
+  FETCH c_user INTO pwd_hash;
+  CLOSE c_user;
+  unicode_str(upper(username)||upper(password),raw_ip);
+  IF( pwd_hash = getHash(raw_ip)) THEN
+    RETURN ('Y');
+  ELSE
+    RETURN ('N');
+  END IF;
+END;
+----
+
+For an oracle 11g database, this the version of the stored function which you need.
+
+[source]
+----
+create or replace FUNCTION CHECK_PASSWORD(
+    p_USERNAME IN VARCHAR2 ,
+    p_PASSWORD IN VARCHAR2 )
+  RETURN VARCHAR2
+AS
+  lv_pwd_raw RAW(128);
+  lv_enc_raw RAW(2048);
+  lv_hash_found VARCHAR2(300);
+  CURSOR c_main(cp_user IN VARCHAR2)
+  IS
+    SELECT SUBSTR(spare4,3,40) hash,
+      SUBSTR(spare4,43,20) salt,
+      spare4
+    FROM sys.user$
+    WHERE name=cp_user;
+  lv_user c_main%rowtype;
+  lv_result VARCHAR2(1);
+BEGIN
+  OPEN c_main(upper(p_USERNAME));
+  FETCH c_main INTO lv_user;
+  CLOSE c_main;
+  lv_pwd_raw   := utl_raw.cast_to_raw(p_password)||hextoraw(lv_user.salt);
+  lv_enc_raw   := sys.dbms_crypto.hash(lv_pwd_raw, 3);
+  lv_hash_found:= utl_raw.cast_to_varchar2(lv_enc_raw);
+
+  IF lv_enc_raw = lv_user.hash THEN
+    lv_result  := 'Y';
+  ELSE
+    lv_result := 'N';
+  END IF;
+  RETURN lv_result;
+END CHECK_PASSWORD;
+----

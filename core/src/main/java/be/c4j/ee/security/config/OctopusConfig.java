@@ -118,6 +118,11 @@ public class OctopusConfig extends AbstractAttributeAware implements CodiConfig 
         return configProperties.getProperty("saltLength", "0");
     }
 
+    @ConfigEntry
+    public String getOracleBasedAuthentication() {
+        return configProperties.getProperty("oracleAuthentication", null);
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null && getNamedPermissionCheck().length() != 0) {
 

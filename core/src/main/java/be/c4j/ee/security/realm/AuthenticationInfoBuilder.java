@@ -29,6 +29,7 @@ import org.apache.shiro.util.ByteSource;
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -37,10 +38,12 @@ import java.util.Map;
 @Typed
 public class AuthenticationInfoBuilder {
 
+    private static final String DEFAULT_REALM = "OctopusApp";
+
     private Serializable principalId;
     private String name;
     private Object password;
-    private String realmName = "OctopusApp";
+    private String realmName = DEFAULT_REALM;
     private ByteSource salt;
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
 
@@ -94,5 +97,10 @@ public class AuthenticationInfoBuilder {
             result = new SimpleAuthenticationInfo(principal, password, salt, realmName);
         }
         return result;
+    }
+
+    public static AuthenticationInfo forOracleAuthentication(String name) {
+        UserPrincipal principal = new UserPrincipal(name.toUpperCase(Locale.ENGLISH), name);
+        return new SimpleAuthenticationInfo(principal, null, DEFAULT_REALM);
     }
 }

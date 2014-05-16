@@ -1,0 +1,34 @@
+One of the classic scenarios is that the users which are allowed to access your application, are stored in a database table.
+
+However, there exists a range of application running on the Oracle database which uses the database users to perform the authentication. With Octopus this is also possible when a stored function is installed on the database (scripts provided in the appendix)
+
+==== Overview
+
+As explained in the <<SecurityDataProvider>> chapter, the getAuthenticationInfo() method of the SecurityDataProvider interface is responsible for returning the required data to the Octopus code.
+ However, when we use the Oracle database for authentication purposes (users defined as schema owners, not stored in a custom table) this is no longer possible.
+ Instead of this, we need to return a special AuthenticationInfo object and we make a configuration change so that apache Shiro can use a special CredentialsMatcher.
+
+==== Configuration
+
+In the configuration file, +octopusConfig.properties+, we need to indicate that we will use the Oracle user names.
+
+[source]
+----
+oracleAuthentication = true
+----
+
+In fact the value that you specify isn't of any importance. Specifying the +oracleAuthentication+ with a non empty value is enough to activate the feature.  The value will be ignored when you also specify the +hashAlgorithmName+ configuration option.
+
+==== Authentication
+
+Since we can't supply Octopus with some valid credentials in response to the call to *getAuthenticationInfo()*, we are allowed to return a special build instance for this situation.
+
+[source, java]
+----
+return AuthenticationInfoBuilder.forOracleAuthentication(token.getUserName());
+----
+
+==== Authorization
+
+For authorization purposes, the getAuthorizationInfo() method is still called and you need to return the permissions the user has.  The principalId which is supplied to this method is to user name in uppercase.
+

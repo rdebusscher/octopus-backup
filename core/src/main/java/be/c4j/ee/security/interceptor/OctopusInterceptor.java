@@ -75,7 +75,7 @@ public class OctopusInterceptor implements Serializable {
         Set<?> annotations = getAllAnnotations(classType, method);
         if (!hasAnnotation(annotations, PermitAll.class)) {
             if (annotations.isEmpty()) {
-                throw new OctopusUnauthorizedException("No Authentication Requirements available", infoProducer.getViolationInfo(context));
+                throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(context));
             }
 
             if (!subject.isAuthenticated() && hasAnnotation(annotations, RequiresAuthentication.class)) {

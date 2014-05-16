@@ -1,3 +1,5 @@
+[[SecurityDataProvider]]
+
 This chapter describes how you can supply the authentication and authorization information to Octopus.
 
 The framework is built around the principal that the developer is responsible for retrieving the information in the correct backed system (like a database or LDAP system) but that there is no code present in the framework to do this.
