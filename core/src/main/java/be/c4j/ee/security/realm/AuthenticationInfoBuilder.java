@@ -42,6 +42,7 @@ public class AuthenticationInfoBuilder {
 
     private Serializable principalId;
     private String name;
+    private String userName;
     private Object password;
     private String realmName = DEFAULT_REALM;
     private ByteSource salt;
@@ -55,6 +56,11 @@ public class AuthenticationInfoBuilder {
 
     public AuthenticationInfoBuilder name(String name) {
         this.name = name;
+        return this;
+    }
+
+    public AuthenticationInfoBuilder userName(String userName) {
+        this.userName = userName;
         return this;
     }
 
@@ -88,7 +94,7 @@ public class AuthenticationInfoBuilder {
     }
 
     public AuthenticationInfo build() {
-        UserPrincipal principal = new UserPrincipal(principalId, name);
+        UserPrincipal principal = new UserPrincipal(principalId, userName, name);
         principal.addUserInfo(userInfo);
         AuthenticationInfo result;
         if (salt == null) {
@@ -99,8 +105,9 @@ public class AuthenticationInfoBuilder {
         return result;
     }
 
-    public static AuthenticationInfo forOracleAuthentication(String name) {
-        UserPrincipal principal = new UserPrincipal(name.toUpperCase(Locale.ENGLISH), name);
+    public static AuthenticationInfo forOracleAuthentication(String userName) {
+        String name = userName.toUpperCase(Locale.ENGLISH);
+        UserPrincipal principal = new UserPrincipal(name, name, name);
         return new SimpleAuthenticationInfo(principal, null, DEFAULT_REALM);
     }
 }

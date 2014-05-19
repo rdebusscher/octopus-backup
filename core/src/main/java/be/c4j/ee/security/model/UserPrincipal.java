@@ -30,7 +30,7 @@ import java.util.Map;
 public class UserPrincipal implements Principal, Serializable {
 
     private Serializable id;
-
+    private String userName;
     private String name;
 
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
@@ -39,11 +39,12 @@ public class UserPrincipal implements Principal, Serializable {
     public UserPrincipal() {
     }
 
-    public UserPrincipal(Serializable id, String name) {
+    public UserPrincipal(Serializable id, String userName, String name) {
         if (id == null) {
             throw new IllegalArgumentException("id cannot be null");
         }
         this.id = id;
+        this.userName = userName;
         this.name = name;
     }
 
@@ -54,6 +55,10 @@ public class UserPrincipal implements Principal, Serializable {
     @Override
     public String getName() {
         return name;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
     public void addUserInfo(Serializable key, Serializable value) {

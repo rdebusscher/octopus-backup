@@ -35,6 +35,7 @@ For the return Object, you can use the +AuthenticationInfoBuilder+ to create it 
 .AuthenticationInfoBuilder methods
 . principalId(Serializable) : Each user must be uniquely identified. It will also used by Apache Shiro when the authorization is requested.
 . name(String) : The description for the user, like his full name.  This can be used to put on the screen.
+. userName(String) : The user name if you need this for features like re-authentication and proxy users of Oracle database. (Optional)
 . password(Object) : The password for the user name or the hash when hashed passwords are used. See also ??? password mechanism ??? for a more complete explanation, like salted hashed passwords.
 . realmName(String) : name for the realm. Multiple realms are not yet supported by Octopus.
 . salt(Object) : The salt for the hashed password, see ??? password mechanism ???
