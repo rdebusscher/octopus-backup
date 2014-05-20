@@ -22,6 +22,9 @@ package be.c4j.ee.security.util;
 
 import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -75,5 +78,17 @@ public final class CDIUtil {
 
     public static void registerOptionalBean(Method producerMethod) {
         OPTIONAL_BEAN_INFO.put(producerMethod.getReturnType(), producerMethod);
+    }
+
+    public static <T> T getContextualReferenceByName(BeanManager beanManager, String beanName, Class<T> targetClass) {
+        T result = null;
+        // CodiUtils.getContextualReferenceByName() isn't working on WLS in some cases as WLS only stores the type of the actual class and not all superclasses
+        Bean bean = beanManager.getBeans(beanName).iterator().next();
+        CreationalContext ctx = beanManager.createCreationalContext(bean);
+        Object o = beanManager.getReference(bean, Object.class, ctx);
+        if (targetClass.isAssignableFrom(o.getClass())) {
+            result = (T)o;
+        }
+        return result;
     }
 }

@@ -29,7 +29,6 @@ import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -70,7 +69,7 @@ public class NamedRoleProducer {
         }
 
 
-        return CodiUtils.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
+        return CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
                 .generateRoleBeanName(roles[0].name()), GenericRoleVoter.class);
     }
 

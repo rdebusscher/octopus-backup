@@ -29,6 +29,7 @@ import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
+import be.c4j.ee.security.util.CDIUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
@@ -37,6 +38,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
@@ -65,6 +67,16 @@ public class OctopusInterceptor implements Serializable {
 
     @Inject
     private SecurityViolationInfoProducer infoProducer;
+
+    @PostConstruct
+    public void init(InvocationContext context) {
+        if (config == null) {
+            // WLS12C doesn't inject into interceptors
+            config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
+            nameFactory = CodiUtils.getContextualReferenceByClass(VoterNameFactory.class);
+            infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
+        }
+    }
 
     @AroundInvoke
     public Object interceptShiroSecurity(InvocationContext context) throws Exception {
@@ -147,12 +159,12 @@ public class OctopusInterceptor implements Serializable {
 
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
 
-        for ( Object permissionConstant :  AnnotationUtil.getPermissionValues(customNamedCheck)) {
-                String beanName = nameFactory.generatePermissionBeanName( ((NamedPermission) permissionConstant).name());
+        for (Object permissionConstant : AnnotationUtil.getPermissionValues(customNamedCheck)) {
+            String beanName = nameFactory.generatePermissionBeanName(((NamedPermission) permissionConstant).name());
 
-            GenericPermissionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
-                                                                                           , GenericPermissionVoter.class);
-                result.addAll(voter.checkPermission(invocationContext));
+            GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
+                    , GenericPermissionVoter.class);
+            result.addAll(voter.checkPermission(invocationContext));
 
         }
         return result;
@@ -166,7 +178,7 @@ public class OctopusInterceptor implements Serializable {
         for ( Object permissionConstant :  AnnotationUtil.getRoleValues(customNamedCheck)) {
             String beanName = nameFactory.generateRoleBeanName(((NamedRole) permissionConstant).name());
 
-            GenericPermissionVoter voter = CodiUtils.getContextualReferenceByName(beanmanager,  beanName
+            GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager,  beanName
                     , GenericPermissionVoter.class);
             result.addAll(voter.checkPermission(invocationContext));
 

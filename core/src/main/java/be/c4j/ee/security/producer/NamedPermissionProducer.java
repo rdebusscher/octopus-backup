@@ -29,7 +29,6 @@ import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -71,7 +70,7 @@ public class NamedPermissionProducer {
         }
 
 
-        return CodiUtils.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
+        return CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
                 .generatePermissionBeanName(permissions[0].name()), GenericPermissionVoter.class);
     }
 

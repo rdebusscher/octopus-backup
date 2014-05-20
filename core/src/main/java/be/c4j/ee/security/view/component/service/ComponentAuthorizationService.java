@@ -21,13 +21,13 @@
 
 package be.c4j.ee.security.view.component.service;
 
+import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.InvocationContextImpl;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
 import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
 import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
 import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +101,7 @@ public class ComponentAuthorizationService {
     private AbstractAccessDecisionVoter getBean(final String name) {
         AbstractAccessDecisionVoter result = null;
         try {
-            result = CodiUtils.getContextualReferenceByName(beanManager, name, AbstractAccessDecisionVoter.class);
+            result = CDIUtil.getContextualReferenceByName(beanManager, name, AbstractAccessDecisionVoter.class);
         } catch (NoSuchElementException e) {
             logger.warn("The AccessDecisionVoter with name " + name + " is not found.");
         }
