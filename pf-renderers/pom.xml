@@ -27,7 +27,7 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>primefaces</artifactId>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.3</version>
 
     <name>PrimeFaces renderers for Octopus framework</name>
     <inceptionYear>2014</inceptionYear>
@@ -139,7 +139,7 @@
         <dependency>
             <groupId>be.c4j.ee.security</groupId>
             <artifactId>octopus</artifactId>
-            <version>0.9.3-SNAPSHOT</version>
+            <version>0.9.3</version>
         </dependency>
 
         <dependency>
