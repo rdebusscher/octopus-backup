@@ -47,4 +47,12 @@ public class SecureRendererKit extends RenderKitWrapper {
         }
         return super.getRenderer(family, rendererType);
     }
+
+    @Override
+    public void addRenderer(String s, String s2, Renderer renderer) {
+        // FIXME Issue 25, workaround, not a very good solution
+        if (!renderer.getClass().getName().contains("mobile")) {
+            super.addRenderer(s, s2, renderer);
+        }
+    }
 }
