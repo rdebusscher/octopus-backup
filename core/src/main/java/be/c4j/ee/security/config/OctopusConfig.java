@@ -123,6 +123,11 @@ public class OctopusConfig extends AbstractAttributeAware implements CodiConfig 
         return configProperties.getProperty("oracleAuthentication", "");
     }
 
+    @ConfigEntry
+    public String getPostIsAllowedSavedRequest() {
+        return configProperties.getProperty("allowPostAsSavedRequest", "true");
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null && getNamedPermissionCheck().length() != 0) {
 
