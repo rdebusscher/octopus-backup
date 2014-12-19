@@ -1,2 +1,2 @@
-/core/target
-/pf-renderers/taget
+**/target
+*.iml
