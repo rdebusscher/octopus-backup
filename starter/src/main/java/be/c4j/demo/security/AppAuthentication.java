@@ -3,7 +3,7 @@ package be.c4j.demo.security;
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -17,12 +17,12 @@ public class AppAuthentication implements SecurityDataProvider {
     private int principalId = 0;
 
     @Override
-    public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+    public AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token) {
 
         AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
         authenticationInfoBuilder.principalId(principalId++).name(token.getPrincipal().toString());
         // TODO: Change for production. Here we use username as password
-        authenticationInfoBuilder.realmName("MyApp").password(token.getPrincipal());
+        authenticationInfoBuilder.password(token.getUsername());
 
         return authenticationInfoBuilder.build();
     }

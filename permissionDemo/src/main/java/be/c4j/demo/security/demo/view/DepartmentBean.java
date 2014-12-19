@@ -4,8 +4,9 @@ import be.c4j.demo.security.demo.model.Employee;
 import be.c4j.demo.security.demo.model.dto.DepartmentWithSalaryTotal;
 import be.c4j.demo.security.demo.service.DepartmentService;
 import be.c4j.demo.security.demo.service.EmployeeService;
-import org.apache.myfaces.extensions.cdi.core.api.scope.conversation.ViewAccessScoped;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.ViewAccessScoped;
+
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -62,7 +63,7 @@ public class DepartmentBean implements Serializable {
     private void readObject(ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        departmentService = CodiUtils.getContextualReferenceByClass(DepartmentService.class);
-        employeeService = CodiUtils.getContextualReferenceByClass(EmployeeService.class);
+        departmentService = BeanProvider.getContextualReference(DepartmentService.class);
+        employeeService = BeanProvider.getContextualReference(EmployeeService.class);
     }
 }

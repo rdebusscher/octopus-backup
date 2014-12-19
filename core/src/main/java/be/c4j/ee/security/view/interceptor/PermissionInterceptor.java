@@ -21,10 +21,11 @@
 
 package be.c4j.ee.security.view.interceptor;
 
-import org.apache.myfaces.extensions.validator.core.interceptor.RendererInterceptor;
-import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipAfterInterceptorsException;
-import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipBeforeInterceptorsException;
-import org.apache.myfaces.extensions.validator.core.renderkit.exception.SkipRendererDelegationException;
+import be.rubus.web.jerry.interceptor.AbstractRendererInterceptor;
+import be.rubus.web.jerry.interceptor.RendererInterceptor;
+import be.rubus.web.jerry.interceptor.exception.SkipAfterInterceptorsException;
+import be.rubus.web.jerry.interceptor.exception.SkipBeforeInterceptorsException;
+import be.rubus.web.jerry.interceptor.exception.SkipRendererDelegationException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.component.UIComponent;
@@ -38,29 +39,10 @@ import java.io.IOException;
  * @author Rudy De Busscher
  */
 @ApplicationScoped
-public class PermissionInterceptor implements RendererInterceptor {
+public class PermissionInterceptor extends AbstractRendererInterceptor {
 
     @Inject
     private SecuredRuntimeManager securedRuntimeManager;
-
-    @Override
-    public String getInterceptorId() {
-        return "CodiPermissionInterceptor";
-    }
-
-    @Override
-    public Object getReturnValueOnSkipRendererDelegationException(final SkipRendererDelegationException
-                                                                              skipRendererDelegationException,
-                                                                  final Object currentReturnValue) {
-        return null;
-    }
-
-    @Override
-    public void beforeDecode(final FacesContext facesContext, final UIComponent uiComponent,
-                             final Renderer renderer) throws SkipBeforeInterceptorsException,
-            SkipRendererDelegationException {
-        // No implementation required.
-    }
 
     @Override
     public void beforeEncodeBegin(final FacesContext facesContext, final UIComponent uiComponent,
@@ -70,44 +52,6 @@ public class PermissionInterceptor implements RendererInterceptor {
         securedRuntimeManager.checkRendererStatus(uiComponent);
     }
 
-    @Override
-    public void beforeEncodeChildren(final FacesContext facesContext, final UIComponent uiComponent,
-                                     final Renderer renderer) throws IOException, SkipBeforeInterceptorsException,
-            SkipRendererDelegationException {
-        // No implementation required.
-    }
-
-    @Override
-    public void beforeEncodeEnd(final FacesContext facesContext, final UIComponent uiComponent,
-                                final Renderer renderer) throws IOException, SkipBeforeInterceptorsException,
-            SkipRendererDelegationException {
-        // No implementation required.
-    }
-
-    @Override
-    public void beforeGetConvertedValue(final FacesContext facesContext, final UIComponent uiComponent,
-                                        final Object submittedValue, final Renderer renderer) throws
-            ConverterException, SkipBeforeInterceptorsException, SkipRendererDelegationException {
-        // No implementation required.
-    }
-
-    @Override
-    public void afterDecode(final FacesContext facesContext, final UIComponent uiComponent,
-                            final Renderer renderer) throws SkipAfterInterceptorsException {
-        // No implementation required.
-    }
-
-    @Override
-    public void afterEncodeBegin(final FacesContext facesContext, final UIComponent uiComponent,
-                                 final Renderer renderer) throws IOException, SkipAfterInterceptorsException {
-        // No implementation required.
-    }
-
-    @Override
-    public void afterEncodeChildren(final FacesContext facesContext, final UIComponent uiComponent,
-                                    final Renderer renderer) throws IOException, SkipAfterInterceptorsException {
-        // No implementation required.
-    }
 
     @Override
     public void afterEncodeEnd(final FacesContext facesContext, final UIComponent uiComponent,
@@ -115,13 +59,6 @@ public class PermissionInterceptor implements RendererInterceptor {
         // The afterEncodeEnd is not called for not rendered components.  So we catch here the afterEncodeEnd of the
         // parent.
         securedRuntimeManager.resetRenderedStatus(uiComponent);
-    }
-
-    @Override
-    public void afterGetConvertedValue(final FacesContext facesContext, final UIComponent uiComponent,
-                                       final Object submittedValue, final Renderer renderer) throws
-            ConverterException, SkipAfterInterceptorsException {
-        // No implementation required.
     }
 
 }

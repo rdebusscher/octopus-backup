@@ -20,7 +20,8 @@
  */
 package be.c4j.ee.security.util;
 
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
@@ -49,7 +50,7 @@ public final class CDIUtil {
         } else {
             if (OPTIONAL_BEAN_INFO.containsKey(targetClass)) {
                 Method method = OPTIONAL_BEAN_INFO.get(targetClass);
-                Object bean = CodiUtils.getContextualReferenceByClass(method.getDeclaringClass());
+                Object bean = BeanProvider.getContextualReference(method.getDeclaringClass());
                 try {
                     result = (T) method.invoke(bean);
                     OPTIONAL_BEAN.put(targetClass, result);
@@ -67,7 +68,7 @@ public final class CDIUtil {
     public static <T> T getOptionalBean(Class<T> targetClass) {
         T result;
         try {
-            result = CodiUtils.getContextualReferenceByClass(targetClass);
+            result = BeanProvider.getContextualReference(targetClass);
         } catch (IllegalStateException e) {
             // OpenWebBeans is stricter (as per spec should) and beans with generic types doesn't match in our case.
             // But we also use it for optional beans

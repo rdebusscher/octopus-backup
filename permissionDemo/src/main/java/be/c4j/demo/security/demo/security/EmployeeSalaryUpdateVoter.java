@@ -6,7 +6,8 @@ import be.c4j.demo.security.permission.DemoPermission;
 import be.c4j.demo.security.permission.DemoPermissionCheck;
 import be.c4j.ee.security.custom.AbstractGenericVoter;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,9 +26,10 @@ public class EmployeeSalaryUpdateVoter extends AbstractGenericVoter {
     private GenericPermissionVoter permissionEmployeeUpdateSalary;
 
     @Override
-    protected void checkPermission(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    protected void checkPermission(AccessDecisionVoterContext accessDecisionVoterContext, Set<SecurityViolation> violations) {
         boolean allowed = false;
 
+        InvocationContext invocationContext = accessDecisionVoterContext.getSource();
         if (hasServletRequestInfo(invocationContext)) {
             String employeeId = getURLRequestParameter(invocationContext, "employeeId");
             allowed = checkSalaryUpdateAllowed(asLong(employeeId));

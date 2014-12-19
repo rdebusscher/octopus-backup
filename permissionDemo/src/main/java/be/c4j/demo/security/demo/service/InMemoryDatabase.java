@@ -33,6 +33,7 @@ public class InMemoryDatabase {
     private DateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 
     /* Initialization of 'database' */
+
     @PostConstruct
     public void initializeDatabase() {
         initializeDepartments();
@@ -249,6 +250,11 @@ public class InMemoryDatabase {
 
     @Lock(LockType.READ)
     public List<UserWithPermission> getAvailableUsersWithInfo() {
+        if (principals == null) {
+            // WLS12C. PostConstruct method isn't called in our case.
+            // And constructor isn't working since WLS is complaining about invoking local methods.
+            initializeDatabase();
+        }
         List<UserWithPermission> result = new ArrayList<UserWithPermission>();
         for (Principal principal : principals.values()) {
             String permissionInfo = getPermissionInfo(principal);

@@ -18,14 +18,17 @@
  */
 package be.c4j.ee.security.exception;
 
+import be.c4j.ee.security.OctopusInvocationContext;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.violation.AuthorizationViolation;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import be.c4j.ee.security.exception.violation.MethodParameterTypeViolation;
 import be.c4j.ee.security.exception.violation.OverloadingMethodParameterTypeViolation;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
-import be.c4j.ee.security.view.InvocationContextImpl;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import be.c4j.ee.security.CustomAccessDecissionVoterContext;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.authz.Permission;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -39,21 +42,24 @@ import java.util.List;
 @ApplicationScoped
 public class SecurityViolationInfoProducer {
 
-    public String getViolationInfo(InvocationContext invocationContext) {
-        return getExceptionPointInfo(invocationContext);
+    public String getViolationInfo(AccessDecisionVoterContext accessContext) {
+        InvocationContext context = accessContext.getSource();
+        return getExceptionPointInfo(context);
     }
 
-    public String getViolationInfo(InvocationContext invocationContext, SecurityViolation securityViolation) {
-        AuthorizationViolation violation = defineCustomViolation(invocationContext, securityViolation);
+    public String getViolationInfo(AccessDecisionVoterContext accessContext, SecurityViolation securityViolation) {
+        AuthorizationViolation violation = defineCustomViolation(accessContext, securityViolation);
         if (violation == null) {
-            violation = new BasicAuthorizationViolation(securityViolation.getReason(), getExceptionPointInfo(invocationContext));
+            InvocationContext context = accessContext.getSource();
+            violation = new BasicAuthorizationViolation(securityViolation.getReason(), getExceptionPointInfo(context));
         }
         return violation.toString();
     }
 
-    public String getViolationInfo(InvocationContext invocationContext, Permission violatedPermission) {
-        AuthorizationViolation violation = defineCustomViolation(invocationContext, violatedPermission);
+    public String getViolationInfo(AccessDecisionVoterContext accessDecisionVoterContext, Permission violatedPermission) {
+        AuthorizationViolation violation = defineCustomViolation(accessDecisionVoterContext, violatedPermission);
         if (violation == null) {
+            InvocationContext invocationContext = accessDecisionVoterContext.getSource();
             violation = defineOctopusViolation(invocationContext, violatedPermission);
         }
         return violation.toString();
@@ -72,17 +78,17 @@ public class SecurityViolationInfoProducer {
         return new BasicAuthorizationViolation(permissionInfo, getExceptionPointInfo(invocationContext));
     }
 
-    protected AuthorizationViolation defineCustomViolation(InvocationContext invocationContext, Permission violatedPermission) {
+    protected AuthorizationViolation defineCustomViolation(AccessDecisionVoterContext accessDecisionVoterContext, Permission violatedPermission) {
         return null;
     }
 
-    protected AuthorizationViolation defineCustomViolation(InvocationContext invocationContext, SecurityViolation violation) {
+    protected AuthorizationViolation defineCustomViolation(AccessDecisionVoterContext accessDecisionVoterContext, SecurityViolation violation) {
         return null;
     }
 
     protected String getExceptionPointInfo(InvocationContext invocationContext) {
         StringBuilder result = new StringBuilder();
-        if (!(invocationContext instanceof InvocationContextImpl)) {
+        if (!(invocationContext instanceof OctopusInvocationContext)) {
             result.append("Class ").append(invocationContext.getTarget().getClass().getName());
             result.append("<br/>Method ").append(invocationContext.getMethod().getName());
             result.append("<br/>Parameters ");

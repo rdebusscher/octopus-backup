@@ -19,7 +19,7 @@
 package be.c4j.ee.security.util;
 
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

@@ -6,7 +6,6 @@ import be.c4j.demo.security.demo.model.Employee;
 import be.c4j.demo.security.demo.model.dto.DepartmentWithSalaryTotal;
 import be.c4j.demo.security.permission.DemoPermission;
 import be.c4j.demo.security.permission.DemoPermissionCheck;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
 
 import javax.ejb.EJB;

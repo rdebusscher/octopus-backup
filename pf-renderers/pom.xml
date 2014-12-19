@@ -27,7 +27,7 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>primefaces</artifactId>
-    <version>0.9.3</version>
+    <version>0.9.5-SNAPSHOT</version>
 
     <name>PrimeFaces renderers for Octopus framework</name>
     <inceptionYear>2014</inceptionYear>
@@ -63,8 +63,7 @@
     </developers>
 
     <properties>
-        <myfaces.codi.version>1.0.5</myfaces.codi.version>
-        <myfaces.extval.version>2.0.4</myfaces.extval.version>
+        <deltaspike.version>1.2.0</deltaspike.version>
         <myfaces.version>2.0.2</myfaces.version>
 
         <!-- github server corresponds to entry in ~/.m2/settings.xml -->
@@ -75,11 +74,6 @@
         <repository>
             <id>apache</id>
             <url>http://repo1.maven.org/maven2</url>
-        </repository>
-
-        <repository>
-            <id>googlecode.com</id>
-            <url>http://os890-m2-repository.googlecode.com/svn/trunk/os890</url>
         </repository>
 
         <repository>
@@ -137,21 +131,16 @@
         </dependency>
 
         <dependency>
-            <groupId>be.c4j.ee.security</groupId>
-            <artifactId>octopus</artifactId>
-            <version>0.9.3</version>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>core</artifactId>
+            <version>0.9.5-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.core</groupId>
-            <artifactId>myfaces-extcdi-core-api</artifactId>
-            <version>${myfaces.codi.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.core</groupId>
-            <artifactId>myfaces-extcdi-core-impl</artifactId>
-            <version>${myfaces.codi.version}</version>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+            <version>${deltaspike.version}</version>
             <scope>provided</scope>
         </dependency>
 

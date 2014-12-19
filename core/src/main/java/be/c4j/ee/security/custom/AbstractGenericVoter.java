@@ -23,8 +23,9 @@ package be.c4j.ee.security.custom;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.util.MethodParameterCheckUtil;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 import javax.inject.Inject;
 import javax.interceptor.InvocationContext;
@@ -67,7 +68,7 @@ public abstract class AbstractGenericVoter extends AbstractAccessDecisionVoter {
         return httpServletRequest.getParameter(paramName);
     }
 
-    public boolean verify(InvocationContext invocationContext) {
+    public boolean verify(AccessDecisionVoterContext invocationContext) {
         return checkPermission(invocationContext).isEmpty();
     }
 }

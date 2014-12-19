@@ -20,7 +20,7 @@
  */
 package be.c4j.ee.security.realm;
 
-import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -38,7 +38,7 @@ public class OctopusRealm extends AuthorizingRealm {
     @Override
     protected void onInit() {
         super.onInit();
-        securityDataProvider = BeanManagerProvider.getInstance().getContextualReference(SecurityDataProvider.class);
+        securityDataProvider = BeanProvider.getContextualReference(SecurityDataProvider.class);
         setCacheManager(new MemoryConstrainedCacheManager());
         setCachingEnabled(true);
     }

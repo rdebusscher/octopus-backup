@@ -22,11 +22,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <parent>
+        <groupId>be.c4j.ee.security</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.9.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
-    <groupId>be.c4j.ee.security</groupId>
-    <artifactId>octopus</artifactId>
+    <groupId>be.c4j.ee.security.octopus</groupId>
+    <artifactId>core</artifactId>
     <version>0.9.5-SNAPSHOT</version>
 
     <name>Permission based security for Java EE application</name>
@@ -62,14 +69,6 @@
         </developer>
     </developers>
 
-    <properties>
-        <myfaces.codi.version>1.0.5</myfaces.codi.version>
-        <myfaces.extval.version>2.0.4</myfaces.extval.version>
-        <myfaces.version>2.0.2</myfaces.version>
-
-        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
-        <github.global.server>github</github.global.server>
-    </properties>
 
     <repositories>
         <repository>
@@ -78,15 +77,11 @@
         </repository>
 
         <repository>
-            <id>googlecode.com</id>
-            <url>http://os890-m2-repository.googlecode.com/svn/trunk/os890</url>
-        </repository>
-
-        <repository>
             <id>repository.jboss.org</id>
             <name>JBoss Repository for Maven</name>
             <url>http://repository.jboss.org/maven2</url>
         </repository>
+
         <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net Repository for Maven</name>
@@ -113,44 +108,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.myfaces.extensions.validator</groupId>
-            <artifactId>myfaces-extval-core</artifactId>
-            <version>${myfaces.extval.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>6.0</version>
             <scope>provided</scope>
         </dependency>
 
-
         <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.core</groupId>
-            <artifactId>myfaces-extcdi-core-api</artifactId>
-            <version>${myfaces.codi.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.core</groupId>
-            <artifactId>myfaces-extcdi-core-impl</artifactId>
-            <version>${myfaces.codi.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.modules</groupId>
-            <artifactId>myfaces-extcdi-message-module-api</artifactId>
-            <version>${myfaces.codi.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.modules</groupId>
-            <artifactId>myfaces-extcdi-jsf20-module-api</artifactId>
-            <version>${myfaces.codi.version}</version>
-            <scope>provided</scope>
+            <groupId>be.rubus.web</groupId>
+            <artifactId>jerry</artifactId>
+            <version>${jerry.version}</version>
         </dependency>
 
         <dependency>

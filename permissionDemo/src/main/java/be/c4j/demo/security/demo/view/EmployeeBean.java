@@ -3,8 +3,9 @@ package be.c4j.demo.security.demo.view;
 import be.c4j.demo.security.demo.model.Employee;
 import be.c4j.demo.security.demo.service.EmployeeService;
 import be.c4j.ee.security.model.UserPrincipal;
-import org.apache.myfaces.extensions.cdi.core.api.scope.conversation.ViewAccessScoped;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.scope.ViewAccessScoped;
+
 
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -82,7 +83,7 @@ public class EmployeeBean implements Serializable {
             throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         // FIXME principal =
-        employeeService = CodiUtils.getContextualReferenceByClass(EmployeeService.class);
+        employeeService = BeanProvider.getContextualReference(EmployeeService.class);
     }
 
 }

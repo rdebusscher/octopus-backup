@@ -19,8 +19,6 @@
 package be.c4j.ee.security.extension;
 
 
-import be.c4j.ee.security.beans.BeanBuilder;
-import be.c4j.ee.security.beans.metadata.DelegatingContextualLifecycle;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
@@ -32,9 +30,10 @@ import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.model.LoginBean;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
-import org.apache.myfaces.extensions.cdi.core.impl.util.NamedLiteral;
+import org.apache.deltaspike.core.api.literal.NamedLiteral;
+import org.apache.deltaspike.core.util.bean.BeanBuilder;
+import org.apache.deltaspike.core.util.metadata.builder.DelegatingContextualLifecycle;
+import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
@@ -45,14 +44,32 @@ import java.util.Set;
 public class OctopusExtension implements Extension {
 
     private OctopusConfig config;
+    private VoterNameFactory nameFactory;
+
+    private Class<OctopusConfig> configClass = OctopusConfig.class;
+    private Class<VoterNameFactory> voterNameFactoryClass = VoterNameFactory.class;
 
     void keepProducerMethods(@Observes ProcessProducerMethod producerMethod) {
         CDIUtil.registerOptionalBean(producerMethod.getAnnotatedProducerMethod().getJavaMember());
     }
 
-    void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
+    <T> void collectImplementations(@Observes ProcessAnnotatedType<T> pat, BeanManager beanManager) {
+        AnnotatedType<T> annotatedType = pat.getAnnotatedType();
+        if (OctopusConfig.class.equals(annotatedType.getJavaClass().getSuperclass())) {
+            configClass = (Class<OctopusConfig>) annotatedType.getJavaClass();
+        }
 
-        config = CodiUtils.getContextualReferenceByClass(beanManager, OctopusConfig.class);
+        if (VoterNameFactory.class.equals(annotatedType.getJavaClass().getSuperclass())) {
+            voterNameFactoryClass = (Class<VoterNameFactory>) annotatedType.getJavaClass();
+        }
+
+    }
+
+
+    void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
+        config = getUnmanagedInstance(beanManager, configClass);
+
+        nameFactory = getUnmanagedInstance(beanManager, voterNameFactoryClass);
 
         createPermissionVoters(afterBeanDiscovery, beanManager);
         createRoleVoters(afterBeanDiscovery, beanManager);
@@ -60,11 +77,16 @@ public class OctopusExtension implements Extension {
         if (config.getAliasNameLoginbean().length() != 0) {
             setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
         }
+    }
 
+    private <T> T getUnmanagedInstance(BeanManager beanManager, Class<T> beanClass) {
+        Unmanaged<T> unmanagedConfig = new Unmanaged<T>(beanManager, beanClass);
+        Unmanaged.UnmanagedInstance<? extends T> configInstance = unmanagedConfig.newInstance();
+        return  configInstance.produce().inject().postConstruct().get();
     }
 
     private void createPermissionVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
-        VoterNameFactory nameFactory = CodiUtils.getContextualReferenceByClass(beanManager, VoterNameFactory.class);
+
 
         Class<? extends NamedPermission> namedPermissionClass = config.getNamedPermissionClass();
 
@@ -87,7 +109,7 @@ public class OctopusExtension implements Extension {
                 Bean<GenericPermissionVoter> bean = new BeanBuilder<GenericPermissionVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericPermissionVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
-                        .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
+                        .scope(ApplicationScoped.class).qualifiers(new NamedLiteral(beanName))
                         .beanLifecycle(new PermissionLifecycleCallback(voterInjectionTarget, namedPermission)).create();
                 afterBeanDiscovery.addBean(bean);
             }
@@ -95,7 +117,6 @@ public class OctopusExtension implements Extension {
     }
 
     private void createRoleVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
-        VoterNameFactory nameFactory = CodiUtils.getContextualReferenceByClass(beanManager, VoterNameFactory.class);
 
         Class<? extends NamedRole> namedRoleClass = config.getNamedRoleClass();
 
@@ -194,7 +215,7 @@ public class OctopusExtension implements Extension {
 
         @Override
         public GenericRoleVoter create(Bean<GenericRoleVoter> bean,
-                                             CreationalContext<GenericRoleVoter> creationalContext) {
+                                       CreationalContext<GenericRoleVoter> creationalContext) {
             GenericRoleVoter result = super.create(bean, creationalContext);
 
             // We can't move this to the Extension itself.

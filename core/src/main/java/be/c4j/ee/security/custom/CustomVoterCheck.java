@@ -18,7 +18,7 @@
  */
 package be.c4j.ee.security.custom;
 
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
+import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

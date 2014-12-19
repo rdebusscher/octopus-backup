@@ -1,14 +1,15 @@
 package be.c4j.demo.security.demo.security;
 
+
+
 import be.c4j.demo.security.UserInfo;
 import be.c4j.demo.security.demo.model.dto.DepartmentWithSalaryTotal;
 import be.c4j.demo.security.permission.DemoPermission;
 import be.c4j.demo.security.permission.DemoPermissionCheck;
 import be.c4j.ee.security.custom.AbstractGenericVoter;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,12 +31,13 @@ public class DepartmentSalaryOverviewVoter extends AbstractGenericVoter {
     private GenericPermissionVoter permissionSalaryManager;
 
     @Override
-    protected void checkPermission(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    protected void checkPermission(AccessDecisionVoterContext accessDecisionVoterContext, Set<SecurityViolation> violations) {
 
         boolean allowed = permissionSalaryAll.verifyPermission();
         if (!allowed) {
             if (permissionSalaryManager.verifyPermission())  {
 // TODO Check op parameter
+                InvocationContext invocationContext = accessDecisionVoterContext.getSource();
                 DepartmentWithSalaryTotal department = methodParameterCheckUtil.getAssignableParameter(invocationContext, DepartmentWithSalaryTotal.class);
 
 
@@ -48,4 +50,5 @@ public class DepartmentSalaryOverviewVoter extends AbstractGenericVoter {
             violations.add(newSecurityViolation("Department salary not readable"));
         }
     }
+
 }

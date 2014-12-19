@@ -20,9 +20,7 @@
  */
 package be.c4j.ee.security.view.model;
 
-import org.apache.myfaces.extensions.cdi.jsf.api.Jsf;
-import org.apache.myfaces.extensions.cdi.message.api.MessageContext;
-import org.apache.myfaces.extensions.cdi.message.api.payload.MessageSeverity;
+import be.c4j.ee.security.messages.FacesMessages;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
@@ -47,8 +45,7 @@ public class LoginBean {
     private boolean remember;
 
     @Inject
-    @Jsf
-    private MessageContext messageContext;
+    private FacesMessages facesMessages;
 
     public void doLogin() throws IOException {
         try {
@@ -61,10 +58,10 @@ public class LoginBean {
             externalContext
                     .redirect(savedRequest != null ? savedRequest.getRequestUrl() : getRootUrl(externalContext));
         } catch (IncorrectCredentialsException e) {
-            messageContext.message().text("{octopus.invalid_password}").payload(MessageSeverity.ERROR).add();
+            facesMessages.template("{octopus.invalid_password}").asError().show();
 
         } catch (UnknownAccountException e) {
-            messageContext.message().text("{octopus.unknown_username}").payload(MessageSeverity.ERROR).add();
+            facesMessages.template("{octopus.unknown_username}").asError().show();
         }
     }
 

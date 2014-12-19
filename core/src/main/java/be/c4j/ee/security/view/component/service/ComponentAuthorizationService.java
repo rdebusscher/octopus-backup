@@ -22,12 +22,13 @@
 package be.c4j.ee.security.view.component.service;
 
 import be.c4j.ee.security.util.CDIUtil;
-import be.c4j.ee.security.view.InvocationContextImpl;
+import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
-import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,6 @@ import javax.el.ValueExpression;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
-import javax.interceptor.InvocationContext;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -63,9 +63,9 @@ public class ComponentAuthorizationService {
             if (bean == null) {
                 return false;
             }
-            InvocationContext ic = new InvocationContextImpl(secureComponentData
+            AccessDecisionVoterContext context = new CustomAccessDecissionVoterContext(secureComponentData
                     .getTargetComponent(), contextParameters);
-            Set<SecurityViolation> securityViolations = bean.checkPermission(ic);
+            Set<SecurityViolation> securityViolations = bean.checkPermission(context);
 
             partialResult = securityViolations.isEmpty();
             if (secureComponentData.isNot()) {

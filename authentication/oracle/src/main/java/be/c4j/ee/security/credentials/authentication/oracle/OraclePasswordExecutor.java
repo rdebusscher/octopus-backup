@@ -1,4 +1,4 @@
-package be.c4j.ee.security.credentials;
+package be.c4j.ee.security.credentials.authentication.oracle;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;

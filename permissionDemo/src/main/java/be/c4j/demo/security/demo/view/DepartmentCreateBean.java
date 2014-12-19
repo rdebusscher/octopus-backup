@@ -1,5 +1,6 @@
 package be.c4j.demo.security.demo.view;
 
+
 import be.c4j.demo.security.demo.service.DepartmentService;
 
 import javax.enterprise.inject.Model;

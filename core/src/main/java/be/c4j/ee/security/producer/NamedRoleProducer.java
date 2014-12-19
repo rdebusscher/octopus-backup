@@ -28,13 +28,15 @@ import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
-import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.UnsatisfiedResolutionException;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
@@ -49,6 +51,9 @@ public class NamedRoleProducer {
     private VoterNameFactory nameFactory;
 
     private RoleLookup<? extends NamedRole> lookup;
+
+    @Inject
+    private BeanManager beanManager;
 
     @PostConstruct
     public void init() {
@@ -69,7 +74,7 @@ public class NamedRoleProducer {
         }
 
 
-        return CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
+        return CDIUtil.getContextualReferenceByName(beanManager, nameFactory
                 .generateRoleBeanName(roles[0].name()), GenericRoleVoter.class);
     }
 

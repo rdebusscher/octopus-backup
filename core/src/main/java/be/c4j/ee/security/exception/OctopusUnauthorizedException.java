@@ -18,7 +18,7 @@
  */
 package be.c4j.ee.security.exception;
 
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.authz.UnauthorizedException;
 
 import java.util.Set;

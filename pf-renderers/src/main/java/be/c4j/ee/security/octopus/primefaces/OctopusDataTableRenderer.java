@@ -1,10 +1,8 @@
 package be.c4j.ee.security.octopus.primefaces;
 
 import be.c4j.ee.security.view.interceptor.SecuredRuntimeManager;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
-import org.primefaces.component.api.DynamicColumn;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.primefaces.component.api.UIColumn;
-import org.primefaces.component.column.Column;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.component.datatable.DataTableRenderer;
 
@@ -21,7 +19,7 @@ public class OctopusDataTableRenderer extends DataTableRenderer {
     private SecuredRuntimeManager securedRuntimeManager;
 
     public OctopusDataTableRenderer() {
-        securedRuntimeManager = CodiUtils.getContextualReferenceByClass(SecuredRuntimeManager.class);
+        securedRuntimeManager = BeanProvider.getContextualReference(SecuredRuntimeManager.class);
     }
 
     @Override

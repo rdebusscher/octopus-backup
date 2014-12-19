@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>be.c4j.ee.security</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.9.5-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <deltaspike.version>1.2.0</deltaspike.version>
+        <myfaces.version>2.0.2</myfaces.version>
+        <jerry.version>0.2-SNAPSHOT</jerry.version>
+
+        <slf4j.version>1.7.7</slf4j.version>
+
+        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
+        <github.global.server>github</github.global.server>
+    </properties>
+
+    <modules>
+        <module>core</module>
+        <module>javaee6</module>
+        <module>javaee7</module>
+        <module>authentication</module>
+        <module>pf-renderers</module>
+        <module>starter</module>
+        <module>permissionDemo</module>
+
+    </modules>
+
+
+    <repositories>
+        <repository>
+            <id>JBOSS_NEXUS</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>Prime Technology Maven Repository</id>
+            <url>http://repository.primefaces.org</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-security-module-api</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+    <build>
+    </build>
+</project>

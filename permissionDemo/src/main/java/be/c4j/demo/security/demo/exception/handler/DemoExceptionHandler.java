@@ -1,10 +1,7 @@
 package be.c4j.demo.security.demo.exception.handler;
 
-import org.apache.myfaces.extensions.cdi.core.api.tools.DefaultAnnotation;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
-import org.apache.myfaces.extensions.cdi.jsf.api.Jsf;
-import org.apache.myfaces.extensions.cdi.message.api.MessageContext;
-import org.apache.myfaces.extensions.cdi.message.api.payload.MessageSeverity;
+import be.c4j.ee.security.messages.FacesMessages;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.ejb.EJBException;
 import javax.faces.FacesException;
@@ -46,9 +43,9 @@ public class DemoExceptionHandler extends ExceptionHandlerWrapper {
             //here you do what ever you want with exception
             if (businessException != null) {
                 try {
+                    FacesMessages facesMessages = BeanProvider.getContextualReference(FacesMessages.class);
 
-                    MessageContext messageContext = CodiUtils.getContextualReferenceByClass(MessageContext.class, DefaultAnnotation.of(Jsf.class));
-                    messageContext.message().text(businessException.getMessage()).payload(MessageSeverity.ERROR).add();
+                    facesMessages.template(businessException.getMessage()).asError().show();
 
                 } finally {
                     //remove it from queue

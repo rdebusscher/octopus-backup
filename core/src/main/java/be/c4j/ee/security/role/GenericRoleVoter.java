@@ -21,9 +21,10 @@
 package be.c4j.ee.security.role;
 
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.subject.Subject;
 
@@ -48,12 +49,12 @@ public class GenericRoleVoter extends AbstractAccessDecisionVoter {
     }
 
     @Override
-    protected void checkPermission(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    protected void checkPermission(AccessDecisionVoterContext accessDecisionVoterContext, Set<SecurityViolation> violations) {
         try {
             subject.checkPermission(namedRole);
         } catch (AuthorizationException e) {
-            SecurityViolationInfoProducer infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
-            violations.add(newSecurityViolation(infoProducer.getViolationInfo(invocationContext, namedRole)));
+            SecurityViolationInfoProducer infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
+            violations.add(newSecurityViolation(infoProducer.getViolationInfo(accessDecisionVoterContext, namedRole)));
 
         }
 

@@ -8,8 +8,9 @@ import be.c4j.ee.security.custom.AbstractGenericVoter;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,23 +31,25 @@ public class EmployeeInfoVoter extends AbstractGenericVoter {
     private GenericPermissionVoter employeeReadAllPermission;
 
     @Override
-    protected void checkPermission(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    protected void checkPermission(AccessDecisionVoterContext accessDecisionVoterContext, Set<SecurityViolation> violations) {
 
         boolean matchedParameter = false;
 
+        InvocationContext invocationContext = accessDecisionVoterContext.getSource();
+
         if (verifyMethodHasParameterTypes(invocationContext, UserPrincipal.class)) {
             matchedParameter = true;
-            checkEmployeeAccess(invocationContext, violations);
+            checkEmployeeAccess(accessDecisionVoterContext, violations);
         }
 
         if (verifyMethodHasParameterTypes(invocationContext, Long.class)) {
             matchedParameter = true;
-            checkEmployeeOrManagerAccess(invocationContext, violations);
+            checkEmployeeOrManagerAccess(accessDecisionVoterContext, violations);
         }
 
 
         if (!matchedParameter) {
-            SecurityViolationInfoProducer infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
+            SecurityViolationInfoProducer infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
             violations.add(newSecurityViolation(infoProducer.getWrongOverloadingMethodSignatureInfo(invocationContext, UserPrincipal.class, Long.class)));
 
 
@@ -54,7 +57,8 @@ public class EmployeeInfoVoter extends AbstractGenericVoter {
 
     }
 
-    private void checkEmployeeOrManagerAccess(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    private void checkEmployeeOrManagerAccess(AccessDecisionVoterContext accessContext, Set<SecurityViolation> violations) {
+        InvocationContext invocationContext = accessContext.getSource();
         Long parameter = methodParameterCheckUtil.getAssignableParameter(invocationContext, Long.class);
         boolean allowed = false;
 
@@ -73,16 +77,17 @@ public class EmployeeInfoVoter extends AbstractGenericVoter {
         }
 
         if (!allowed) {
-            SecurityViolationInfoProducer infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
-            violations.add(newSecurityViolation(infoProducer.getViolationInfo(invocationContext, newSecurityViolation("Employees can only view their own card or manager of the employee"))));
+            SecurityViolationInfoProducer infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
+            violations.add(newSecurityViolation(infoProducer.getViolationInfo(accessContext, newSecurityViolation("Employees can only view their own card or manager of the employee"))));
         }
     }
 
-    private void checkEmployeeAccess(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    private void checkEmployeeAccess(AccessDecisionVoterContext accessContext, Set<SecurityViolation> violations) {
+        InvocationContext invocationContext = accessContext.getSource();
         UserPrincipal parameter = methodParameterCheckUtil.getAssignableParameter(invocationContext, UserPrincipal.class);
         if (!userPrincipal.equals(parameter)) {
-            SecurityViolationInfoProducer infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
-            violations.add(newSecurityViolation(infoProducer.getViolationInfo(invocationContext, newSecurityViolation("Employees can only view their own card"))));
+            SecurityViolationInfoProducer infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
+            violations.add(newSecurityViolation(infoProducer.getViolationInfo(accessContext, newSecurityViolation("Employees can only view their own card"))));
         }
 
     }

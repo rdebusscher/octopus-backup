@@ -20,9 +20,8 @@ package be.c4j.ee.security.config;
 
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
-import org.apache.myfaces.extensions.cdi.core.api.config.AbstractAttributeAware;
-import org.apache.myfaces.extensions.cdi.core.api.config.CodiConfig;
-import org.apache.myfaces.extensions.cdi.core.api.config.ConfigEntry;
+import be.rubus.web.jerry.config.logging.ConfigEntry;
+import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ import java.lang.annotation.Annotation;
 import java.util.Properties;
 
 @ApplicationScoped
-public class OctopusConfig extends AbstractAttributeAware implements CodiConfig {
+public class OctopusConfig implements ModuleConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OctopusConfig.class);
 
@@ -116,11 +115,6 @@ public class OctopusConfig extends AbstractAttributeAware implements CodiConfig 
     @ConfigEntry
     public String getSaltLength() {
         return configProperties.getProperty("saltLength", "0");
-    }
-
-    @ConfigEntry
-    public String getOracleBasedAuthentication() {
-        return configProperties.getProperty("oracleAuthentication", "");
     }
 
     @ConfigEntry

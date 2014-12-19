@@ -36,6 +36,7 @@ public class AppAuthentication implements SecurityDataProvider {
 
             AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
             authenticationInfoBuilder.principalId(principal.getId()).name(principal.getEmployee().getName());
+            authenticationInfoBuilder.userName(token.getUsername());
             authenticationInfoBuilder.password(principal.getPassword()) ;
 
             authenticationInfoBuilder.addUserInfo(UserInfo.EMPLOYEE_ID, principal.getEmployee().getId());
@@ -51,6 +52,7 @@ public class AppAuthentication implements SecurityDataProvider {
 
             return authenticationInfoBuilder.build();
         }
+
     }
 
 

@@ -21,7 +21,7 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.OctopusConfig;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.web.filter.authc.UserFilter;
 
 import javax.servlet.ServletRequest;
@@ -53,7 +53,7 @@ public class FacesAjaxAwareUserFilter extends UserFilter {
 
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        OctopusConfig config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
+        OctopusConfig config = BeanProvider.getContextualReference(OctopusConfig.class);
         Boolean postIsAllowedSavedRequest = Boolean.valueOf(config.getPostIsAllowedSavedRequest());
 
         HttpServletRequest req = (HttpServletRequest) request;

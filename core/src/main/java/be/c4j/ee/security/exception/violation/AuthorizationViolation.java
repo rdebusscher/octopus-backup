@@ -18,7 +18,8 @@
  */
 package be.c4j.ee.security.exception.violation;
 
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 /**
  *

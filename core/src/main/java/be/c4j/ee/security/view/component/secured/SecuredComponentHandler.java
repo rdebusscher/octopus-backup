@@ -22,11 +22,11 @@
 package be.c4j.ee.security.view.component.secured;
 
 import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.util.JsfUtils;
 import be.c4j.ee.security.view.component.ComponentUtil;
 import be.c4j.ee.security.view.component.OctopusComponentHandler;
 import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
-import org.apache.myfaces.extensions.validator.util.JsfUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIParameter;
@@ -71,6 +71,9 @@ public class SecuredComponentHandler extends OctopusComponentHandler {
 
         SecuredComponentData data = new SecuredComponentData(voter, not, combined, parameters, target);
 
+        if (!targets.isEmpty()) {
+            data.setTargetComponent(targets.get(0));
+        }
         if (JsfUtils.isRenderResponsePhase() && !data.hasAtRuntimeParameter()) {
 
             if (!componentAuthorizationService.hasAccess(data)) {
@@ -126,8 +129,8 @@ public class SecuredComponentHandler extends OctopusComponentHandler {
 
     private void checkServices() {
         if (componentAuthorizationService == null) {
-            componentAuthorizationService = CodiUtils.getContextualReferenceByClass(ComponentAuthorizationService.class);
-            voterNameFactory = CodiUtils.getContextualReferenceByClass(VoterNameFactory.class);
+            componentAuthorizationService = BeanProvider.getContextualReference(ComponentAuthorizationService.class);
+            voterNameFactory = BeanProvider.getContextualReference(VoterNameFactory.class);
         }
     }
 

@@ -28,7 +28,7 @@ import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
-import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;

@@ -20,8 +20,8 @@
  */
 package be.c4j.ee.security.config;
 
-import org.apache.myfaces.extensions.cdi.core.api.startup.event.StartupEvent;
-import org.apache.myfaces.extensions.cdi.core.impl.AbstractStartupObserver;
+import be.rubus.web.jerry.startup.StartupEvent;
+import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -29,29 +29,19 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 
 @ApplicationScoped
-public class OctopusStartupObserver extends AbstractStartupObserver {
+public class OctopusStartupObserver {
 
     @Inject
     private OctopusConfig octopusConfig;
+
+    @Inject
+    private Logger logger;
 
     protected OctopusStartupObserver() {
     }
 
     protected void logOctopusConfiguration(@Observes StartupEvent startupEvent) {
-        try {
-            StringBuilder info = new StringBuilder("[Started] Octopus framework (C4J) ");
-            info.append(separator);
-
-            //module config
-            info.append(getConfigInfo(octopusConfig));
-            logger.info(info.toString());
-        }
-        //avoid that this log harms the startup
-        catch (Exception e) {
-            logger.log(Level.WARNING,
-                    "Octopus Module couldn't log the current configuration. Startup will continue!", e);
-        }
-
+        // Done by Jerry? Nothing to do anymore.
     }
 
 }

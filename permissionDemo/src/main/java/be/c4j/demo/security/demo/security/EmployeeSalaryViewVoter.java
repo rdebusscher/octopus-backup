@@ -5,9 +5,9 @@ import be.c4j.demo.security.demo.model.Employee;
 import be.c4j.demo.security.permission.DemoPermission;
 import be.c4j.demo.security.permission.DemoPermissionCheck;
 import be.c4j.ee.security.custom.AbstractGenericVoter;
-import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,7 +29,8 @@ public class EmployeeSalaryViewVoter extends AbstractGenericVoter {
     private GenericPermissionVoter permissionSalaryManager;
 
     @Override
-    protected void checkPermission(InvocationContext invocationContext, Set<SecurityViolation> violations) {
+    protected void checkPermission(AccessDecisionVoterContext accessDecisionVoterContext, Set<SecurityViolation> violations) {
+        InvocationContext invocationContext = accessDecisionVoterContext.getSource();
         checkMethodHasParameterTypes(violations, invocationContext, Employee.class);
 
         if (violations.isEmpty()) {

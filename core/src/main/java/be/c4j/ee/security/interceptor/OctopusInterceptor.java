@@ -30,15 +30,16 @@ import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
-import org.apache.myfaces.extensions.cdi.core.api.provider.BeanManagerProvider;
-import org.apache.myfaces.extensions.cdi.core.api.security.AbstractAccessDecisionVoter;
-import org.apache.myfaces.extensions.cdi.core.api.security.SecurityViolation;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import be.c4j.ee.security.CustomAccessDecissionVoterContext;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
@@ -68,38 +69,41 @@ public class OctopusInterceptor implements Serializable {
     @Inject
     private SecurityViolationInfoProducer infoProducer;
 
-    @PostConstruct
+    //@PostConstruct With Weld 2.X, there seems to be an issue
     public void init(InvocationContext context) {
         if (config == null) {
             // WLS12C doesn't inject into interceptors
-            config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
-            nameFactory = CodiUtils.getContextualReferenceByClass(VoterNameFactory.class);
-            infoProducer = CodiUtils.getContextualReferenceByClass(SecurityViolationInfoProducer.class);
+            config = BeanProvider.getContextualReference(OctopusConfig.class);
+            nameFactory = BeanProvider.getContextualReference(VoterNameFactory.class);
+            infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
         }
     }
 
     @AroundInvoke
     public Object interceptShiroSecurity(InvocationContext context) throws Exception {
+        init(context);  // Since @PostConstruct isn't allowed in Weld 2.x
         Subject subject = SecurityUtils.getSubject();
         Class<?> classType = context.getTarget().getClass();
         Method method = context.getMethod();
 
+        AccessDecisionVoterContext accessContext = new CustomAccessDecissionVoterContext(context);
+
         Set<?> annotations = getAllAnnotations(classType, method);
         if (!hasAnnotation(annotations, PermitAll.class)) {
             if (annotations.isEmpty()) {
-                throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(context));
+                throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
             }
 
             if (!subject.isAuthenticated() && hasAnnotation(annotations, RequiresAuthentication.class)) {
-                throw new OctopusUnauthorizedException("Authentication required", infoProducer.getViolationInfo(context));
+                throw new OctopusUnauthorizedException("Authentication required", infoProducer.getViolationInfo(accessContext));
             }
 
             if (subject.getPrincipal() != null && hasAnnotation(annotations, RequiresGuest.class)) {
-                throw new OctopusUnauthorizedException("Guest required", infoProducer.getViolationInfo(context));
+                throw new OctopusUnauthorizedException("Guest required", infoProducer.getViolationInfo(accessContext));
             }
 
             if (subject.getPrincipal() == null && hasAnnotation(annotations, RequiresUser.class)) {
-                throw new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(context));
+                throw new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(accessContext));
             }
 
             // TODO Verify how this can be configured. They are the shiro ones.
@@ -119,7 +123,7 @@ public class OctopusInterceptor implements Serializable {
 
                 Annotation namedPermissionCheck = getAnnotation(annotations, config.getNamedPermissionCheckClass());
                 if (namedPermissionCheck != null) {
-                    Set<SecurityViolation> securityViolations = performNamedPermissionChecks(namedPermissionCheck, context);
+                    Set<SecurityViolation> securityViolations = performNamedPermissionChecks(namedPermissionCheck, accessContext);
                     if (!securityViolations.isEmpty()) {
 
                         throw new OctopusUnauthorizedException(securityViolations);
@@ -131,7 +135,7 @@ public class OctopusInterceptor implements Serializable {
 
                 Annotation namedRoleCheck = getAnnotation(annotations, config.getNamedRoleCheckClass());
                 if (namedRoleCheck != null) {
-                    Set<SecurityViolation> securityViolations = performNamedRoleChecks(namedRoleCheck, context);
+                    Set<SecurityViolation> securityViolations = performNamedRoleChecks(namedRoleCheck, accessContext);
                     if (!securityViolations.isEmpty()) {
 
                         throw new OctopusUnauthorizedException(securityViolations);
@@ -142,7 +146,7 @@ public class OctopusInterceptor implements Serializable {
             CustomVoterCheck customCheck = getAnnotation(annotations, CustomVoterCheck.class);
 
             if (customCheck != null) {
-                Set<SecurityViolation> securityViolations = performCustomChecks(customCheck, context);
+                Set<SecurityViolation> securityViolations = performCustomChecks(customCheck, accessContext);
                 if (!securityViolations.isEmpty()) {
 
                     throw new OctopusUnauthorizedException(securityViolations);
@@ -154,7 +158,7 @@ public class OctopusInterceptor implements Serializable {
         return context.proceed();
     }
 
-    private Set<SecurityViolation> performNamedPermissionChecks(Annotation customNamedCheck, InvocationContext invocationContext) {
+    private Set<SecurityViolation> performNamedPermissionChecks(Annotation customNamedCheck, AccessDecisionVoterContext context) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
 
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
@@ -164,13 +168,13 @@ public class OctopusInterceptor implements Serializable {
 
             GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
                     , GenericPermissionVoter.class);
-            result.addAll(voter.checkPermission(invocationContext));
+            result.addAll(voter.checkPermission(context));
 
         }
         return result;
     }
 
-    private Set<SecurityViolation> performNamedRoleChecks(Annotation customNamedCheck, InvocationContext invocationContext) {
+    private Set<SecurityViolation> performNamedRoleChecks(Annotation customNamedCheck, AccessDecisionVoterContext context) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
 
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
@@ -180,17 +184,17 @@ public class OctopusInterceptor implements Serializable {
 
             GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager,  beanName
                     , GenericPermissionVoter.class);
-            result.addAll(voter.checkPermission(invocationContext));
+            result.addAll(voter.checkPermission(context));
 
         }
         return result;
     }
 
-    private Set<SecurityViolation> performCustomChecks(CustomVoterCheck customCheck, InvocationContext invocationContext) {
+    private Set<SecurityViolation> performCustomChecks(CustomVoterCheck customCheck, AccessDecisionVoterContext context) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
         for ( Class<? extends AbstractAccessDecisionVoter> clsName :  customCheck.value()) {
-            AbstractAccessDecisionVoter voter = CodiUtils.getContextualReferenceByClass(clsName);
-            result.addAll(voter.checkPermission(invocationContext));
+            AbstractAccessDecisionVoter voter = BeanProvider.getContextualReference(clsName);
+            result.addAll(voter.checkPermission(context));
         }
 
         return result;

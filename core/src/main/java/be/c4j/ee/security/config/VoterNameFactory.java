@@ -18,6 +18,9 @@
  */
 package be.c4j.ee.security.config;
 
+import javax.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
 public class VoterNameFactory {
 
     public String generatePermissionBeanName(String permissionName) {

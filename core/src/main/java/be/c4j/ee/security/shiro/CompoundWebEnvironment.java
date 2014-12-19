@@ -20,10 +20,10 @@
  */
 package be.c4j.ee.security.shiro;
 
+import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.credentials.OracleCredentialsMatcher;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
-import org.apache.myfaces.extensions.cdi.core.impl.util.CodiUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 
 public class CompoundWebEnvironment extends IniWebEnvironment {
@@ -47,7 +48,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     @Override
     public void init() {
         // config used by setIni which is called by super.init().
-        config = CodiUtils.getContextualReferenceByClass(OctopusConfig.class);
+        config = BeanProvider.getContextualReference(OctopusConfig.class);
         super.init();
     }
 
@@ -73,12 +74,9 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                     throw new IllegalArgumentException("Hash algorithm name unknown : " + hashAlgorithmName, e);
                 }
                 addHashedCredentialsConfig(ini, hashAlgorithmName);
-            } else {
-                String oracleBasedAuthentication = config.getOracleBasedAuthentication();
-                if (oracleBasedAuthentication != null && oracleBasedAuthentication.trim().length() > 0) {
-                    setOracleBasedMatcher(ini);
-                }
             }
+
+            addPluginConfiguration(ini);
 
             addAuthenticationListener(ini);
         } catch (ConfigurationException ex) {
@@ -86,6 +84,14 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         }
 
         super.setIni(ini);
+    }
+
+    private void addPluginConfiguration(Ini ini) {
+        List<ConfigurationPlugin> plugins = BeanProvider.getContextualReferences(ConfigurationPlugin.class, true, false);
+        for (ConfigurationPlugin plugin : plugins) {
+            plugin.addConfiguration(ini);
+        }
+
     }
 
     private void addAuthenticationListener(Ini ini) {
@@ -97,15 +103,10 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void addHashedCredentialsConfig(Ini ini, String someHashAlgorithmName) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("credentialsMatcher", HashedCredentialsMatcher.class.getName());
-        mainSection.put("credentialsMatcher.hashAlgorithmName",someHashAlgorithmName);
+        mainSection.put("credentialsMatcher.hashAlgorithmName", someHashAlgorithmName);
         mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
     }
 
-    private void setOracleBasedMatcher(Ini ini) {
-        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        mainSection.put("credentialsMatcher", OracleCredentialsMatcher.class.getName());
-        mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
-    }
 
     private Ini readURLPatterns() {
         Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});
@@ -115,13 +116,13 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     }
 
     private void addManuallyConfiguredUrls(Ini.Section target, Ini.Section source) {
-        for (Map.Entry<String, String> entry: source.entrySet()) {
+        for (Map.Entry<String, String> entry : source.entrySet()) {
             target.put(entry.getKey(), entry.getValue());
         }
     }
 
     private void addURLsWithNamedPermission(Ini someIni) {
-        URLPermissionProtector protector = CodiUtils.getContextualReferenceByClass(URLPermissionProtector.class);
+        URLPermissionProtector protector = BeanProvider.getContextualReference(URLPermissionProtector.class);
         protector.configurePermissions(someIni.getSection(IniFilterChainResolverFactory.URLS));
     }
 }
