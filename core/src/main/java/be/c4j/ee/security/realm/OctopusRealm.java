@@ -24,7 +24,6 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -41,6 +40,7 @@ public class OctopusRealm extends AuthorizingRealm {
         securityDataProvider = BeanProvider.getContextualReference(SecurityDataProvider.class);
         setCacheManager(new MemoryConstrainedCacheManager());
         setCachingEnabled(true);
+        setAuthenticationTokenClass(AuthenticationToken.class);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class OctopusRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        return securityDataProvider.getAuthenticationInfo((UsernamePasswordToken) token);
+        return securityDataProvider.getAuthenticationInfo(token);
     }
 
 }

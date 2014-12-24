@@ -37,7 +37,7 @@ public class OctopusConfig implements ModuleConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OctopusConfig.class);
 
-    private Properties configProperties;
+    protected Properties configProperties;
 
     private Class<? extends Annotation> namedPermissionCheckClass;
 
@@ -55,7 +55,7 @@ public class OctopusConfig implements ModuleConfig {
         configProperties = new Properties();
         try {
             InputStream resourceStream = OctopusConfig.class.getClassLoader()
-                                             .getResourceAsStream("octopusConfig.properties");
+                    .getResourceAsStream("octopusConfig.properties");
             if (resourceStream != null) {
                 configProperties.load(resourceStream);
             } else {

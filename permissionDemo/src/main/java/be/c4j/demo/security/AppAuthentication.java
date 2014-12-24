@@ -10,6 +10,7 @@ import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -27,8 +28,12 @@ public class AppAuthentication implements SecurityDataProvider {
     private PermissionService permissionService;
 
     @Override
-    public AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token) {
-        Principal principal = permissionService.getPrincipalByUserName(token.getUsername());
+    public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+        if (!(token instanceof UsernamePasswordToken)) {
+            return null;
+        }
+        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
+        Principal principal = permissionService.getPrincipalByUserName(usernamePasswordToken.getUsername());
 
         if (principal == null) {
             return null;
@@ -36,8 +41,8 @@ public class AppAuthentication implements SecurityDataProvider {
 
             AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
             authenticationInfoBuilder.principalId(principal.getId()).name(principal.getEmployee().getName());
-            authenticationInfoBuilder.userName(token.getUsername());
-            authenticationInfoBuilder.password(principal.getPassword()) ;
+            authenticationInfoBuilder.userName(usernamePasswordToken.getUsername());
+            authenticationInfoBuilder.password(principal.getPassword());
 
             authenticationInfoBuilder.addUserInfo(UserInfo.EMPLOYEE_ID, principal.getEmployee().getId());
             if (principal.getEmployee().getDepartment() != null) {
