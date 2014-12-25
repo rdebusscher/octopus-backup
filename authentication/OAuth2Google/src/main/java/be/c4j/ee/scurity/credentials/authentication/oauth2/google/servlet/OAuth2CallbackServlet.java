@@ -2,13 +2,14 @@ package be.c4j.ee.scurity.credentials.authentication.oauth2.google.servlet;
 
 
 import be.c4j.ee.scurity.credentials.authentication.oauth2.google.GoogleUser;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import be.c4j.ee.scurity.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 import org.scribe.model.*;
 import org.scribe.oauth.OAuthService;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,6 +24,9 @@ import java.io.IOException;
 //@WebServlet(urlPatterns = {"/oauth2callback"}, asyncSupported = true)
 @WebServlet(urlPatterns = {"/oauth2callback"})
 public class OAuth2CallbackServlet extends HttpServlet {
+
+    @Inject
+    private GoogleJSONProcessor jsonProcessor;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -57,16 +61,10 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         //Read the result
 
-        ObjectMapper mapper = new ObjectMapper();
-        GoogleUser googleUser = null;
-        try {
-            googleUser = mapper.readValue(oResp.getBody(), GoogleUser.class);
+        GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
 
-            SecurityUtils.getSubject().login(googleUser);
+        SecurityUtils.getSubject().login(googleUser);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
         resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
 

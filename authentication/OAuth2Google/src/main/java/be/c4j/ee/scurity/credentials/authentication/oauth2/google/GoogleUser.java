@@ -1,7 +1,5 @@
 package be.c4j.ee.scurity.credentials.authentication.oauth2.google;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.scribe.model.Token;
 
@@ -16,40 +14,28 @@ import java.util.Map;
  */
 public class GoogleUser implements AuthenticationToken, Principal {
 
-    @JsonProperty("id")
     private String id;
 
-    @JsonProperty("family_name")
     private String lastName;
 
-    @JsonProperty("name")
     private String fullName;
 
-    @JsonProperty("picture")
     private String picture;
 
-    @JsonProperty("gender")
     private String gender;
 
-    @JsonProperty("locale")
     private String locale;
 
-    @JsonProperty("email")
     private String email;
 
-    @JsonProperty("link")
     private String link;
 
-    @JsonProperty("given_name")
     private String firstName;
 
-    @JsonProperty("hd")
     private String hd;
 
-    @JsonProperty("verified_email")
     private boolean verifiedEmail;
 
-    @JsonIgnore
     private Token token;
 
     public String getId() {
@@ -88,12 +74,25 @@ public class GoogleUser implements AuthenticationToken, Principal {
         return gender;
     }
 
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
     }
 
     public String getLink() {
@@ -136,7 +135,10 @@ public class GoogleUser implements AuthenticationToken, Principal {
         return token;
     }
 
-    @JsonIgnore
+    public void setToken(Token token) {
+        this.token = token;
+    }
+
     public Map<Serializable, Serializable> getUserInfo() {
         Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
         result.put("picture", picture);

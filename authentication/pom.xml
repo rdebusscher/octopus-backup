@@ -49,6 +49,7 @@
     </scm>
 
     <modules>
+        <module>core</module>
         <module>oracle</module>
         <module>OAuth2Google</module>
     </modules>
