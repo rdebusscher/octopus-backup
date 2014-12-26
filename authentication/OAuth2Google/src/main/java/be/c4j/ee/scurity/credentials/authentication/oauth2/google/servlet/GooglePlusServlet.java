@@ -1,8 +1,6 @@
 package be.c4j.ee.scurity.credentials.authentication.oauth2.google.servlet;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.OAuth2GoogleConfiguration;
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.scribe.Google2Api;
-import org.scribe.builder.ServiceBuilder;
+import be.c4j.ee.scurity.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import org.scribe.oauth.OAuthService;
 
 import javax.inject.Inject;
@@ -21,23 +19,14 @@ import java.io.IOException;
 public class GooglePlusServlet extends HttpServlet {
 
     @Inject
-    private OAuth2GoogleConfiguration configuration;
+    private GoogleOAuth2ServiceProducer googleOAuth2ServiceProducer;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
-        //Configure
-        ServiceBuilder builder = new ServiceBuilder();
-        OAuthService service = builder.provider(Google2Api.class)
-                .apiKey(configuration.getClientId())
-                .apiSecret(configuration.getClientSecret())
-                .callback(assembleCallbackUrl(req))
-                .scope("openid profile email " +
-                        "https://www.googleapis.com/auth/plus.login " +
-                        "https://www.googleapis.com/auth/plus.me")
-                .debug()
-                .build(); //Now build the call
+
+        OAuthService service = googleOAuth2ServiceProducer.createOAuthService(req);
 
         HttpSession sess = req.getSession();
         sess.setAttribute("oauth2Service", service);
@@ -45,14 +34,6 @@ public class GooglePlusServlet extends HttpServlet {
         resp.sendRedirect(service.getAuthorizationUrl(null));
     }
 
-    private String assembleCallbackUrl(HttpServletRequest req) {
-        StringBuilder result = new StringBuilder();
-        result.append(req.getScheme()).append("://");
-        result.append(req.getServerName()).append(':');
-        result.append(req.getServerPort());
-        result.append(req.getContextPath()).append("/oauth2callback");
-        return result.toString();
-    }
 
 }
 
