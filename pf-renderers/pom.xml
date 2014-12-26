@@ -132,9 +132,8 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>jsf-core</artifactId>
             <version>0.9.5-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

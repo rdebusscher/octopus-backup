@@ -21,8 +21,8 @@
 
 package be.c4j.ee.security.view.component.service;
 
-import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.CustomAccessDecissionVoterContext;
+import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
@@ -111,8 +111,8 @@ public class ComponentAuthorizationService {
     private static Object evaluateExpression(final String valueExpression) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ValueExpression expression = facesContext.getApplication().getExpressionFactory()
-                                                 .createValueExpression(facesContext
-                                                         .getELContext(), valueExpression, Object.class);
+                .createValueExpression(facesContext
+                        .getELContext(), valueExpression, Object.class);
         return expression.getValue(facesContext.getELContext());
     }
 

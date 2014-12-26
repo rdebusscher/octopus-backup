@@ -29,7 +29,6 @@ import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
-import be.c4j.ee.security.view.model.LoginBean;
 import org.apache.deltaspike.core.api.literal.NamedLiteral;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.util.bean.BeanBuilder;
@@ -40,7 +39,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
-import java.util.Set;
 
 public class OctopusExtension implements Extension {
 
@@ -56,10 +54,6 @@ public class OctopusExtension implements Extension {
 
         createPermissionVoters(afterBeanDiscovery, beanManager);
         createRoleVoters(afterBeanDiscovery, beanManager);
-
-        if (config.getAliasNameLoginbean().length() != 0) {
-            setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
-        }
 
     }
 
@@ -126,29 +120,6 @@ public class OctopusExtension implements Extension {
         }
     }
 
-    private void setAlternativeNameForLoginBean(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
-        Set<Bean<?>> beans = beanManager.getBeans("loginBean");
-
-        AnnotatedType<LoginBean> loginBeanAnnotatedType = beanManager
-                .createAnnotatedType(LoginBean.class);
-        InjectionTarget<LoginBean> loginInjectionTarget = beanManager
-                .createInjectionTarget(loginBeanAnnotatedType);
-
-        for (Bean<?> bean : beans) {
-
-            Bean<LoginBean> newBean = new BeanBuilder<LoginBean>(beanManager)
-                    .passivationCapable(false).beanClass(LoginBean.class)
-                    .injectionPoints(bean.getInjectionPoints()).name(config.getAliasNameLoginbean())
-                    .scope(bean.getScope()).addQualifiers(bean.getQualifiers())
-                    .addTypes(bean.getTypes()).alternative(bean.isAlternative()).nullable(bean.isNullable())
-                    .stereotypes(bean.getStereotypes())
-                    .beanLifecycle(new DelegatingContextualLifecycle(loginInjectionTarget)).create();
-            afterBeanDiscovery.addBean(newBean);
-
-        }
-    }
-
-
     private static class PermissionLifecycleCallback extends DelegatingContextualLifecycle<GenericPermissionVoter> {
 
         private NamedPermission namedPermission;
@@ -194,7 +165,7 @@ public class OctopusExtension implements Extension {
 
         @Override
         public GenericRoleVoter create(Bean<GenericRoleVoter> bean,
-                                             CreationalContext<GenericRoleVoter> creationalContext) {
+                                       CreationalContext<GenericRoleVoter> creationalContext) {
             GenericRoleVoter result = super.create(bean, creationalContext);
 
             // We can't move this to the Extension itself.

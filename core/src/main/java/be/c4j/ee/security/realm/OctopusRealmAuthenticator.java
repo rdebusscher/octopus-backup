@@ -20,7 +20,6 @@
  */
 package be.c4j.ee.security.realm;
 
-import be.c4j.ee.security.event.AuthenticationExceptionListener;
 import be.c4j.ee.security.event.OctopusAuthenticationListener;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
@@ -45,7 +44,6 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
         AuthenticationListener listener = BeanProvider.getContextualReference(OctopusAuthenticationListener.class);
         getAuthenticationListeners().add(listener);
 
-        getAuthenticationListeners().add(new AuthenticationExceptionListener());
         listenerConfigured = true;
     }
 }

@@ -29,8 +29,8 @@ import javax.faces.event.SystemEventListener;
 import java.util.List;
 
 /**
-*
-*/
+ *
+ */
 class RelocateSecurityInformationEventListener implements SystemEventListener {
 
     private UIComponent component;

@@ -51,7 +51,7 @@ public abstract class OctopusComponentHandler extends ComponentHandler {
     protected abstract void handleComponentSecurity(UIComponent component, UIComponent parent);
 
     private void securityOnBody() {
-        throw new FaceletException("Octopus Security tag placed on <h:body> : "+tag.toString());
+        throw new FaceletException("Octopus Security tag placed on <h:body> : " + tag.toString());
     }
 
 }

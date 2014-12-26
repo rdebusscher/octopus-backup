@@ -21,6 +21,7 @@
 
     <modules>
         <module>core</module>
+        <module>jsf</module>
         <module>javaee6</module>
         <module>javaee7</module>
         <module>authentication</module>

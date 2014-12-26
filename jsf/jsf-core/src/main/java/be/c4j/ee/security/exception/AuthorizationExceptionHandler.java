@@ -83,7 +83,7 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
 
         if (unauthorized instanceof OctopusUnauthorizedException) {
 
-            externalContext.getFlash().putNow("interceptionInfo", ((OctopusUnauthorizedException) unauthorized ) .getExceptionPointInfo());
+            externalContext.getFlash().putNow("interceptionInfo", ((OctopusUnauthorizedException) unauthorized).getExceptionPointInfo());
         }
         try {
             OctopusConfig config = BeanProvider.getContextualReference(OctopusConfig.class);

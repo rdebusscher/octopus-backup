@@ -22,7 +22,6 @@
 package be.c4j.ee.security.view.interceptor;
 
 import be.rubus.web.jerry.interceptor.AbstractRendererInterceptor;
-import be.rubus.web.jerry.interceptor.RendererInterceptor;
 import be.rubus.web.jerry.interceptor.exception.SkipAfterInterceptorsException;
 import be.rubus.web.jerry.interceptor.exception.SkipBeforeInterceptorsException;
 import be.rubus.web.jerry.interceptor.exception.SkipRendererDelegationException;
@@ -30,7 +29,6 @@ import be.rubus.web.jerry.interceptor.exception.SkipRendererDelegationException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.ConverterException;
 import javax.faces.render.Renderer;
 import javax.inject.Inject;
 import java.io.IOException;

@@ -29,7 +29,6 @@ import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
-import be.c4j.ee.security.view.model.LoginBean;
 import org.apache.deltaspike.core.api.literal.NamedLiteral;
 import org.apache.deltaspike.core.util.bean.BeanBuilder;
 import org.apache.deltaspike.core.util.metadata.builder.DelegatingContextualLifecycle;
@@ -74,9 +73,6 @@ public class OctopusExtension implements Extension {
         createPermissionVoters(afterBeanDiscovery, beanManager);
         createRoleVoters(afterBeanDiscovery, beanManager);
 
-        if (config.getAliasNameLoginbean().length() != 0) {
-            setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);
-        }
     }
 
     private <T> T getUnmanagedInstance(BeanManager beanManager, Class<T> beanClass) {
@@ -146,29 +142,6 @@ public class OctopusExtension implements Extension {
             }
         }
     }
-
-    private void setAlternativeNameForLoginBean(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
-        Set<Bean<?>> beans = beanManager.getBeans("loginBean");
-
-        AnnotatedType<LoginBean> loginBeanAnnotatedType = beanManager
-                .createAnnotatedType(LoginBean.class);
-        InjectionTarget<LoginBean> loginInjectionTarget = beanManager
-                .createInjectionTarget(loginBeanAnnotatedType);
-
-        for (Bean<?> bean : beans) {
-
-            Bean<LoginBean> newBean = new BeanBuilder<LoginBean>(beanManager)
-                    .passivationCapable(false).beanClass(LoginBean.class)
-                    .injectionPoints(bean.getInjectionPoints()).name(config.getAliasNameLoginbean())
-                    .scope(bean.getScope()).addQualifiers(bean.getQualifiers())
-                    .addTypes(bean.getTypes()).alternative(bean.isAlternative()).nullable(bean.isNullable())
-                    .stereotypes(bean.getStereotypes())
-                    .beanLifecycle(new DelegatingContextualLifecycle(loginInjectionTarget)).create();
-            afterBeanDiscovery.addBean(newBean);
-
-        }
-    }
-
 
     private static class PermissionLifecycleCallback extends DelegatingContextualLifecycle<GenericPermissionVoter> {
 

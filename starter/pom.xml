@@ -65,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>javaee6</artifactId>
+            <artifactId>javaee6-jsf</artifactId>
             <version>0.9.5-SNAPSHOT</version>
         </dependency>
 
@@ -121,6 +121,7 @@
         </repository>
     </repositories>
     <build>
+        <finalName>starter</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>

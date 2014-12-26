@@ -120,7 +120,7 @@ public class SecuredComponentHandler extends OctopusComponentHandler {
             if (child instanceof SecuredComponentParameter) {
                 SecuredComponentParameter parameter = (SecuredComponentParameter) child;
                 result.add(new SecuredComponentDataParameter(parameter.getValueExpression("value")
-                                                                      .getExpressionString(), true));
+                        .getExpressionString(), true));
             }
         }
 

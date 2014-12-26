@@ -45,8 +45,7 @@ public class FacesAjaxAwareUserFilter extends UserFilter {
             res.setContentType("text/xml");
             res.setCharacterEncoding("UTF-8");
             res.getWriter().printf(FACES_REDIRECT_XML, request.getContextPath() + getLoginUrl());
-        }
-        else {
+        } else {
             super.redirectToLogin(req, res);
         }
     }
