@@ -1,6 +1,6 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.json;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.json;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.GoogleUser;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;

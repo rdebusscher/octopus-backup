@@ -1,8 +1,8 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.servlet;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.GoogleUser;
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;

@@ -1,7 +1,7 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google;
+package be.c4j.ee.security.credentials.authentication.oauth2.google;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.filter.GoogleAuthcFilter;
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.matcher.GoogleCredentialsMatcher;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.filter.GoogleAuthcFilter;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.matcher.GoogleCredentialsMatcher;
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;

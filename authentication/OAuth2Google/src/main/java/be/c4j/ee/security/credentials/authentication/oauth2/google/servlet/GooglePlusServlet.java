@@ -1,6 +1,6 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.servlet;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import org.scribe.oauth.OAuthService;
 
 import javax.inject.Inject;

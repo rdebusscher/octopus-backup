@@ -1,4 +1,4 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.scribe;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.scribe;
 
 import org.scribe.builder.api.DefaultApi20;
 import org.scribe.exceptions.OAuthException;

@@ -1,6 +1,6 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.matcher;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.matcher;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.GoogleUser;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.credential.CredentialsMatcher;

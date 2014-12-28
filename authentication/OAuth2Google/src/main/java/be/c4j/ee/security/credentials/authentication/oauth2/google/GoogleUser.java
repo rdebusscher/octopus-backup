@@ -1,4 +1,4 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google;
+package be.c4j.ee.security.credentials.authentication.oauth2.google;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.scribe.model.Token;

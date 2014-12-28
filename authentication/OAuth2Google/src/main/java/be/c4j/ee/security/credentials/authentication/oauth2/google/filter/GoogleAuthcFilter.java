@@ -1,7 +1,7 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.filter;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.filter;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;

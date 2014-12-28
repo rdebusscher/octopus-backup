@@ -1,7 +1,7 @@
-package be.c4j.ee.scurity.credentials.authentication.oauth2.google.provider;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.provider;
 
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.OAuth2GoogleConfiguration;
-import be.c4j.ee.scurity.credentials.authentication.oauth2.google.scribe.Google2Api;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.OAuth2GoogleConfiguration;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.scribe.Google2Api;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.oauth.OAuthService;
 
