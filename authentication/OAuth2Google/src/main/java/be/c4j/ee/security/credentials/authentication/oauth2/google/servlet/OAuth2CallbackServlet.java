@@ -65,6 +65,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
 
+        sess.setAttribute("googleUser", googleUser);
         try {
             SecurityUtils.getSubject().login(googleUser);
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
