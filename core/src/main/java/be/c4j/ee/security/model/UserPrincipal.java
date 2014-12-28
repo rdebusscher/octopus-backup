@@ -69,9 +69,10 @@ public class UserPrincipal implements Principal, Serializable {
         userInfo.putAll(values);
     }
 
-    public Serializable getUserInfo(Serializable key) {
-        return userInfo.get(key);
+    public <T> T getUserInfo(Serializable key) {
+        return (T)userInfo.get(key);
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
