@@ -1,9 +1,11 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 import org.scribe.model.*;
@@ -21,12 +23,14 @@ import java.io.IOException;
 /**
  *
  */
-//@WebServlet(urlPatterns = {"/oauth2callback"}, asyncSupported = true)
 @WebServlet(urlPatterns = {"/oauth2callback"})
 public class OAuth2CallbackServlet extends HttpServlet {
 
     @Inject
     private GoogleJSONProcessor jsonProcessor;
+
+    @Inject
+    private OctopusConfig octopusConfig;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -42,8 +46,6 @@ public class OAuth2CallbackServlet extends HttpServlet {
         }
 
         //OK the user have consented so lets find out about the user
-        //AsyncContext ctx = req.startAsync();
-        //ctx.start(new GetUserInfo(req, resp, ctx, loggedinUser));
 
         HttpSession sess = req.getSession();
         OAuthService service = (OAuthService) sess.getAttribute("oauth2Service");
@@ -63,10 +65,15 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
 
-        SecurityUtils.getSubject().login(googleUser);
+        try {
+            SecurityUtils.getSubject().login(googleUser);
+            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
+            resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
+        } catch (AuthenticationException e) {
+            // DataSecurityProvider decided that google user has no access to application
+            resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+        }
 
-        SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
-        resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
 
     }
 }
