@@ -1,5 +1,6 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.filter;
 
+import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.rubus.web.jerry.provider.BeanProvider;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -59,13 +61,32 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
 
         Token token = new Token(authTokens[1], "");
 
-        OAuthRequest oReq = new OAuthRequest(Verb.GET,
-                "https://www.googleapis.com/oauth2/v2/userinfo");
+        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v2/userinfo");
 
         authService.signRequest(token, oReq);
         Response oResp = oReq.send();
-        return jsonProcessor.extractGoogleUser(oResp.getBody());
+        GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
+        if (googleUser == null) {
+            ((HttpServletResponse) response).setStatus(401);
+            return new DummyGoogleAuthenticationToken();
+        } else {
+
+            return googleUser;
+        }
     }
 
+
+    public static class DummyGoogleAuthenticationToken implements AuthenticationToken {
+
+        @Override
+        public Object getPrincipal() {
+            return null;
+        }
+
+        @Override
+        public Object getCredentials() {
+            return null;
+        }
+    }
 
 }
