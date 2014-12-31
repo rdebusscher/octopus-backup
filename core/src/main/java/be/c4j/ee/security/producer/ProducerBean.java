@@ -38,6 +38,7 @@ public class ProducerBean {
 
     @Produces
     @RequestScoped
+    @Named("userPrincipal")
     public UserPrincipal producePrincipal() {
         return (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
     }

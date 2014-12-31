@@ -56,21 +56,20 @@ public class OAuth2CallbackServlet extends HttpServlet {
         Token token = service.getAccessToken(null, new Verifier(code));
 
         //Now do something with it - get the user's G+ profile
-        OAuthRequest oReq = new OAuthRequest(Verb.GET,
-                "https://www.googleapis.com/oauth2/v2/userinfo");
+        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v2/userinfo");
         service.signRequest(token, oReq);
         Response oResp = oReq.send();
 
         //Read the result
 
         GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
-
-        sess.setAttribute("googleUser", googleUser);
+        googleUser.setToken(token);
         try {
             SecurityUtils.getSubject().login(googleUser);
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
             resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
         } catch (AuthenticationException e) {
+            sess.setAttribute("googleUser", googleUser);
             // DataSecurityProvider decided that google user has no access to application
             resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }

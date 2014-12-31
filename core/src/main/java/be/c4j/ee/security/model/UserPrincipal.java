@@ -73,6 +73,10 @@ public class UserPrincipal implements Principal, Serializable {
         return (T)userInfo.get(key);
     }
 
+    public Map<Serializable , Serializable > getInfo() {
+        return userInfo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
