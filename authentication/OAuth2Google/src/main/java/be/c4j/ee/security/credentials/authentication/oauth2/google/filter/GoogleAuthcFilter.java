@@ -4,7 +4,11 @@ import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.rubus.web.jerry.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.mgt.CachingSecurityManager;
+import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.scribe.model.OAuthRequest;
@@ -18,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 /**
  *
@@ -57,15 +62,19 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         if (authTokens.length < 2) {
             return null;
         }
-        OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(WebUtils.toHttp(request));
 
-        Token token = new Token(authTokens[1], "");
+        String authToken = authTokens[1];
+        GoogleUser googleUser = getCachedGoogleUser(authToken);
 
-        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v2/userinfo");
+        if (googleUser == null) {
+            // We don't have a cached version which is still valid.
+            googleUser = getGoogleUser(request, authToken);
 
-        authService.signRequest(token, oReq);
-        Response oResp = oReq.send();
-        GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
+            if (googleUser != null) {
+                setCachedGoogleUser(authToken, googleUser);
+            }
+        }
+
         if (googleUser == null) {
             ((HttpServletResponse) response).setStatus(401);
             return new DummyGoogleAuthenticationToken();
@@ -73,6 +82,51 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
 
             return googleUser;
         }
+    }
+
+    private void setCachedGoogleUser(String authToken, GoogleUser googleUser) {
+        Cache<String, CachedGoogleUser> cache = getCache();
+
+        if (cache != null) {
+            cache.put(authToken, new CachedGoogleUser(googleUser));
+        }
+    }
+
+    private GoogleUser getGoogleUser(ServletRequest request, String authToken) {
+        OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(WebUtils.toHttp(request));
+
+        Token token = new Token(authToken, "");
+
+        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v2/userinfo");
+
+        authService.signRequest(token, oReq);
+        Response oResp = oReq.send();
+        return jsonProcessor.extractGoogleUser(oResp.getBody());
+    }
+
+    private GoogleUser getCachedGoogleUser(String authToken) {
+        GoogleUser result = null;
+        Cache<String, CachedGoogleUser> cache = getCache();
+
+        if (cache != null) {
+            CachedGoogleUser cachedGoogleUser = cache.get(authToken);
+            if (cachedGoogleUser != null && cachedGoogleUser.isNotTimedOut()) {
+                result = cachedGoogleUser.getGoogleUser();
+            }
+        }
+        return result;
+    }
+
+    private Cache<String, CachedGoogleUser> getCache() {
+        Cache<String, CachedGoogleUser> cache = null;
+        SecurityManager securityManager = SecurityUtils.getSecurityManager();
+        if (securityManager instanceof CachingSecurityManager) {
+            CachingSecurityManager cachingSecurityManager = (CachingSecurityManager) securityManager;
+            cache = cachingSecurityManager.getCacheManager().getCache("AuthenticationToken");
+
+
+        }
+        return cache;
     }
 
 
@@ -89,4 +143,21 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         }
     }
 
+    public static class CachedGoogleUser {
+        private long creationTimeStamp;
+        private GoogleUser googleUser;
+
+        public CachedGoogleUser(GoogleUser googleUser) {
+            this.googleUser = googleUser;
+            creationTimeStamp = new Date().getTime();
+        }
+
+        boolean isNotTimedOut() {
+            return (new Date().getTime() - creationTimeStamp) < 1800000; // 30 min
+        }
+
+        public GoogleUser getGoogleUser() {
+            return googleUser;
+        }
+    }
 }
