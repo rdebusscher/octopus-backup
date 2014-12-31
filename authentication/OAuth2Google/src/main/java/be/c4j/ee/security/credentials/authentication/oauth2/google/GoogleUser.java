@@ -145,6 +145,7 @@ public class GoogleUser implements AuthenticationToken, Principal {
         result.put("gender", gender);
         result.put("hd", hd);
         result.put("locale", locale);
+        result.put("token", token.getToken());
         return result;
     }
 
