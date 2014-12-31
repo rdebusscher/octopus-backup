@@ -38,7 +38,6 @@ public class OctopusRealm extends AuthorizingRealm {
     protected void onInit() {
         super.onInit();
         securityDataProvider = BeanProvider.getContextualReference(SecurityDataProvider.class);
-        setCacheManager(new MemoryConstrainedCacheManager());
         setCachingEnabled(true);
         setAuthenticationTokenClass(AuthenticationToken.class);
     }

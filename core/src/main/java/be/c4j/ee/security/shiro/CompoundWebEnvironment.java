@@ -66,6 +66,8 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
             ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME).put("user.loginUrl", config.getLoginPage());
 
+            configureCache(ini);
+
             String hashAlgorithmName = config.getHashAlgorithmName();
             if (hashAlgorithmName.length() != 0) {
                 try {
@@ -84,6 +86,11 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         }
 
         super.setIni(ini);
+    }
+
+    private void configureCache(Ini ini) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("cacheManager", config.getCacheManager());
     }
 
     private void addPluginConfiguration(Ini ini) {
