@@ -71,6 +71,7 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
             googleUser = getGoogleUser(request, authToken);
 
             if (googleUser != null) {
+                googleUser.setToken(new Token(authToken, ""));
                 setCachedGoogleUser(authToken, googleUser);
             }
         }
