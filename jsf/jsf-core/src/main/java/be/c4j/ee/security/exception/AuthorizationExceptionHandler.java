@@ -20,7 +20,6 @@ package be.c4j.ee.security.exception;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +56,7 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
             ExceptionQueuedEvent event = i.next();
             Throwable t = getThrowable(event);
 
-            Throwable unauthorized = getUnauthorizedException(t);
+            Throwable unauthorized = OctopusUnauthorizedException.getUnauthorizedException(t);
             if (unauthorized != null) {
                 try {
                     handleAuthorizationException(unauthorized);
@@ -101,16 +100,5 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
         return context.getException();
     }
 
-    private Throwable getUnauthorizedException(Throwable someException) {
-        Throwable result = null;
-        if (someException instanceof UnauthorizedException) {
-            result = someException;
-        } else {
-            if (someException.getCause() != null) {
-                result = getUnauthorizedException(someException.getCause());
-            }
-        }
-        return result;
-    }
 
 }

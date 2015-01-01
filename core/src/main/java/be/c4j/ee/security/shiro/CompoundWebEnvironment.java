@@ -64,8 +64,6 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             addManuallyConfiguredUrls(ini.getSection(IniFilterChainResolverFactory.URLS), iniWithURLS
                     .getSection(APP_URL));
 
-            ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME).put("user.loginUrl", config.getLoginPage());
-
             configureCache(ini);
 
             String hashAlgorithmName = config.getHashAlgorithmName();

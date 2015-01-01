@@ -24,6 +24,7 @@
         <module>jsf</module>
         <module>javaee6</module>
         <module>javaee7</module>
+        <module>rest</module>
         <module>authentication</module>
         <module>pf-renderers</module>
         <module>starter</module>
