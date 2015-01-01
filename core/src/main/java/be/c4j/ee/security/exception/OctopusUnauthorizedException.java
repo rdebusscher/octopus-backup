@@ -74,11 +74,13 @@ public class OctopusUnauthorizedException extends UnauthorizedException {
 
     public static Throwable getUnauthorizedException(Throwable someException) {
         Throwable result = null;
-        if (someException instanceof UnauthorizedException) {
-            result = someException;
-        } else {
-            if (someException.getCause() != null) {
-                result = getUnauthorizedException(someException.getCause());
+        if (someException != null) {
+            if (someException instanceof UnauthorizedException) {
+                result = someException;
+            } else {
+                if (someException.getCause() != null) {
+                    result = getUnauthorizedException(someException.getCause());
+                }
             }
         }
         return result;
