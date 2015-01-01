@@ -25,14 +25,15 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ThreadContext;
 
 public class OctopusRealm extends AuthorizingRealm {
 
-    private SecurityDataProvider securityDataProvider;
+    public static final String IN_AUTHENTICATION_FLAG = "InAuthentication";
 
+    private SecurityDataProvider securityDataProvider;
 
     @Override
     protected void onInit() {
@@ -49,7 +50,15 @@ public class OctopusRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        return securityDataProvider.getAuthenticationInfo(token);
+        ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
+        AuthenticationInfo authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+        ThreadContext.remove(IN_AUTHENTICATION_FLAG);
+        return authenticationInfo;
     }
 
+    public static class InAuthentication {
+
+        private InAuthentication() {
+        }
+    }
 }
