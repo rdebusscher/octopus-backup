@@ -3,6 +3,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.filter;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
+import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -33,6 +34,8 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
 
     private GoogleJSONProcessor jsonProcessor;
 
+    private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
+
     /**
      * This class's private logger.
      */
@@ -43,6 +46,7 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         setAuthzScheme("Bearer");
         googleOAuth2ServiceProducer = BeanProvider.getContextualReference(GoogleOAuth2ServiceProducer.class, false);
         jsonProcessor = BeanProvider.getContextualReference(GoogleJSONProcessor.class, false);
+        loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class, true);
     }
 
     @Override
@@ -67,6 +71,10 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         GoogleUser googleUser = getCachedGoogleUser(authToken);
 
         if (googleUser == null) {
+            googleUser = useFakeLogin(request, authToken);
+        }
+
+        if (googleUser == null) {
             // We don't have a cached version which is still valid.
             googleUser = getGoogleUser(request, authToken);
 
@@ -83,6 +91,14 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
 
             return googleUser;
         }
+    }
+
+    private GoogleUser useFakeLogin(ServletRequest request, String authToken) {
+        GoogleUser result = null;
+        if ("localhost".equals(request.getServerName()) && loginAuthenticationTokenProvider != null) {
+            result = (GoogleUser) loginAuthenticationTokenProvider.determineAuthenticationToken(authToken);
+        }
+        return result;
     }
 
     private void setCachedGoogleUser(String authToken, GoogleUser googleUser) {
