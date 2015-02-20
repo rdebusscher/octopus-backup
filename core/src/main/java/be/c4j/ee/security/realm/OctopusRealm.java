@@ -56,6 +56,10 @@ public class OctopusRealm extends AuthorizingRealm {
         return authenticationInfo;
     }
 
+    protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
+        return principals.getPrimaryPrincipal();
+    }
+
     public static class InAuthentication {
 
         private InAuthentication() {
