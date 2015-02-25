@@ -30,7 +30,19 @@ public class AuthorizationCacheHolder {
                 cache.clear();
             } else {
                 // remove only for one principal
-                cache.remove(userPrincipal);
+                // cache.remove(userPrincipal); -> doesn't when we have a CDI proxy for userPrincipal
+
+                Object key = null;
+                for (Object k : cache.keys()) {
+                    if (k.equals(userPrincipal)) {
+                        key = k;
+                    }
+                }
+
+                if (key != null) {
+                    cache.remove(key);
+                }
+
             }
         }
     }
