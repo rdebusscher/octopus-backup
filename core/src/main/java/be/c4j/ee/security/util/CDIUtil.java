@@ -21,8 +21,10 @@
 package be.c4j.ee.security.util;
 
 
+import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
+import javax.ejb.EJBException;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -55,9 +57,15 @@ public final class CDIUtil {
                     result = (T) method.invoke(bean);
                     OPTIONAL_BEAN.put(targetClass, result);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    e.printStackTrace();  // FIXME
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    if (e.getTargetException() instanceof EJBException) {
+                        EJBException ejbException = (EJBException) e.getTargetException();
+                        if (ejbException.getCause() instanceof OctopusUnauthorizedException) {
+                            OctopusUnauthorizedException exception = (OctopusUnauthorizedException) ejbException.getCause();
+                            throw exception;
+                        }
+                    }
                 }
             }
         }
@@ -88,7 +96,7 @@ public final class CDIUtil {
         CreationalContext ctx = beanManager.createCreationalContext(bean);
         Object o = beanManager.getReference(bean, Object.class, ctx);
         if (targetClass.isAssignableFrom(o.getClass())) {
-            result = (T)o;
+            result = (T) o;
         }
         return result;
     }
