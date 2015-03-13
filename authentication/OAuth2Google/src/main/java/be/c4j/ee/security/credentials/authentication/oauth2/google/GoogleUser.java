@@ -38,6 +38,8 @@ public class GoogleUser implements AuthenticationToken, Principal {
 
     private Token token;
 
+    private String applicationName;
+
     public String getId() {
         return id;
     }
@@ -139,6 +141,14 @@ public class GoogleUser implements AuthenticationToken, Principal {
         this.token = token;
     }
 
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
     public Map<Serializable, Serializable> getUserInfo() {
         Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
         result.put("picture", picture);
@@ -162,6 +172,7 @@ public class GoogleUser implements AuthenticationToken, Principal {
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", hd='").append(hd).append('\'');
         sb.append(", verifiedEmail=").append(verifiedEmail);
+        sb.append(", C4J-app='").append(applicationName).append('\'');
         sb.append('}');
         return sb.toString();
     }

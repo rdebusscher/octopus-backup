@@ -18,6 +18,8 @@ import java.io.IOException;
 @WebServlet("/googleplus")
 public class GooglePlusServlet extends HttpServlet {
 
+    public static final String APPLICATION = "application";
+
     @Inject
     private GoogleOAuth2ServiceProducer googleOAuth2ServiceProducer;
 
@@ -25,12 +27,12 @@ public class GooglePlusServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
-
         OAuthService service = googleOAuth2ServiceProducer.createOAuthService(req);
 
         HttpSession sess = req.getSession();
         sess.setAttribute("oauth2Service", service);
 
+        sess.setAttribute(APPLICATION, req.getParameter(APPLICATION));
         resp.sendRedirect(service.getAuthorizationUrl(null));
     }
 

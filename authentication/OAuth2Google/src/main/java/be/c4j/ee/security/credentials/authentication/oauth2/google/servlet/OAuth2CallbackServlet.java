@@ -3,7 +3,9 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
+import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -32,6 +34,8 @@ public class OAuth2CallbackServlet extends HttpServlet {
     @Inject
     private OctopusConfig octopusConfig;
 
+    private CustomCallbackProvider customCallbackProvider;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
@@ -49,6 +53,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         HttpSession sess = req.getSession();
         OAuthService service = (OAuthService) sess.getAttribute("oauth2Service");
+        String applicationName = getApplicationName(sess);
 
         //Get the all important authorization code
         String code = req.getParameter("code");
@@ -64,16 +69,31 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
         googleUser.setToken(token);
+        googleUser.setApplicationName(applicationName);
+        customCallbackProvider = BeanProvider.getContextualReference(CustomCallbackProvider.class, true);
+        String callbackURL = null;
+        if (customCallbackProvider != null) {
+            callbackURL = customCallbackProvider.determineApplicationCallbackURL(applicationName);
+        }
         try {
-            SecurityUtils.getSubject().login(googleUser);
-            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
-            resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
+            if (callbackURL != null) {
+                SecurityUtils.getSubject().login(googleUser);
+                resp.sendRedirect(callbackURL + "?token=" + token.getToken());
+
+            } else {
+                SecurityUtils.getSubject().login(googleUser);
+                SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
+                resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
+            }
         } catch (AuthenticationException e) {
             sess.setAttribute("googleUser", googleUser);
             // DataSecurityProvider decided that google user has no access to application
             resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }
 
+    }
 
+    private String getApplicationName(HttpSession sess) {
+        return (String) sess.getAttribute(GooglePlusServlet.APPLICATION);
     }
 }
