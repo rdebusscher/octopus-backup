@@ -1,6 +1,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.filter;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.application.ApplicationInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
@@ -87,10 +88,18 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         if (googleUser == null) {
             ((HttpServletResponse) response).setStatus(401);
             return new DummyGoogleAuthenticationToken();
-        } else {
-
-            return googleUser;
         }
+
+        setApplication(googleUser);
+        return googleUser;
+    }
+
+    private void setApplication(GoogleUser googleUser) {
+        ApplicationInfo applicationInfo = BeanProvider.getContextualReference(ApplicationInfo.class, true);
+        if (applicationInfo != null) {
+            googleUser.setApplicationName(applicationInfo.getName());
+        }
+
     }
 
     private GoogleUser useFakeLogin(ServletRequest request, String authToken) {

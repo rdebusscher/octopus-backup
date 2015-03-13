@@ -76,12 +76,11 @@ public class OAuth2CallbackServlet extends HttpServlet {
             callbackURL = customCallbackProvider.determineApplicationCallbackURL(applicationName);
         }
         try {
+            SecurityUtils.getSubject().login(googleUser);
             if (callbackURL != null) {
-                SecurityUtils.getSubject().login(googleUser);
                 resp.sendRedirect(callbackURL + "?token=" + token.getToken());
 
             } else {
-                SecurityUtils.getSubject().login(googleUser);
                 SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
                 resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
             }
