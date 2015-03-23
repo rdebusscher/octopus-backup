@@ -11,7 +11,7 @@
     <properties>
         <deltaspike.version>1.2.0</deltaspike.version>
         <myfaces.version>2.0.2</myfaces.version>
-        <jerry.version>0.2-SNAPSHOT</jerry.version>
+        <jerry.version>0.2</jerry.version>
 
         <slf4j.version>1.7.7</slf4j.version>
 
@@ -40,8 +40,8 @@
             <url>http://repository.jboss.org/nexus/content/groups/public</url>
         </repository>
         <repository>
-            <id>Prime Technology Maven Repository</id>
-            <url>http://repository.primefaces.org</url>
+            <id>nexus_C4J</id>
+            <url>http://nexus-osc4j.rhcloud.com/content/groups/public/</url>
         </repository>
     </repositories>
 
