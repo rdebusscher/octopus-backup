@@ -24,6 +24,52 @@
     <version>0.9.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Permission based security for Java EE application</name>
+    <inceptionYear>2014</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</connection>
+        <developerConnection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</developerConnection>
+        <url>https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>rubus</id>
+            <name>Rudy De Busscher (www.c4j.be)</name>
+            <email>rdebusscher@gmail.com</email>
+            <organization>C4J, Belgium</organization>
+            <roles>
+                <role>PMC</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus_C4J</id>
+            <name>OpenSource Nexus of C4J</name>
+            <url>http://nexus-osc4j.rhcloud.com/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus_C4J</id>
+            <name>OpenSource Nexus of C4J</name>
+            <url>http://nexus-osc4j.rhcloud.com/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <deltaspike.version>1.2.0</deltaspike.version>
         <myfaces.version>2.0.2</myfaces.version>
@@ -31,8 +77,6 @@
 
         <slf4j.version>1.7.7</slf4j.version>
 
-        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
-        <github.global.server>github</github.global.server>
     </properties>
 
     <modules>
@@ -80,6 +124,29 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>

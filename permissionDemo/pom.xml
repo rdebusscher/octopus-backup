@@ -150,24 +150,7 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>JBOSS_NEXUS</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public</url>
-        </repository>
-        <repository>
-            <id>Prime Technology Maven Repository</id>
-            <url>http://repository.primefaces.org</url>
-        </repository>
-        <repository>
-            <id>Octopus-mvn-repo</id>
-            <url>https://raw.github.com/JavaEESquad/Octopus_mvn/mvn-repo/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
+
     <build>
         <finalName>permission</finalName>
         <plugins>
@@ -178,13 +161,13 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
+            <!-- don't need to deploy the WAR's to nexus. -->
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
