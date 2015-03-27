@@ -1,7 +1,7 @@
 Octopus Framework
 =================
 
-C4J - Rudy De Busscher \<rudy.debusscher@c4j.be\>  
+C4J - Rudy De Busscher (www.c4j.be) \<rudy.debusscher@c4j.be\>  
  version 0.9.3-SNAPSHOT, 08/04/2014
 
 Introduction
@@ -25,7 +25,7 @@ convinced me to use the Apache Shiro framework as a base for the Octopus
 Framework. Especially the permission based nature of it was very
 important.
 
-The second blog was written by Rudy De Busscher, [JSF
+The second blog was written by Rudy De Busscher (www.c4j.be), [JSF
 Security](http://jsfcorner.blogspot.be/2011/03/jsf-security.html) where
 the possibility of securing JSF components with the use of the security
 code available in the **Apache MyFaces Extension CDI** (or CODI) is

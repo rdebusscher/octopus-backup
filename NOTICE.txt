@@ -1,5 +1,5 @@
 Octopus - Permission based security for Java EE application
-Copyright by Rudy De Busscher / C4J
+Copyright by Rudy De Busscher  / C4J
 
 ------------------------------------------------------------------------
 See the file LICENSE.txt

@@ -1,0 +1,11 @@
+=== Step 1
+
+Start form the permissionHOL project and change the artifact of the maven artifact.
+
+[source,xml]
+----
+    <groupId>be.c4j.ee.security.demo</groupId>
+    <artifactId>permission</artifactId>
+    <version>1.0.0</version>
+----
+
