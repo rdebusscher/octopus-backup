@@ -28,6 +28,7 @@ import org.apache.shiro.util.ThreadContext;
 public class OctopusRealm extends AuthorizingRealm {
 
     public static final String IN_AUTHENTICATION_FLAG = "InAuthentication";
+    public static final String IN_AUTHORIZATION_FLAG = "InAuthorization";
 
     private SecurityDataProvider securityDataProvider;
 
@@ -41,7 +42,10 @@ public class OctopusRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        return securityDataProvider.getAuthorizationInfo(principals);
+        ThreadContext.put(IN_AUTHORIZATION_FLAG, new InAuthorization());
+        AuthorizationInfo authorizationInfo = securityDataProvider.getAuthorizationInfo(principals);
+        ThreadContext.remove(IN_AUTHORIZATION_FLAG);
+        return authorizationInfo;
     }
 
     @Override
@@ -59,6 +63,12 @@ public class OctopusRealm extends AuthorizingRealm {
     public static class InAuthentication {
 
         private InAuthentication() {
+        }
+    }
+
+    public static class InAuthorization {
+
+        private InAuthorization() {
         }
     }
 }

@@ -22,6 +22,7 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationListener;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ThreadContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -29,6 +30,8 @@ import javax.inject.Inject;
 
 @ApplicationScoped
 public class OctopusAuthenticationListener implements AuthenticationListener {
+
+    public static final String IN_AUTHENTICATION_EVENT_FLAG = "InAuthenticationEvent";
 
     @Inject
     private Event<LogonEvent> logonEvent;
@@ -42,7 +45,9 @@ public class OctopusAuthenticationListener implements AuthenticationListener {
     @Override
     public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
         LogonEvent event = new LogonEvent(token, info);
+        ThreadContext.put(IN_AUTHENTICATION_EVENT_FLAG, new InAuthenticationEvent());
         logonEvent.fire(event);
+        ThreadContext.remove(IN_AUTHENTICATION_EVENT_FLAG);
     }
 
     @Override
@@ -55,5 +60,12 @@ public class OctopusAuthenticationListener implements AuthenticationListener {
     public void onLogout(PrincipalCollection principals) {
         LogoutEvent event = new LogoutEvent((UserPrincipal) principals.getPrimaryPrincipal());
         logoutEvent.fire(event);
+    }
+
+
+    public static class InAuthenticationEvent {
+
+        private InAuthenticationEvent() {
+        }
     }
 }

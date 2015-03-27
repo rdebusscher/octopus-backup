@@ -24,11 +24,13 @@ import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
-import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
+import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
+import be.c4j.ee.security.realm.OnlyDuringAuthorization;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
+import be.c4j.ee.security.util.SpecialStateChecker;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
@@ -37,7 +39,6 @@ import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.inject.spi.BeanManager;
@@ -92,9 +93,18 @@ public class OctopusInterceptor implements Serializable {
             if (annotations.isEmpty()) {
                 throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
             }
-
+            if (hasAnnotation(annotations, OnlyDuringAuthorization.class)) {
+                if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthorization()) {
+                    throw new OctopusUnauthorizedException("Execution of method only allowed during authorization process", infoProducer.getViolationInfo(accessContext));
+                }
+            }
             if (hasAnnotation(annotations, OnlyDuringAuthentication.class)) {
-                if (subject.getPrincipal() != null || !(ThreadContext.get(OctopusRealm.IN_AUTHENTICATION_FLAG) instanceof OctopusRealm.InAuthentication)) {
+                if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthentication()) {
+                    throw new OctopusUnauthorizedException("Execution of method only allowed during authentication process", infoProducer.getViolationInfo(accessContext));
+                }
+            }
+            if (hasAnnotation(annotations, OnlyDuringAuthenticationEvent.class)) {
+                if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthenticationEvent()) {
                     throw new OctopusUnauthorizedException("Execution of method only allowed during authentication process", infoProducer.getViolationInfo(accessContext));
                 }
             }
@@ -214,7 +224,9 @@ public class OctopusInterceptor implements Serializable {
         result.add(someMethod.getAnnotation(RequiresRoles.class));
         result.add(someMethod.getAnnotation(RequiresPermissions.class));
         result.add(someMethod.getAnnotation(CustomVoterCheck.class));
+        result.add(someMethod.getAnnotation(OnlyDuringAuthorization.class));
         result.add(someMethod.getAnnotation(OnlyDuringAuthentication.class));
+        result.add(someMethod.getAnnotation(OnlyDuringAuthenticationEvent.class));
         if (config.getNamedPermissionCheckClass() != null) {
             result.add(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
         }
