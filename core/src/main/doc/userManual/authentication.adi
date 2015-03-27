@@ -1,0 +1,61 @@
+[[authentication]]
+
+This chapter describes the steps for integrating the authentication part into your application.
+
+==== CDI bean for authentication and authorization
+
+As described in the chapter <<SecurityDataProvider,SecurityDataProvider>>, there is an interface defined in Octopus framework which you need to implement to supply the required security data to the framework.
+
+So you should create a class which implements this interface and annotate it with @javax.enterprise.context.ApplicationScoped. That way, an instance of your class will be used by Octopus in case it needs some authentication info.  The same bean will be used for the authorization info and will be described in <<authorization,Authorization>> chapter.
+
+==== Supply authentication info
+
+Some details about the getAuthenticationInfo() method is described in the section <<getAuthenticationInfo,getAuthenticationInfo()>>. Since you have defined a CDI bean, you can inject any kind of service that you wrote to supply the required information.
+
+When the user specifies an unknown user name, the +getAuthenticationInfo()+ should return null.  Octopus knows then, that it should show an error. More on the configuration of the error messages, see ???.
+
+In case your custom service identifies the user name as valid, you should supply some data.
+
+. A unique id which will be used to refer to this user.
+. A password for the user.
+. The salt in case of hashed passwords
+
+The password verification is done by the framework itself because the preferred password mechanism is using some kind of hashed password mechanism.  The code to perform such comparisons is called by the Framework itself.  You just have to specify the hash algorithm (through configuration), salt (for optimal security) and the hashed password to be able to perform the comparison.  See aalso ??? password mechanism ?? for some more detail.
+
+The result of the method call is not cached by default, and thus it is safe to change the authentication info in the external system (like database or LDAP) without the need to restart the application.
+
+==== Example
+
+In the below code, you find an example of supplying the authentication info when the external system stores the plain passwords (not recommended).
+
+[source,java]
+----
+@ApplicationScoped
+public class AppAuthentication implements SecurityDataProvider {
+
+    @Inject
+    private YourService service;
+
+    @Override
+    public AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token) {
+        MyUser user = service.getUserInfo(token.getUsername());
+        if (user == null) {
+          return null;
+        }
+        AuthenticationInfoBuilder authenticationInfoBuilder =
+            new AuthenticationInfoBuilder();
+        authenticationInfoBuilder.principalId(user.getId()).
+                                name(user.getName()).
+                                password(user.getPassword());
+        return authenticationInfoBuilder.build();
+    }
+
+    @Override
+    public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
+
+    }
+
+}
+----
+
+YourService and MyUser class are project specific and not supplied by Octopus.

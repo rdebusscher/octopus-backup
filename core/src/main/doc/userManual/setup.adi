@@ -2,36 +2,61 @@ This chapter describes the minimal steps you need to do to use the Octopus frame
 
 === Add library
 
-Add the octopus artifact to your project dependencies.
+Add the octopus artifact to your project dependencies for your application server. The jsf named artifact is needed when you use JSF as front end.  The steps for using secured JAX-RS controllers are described here ???.
 
 [source,xml]
 ----
     <dependency>
-        <groupId>be.c4j.ee.security</groupId>
-        <artifactId>octopus</artifactId>
-        <version>0.9.3</version>
+        <groupId>be.c4j.ee.security.octopus</groupId>
+        <artifactId>javaee7-jsf</artifactId>
+        <version>0.9.5</version>
     </dependency>
 ----
 
-The Octopus library has a few transient dependencies which are imported automatically. But it also depends on CODI, which is not included by default (see ???here??? for the explaination). For your ease, you can include the complete JSF2 bundle of CODI.
+The Octopus rtifacts are available in the C4J OS maven repository. You have to add the following repository definition to your pom.xml file.
+
+[source,xml]
+----
+        <repository>
+            <id>nexus_C4J</id>
+            <url>http://nexus-osc4j.rhcloud.com/content/groups/public/</url>
+        </repository>
+----
+
+
+The Octopus library has a few transient dependencies which are imported automatically (like Jerry). But it also depends on DeltaSpike, which is not included by default (see ???here??? for the explanation). You need the Core and the security modules.
 
 [source,xml]
 ----
         <dependency>
-            <groupId>org.apache.myfaces.extensions.cdi.bundles</groupId>
-            <artifactId>myfaces-extcdi-bundle-jsf20</artifactId>
-            <version>1.0.5</version>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+            <version>1.2.0</version>
+            <scope>compile</scope>
         </dependency>
 
-        <!-- logging -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-impl</artifactId>
+            <version>1.2.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-security-module-api</artifactId>
+            <version>1.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-security-module-impl</artifactId>
+            <version>1.2.0</version>
+            <scope>runtime</scope>
         </dependency>
 ----
 
-In the above snippet, you see also that there is also a logging target required for SLF4J.  You can of course include another bridge like the one for log4j.
 
 === Non Maven users
 
@@ -41,7 +66,7 @@ TODO
 === URL patterns protection
 
 By just adding the Octopus jar file and his dependencies, your application no longer deploys.  It complains that it is missing a CDI bean which implements the +SecurityDataProvider+ interface.
-This bean is required to supply the authentication and authorization information to the Octopus framework. See ???configuring authentication??? and ???configuring authorization??? for the details how you can do this.
+This bean is required to supply the authentication and authorization information to the Octopus framework. See <<authentication,configuring authentication>> and <<authorization,configuring authorization>> for the details how you can do this.
 
 Another thing you need to do before you can start, is to create the +/WEB-INF/securedURLs.ini+ file.
 In this file, you can configure which URLs need to be protected by authentication.  An example is in the following snippet

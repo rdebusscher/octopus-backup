@@ -28,6 +28,6 @@ Other features of Apache Shiro related to the domain permission are also availab
 
 === Named (domain) permission
 
-The named permission which is used by the Octopus framework, can be seen as a kind of simplification. Instead of referring to the 3 arts of the domain permission, we give it a name.  With +DEPARTMENT_READ+ we could refer to the permission department:list:*. This name can then be used as some kind of _variable name_ and we can use it to refer to the domain permission in a type safe way.
+The named permission which is used by the Octopus framework, can be seen as a kind of simplification. Instead of referring to the 3 parts of the domain permission, we give it a name.  With +DEPARTMENT_READ+ we could refer to the permission department:list:*. This name can then be used as some kind of _variable name_ and we can use it to refer to the domain permission in a type safe way.
 
 

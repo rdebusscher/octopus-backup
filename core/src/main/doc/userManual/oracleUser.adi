@@ -1,3 +1,5 @@
+?? TODO : Need an additional dependency for this since v0.9.5.
+
 One of the classic scenarios is that the users which are allowed to access your application, are stored in a database table.
 
 However, there exists a range of application running on the Oracle database which uses the database users to perform the authentication. With Octopus this is also possible when a stored function is installed on the database (scripts provided in the appendix)

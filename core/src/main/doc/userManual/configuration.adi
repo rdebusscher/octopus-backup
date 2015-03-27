@@ -1,0 +1,91 @@
+[[octopusConfig]]
+
+This chapter describes all the configuration options of the Octopus framework.
+
+=== octopusConfig.properties
+
+==== securedURLs.file
+
+default : */WEB-INF/securedURLs.ini*
+
+The securedURLs.ini file contains the permissions required to access some URLs.  See ?? for the format of the file.
+
+==== namedPermission.class
+
+default : *(none)*
+
+Defines the Enum class which enumerates all permissions. Within the demo example it is the class *be.c4j.demo.security.permission.DemoPermission*.
+
+==== namedPermissionCheck.class
+
+default : *(none)*
+
+Defines the annotation which can be used on method and class level to define the security requirements.
+
+==== namedRole.class
+
+default : *(none)*
+
+Defines the Enum class which enumerates all named roles. It is the role counterpart of the namedPermission.class configuration option.
+
+==== namedRoleCheck.class
+
+default : *(none)*
+
+Defines the annotations which can be used on method and class level to define the security requirements.
+
+==== aliasNameLoginBean
+
+default : *(none)*
+
+The CDI managed bean which can be used to login and logout the user is called *loginBean*. With this configuration option you can give it an additional name so that you can use this configured value in the JSF pages instead of *loginBean*.
+
+==== loginPage
+
+default : */login.xhtml*
+
+The JSF page which will be called when the user access a security restricted page in your application and isn't logged in yet.  It should contain the fields and button to allow him to login into your application.
+
+==== unauthorizedExceptionPage
+
+default : */unauthorized.xhtml*
+
+The JSF page which is called when the user access a security restricted page and he doesn't has the required permissions (roles) to access it.
+
+==== hashAlgorithmName
+
+default : *(none)*
+
+Name of the MessageDigest algorithm when you use hashed passwords. examples are Md5 and Sha512.
+
+==== saltLength
+
+default : *0*
+
+Number of bytes used when creating a salt for the hashing of passwords.  0 means that no salt is used.
+
+==== allowPostAsSavedRequest
+
+default : *true*
+
+When user is redirect to the login screen because he is not authenticated yet, the original URL is stored.  So it can be used to redirect to if the user has supplied valid credentials.  However, with JSF applications, posting to an arbitrary page results in exceptions as the state of the previous pages is missing.
+
+With this property you can disable the redirect to an URL which uses POST as HTTP method.  A redirect to the welcome page of your application will be used instead.
+
+==== cacheManager.class
+
+default : *org.apache.shiro.cache.MemoryConstrainedCacheManager*
+
+The class responsible for holding/managing the cache of the authentication and authorization data.  The developer can supply a custom implementation of *org.apache.shiro.cache.AbstractCacheManager* have the cache in a different location.
+
+==== OAuth2.clientId (OAuth2 only)
+
+default : *(none)*
+
+The value used for the clientId configuration value towards your OAuth2 provider.
+
+==== OAuth2.secretId (OAuth2 only)
+
+default : *(none)*
+
+The value used for the secretId configuration value towards your OAuth2 provider.

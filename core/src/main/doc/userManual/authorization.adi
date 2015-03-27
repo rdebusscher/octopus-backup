@@ -1,0 +1,58 @@
+[[authorization]]
+
+This chapter describes the steps for integrating the authorization part into your application.
+
+==== CDI bean for authentication and authorization
+
+As described in the chapter <<SecurityDataProvider,SecurityDataProvider>>, there is an interface defined in Octopus framework which you need to implement to supply the required security data to the framework.
+
+So you should create a class which implements this interface and annotate it with @javax.enterprise.context.ApplicationScoped. That way, an instance of your class will be used by Octopus in case it needs some authorization info.  The same bean will be used for the authentication info and is described in the <<authentication,Authentication>> chapter.
+
+==== Supply authorization info
+
+Some details about the getAuthorizationInfo() method is described in the section <<getAuthorizationInfo,getAuthorizationInfo()>>. Since you have defined a CDI bean, you can inject any kind of service that you wrote to supply the required information.
+
+The authorization info is cached since authorization information is necessary every time a check is required to see if the user is allowed to perform some action. So every request the user makes, multiple checks can be needed and thus caching is indispensable.
+
+The unique id we have supplied during authentication, is supplied  as parameter of the +getAuthorizationInfo()+ method. The following code snippet can be used to retrieve this unique id out of the *principals* parameter.
+
+[source,java]
+----
+((UserPrincipal) principals.getPrimaryPrincipal()).getId()
+----
+
+Using the AuthorizationInfoBuilder instance, we can transfer the authorization info stored in the external system (like a database or LDAP) to the Octopus framework.
+
+??? Here we need more info about permissions and roles we can supply ???
+
+==== Example
+
+In the below code, you find an example of supplying the authorization info when the external system stores the named permissions.
+
+[source,java]
+----
+@ApplicationScoped
+public class AppAuthentication implements SecurityDataProvider {
+
+    @Inject
+    private YourService service;
+
+    @Override
+    public AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token) {
+    }
+
+    @Override
+    public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
+        AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
+        builder.addPermissions(service.getPermissionsForPrincipal(
+            (UserPrincipal) principals.getPrimaryPrincipal())
+        );
+
+        return builder.build();
+    }
+
+}
+----
+
+YourService is project specific and not supplied by Octopus.
++service.getPermissionsForPrincipal()+ should return a Collection of be.c4j.ee.security.permission.NamedPermission items.

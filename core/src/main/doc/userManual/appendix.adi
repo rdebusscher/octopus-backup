@@ -1,5 +1,3 @@
-=== Appendix
-
 ==== Oracle Stored function for OracleCredentialsMatcher
 
 For an oracle 10g database, create this function in the schema of the user used in the connection pool to the database fro the application server (or grant the required executions rights in addition to a public synonym)

@@ -1,0 +1,14 @@
+=== 0.9.5
+
+. Module restructering to support Java EE 6 and Java EE 7 servers.
+. Plugin mechanism to allow different authentication plugins.
+. Using Oracle database credentials is now an authentication plugin.
+. Support for OAuth2 providers as authentication. Google+ only for the moment.
+. Support for JAX-RS controllers.
+. Test module so that OAuth2 provider is not needed during development.
+. Apache CODI replaced by DeltaSpike
+. Apache MyFaces Extensions Validator (ExtVal) is replaced by Jerry.
+
+Breaking changes
+
+. Parameter of *be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()* is now _AuthenticationToken_ and no longer _UsernamePasswordToken_.
