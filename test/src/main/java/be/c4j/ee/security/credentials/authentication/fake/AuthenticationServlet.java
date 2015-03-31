@@ -60,6 +60,8 @@ public class AuthenticationServlet extends HttpServlet {
             response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
         } catch (AuthenticationException e) {
             // DataSecurityProvider decided that google user has no access to application
+            request.getSession().setAttribute("googleUser", token);
+            request.getSession().setAttribute("AuthenticationExceptionMessage", e.getMessage());
             response.sendRedirect(request.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }
 

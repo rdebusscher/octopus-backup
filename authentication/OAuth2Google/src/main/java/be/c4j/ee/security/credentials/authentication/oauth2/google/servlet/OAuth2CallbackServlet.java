@@ -102,6 +102,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
             }
         } catch (AuthenticationException e) {
             sess.setAttribute("googleUser", googleUser);
+            sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             // DataSecurityProvider decided that google user has no access to application
             resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }
