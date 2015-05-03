@@ -22,13 +22,13 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.5</version>
+        <version>0.9.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>starter_ee6</artifactId>
     <!-- My mistake that it isn't 0.9.5  Was separately before but now integrated in multi module POM-->
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <dependencyManagement>
