@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.5-SNAPSHOT</version>
+        <version>0.9.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,15 +30,9 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>primefaces</artifactId>
-    <version>0.9.5-SNAPSHOT</version>
+    <version>0.9.5</version>
 
     <name>PrimeFaces renderers for Octopus framework</name>
-
-    <properties>
-        <deltaspike.version>1.2.0</deltaspike.version>
-        <myfaces.version>2.0.2</myfaces.version>
-
-    </properties>
 
     <dependencies>
 
@@ -66,7 +60,7 @@
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>jsf-core</artifactId>
-            <version>0.9.5-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
     </dependencies>

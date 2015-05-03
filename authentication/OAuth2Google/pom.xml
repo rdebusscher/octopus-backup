@@ -20,7 +20,7 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>authentication</artifactId>
-        <version>0.9.5-SNAPSHOT</version>
+        <version>0.9.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
 
     <groupId>be.c4j.ee.security.authentication</groupId>
     <artifactId>oauth2-google</artifactId>
-    <version>0.9.5-SNAPSHOT</version>
+    <version>0.9.5</version>
 
     <name>OAuth2 Google Authentication</name>
 
