@@ -137,6 +137,10 @@ public class OctopusInterceptor implements Serializable {
 
                 Annotation namedPermissionCheck = getAnnotation(annotations, config.getNamedPermissionCheckClass());
                 if (namedPermissionCheck != null) {
+                    // When we specify a custom named permission check, at least the subject needs to be authenticated
+                    if (subject.getPrincipal() == null) {
+                        throw new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(accessContext));
+                    }
                     Set<SecurityViolation> securityViolations = performNamedPermissionChecks(namedPermissionCheck, accessContext);
                     if (!securityViolations.isEmpty()) {
 
@@ -239,6 +243,7 @@ public class OctopusInterceptor implements Serializable {
         result.add(getAnnotation(someClassType, RequiresUser.class));
         result.add(getAnnotation(someClassType, RequiresRoles.class));
         result.add(getAnnotation(someClassType, RequiresPermissions.class));
+        result.add(getAnnotation(someClassType, CustomVoterCheck.class));
         if (config.getNamedPermissionCheckClass() != null) {
             result.add(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
         }
