@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014-2015 Rudy De Busscher (www.c4j.be)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
@@ -47,6 +63,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         Method method = target.getClass().getMethod("permitAll");
         InvocationContext context = new TestInvocationContext(target, method);
 
+        finishCDISetup();
+
         octopusInterceptor.interceptShiroSecurity(context);
 
         List<String> feedback = CallFeedbackCollector.getCallFeedback();
@@ -60,6 +78,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("noAnnotation");
         InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
@@ -75,6 +95,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("requiresUser");
         InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
@@ -104,6 +126,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         OctopusRealm octopusRealm = new OctopusRealm();
         ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context));
 
+        finishCDISetup();
+
         try {
             octopusRealm.getAuthenticationInfo(null);
 
@@ -126,6 +150,7 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         Method method = target.getClass().getMethod("inAuthentication");
         InvocationContext context = new TestInvocationContext(target, method);
 
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
@@ -153,6 +178,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         octopusRealm.setCachingEnabled(false);
         ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context));
 
+        finishCDISetup();
+
         try {
             octopusRealm.checkPermission(new SimplePrincipalCollection(), AUTHORIZATION_PERMISSION);
 
@@ -175,6 +202,7 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         Method method = target.getClass().getMethod("inAuthorization");
         InvocationContext context = new TestInvocationContext(target, method);
 
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
@@ -201,7 +229,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         ReflectionUtil.injectDependencies(permissionVoter, subjectMock, namedPermission);
 
         beanManagerFake.registerBean("permission1PermissionVoter", permissionVoter);
-        beanManagerFake.endRegistration();
+
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
@@ -231,7 +260,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         ReflectionUtil.injectDependencies(permissionVoter, subjectMock, namedPermission);
 
         beanManagerFake.registerBean("permission2PermissionVoter", permissionVoter);
-        beanManagerFake.endRegistration();
+
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
@@ -256,7 +286,7 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         Method method = target.getClass().getMethod("customVoter");
         InvocationContext context = new TestInvocationContext(target, method);
 
-        beanManagerFake.endRegistration();
+        finishCDISetup();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);

@@ -14,25 +14,20 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.interceptor.testclasses;
+package be.c4j.ee.security.interceptor.checks;
 
-import be.c4j.ee.security.interceptor.CallFeedbackCollector;
+
+import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
+import org.apache.shiro.subject.Subject;
+
+import java.lang.annotation.Annotation;
 
 /**
  *
  */
-@TestPermissionCheck(TestPermission.PERMISSION1)
-public class ClassLevelCustomPermission {
+public interface SecurityCheck {
 
-    public static final String CLASS_LEVEL_CUSTOM_PERMISSION = "ClassLevel#inPermission";
+    SecurityCheckInfo performCheck(Subject subject, AccessDecisionVoterContext accessContext, Annotation securityAnnotation);
 
-
-    public void customPermission1() {
-        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_CUSTOM_PERMISSION);
-    }
-
-    public void customPermission1Bis() {
-        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_CUSTOM_PERMISSION);
-    }
-
+    boolean hasSupportFor(Object annotation);
 }

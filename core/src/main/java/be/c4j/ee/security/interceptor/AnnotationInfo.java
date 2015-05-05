@@ -16,30 +16,34 @@
  */
 package be.c4j.ee.security.interceptor;
 
-import java.util.ArrayList;
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
  *
  */
-public final class CallFeedbackCollector {
+public class AnnotationInfo {
 
-    private static Set<String> calledMethods = new HashSet<String>();
+    private Set<Annotation> methodAnnotations = new HashSet<Annotation>();
+    private Set<Annotation> classAnnotations = new HashSet<Annotation>();
 
-    private CallFeedbackCollector() {
+
+    public void addMethodAnnotation(Annotation annotation) {
+        methodAnnotations.add(annotation);
     }
 
-    public static void addCallFeedback(String calledMethod) {
-        calledMethods.add(calledMethod);
+    public void addClassAnnotation(Annotation annotation) {
+        methodAnnotations.add(annotation);
     }
 
-    public static void reset() {
-        calledMethods.clear();
+    public Set<Annotation> getMethodAnnotations() {
+        methodAnnotations.remove(null);
+        return methodAnnotations;
     }
 
-    public static List<String> getCallFeedback() {
-        return new ArrayList<String>(calledMethods);
+    public Set<Annotation> getClassAnnotations() {
+        classAnnotations.remove(null);
+        return classAnnotations;
     }
 }

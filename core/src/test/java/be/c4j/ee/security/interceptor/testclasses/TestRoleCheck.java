@@ -16,23 +16,16 @@
  */
 package be.c4j.ee.security.interceptor.testclasses;
 
-import be.c4j.ee.security.interceptor.CallFeedbackCollector;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  */
-@TestPermissionCheck(TestPermission.PERMISSION1)
-public class ClassLevelCustomPermission {
-
-    public static final String CLASS_LEVEL_CUSTOM_PERMISSION = "ClassLevel#inPermission";
-
-
-    public void customPermission1() {
-        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_CUSTOM_PERMISSION);
-    }
-
-    public void customPermission1Bis() {
-        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_CUSTOM_PERMISSION);
-    }
-
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TestRoleCheck {
+    TestRole[] value();
 }

@@ -1,11 +1,29 @@
+/*
+ * Copyright 2014-2015 Rudy De Busscher (www.c4j.be)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
+import be.c4j.ee.security.interceptor.checks.*;
 import be.c4j.ee.security.interceptor.testclasses.TestCustomVoter;
 import be.c4j.ee.security.interceptor.testclasses.TestPermissionCheck;
+import be.c4j.ee.security.interceptor.testclasses.TestRoleCheck;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.test.util.BeanManagerFake;
@@ -109,6 +127,14 @@ public class OctopusInterceptorTest {
             }
         });
 
+        // Define the Named permission check class
+        when(octopusConfigMock.getNamedRoleCheckClass()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return TestRoleCheck.class;
+            }
+        });
+
         // startup mock system for manual/programmatic CDI retrieval
         beanManagerFake = new BeanManagerFake();
 
@@ -124,11 +150,58 @@ public class OctopusInterceptorTest {
 
         // A required dependency for the interceptor, not mocked
         ReflectionUtil.injectDependencies(octopusInterceptor, new VoterNameFactory());
+
+        SecurityCheckOnlyDuringAuthorization securityCheckOnlyDuringAuthorization = new SecurityCheckOnlyDuringAuthorization();
+        ReflectionUtil.injectDependencies(securityCheckOnlyDuringAuthorization, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckOnlyDuringAuthorization, SecurityCheck.class);
+
+
+        SecurityCheckRequiresUser securityCheckRequiresUser = new SecurityCheckRequiresUser();
+        ReflectionUtil.injectDependencies(securityCheckRequiresUser, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckRequiresUser, SecurityCheck.class);
+
+
+        SecurityCheckOnlyDuringAuthentication securityCheckOnlyDuringAuthentication = new SecurityCheckOnlyDuringAuthentication();
+        ReflectionUtil.injectDependencies(securityCheckOnlyDuringAuthentication, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckOnlyDuringAuthentication, SecurityCheck.class);
+
+
+        SecurityCheckOnlyDuringAuthenticationEvent securityCheckOnlyDuringAuthenticationEvent = new SecurityCheckOnlyDuringAuthenticationEvent();
+        ReflectionUtil.injectDependencies(securityCheckOnlyDuringAuthenticationEvent, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckOnlyDuringAuthenticationEvent, SecurityCheck.class);
+
+
+        SecurityCheckNamedPermissionCheck securityCheckNamedPermissionCheck = new SecurityCheckNamedPermissionCheck();
+        ReflectionUtil.injectDependencies(securityCheckNamedPermissionCheck, infoProducerMock, octopusConfigMock, new VoterNameFactory());
+
+        beanManagerFake.registerBean(securityCheckNamedPermissionCheck, SecurityCheck.class);
+
+
+        SecurityCheckNamedRoleCheck securityCheckNamedRoleCheck = new SecurityCheckNamedRoleCheck();
+        ReflectionUtil.injectDependencies(securityCheckNamedRoleCheck, infoProducerMock, octopusConfigMock, new VoterNameFactory());
+
+        beanManagerFake.registerBean(securityCheckNamedRoleCheck, SecurityCheck.class);
+
+
+        SecurityCheckCustomVoterCheck securityCheckCustomVoterCheck = new SecurityCheckCustomVoterCheck();
+        beanManagerFake.registerBean(securityCheckCustomVoterCheck, SecurityCheck.class);
     }
 
     @After
     public void teardown() {
         beanManagerFake.deregistration();
+    }
+
+    protected void finishCDISetup() throws IllegalAccessException {
+        beanManagerFake.endRegistration();
+
+        AnnotationCheckFactory checkFactory = new AnnotationCheckFactory();
+        checkFactory.init();
+        ReflectionUtil.injectDependencies(octopusInterceptor, checkFactory);
     }
 
     protected NamedDomainPermission getNamedDomainPermission(String permissionName) {

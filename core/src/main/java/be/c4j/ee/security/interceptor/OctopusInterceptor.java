@@ -18,30 +18,21 @@ package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
-import be.c4j.ee.security.permission.GenericPermissionVoter;
-import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.interceptor.checks.AnnotationCheckFactory;
+import be.c4j.ee.security.interceptor.checks.SecurityCheckInfo;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
-import be.c4j.ee.security.role.NamedRole;
-import be.c4j.ee.security.util.AnnotationUtil;
-import be.c4j.ee.security.util.CDIUtil;
-import be.c4j.ee.security.util.SpecialStateChecker;
-import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
-import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
 
 import javax.annotation.security.PermitAll;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -49,8 +40,6 @@ import javax.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -64,18 +53,18 @@ public class OctopusInterceptor implements Serializable {
     private OctopusConfig config;
 
     @Inject
-    private VoterNameFactory nameFactory;
+    private SecurityViolationInfoProducer infoProducer;
 
     @Inject
-    private SecurityViolationInfoProducer infoProducer;
+    private AnnotationCheckFactory annotationCheckFactory;
 
     //@PostConstruct With Weld 2.X, there seems to be an issue
     public void init(InvocationContext context) {
         if (config == null) {
             // WLS12C doesn't inject into interceptors
             config = BeanProvider.getContextualReference(OctopusConfig.class);
-            nameFactory = BeanProvider.getContextualReference(VoterNameFactory.class);
             infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
+            annotationCheckFactory = BeanProvider.getContextualReference(AnnotationCheckFactory.class);
         }
     }
 
@@ -88,25 +77,72 @@ public class OctopusInterceptor implements Serializable {
 
         AccessDecisionVoterContext accessContext = new CustomAccessDecissionVoterContext(context);
 
-        Set<?> annotations = getAllAnnotations(classType, method);
+        AnnotationInfo info = getAllAnnotations(classType, method);
+
+        boolean accessAllowed = false;
+        OctopusUnauthorizedException exception = null;
+        // We need to check at 2 levels, method and then if not present at class level
+        Set<Annotation> annotations = info.getMethodAnnotations();
+        if (!annotations.isEmpty()) {
+            if (hasAnnotation(annotations, PermitAll.class)) {
+                accessAllowed = true;
+            } else {
+                Iterator<Annotation> annotationIterator = annotations.iterator();
+
+                while (!accessAllowed && annotationIterator.hasNext()) {
+                    Annotation annotation = annotationIterator.next();
+                    SecurityCheckInfo checkInfo = annotationCheckFactory.getCheck(annotation).performCheck(subject, accessContext, annotation);
+                    if (checkInfo.isAccessAllowed()) {
+                        accessAllowed = true;
+                    }
+                    if (checkInfo.getException() != null) {
+                        exception = checkInfo.getException();
+                    }
+
+                }
+            }
+            if (!accessAllowed && exception != null) {
+                throw exception;
+            }
+        }
+
+        if (!accessAllowed) {
+            // OK, at method level we didn't find any annotations.
+            annotations = info.getClassAnnotations();
+
+            if (!annotations.isEmpty()) {
+                if (hasAnnotation(annotations, PermitAll.class)) {
+                    accessAllowed = true;
+                } else {
+                    Iterator<Annotation> annotationIterator = annotations.iterator();
+
+                    while (!accessAllowed && annotationIterator.hasNext()) {
+                        Annotation annotation = annotationIterator.next();
+                        SecurityCheckInfo checkInfo = annotationCheckFactory.getCheck(annotation).performCheck(subject, accessContext, annotation);
+                        if (checkInfo.isAccessAllowed()) {
+                            accessAllowed = true;
+                        }
+                        if (checkInfo.getException() != null) {
+                            exception = checkInfo.getException();
+                        }
+
+                    }
+                }
+                if (!accessAllowed && exception != null) {
+                    throw exception;
+                }
+            }
+
+        }
+        if (!accessAllowed) {
+            // Ok at classLevel also no info -> Exception
+            throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
+        }
+        /*
+
         if (!hasAnnotation(annotations, PermitAll.class)) {
             if (annotations.isEmpty()) {
                 throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
-            }
-            if (hasAnnotation(annotations, OnlyDuringAuthorization.class)) {
-                if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthorization()) {
-                    throw new OctopusUnauthorizedException("Execution of method only allowed during authorization process", infoProducer.getViolationInfo(accessContext));
-                }
-            }
-            if (hasAnnotation(annotations, OnlyDuringAuthentication.class)) {
-                if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthentication()) {
-                    throw new OctopusUnauthorizedException("Execution of method only allowed during authentication process", infoProducer.getViolationInfo(accessContext));
-                }
-            }
-            if (hasAnnotation(annotations, OnlyDuringAuthenticationEvent.class)) {
-                if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthenticationEvent()) {
-                    throw new OctopusUnauthorizedException("Execution of method only allowed during authentication process", infoProducer.getViolationInfo(accessContext));
-                }
             }
             if (!subject.isAuthenticated() && hasAnnotation(annotations, RequiresAuthentication.class)) {
                 throw new OctopusUnauthorizedException("Authentication required", infoProducer.getViolationInfo(accessContext));
@@ -116,9 +152,6 @@ public class OctopusInterceptor implements Serializable {
                 throw new OctopusUnauthorizedException("Guest required", infoProducer.getViolationInfo(accessContext));
             }
 
-            if (subject.getPrincipal() == null && hasAnnotation(annotations, RequiresUser.class)) {
-                throw new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(accessContext));
-            }
 
             // TODO Verify how this can be configured. They are the shiro ones.
             RequiresRoles roles = getAnnotation(annotations, RequiresRoles.class);
@@ -133,124 +166,44 @@ public class OctopusInterceptor implements Serializable {
                 subject.checkPermissions(permissions.value());
             }
 
-            if (config.getNamedPermissionCheckClass() != null) {
-
-                Annotation namedPermissionCheck = getAnnotation(annotations, config.getNamedPermissionCheckClass());
-                if (namedPermissionCheck != null) {
-                    // When we specify a custom named permission check, at least the subject needs to be authenticated
-                    if (subject.getPrincipal() == null) {
-                        throw new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(accessContext));
-                    }
-                    Set<SecurityViolation> securityViolations = performNamedPermissionChecks(namedPermissionCheck, accessContext);
-                    if (!securityViolations.isEmpty()) {
-
-                        throw new OctopusUnauthorizedException(securityViolations);
-                    }
-                }
-            }
-
-            if (config.getNamedRoleCheckClass() != null) {
-
-                Annotation namedRoleCheck = getAnnotation(annotations, config.getNamedRoleCheckClass());
-                if (namedRoleCheck != null) {
-                    Set<SecurityViolation> securityViolations = performNamedRoleChecks(namedRoleCheck, accessContext);
-                    if (!securityViolations.isEmpty()) {
-
-                        throw new OctopusUnauthorizedException(securityViolations);
-                    }
-                }
-            }
-
-            CustomVoterCheck customCheck = getAnnotation(annotations, CustomVoterCheck.class);
-
-            if (customCheck != null) {
-                Set<SecurityViolation> securityViolations = performCustomChecks(customCheck, accessContext);
-                if (!securityViolations.isEmpty()) {
-
-                    throw new OctopusUnauthorizedException(securityViolations);
-                }
-            }
-
         }
-
+        */
         return context.proceed();
     }
 
-    private Set<SecurityViolation> performNamedPermissionChecks(Annotation customNamedCheck, AccessDecisionVoterContext context) {
-        Set<SecurityViolation> result = new HashSet<SecurityViolation>();
+    private AnnotationInfo getAllAnnotations(Class<?> someClassType, Method someMethod) {
+        AnnotationInfo result = new AnnotationInfo();
 
-        BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
-
-        for (Object permissionConstant : AnnotationUtil.getPermissionValues(customNamedCheck)) {
-            String beanName = nameFactory.generatePermissionBeanName(((NamedPermission) permissionConstant).name());
-
-            GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
-                    , GenericPermissionVoter.class);
-            result.addAll(voter.checkPermission(context));
-
-        }
-        return result;
-    }
-
-    private Set<SecurityViolation> performNamedRoleChecks(Annotation customNamedCheck, AccessDecisionVoterContext context) {
-        Set<SecurityViolation> result = new HashSet<SecurityViolation>();
-
-        BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
-
-        for (Object permissionConstant : AnnotationUtil.getRoleValues(customNamedCheck)) {
-            String beanName = nameFactory.generateRoleBeanName(((NamedRole) permissionConstant).name());
-
-            GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
-                    , GenericPermissionVoter.class);
-            result.addAll(voter.checkPermission(context));
-
-        }
-        return result;
-    }
-
-    private Set<SecurityViolation> performCustomChecks(CustomVoterCheck customCheck, AccessDecisionVoterContext context) {
-        Set<SecurityViolation> result = new HashSet<SecurityViolation>();
-        for (Class<? extends AbstractAccessDecisionVoter> clsName : customCheck.value()) {
-            AbstractAccessDecisionVoter voter = BeanProvider.getContextualReference(clsName);
-            result.addAll(voter.checkPermission(context));
-        }
-
-        return result;
-    }
-
-    private Set<?> getAllAnnotations(Class<?> someClassType, Method someMethod) {
-
-        Set<Object> result = new HashSet<Object>();
-        result.add(someMethod.getAnnotation(PermitAll.class));
-        result.add(someMethod.getAnnotation(RequiresAuthentication.class));
-        result.add(someMethod.getAnnotation(RequiresGuest.class));
-        result.add(someMethod.getAnnotation(RequiresUser.class));
-        result.add(someMethod.getAnnotation(RequiresRoles.class));
-        result.add(someMethod.getAnnotation(RequiresPermissions.class));
-        result.add(someMethod.getAnnotation(CustomVoterCheck.class));
-        result.add(someMethod.getAnnotation(OnlyDuringAuthorization.class));
-        result.add(someMethod.getAnnotation(OnlyDuringAuthentication.class));
-        result.add(someMethod.getAnnotation(OnlyDuringAuthenticationEvent.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(PermitAll.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresAuthentication.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresGuest.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresUser.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresRoles.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresPermissions.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(CustomVoterCheck.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthorization.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthentication.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthenticationEvent.class));
         if (config.getNamedPermissionCheckClass() != null) {
-            result.add(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
+            result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
         }
         if (config.getNamedRoleCheckClass() != null) {
-            result.add(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
+            result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
         }
-        result.add(getAnnotation(someClassType, PermitAll.class));
-        result.add(getAnnotation(someClassType, RequiresAuthentication.class));
-        result.add(getAnnotation(someClassType, RequiresGuest.class));
-        result.add(getAnnotation(someClassType, RequiresUser.class));
-        result.add(getAnnotation(someClassType, RequiresRoles.class));
-        result.add(getAnnotation(someClassType, RequiresPermissions.class));
-        result.add(getAnnotation(someClassType, CustomVoterCheck.class));
+        result.addClassAnnotation(getAnnotation(someClassType, PermitAll.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresAuthentication.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresGuest.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresUser.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresRoles.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresPermissions.class));
+        result.addClassAnnotation(getAnnotation(someClassType, CustomVoterCheck.class));
         if (config.getNamedPermissionCheckClass() != null) {
-            result.add(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
+            result.addClassAnnotation(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
         }
         if (config.getNamedRoleCheckClass() != null) {
-            result.add(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
+            result.addClassAnnotation(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
         }
-        result.remove(null);
+
         return result;
     }
 
