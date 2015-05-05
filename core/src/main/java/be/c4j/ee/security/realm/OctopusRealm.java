@@ -53,4 +53,8 @@ public class OctopusRealm extends AuthorizingRealm {
         return securityDataProvider.getAuthenticationInfo((UsernamePasswordToken) token);
     }
 
+    protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
+        return principals.getPrimaryPrincipal();
+    }
+
 }
