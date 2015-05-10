@@ -38,18 +38,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Parameterized.class)
 public class OctopusInterceptor_ClassLevelCustomPermissionTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_ClassLevelCustomPermissionTest(boolean authenticated, String permission, boolean customAccess) {
-        super(authenticated, permission, customAccess);
+    public OctopusInterceptor_ClassLevelCustomPermissionTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
+        super(authenticated, permission, customAccess, shiroPermission);
     }
 
     @Parameterized.Parameters
     public static List<Object[]> defineScenarios() {
         return Arrays.asList(new Object[][]{
-                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS},            //0
-                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS},               //1
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS},                //2
-                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS},        //3
-                {AUTHENTICATED, null, CUSTOM_ACCESS},                   //4
+                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},            //0
+                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null},               //1
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},                //2
+                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null},        //3
+                {AUTHENTICATED, null, CUSTOM_ACCESS, null},                   //4
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1},            //5
         });
     }
 

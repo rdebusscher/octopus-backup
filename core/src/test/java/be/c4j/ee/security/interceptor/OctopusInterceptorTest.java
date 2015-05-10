@@ -65,6 +65,7 @@ public class OctopusInterceptorTest {
     protected static final Boolean AUTHENTICATED = Boolean.TRUE;
     protected static final Boolean NO_CUSTOM_ACCESS = Boolean.FALSE;
     protected static final Boolean CUSTOM_ACCESS = Boolean.TRUE;
+    protected static final String SHIRO1 = "shiro1:*:*";
 
     protected static final String AUTHORIZATION_PERMISSION = "Authorization:*:*";
 
@@ -85,11 +86,13 @@ public class OctopusInterceptorTest {
     protected boolean authenticated;
     protected String permission;
     protected boolean customAccess;
+    protected String shiroPermission;
 
-    public OctopusInterceptorTest(boolean authenticated, String permission, boolean customAccess) {
-        this.customAccess = customAccess;
+    public OctopusInterceptorTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
         this.authenticated = authenticated;
         this.permission = permission;
+        this.customAccess = customAccess;
+        this.shiroPermission = shiroPermission;
     }
 
     @Before
@@ -113,11 +116,34 @@ public class OctopusInterceptorTest {
                     Permission permission = (Permission) parameter;
                     if (namedPermission == null || !namedPermission.implies(permission)) {
                         throw new AuthorizationException();
+                    } else {
+                        return null;
                     }
                 }
-                return null;
+                throw new IllegalArgumentException();
             }
         }).when(subjectMock).checkPermission(any(Permission.class));
+
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Object parameter = invocationOnMock.getArguments()[0];
+                if (parameter instanceof String) {
+                    String permission = (String) parameter;
+                    if (!permission.equals(shiroPermission)) {
+                        throw new AuthorizationException();
+                    } else {
+                        return null;
+                    }
+                }
+                if (parameter instanceof String[]) {
+                    // as we don't support it in these tests
+                    throw new AuthorizationException();
+                }
+                throw new IllegalArgumentException();
+            }
+        }).when(subjectMock).checkPermissions(any(String[].class));
 
         // Define the Named permission check class
         when(octopusConfigMock.getNamedPermissionCheckClass()).thenAnswer(new Answer<Object>() {
@@ -189,6 +215,12 @@ public class OctopusInterceptorTest {
 
         SecurityCheckCustomVoterCheck securityCheckCustomVoterCheck = new SecurityCheckCustomVoterCheck();
         beanManagerFake.registerBean(securityCheckCustomVoterCheck, SecurityCheck.class);
+
+
+        SecurityCheckRequiresPermissions securityCheckRequiresPermissions = new SecurityCheckRequiresPermissions();
+        ReflectionUtil.injectDependencies(securityCheckRequiresPermissions, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckRequiresPermissions, SecurityCheck.class);
     }
 
     @After

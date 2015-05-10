@@ -20,6 +20,7 @@ import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
 
 import javax.annotation.security.PermitAll;
@@ -36,6 +37,8 @@ public class MethodLevel {
     public static final String METHOD_LEVEL_PERMISSION1 = "MethodLevel#permission1";
     public static final String METHOD_LEVEL_PERMISSION2 = "MethodLevel#permission2";
     public static final String METHOD_LEVEL_CUSTOM_VOTER = "MethodLevel#customVoter";
+    public static final String METHOD_LEVEL_REQUIRES_PERMISSION1 = "MethodLevel#requiresPermission1";
+    public static final String METHOD_LEVEL_REQUIRES_PERMISSION2 = "MethodLevel#requiresPermission2";
 
     @PermitAll
     public void permitAll() {
@@ -74,6 +77,16 @@ public class MethodLevel {
     @CustomVoterCheck(TestCustomVoter.class)
     public void customVoter() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_CUSTOM_VOTER);
+    }
+
+    @RequiresPermissions("shiro1:*:*")
+    public void requiresPermission1() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_REQUIRES_PERMISSION1);
+    }
+
+    @RequiresPermissions("shiro2:*:*")
+    public void requiresPermission2() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_REQUIRES_PERMISSION2);
     }
 
 }

@@ -41,18 +41,19 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_MethodLevelTest(boolean authenticated, String permission, boolean customAccess) {
-        super(authenticated, permission, customAccess);
+    public OctopusInterceptor_MethodLevelTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
+        super(authenticated, permission, customAccess, shiroPermission);
     }
 
     @Parameterized.Parameters
-    public static List<Object[]> balanceRates() {
+    public static List<Object[]> defineScenarios() {
         return Arrays.asList(new Object[][]{
-                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS},            //0
-                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS},               //1
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS},                //2
-                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS},         //3
-                {AUTHENTICATED, null, CUSTOM_ACCESS},                   //4
+                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},            //0
+                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null},               //1
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},                //2
+                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null},        //3
+                {AUTHENTICATED, null, CUSTOM_ACCESS, null},                   //4
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1},            //5
         });
     }
 
@@ -216,7 +217,6 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         }
     }
 
-
     @Test
     public void testInterceptShiroSecurity_CustomPermissionAnnotation() throws Exception {
 
@@ -305,6 +305,50 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         }
     }
 
+    @Test
+    public void testInterceptShiroSecurity_RequiresPermission1() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("requiresPermission1");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_REQUIRES_PERMISSION1);
+
+            assertThat(shiroPermission).isEqualTo(SHIRO1);
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_RequiresPermission2() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("requiresPermission2");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+
+            fail("In our test, subject has never shiro 2 permission");
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
 
 }
 

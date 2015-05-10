@@ -16,7 +16,9 @@
  */
 package be.c4j.ee.security.interceptor;
 
-import be.c4j.ee.security.interceptor.testclasses.ClassLevelPermitAll;
+import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.interceptor.testclasses.ClassLevelRequiresPermissions;
+import be.c4j.ee.security.interceptor.testclasses.ClassLevelRequiresUser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -32,9 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 @RunWith(Parameterized.class)
-public class OctopusInterceptor_ClassLevelPermitAllTest extends OctopusInterceptorTest {
+public class OctopusInterceptor_ClassLevelRequiresPermissionsTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_ClassLevelPermitAllTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
+    public OctopusInterceptor_ClassLevelRequiresPermissionsTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
         super(authenticated, permission, customAccess, shiroPermission);
     }
 
@@ -51,31 +53,38 @@ public class OctopusInterceptor_ClassLevelPermitAllTest extends OctopusIntercept
     }
 
     @Test
-    public void testInterceptShiroSecurity_PermitAll1() throws Exception {
+    public void testInterceptShiroSecurity_RequiresPermissions1() throws Exception {
 
-        Object target = new ClassLevelPermitAll();
-        Method method = target.getClass().getMethod("permitAll1");
+        Object target = new ClassLevelRequiresPermissions();
+        Method method = target.getClass().getMethod("requiresPermissions1");
         InvocationContext context = new TestInvocationContext(target, method);
 
         performAndCheck(context);
     }
 
     private void performAndCheck(InvocationContext context) throws Exception {
-
         finishCDISetup();
 
-        octopusInterceptor.interceptShiroSecurity(context);
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
 
-        List<String> feedback = CallFeedbackCollector.getCallFeedback();
-        assertThat(feedback).hasSize(1);
-        assertThat(feedback).contains(ClassLevelPermitAll.CLASS_LEVEL_PERMIT_ALL);
+            assertThat(shiroPermission).isNotEmpty();
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(ClassLevelRequiresPermissions.CLASS_LEVEL_REQUIRES_PERMISSIONS);
+
+        } catch (OctopusUnauthorizedException e) {
+            assertThat(shiroPermission).isNull();
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
     }
 
     @Test
-    public void testInterceptShiroSecurity_PermitAll2() throws Exception {
+    public void testInterceptShiroSecurity_RequiresPermissions2() throws Exception {
 
-        Object target = new ClassLevelPermitAll();
-        Method method = target.getClass().getMethod("permitAll2");
+        Object target = new ClassLevelRequiresPermissions();
+        Method method = target.getClass().getMethod("requiresPermissions2");
         InvocationContext context = new TestInvocationContext(target, method);
 
         performAndCheck(context);
