@@ -43,16 +43,26 @@ public class OctopusRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         ThreadContext.put(IN_AUTHORIZATION_FLAG, new InAuthorization());
-        AuthorizationInfo authorizationInfo = securityDataProvider.getAuthorizationInfo(principals);
-        ThreadContext.remove(IN_AUTHORIZATION_FLAG);
+        AuthorizationInfo authorizationInfo;
+        try {
+            authorizationInfo = securityDataProvider.getAuthorizationInfo(principals);
+        } finally {
+
+            ThreadContext.remove(IN_AUTHORIZATION_FLAG);
+        }
         return authorizationInfo;
     }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
-        AuthenticationInfo authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
-        ThreadContext.remove(IN_AUTHENTICATION_FLAG);
+        AuthenticationInfo authenticationInfo;
+        try {
+            authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+        } finally {
+            // Even in the case of an exception (access not allowed) we need to reset this flag
+            ThreadContext.remove(IN_AUTHENTICATION_FLAG);
+        }
         return authenticationInfo;
     }
 

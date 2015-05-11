@@ -46,8 +46,12 @@ public class OctopusAuthenticationListener implements AuthenticationListener {
     public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
         LogonEvent event = new LogonEvent(token, info);
         ThreadContext.put(IN_AUTHENTICATION_EVENT_FLAG, new InAuthenticationEvent());
-        logonEvent.fire(event);
-        ThreadContext.remove(IN_AUTHENTICATION_EVENT_FLAG);
+        try {
+            logonEvent.fire(event);
+        } finally {
+            // In any case (also in case of access denied) we need to remove this flag
+            ThreadContext.remove(IN_AUTHENTICATION_EVENT_FLAG);
+        }
     }
 
     @Override
