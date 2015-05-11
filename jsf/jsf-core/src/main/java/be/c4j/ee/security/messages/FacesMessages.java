@@ -111,10 +111,21 @@ public class FacesMessages implements Serializable {
             }
         }
         instance.addMessage(clientId, new FacesMessage(severity, msg, msg));
+        resetData();
     }
 
     public String text() {
-        return messageContext.message().template(template).argument(arguments).toString();
+        String result = messageContext.message().template(template).argument(arguments).toString();
+        resetData();
+        return result;
+    }
+
+    private void resetData() {
+        template = null;
+        text = null;
+        arguments = null;
+        clientId = null;
+        severity = null;
     }
 
     public static FacesMessages getInstance() {
