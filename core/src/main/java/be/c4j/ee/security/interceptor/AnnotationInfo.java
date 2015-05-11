@@ -34,7 +34,7 @@ public class AnnotationInfo {
     }
 
     public void addClassAnnotation(Annotation annotation) {
-        methodAnnotations.add(annotation);
+        classAnnotations.add(annotation);
     }
 
     public Set<Annotation> getMethodAnnotations() {

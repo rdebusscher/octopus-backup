@@ -138,36 +138,6 @@ public class OctopusInterceptor implements Serializable {
             // Ok at classLevel also no info -> Exception
             throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
         }
-        /*
-
-        if (!hasAnnotation(annotations, PermitAll.class)) {
-            if (annotations.isEmpty()) {
-                throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
-            }
-            if (!subject.isAuthenticated() && hasAnnotation(annotations, RequiresAuthentication.class)) {
-                throw new OctopusUnauthorizedException("Authentication required", infoProducer.getViolationInfo(accessContext));
-            }
-
-            if (subject.getPrincipal() != null && hasAnnotation(annotations, RequiresGuest.class)) {
-                throw new OctopusUnauthorizedException("Guest required", infoProducer.getViolationInfo(accessContext));
-            }
-
-
-            // TODO Verify how this can be configured. They are the shiro ones.
-            RequiresRoles roles = getAnnotation(annotations, RequiresRoles.class);
-
-            if (roles != null) {
-                subject.checkRoles(Arrays.asList(roles.value()));
-            }
-
-            RequiresPermissions permissions = getAnnotation(annotations, RequiresPermissions.class);
-
-            if (permissions != null) {
-                subject.checkPermissions(permissions.value());
-            }
-
-        }
-        */
         return context.proceed();
     }
 
