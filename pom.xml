@@ -87,6 +87,7 @@
         <module>rest</module>
         <module>authentication</module>
         <module>pf-renderers</module>
+        <module>sso</module>
         <module>test</module>
         <module>starter</module>
         <module>permissionDemo</module>
