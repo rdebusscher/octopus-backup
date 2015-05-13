@@ -16,8 +16,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.google.filter;
 
-import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
-import be.c4j.ee.security.credentials.authentication.oauth2.google.application.ApplicationInfo;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.credentials.authentication.oauth2.application.ApplicationInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
@@ -85,7 +85,7 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         }
 
         String authToken = authTokens[1];
-        GoogleUser googleUser = getCachedGoogleUser(authToken);
+        OAuth2User googleUser = getCachedGoogleUser(authToken);
 
         if (googleUser == null) {
             googleUser = useFakeLogin(request, authToken);
@@ -110,7 +110,7 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         return googleUser;
     }
 
-    private void setApplication(GoogleUser googleUser) {
+    private void setApplication(OAuth2User googleUser) {
         ApplicationInfo applicationInfo = BeanProvider.getContextualReference(ApplicationInfo.class, true);
         if (applicationInfo != null) {
             googleUser.setApplicationName(applicationInfo.getName());
@@ -118,15 +118,15 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
 
     }
 
-    private GoogleUser useFakeLogin(ServletRequest request, String authToken) {
-        GoogleUser result = null;
+    private OAuth2User useFakeLogin(ServletRequest request, String authToken) {
+        OAuth2User result = null;
         if ("localhost".equals(request.getServerName()) && loginAuthenticationTokenProvider != null) {
-            result = (GoogleUser) loginAuthenticationTokenProvider.determineAuthenticationToken(authToken);
+            result = (OAuth2User) loginAuthenticationTokenProvider.determineAuthenticationToken(authToken);
         }
         return result;
     }
 
-    private void setCachedGoogleUser(String authToken, GoogleUser googleUser) {
+    private void setCachedGoogleUser(String authToken, OAuth2User googleUser) {
         Cache<String, CachedGoogleUser> cache = getCache();
 
         if (cache != null) {
@@ -134,7 +134,7 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         }
     }
 
-    private GoogleUser getGoogleUser(ServletRequest request, String authToken) {
+    private OAuth2User getGoogleUser(ServletRequest request, String authToken) {
         OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(WebUtils.toHttp(request));
 
         Token token = new Token(authToken, "");
@@ -146,8 +146,8 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
         return jsonProcessor.extractGoogleUser(oResp.getBody());
     }
 
-    private GoogleUser getCachedGoogleUser(String authToken) {
-        GoogleUser result = null;
+    private OAuth2User getCachedGoogleUser(String authToken) {
+        OAuth2User result = null;
         Cache<String, CachedGoogleUser> cache = getCache();
 
         if (cache != null) {
@@ -187,9 +187,9 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
 
     public static class CachedGoogleUser {
         private long creationTimeStamp;
-        private GoogleUser googleUser;
+        private OAuth2User googleUser;
 
-        public CachedGoogleUser(GoogleUser googleUser) {
+        public CachedGoogleUser(OAuth2User googleUser) {
             this.googleUser = googleUser;
             creationTimeStamp = new Date().getTime();
         }
@@ -198,7 +198,7 @@ public class GoogleAuthcFilter extends BasicHttpAuthenticationFilter {
             return (new Date().getTime() - creationTimeStamp) < 1800000; // 30 min
         }
 
-        public GoogleUser getGoogleUser() {
+        public OAuth2User getGoogleUser() {
             return googleUser;
         }
     }

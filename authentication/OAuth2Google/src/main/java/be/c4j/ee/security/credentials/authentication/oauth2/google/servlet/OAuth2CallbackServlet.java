@@ -18,8 +18,9 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleUser;
-import be.c4j.ee.security.credentials.authentication.oauth2.google.application.CustomCallbackProvider;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
@@ -83,7 +84,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         //Read the result
 
-        GoogleUser googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
+        OAuth2User googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
         googleUser.setToken(token);
         googleUser.setApplicationName(applicationName);
         customCallbackProvider = BeanProvider.getContextualReference(CustomCallbackProvider.class, true);
@@ -110,6 +111,6 @@ public class OAuth2CallbackServlet extends HttpServlet {
     }
 
     private String getApplicationName(HttpSession sess) {
-        return (String) sess.getAttribute(GooglePlusServlet.APPLICATION);
+        return (String) sess.getAttribute(OAuth2Configuration.APPLICATION);
     }
 }

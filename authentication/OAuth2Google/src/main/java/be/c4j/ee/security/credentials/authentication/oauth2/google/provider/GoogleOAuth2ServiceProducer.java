@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.google.provider;
 
-import be.c4j.ee.security.credentials.authentication.oauth2.google.OAuth2GoogleConfiguration;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.scribe.Google2Api;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.oauth.OAuthService;
@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 public class GoogleOAuth2ServiceProducer {
 
     @Inject
-    private OAuth2GoogleConfiguration configuration;
+    private OAuth2Configuration configuration;
 
     public OAuthService createOAuthService(HttpServletRequest req) {
         //Configure

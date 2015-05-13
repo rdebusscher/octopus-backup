@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.credentials.authentication.oauth2.google;
+package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.scribe.model.Token;
@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  *
  */
-public class GoogleUser implements AuthenticationToken, Principal {
+public class OAuth2User implements AuthenticationToken, Principal {
 
     private String id;
 
@@ -48,7 +48,7 @@ public class GoogleUser implements AuthenticationToken, Principal {
 
     private String firstName;
 
-    private String hd;
+    private String domain;
 
     private boolean verifiedEmail;
 
@@ -129,12 +129,12 @@ public class GoogleUser implements AuthenticationToken, Principal {
         this.firstName = firstName;
     }
 
-    public String getHd() {
-        return hd;
+    public String getDomain() {
+        return domain;
     }
 
-    public void setHd(String hd) {
-        this.hd = hd;
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
     public boolean isVerifiedEmail() {
@@ -169,7 +169,7 @@ public class GoogleUser implements AuthenticationToken, Principal {
         Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
         result.put("picture", picture);
         result.put("gender", gender);
-        result.put("hd", hd);
+        result.put("domain", domain);
         result.put("locale", locale);
         result.put("token", token.getToken());
         return result;
@@ -186,7 +186,7 @@ public class GoogleUser implements AuthenticationToken, Principal {
         sb.append(", email='").append(email).append('\'');
         sb.append(", link='").append(link).append('\'');
         sb.append(", firstName='").append(firstName).append('\'');
-        sb.append(", hd='").append(hd).append('\'');
+        sb.append(", domain='").append(domain).append('\'');
         sb.append(", verifiedEmail=").append(verifiedEmail);
         sb.append(", C4J-app='").append(applicationName).append('\'');
         sb.append('}');

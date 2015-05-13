@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import org.scribe.oauth.OAuthService;
 
@@ -34,8 +35,6 @@ import java.io.IOException;
 @WebServlet("/googleplus")
 public class GooglePlusServlet extends HttpServlet {
 
-    public static final String APPLICATION = "application";
-
     @Inject
     private GoogleOAuth2ServiceProducer googleOAuth2ServiceProducer;
 
@@ -48,7 +47,7 @@ public class GooglePlusServlet extends HttpServlet {
         HttpSession sess = req.getSession();
         sess.setAttribute("oauth2Service", service);
 
-        sess.setAttribute(APPLICATION, req.getParameter(APPLICATION));
+        sess.setAttribute(OAuth2Configuration.APPLICATION, req.getParameter(OAuth2Configuration.APPLICATION));
         resp.sendRedirect(service.getAuthorizationUrl(null));
     }
 
