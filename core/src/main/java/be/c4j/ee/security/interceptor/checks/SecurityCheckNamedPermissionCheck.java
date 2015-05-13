@@ -91,6 +91,6 @@ public class SecurityCheckNamedPermissionCheck implements SecurityCheck {
 
     @Override
     public boolean hasSupportFor(Object annotation) {
-        return config.getNamedPermissionCheckClass().isAssignableFrom(annotation.getClass());
+        return config.getNamedPermissionCheckClass() != null && config.getNamedPermissionCheckClass().isAssignableFrom(annotation.getClass());
     }
 }

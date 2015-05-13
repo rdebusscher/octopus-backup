@@ -92,6 +92,6 @@ public class SecurityCheckNamedRoleCheck implements SecurityCheck {
 
     @Override
     public boolean hasSupportFor(Object annotation) {
-        return config.getNamedRoleCheckClass().isAssignableFrom(annotation.getClass());
+        return config.getNamedRoleCheckClass() != null && config.getNamedRoleCheckClass().isAssignableFrom(annotation.getClass());
     }
 }
