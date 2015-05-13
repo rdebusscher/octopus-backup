@@ -17,9 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.credentials.authentication.oauth2.application.ApplicationInfo;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
-import be.rubus.web.jerry.provider.BeanProvider;
 
 import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
@@ -37,12 +35,7 @@ public class OAuth2Configuration extends OctopusConfig {
 
     @Override
     public String getLoginPage() {
-        String result = "";
-        ApplicationInfo applicationInfo = BeanProvider.getContextualReference(ApplicationInfo.class, true);
-        if (applicationInfo != null) {
-            result = '?' + APPLICATION + '=' + applicationInfo.getName();
-        }
-        return oAuth2ServletInfo.getServletPath() + result;
+        return "DYNAMIC OAUTH2 BASED";
     }
 
     @ConfigEntry

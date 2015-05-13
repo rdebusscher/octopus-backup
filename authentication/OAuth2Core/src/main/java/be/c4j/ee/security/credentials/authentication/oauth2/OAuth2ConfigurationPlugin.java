@@ -14,29 +14,24 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.config;
+package be.c4j.ee.security.credentials.authentication.oauth2;
 
-import be.c4j.ee.security.shiro.OctopusUserFilter;
+import be.c4j.ee.security.config.ConfigurationPlugin;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  *
  */
 @ApplicationScoped
-public class JSFConfiguration implements ConfigurationPlugin {
-
-    @Inject
-    private OctopusConfig config;
+public class OAuth2ConfigurationPlugin implements ConfigurationPlugin {
 
     @Override
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        mainSection.put("user", OctopusUserFilter.class.getName());
-        mainSection.put("user.loginUrl", config.getLoginPage());
+        mainSection.put("user", OAuth2UserFilter.class.getName());
 
     }
 }

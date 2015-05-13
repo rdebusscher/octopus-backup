@@ -28,7 +28,8 @@ import java.io.IOException;
 /**
  *
  */
-public class FacesAjaxAwareUserFilter extends UserFilter {
+// Keep in sync with OAuth2UserFilter
+public class OctopusUserFilter extends UserFilter {
 
     private static final String FACES_REDIRECT_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
             + "<partial-response><redirect url=\"%s\"></redirect></partial-response>";

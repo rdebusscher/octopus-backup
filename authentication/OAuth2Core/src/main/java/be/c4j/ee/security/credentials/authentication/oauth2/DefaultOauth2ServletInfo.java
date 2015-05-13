@@ -3,7 +3,6 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.model.SelectItem;
 import java.io.Serializable;
@@ -14,8 +13,8 @@ import java.util.List;
 /**
  *
  */
-@ApplicationScoped
-public class DefaultOauth2ServletInfo implements OAuth2ServletInfo {
+@SessionScoped
+public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable {
 
     private List<OAuth2ProviderInfo> providerInfos;
 
