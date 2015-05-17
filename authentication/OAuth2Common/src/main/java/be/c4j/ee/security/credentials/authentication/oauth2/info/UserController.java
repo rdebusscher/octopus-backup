@@ -6,6 +6,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.scribe.model.Token;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -25,6 +26,9 @@ import java.util.List;
 public class UserController {
 
     private List<OAuth2ProviderMetaData> oAuth2ProviderMetaDataList;
+
+    @Inject
+    private ExternalInternalIdMapper externalInternalIdMapper;
 
     @PostConstruct
     public void init() {
@@ -47,6 +51,7 @@ public class UserController {
             Token authToken = new Token(token, "", "Octopus");
 
             result = infoProvider.retrieveUserInfo(authToken, req);
+            result.setLocalId(externalInternalIdMapper.getLocalId(result.getId()));
         }
         return result;
     }

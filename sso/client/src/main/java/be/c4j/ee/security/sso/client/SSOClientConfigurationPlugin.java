@@ -17,7 +17,9 @@
 package be.c4j.ee.security.sso.client;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
+import be.c4j.ee.security.credentials.authentication.oauth2.matcher.OAuth2CredentialsMatcher;
 import org.apache.shiro.config.Ini;
+import org.apache.shiro.config.IniSecurityManagerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -28,6 +30,9 @@ import javax.enterprise.context.ApplicationScoped;
 public class SSOClientConfigurationPlugin implements ConfigurationPlugin {
     @Override
     public void addConfiguration(Ini ini) {
-        // TODO remove if we don't need this.
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("credentialsMatcher", OAuth2CredentialsMatcher.class.getName());
+        mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
+
     }
 }

@@ -32,7 +32,11 @@ import java.util.Map;
 @JsonIgnoreProperties(value = {"token", "userInfo", "principal", "credentials"}, ignoreUnknown = true)
 public class OAuth2User implements AuthenticationToken, Principal {
 
+    public static final String LOCAL_ID = "LOCAL_ID";
+
     private String id;
+
+    private String localId;
 
     private String lastName;
 
@@ -66,6 +70,14 @@ public class OAuth2User implements AuthenticationToken, Principal {
         this.id = id;
     }
 
+    public String getLocalId() {
+        return localId;
+    }
+
+    public void setLocalId(String localId) {
+        this.localId = localId;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -93,7 +105,6 @@ public class OAuth2User implements AuthenticationToken, Principal {
     public String getGender() {
         return gender;
     }
-
 
     public void setGender(String gender) {
         this.gender = gender;

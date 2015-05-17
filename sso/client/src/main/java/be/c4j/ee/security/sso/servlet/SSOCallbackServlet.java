@@ -20,6 +20,9 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.sso.client.SSOClientConfiguration;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.web.util.SavedRequest;
+import org.apache.shiro.web.util.WebUtils;
+import org.scribe.model.Token;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -45,7 +48,6 @@ public class SSOCallbackServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-        super.doGet(httpServletRequest, httpServletResponse);
 
         HttpSession sess = httpServletRequest.getSession();
         String oAuth2Token = httpServletRequest.getParameter("token");
@@ -60,7 +62,14 @@ public class SSOCallbackServlet extends HttpServlet {
                 .get(OAuth2User.class);
 
         try {
+            oAuth2User.setToken(new Token(oAuth2Token, ""));
             SecurityUtils.getSubject().login(oAuth2User);
+
+            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
+
+            httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : getRootUrl(httpServletRequest));
+
+
         } catch (AuthenticationException e) {
             //sess.setAttribute("googleUser", googleUser);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
@@ -68,6 +77,10 @@ public class SSOCallbackServlet extends HttpServlet {
             httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }
 
+    }
+
+    private String getRootUrl(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getContextPath();
     }
 
 }
