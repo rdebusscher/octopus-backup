@@ -16,11 +16,10 @@
  */
 package be.c4j.ee.security.sso.servlet;
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.sso.client.SSOClientConfiguration;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.UsernamePasswordToken;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -29,6 +28,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
 /**
@@ -38,7 +41,7 @@ import java.io.IOException;
 public class SSOCallbackServlet extends HttpServlet {
 
     @Inject
-    private OctopusConfig octopusConfig;
+    private SSOClientConfiguration octopusConfig;
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
@@ -46,10 +49,18 @@ public class SSOCallbackServlet extends HttpServlet {
 
         HttpSession sess = httpServletRequest.getSession();
         String oAuth2Token = httpServletRequest.getParameter("token");
-        System.out.println(oAuth2Token);
+
+        Client client = ClientBuilder.newClient();
+
+        WebTarget target = client.target(octopusConfig.getSSOServer() + "/OAuth2/info");
+        OAuth2User oAuth2User = target.request()
+                .accept(MediaType.APPLICATION_JSON)
+                .header("token", oAuth2Token)
+                .header("provider", "Google")  // TODO
+                .get(OAuth2User.class);
+
         try {
-            AuthenticationToken authToken = new UsernamePasswordToken();
-            SecurityUtils.getSubject().login(authToken);
+            SecurityUtils.getSubject().login(oAuth2User);
         } catch (AuthenticationException e) {
             //sess.setAttribute("googleUser", googleUser);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());

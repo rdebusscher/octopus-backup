@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.scribe.model.Token;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 /**
  *
  */
+@JsonIgnoreProperties(value = {"token", "userInfo", "principal", "credentials"}, ignoreUnknown = true)
 public class OAuth2User implements AuthenticationToken, Principal {
 
     private String id;

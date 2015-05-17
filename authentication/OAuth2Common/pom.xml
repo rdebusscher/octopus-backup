@@ -28,10 +28,10 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.authentication</groupId>
-    <artifactId>oauth2-core</artifactId>
+    <artifactId>oauth2-common</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
-    <name>OAuth2 Core / common classes</name>
+    <name>OAuth2 common (for all OAuth2 providers) classes</name>
 
     <dependencies>
         <dependency>
@@ -49,10 +49,16 @@
         </dependency>
 
         <dependency>
+
+            <groupId>be.c4j.ee.security.authentication</groupId>
+            <artifactId>oauth2-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- Json serialization -->
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.3.3</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- OAuth 2 -->

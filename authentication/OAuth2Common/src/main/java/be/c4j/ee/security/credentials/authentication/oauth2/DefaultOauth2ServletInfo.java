@@ -16,7 +16,7 @@ import java.util.List;
 @SessionScoped
 public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable {
 
-    private List<OAuth2ProviderInfo> providerInfos;
+    private List<OAuth2ProviderMetaData> providerInfos;
 
     // FIXME How are we going to set user selection
     private String userProviderSelection;
@@ -25,10 +25,10 @@ public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable
 
     @PostConstruct
     public void init() {
-        providerInfos = BeanProvider.getContextualReferences(OAuth2ProviderInfo.class, false);
+        providerInfos = BeanProvider.getContextualReferences(OAuth2ProviderMetaData.class, false);
 
         providerSelection = new ArrayList<SelectItem>();
-        for (OAuth2ProviderInfo providerInfo : providerInfos) {
+        for (OAuth2ProviderMetaData providerInfo : providerInfos) {
             providerSelection.add(new SelectItem(providerInfo.getName(), providerInfo.getName()));
         }
 
@@ -41,9 +41,9 @@ public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable
             // TODO what should happen if there are multiple.
             result = providerInfos.get(0).getServletPath();
         } else {
-            Iterator<OAuth2ProviderInfo> iter = providerInfos.iterator();
+            Iterator<OAuth2ProviderMetaData> iter = providerInfos.iterator();
             while (result == null && iter.hasNext()) {
-                OAuth2ProviderInfo providerInfo = iter.next();
+                OAuth2ProviderMetaData providerInfo = iter.next();
                 if (providerInfo.getName().equals(userProviderSelection)) {
                     result = providerInfo.getServletPath();
                 }

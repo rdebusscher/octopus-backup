@@ -51,7 +51,7 @@
         <!-- OAuth 2 -->
         <dependency>
             <groupId>be.c4j.ee.security.authentication</groupId>
-            <artifactId>oauth2-core</artifactId>
+            <artifactId>oauth2-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

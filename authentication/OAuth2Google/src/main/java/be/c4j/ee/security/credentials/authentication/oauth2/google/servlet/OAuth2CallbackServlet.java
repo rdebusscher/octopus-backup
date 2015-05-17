@@ -21,13 +21,16 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
+import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
-import org.scribe.model.*;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 import javax.inject.Inject;
@@ -50,6 +53,10 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
     @Inject
     private OctopusConfig octopusConfig;
+
+    @Inject
+    @GoogleProvider
+    private OAuth2InfoProvider infoProvider;
 
     private CustomCallbackProvider customCallbackProvider;
 
@@ -77,15 +84,8 @@ public class OAuth2CallbackServlet extends HttpServlet {
         //Construct the access token
         Token token = service.getAccessToken(null, new Verifier(code));
 
-        //Now do something with it - get the user's G+ profile
-        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v2/userinfo");
-        service.signRequest(token, oReq);
-        Response oResp = oReq.send();
+        OAuth2User googleUser = infoProvider.retrieveUserInfo(token, req);
 
-        //Read the result
-
-        OAuth2User googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
-        googleUser.setToken(token);
         googleUser.setApplicationName(applicationName);
         customCallbackProvider = BeanProvider.getContextualReference(CustomCallbackProvider.class, true);
         String callbackURL = null;
