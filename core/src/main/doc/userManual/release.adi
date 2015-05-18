@@ -1,3 +1,10 @@
+=== 0.9.6
+
+Breaking changes
+. test module received a different artifact
+                    <groupId>be.c4j.ee.security.octopus</groupId>
+                    <artifactId>fakeLogin</artifactId>
+
 === 0.9.5
 
 . Module restructering to support Java EE 6 and Java EE 7 servers.

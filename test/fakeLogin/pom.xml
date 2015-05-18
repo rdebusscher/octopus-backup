@@ -19,24 +19,35 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>be.c4j.ee.security</groupId>
-        <artifactId>parent</artifactId>
+        <groupId>be.c4j.ee.security.octopus</groupId>
+        <artifactId>test</artifactId>
         <version>0.9.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <groupId>be.c4j.ee.security.octopus</groupId>
-    <artifactId>test</artifactId>
+    <artifactId>fakeLogin</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
-    <name>Fake modules of Octopus</name>
+    <name>Fake authentication module of Octopus</name>
 
-    <modules>
-        <module>fakeLogin</module>
-        <module>fakePermissions</module>
-    </modules>
+    <dependencies>
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>jsf-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
 
 </project>

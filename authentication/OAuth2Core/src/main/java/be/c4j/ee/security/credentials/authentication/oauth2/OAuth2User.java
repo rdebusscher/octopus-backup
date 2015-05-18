@@ -180,6 +180,7 @@ public class OAuth2User implements AuthenticationToken, Principal {
 
     public Map<Serializable, Serializable> getUserInfo() {
         Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
+        // TODO Make some constants out of these
         result.put("picture", picture);
         result.put("gender", gender);
         result.put("domain", domain);
