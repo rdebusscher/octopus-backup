@@ -46,13 +46,21 @@ public class SSOCallbackServlet extends HttpServlet {
     @Inject
     private SSOClientConfiguration octopusConfig;
 
+    private Client client;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        client = ClientBuilder.newClient();
+
+    }
+
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         HttpSession sess = httpServletRequest.getSession();
         String oAuth2Token = httpServletRequest.getParameter("token");
-
-        Client client = ClientBuilder.newClient();
 
         WebTarget target = client.target(octopusConfig.getSSOServer() + "/OAuth2/info");
         OAuth2User oAuth2User = target.request()
@@ -73,7 +81,6 @@ public class SSOCallbackServlet extends HttpServlet {
         } catch (AuthenticationException e) {
             //sess.setAttribute("googleUser", googleUser);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
-            // DataSecurityProvider decided that google user has no access to application
             httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }
 
