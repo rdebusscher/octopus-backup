@@ -29,6 +29,10 @@ public class FakeSecurityProvider extends SSOClientSecurityProvider {
         UserPrincipal primaryPrincipal = (UserPrincipal) principals.getPrimaryPrincipal();
         Serializable localId = primaryPrincipal.getInfo().get(OAuth2User.LOCAL_ID);
 
+        if (!fakePermissionProvider.isFakeLocalId(localId)) {
+            return super.getAuthorizationInfo(principals);
+        }
+
         List<NamedPermission> permissions = fakePermissionProvider.getPermissions(localId);
 
         for (NamedPermission permission : permissions) {

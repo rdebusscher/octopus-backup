@@ -11,4 +11,6 @@ import java.util.List;
 public interface FakePermissionProvider {
 
     List<NamedPermission> getPermissions(Serializable localId);
+
+    boolean isFakeLocalId(Serializable localId);
 }
