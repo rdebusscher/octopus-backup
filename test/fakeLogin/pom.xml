@@ -35,9 +35,10 @@
 
     <dependencies>
 
+        <!-- TODO We can have a fakeLogin for other types as OAuth2. Dependecy on this module isn't a problem as it contains only a few POJOs-->
         <dependency>
-            <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>jsf-core</artifactId>
+            <groupId>be.c4j.ee.security.authentication</groupId>
+            <artifactId>oauth2-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

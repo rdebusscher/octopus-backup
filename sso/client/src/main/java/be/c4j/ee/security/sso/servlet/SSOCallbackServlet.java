@@ -79,7 +79,7 @@ public class SSOCallbackServlet extends HttpServlet {
 
 
         } catch (AuthenticationException e) {
-            //sess.setAttribute("googleUser", googleUser);
+            sess.setAttribute(OAuth2User.OAUTH2_USER_INFO, oAuth2User);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }

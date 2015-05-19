@@ -17,6 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.fake;
 
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
@@ -35,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- *
+ *  TODO Rename to OAuth2AuthenticationServlet
  */
 @WebServlet("/fakeLogin")
 public class AuthenticationServlet extends HttpServlet {
@@ -60,7 +61,7 @@ public class AuthenticationServlet extends HttpServlet {
             response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
         } catch (AuthenticationException e) {
             // DataSecurityProvider decided that google user has no access to application
-            request.getSession().setAttribute("googleUser", token);
+            request.getSession().setAttribute(OAuth2User.OAUTH2_USER_INFO, token);
             request.getSession().setAttribute("AuthenticationExceptionMessage", e.getMessage());
             response.sendRedirect(request.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }

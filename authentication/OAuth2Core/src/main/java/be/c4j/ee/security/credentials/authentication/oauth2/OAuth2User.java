@@ -34,6 +34,8 @@ public class OAuth2User implements AuthenticationToken, Principal {
 
     public static final String LOCAL_ID = "LOCAL_ID";
 
+    public static final String OAUTH2_USER_INFO = "oAuth2UserInfo";
+
     private String id;
 
     private String localId;
