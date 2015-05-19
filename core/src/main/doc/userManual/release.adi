@@ -1,9 +1,15 @@
 === 0.9.6
 
+. new module structure to allow multiple OAuth2 providers.
+. ????
+. Security Annotations rework (not completely backwards compatible)
+
 Breaking changes
 . test module received a different artifact
                     <groupId>be.c4j.ee.security.octopus</groupId>
                     <artifactId>fakeLogin</artifactId>
+. authentication modules (oracle and OAuth2Google) received a different artifact
+                    <groupId>be.c4j.ee.security.octopus.authentication</groupId>
 
 === 0.9.5
 
