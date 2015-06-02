@@ -48,6 +48,17 @@ public class RequiresUserHandler extends OctopusComponentHandler {
         Subject currentUser = SecurityUtils.getSubject();
         boolean isUser = currentUser.isAuthenticated();
 
+        // Remembered property, see issue #53
+        if (!isUser) {
+            Boolean remembered = ComponentUtil.findValue(component, "remembered", Boolean.class);
+            if (remembered == null) {
+                remembered = Boolean.FALSE;
+            }
+            if (remembered && currentUser.isRemembered()) {
+                isUser = true;
+            }
+        }
+
         boolean notAllowed = !isUser;
         if (not) {
             notAllowed = !notAllowed;
