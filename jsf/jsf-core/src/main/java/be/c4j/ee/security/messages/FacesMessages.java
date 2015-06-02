@@ -43,6 +43,9 @@ public class FacesMessages implements Serializable {
 
     public FacesMessages template(String template) {
         this.template = template;
+        if (!template.startsWith("{") && !template.endsWith("}")) {
+            this.template = "{" + template + "}";
+        }
         return this;
     }
 
