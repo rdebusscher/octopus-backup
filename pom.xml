@@ -90,6 +90,7 @@
         <module>sso</module>
         <module>test</module>
         <module>starter</module>
+        <module>starter_ee7</module>
         <module>permissionDemo</module>
 
     </modules>
