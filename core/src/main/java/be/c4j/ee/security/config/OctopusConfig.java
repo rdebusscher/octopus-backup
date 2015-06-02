@@ -20,7 +20,6 @@ import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
-import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,6 +124,11 @@ public class OctopusConfig implements ModuleConfig {
     @ConfigEntry
     public String getCacheManager() {
         return configProperties.getProperty("cacheManager.class", MemoryConstrainedCacheManager.class.getName());
+    }
+
+    @ConfigEntry
+    public String getAdditionalShiroIniFileNames() {
+        return configProperties.getProperty("additionalShiroIniFileNames", "classpath:shiro_extra.ini");
     }
 
     public Class<? extends Annotation> getNamedPermissionCheckClass() {

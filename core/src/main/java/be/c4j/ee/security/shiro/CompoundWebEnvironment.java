@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,8 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     public void setIni(Ini ini) {
 
         try {
+            processAdditionalIniFiles(ini);
+
             ini.addSection(IniFilterChainResolverFactory.URLS); // Create the empty section
             addURLsWithNamedPermission(ini);
 
@@ -80,6 +83,27 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         }
 
         super.setIni(ini);
+    }
+
+    private void processAdditionalIniFiles(Ini ini) {
+        String additionalShiroIniFileNames = config.getAdditionalShiroIniFileNames();
+        if (additionalShiroIniFileNames != null && additionalShiroIniFileNames.trim().length() > 0) {
+            String[] iniFileNames = additionalShiroIniFileNames.split(",");
+            for (String iniFileName : iniFileNames) {
+
+                Ini additionalIni = createIni(iniFileName, false);
+                if (additionalIni != null) {
+                    for (Map.Entry<String, Ini.Section> sectionEntry : additionalIni.entrySet()) {
+                        Ini.Section section = ini.get(sectionEntry.getKey());
+                        Map<String, String> sectionValues = new HashMap<String, String>();
+                        for (Map.Entry<String, String> sectionValue : sectionEntry.getValue().entrySet()) {
+                            sectionValues.put(sectionValue.getKey(), sectionValue.getValue());
+                        }
+                        section.putAll(sectionValues);
+                    }
+                }
+            }
+        }
     }
 
     private void configureCache(Ini ini) {
