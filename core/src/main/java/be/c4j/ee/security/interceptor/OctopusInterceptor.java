@@ -71,7 +71,7 @@ public class OctopusInterceptor implements Serializable {
     @AroundInvoke
     public Object interceptShiroSecurity(InvocationContext context) throws Exception {
         init(context);  // Since @PostConstruct isn't allowed in Weld 2.x
-        Subject subject = SecurityUtils.getSubject();
+
         Class<?> classType = context.getTarget().getClass();
         Method method = context.getMethod();
 
@@ -87,6 +87,7 @@ public class OctopusInterceptor implements Serializable {
             if (hasAnnotation(annotations, PermitAll.class)) {
                 accessAllowed = true;
             } else {
+                Subject subject = SecurityUtils.getSubject();
                 Iterator<Annotation> annotationIterator = annotations.iterator();
 
                 while (!accessAllowed && annotationIterator.hasNext()) {
@@ -114,6 +115,8 @@ public class OctopusInterceptor implements Serializable {
                 if (hasAnnotation(annotations, PermitAll.class)) {
                     accessAllowed = true;
                 } else {
+                    Subject subject = SecurityUtils.getSubject();
+
                     Iterator<Annotation> annotationIterator = annotations.iterator();
 
                     while (!accessAllowed && annotationIterator.hasNext()) {
