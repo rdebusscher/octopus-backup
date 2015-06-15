@@ -21,21 +21,30 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class VoterNameFactory {
 
-    public String generatePermissionBeanName(String permissionName) {
-        StringBuilder result = transformName(permissionName);
-        result.append("PermissionVoter");
-        return result.toString();
+    public String generatePermissionBeanName(String permissionNames) {
+        return generateName(permissionNames, "PermissionVoter");
 
+    }
+
+    private String generateName(String permissionNames, String voter) {
+        String[] names = permissionNames.split(",");
+        StringBuilder result = new StringBuilder();
+        for (String permissionName : names) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(transformName(permissionName));
+            result.append(voter);
+        }
+        return result.toString();
     }
 
     public String generateRoleBeanName(String roleName) {
-        StringBuilder result = transformName(roleName);
-        result.append("RoleVoter");
-        return result.toString();
+        return generateName(roleName, "RoleVoter");
 
     }
 
-    private StringBuilder transformName(String roleName) {
+    private String transformName(String roleName) {
         String[] parts = roleName.toLowerCase().split("_");
         if (parts.length > 1) {
             for (int i = 1; i < parts.length; i++) {
@@ -46,7 +55,7 @@ public class VoterNameFactory {
         for (String part : parts) {
             result.append(part);
         }
-        return result;
+        return result.toString();
     }
 
     private String capitalize(String line) {
