@@ -17,14 +17,12 @@
 package be.c4j.ee.security.exception;
 
 import be.c4j.ee.security.OctopusInvocationContext;
-import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.violation.AuthorizationViolation;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import be.c4j.ee.security.exception.violation.MethodParameterTypeViolation;
 import be.c4j.ee.security.exception.violation.OverloadingMethodParameterTypeViolation;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
-import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.authz.Permission;
@@ -92,7 +90,11 @@ public class SecurityViolationInfoProducer {
             result.append("<br/>Parameters ");
             if (invocationContext.getParameters() != null) {
                 for (Object parameter : invocationContext.getParameters()) {
-                    result.append("<br/>").append(parameter.getClass().getName()).append(" = ").append(parameter);
+                    if (parameter == null) {
+                        result.append("<br/>").append(" ? = null");
+                    } else {
+                        result.append("<br/>").append(parameter.getClass().getName()).append(" = ").append(parameter);
+                    }
                 }
             }
         }
