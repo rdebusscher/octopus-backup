@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
@@ -40,11 +41,11 @@ public class OAuth2Configuration extends OctopusConfig {
 
     @ConfigEntry
     public String getClientId() {
-        return configProperties.getProperty("OAuth2.clientId", "");
+        return ConfigResolver.getPropertyValue("OAuth2.clientId", "");
     }
 
     @ConfigEntry
     public String getClientSecret() {
-        return configProperties.getProperty("OAuth2.clientSecret", "");
+        return ConfigResolver.getPropertyValue("OAuth2.clientSecret", "");
     }
 }

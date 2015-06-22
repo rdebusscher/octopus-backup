@@ -20,6 +20,9 @@ import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.impl.config.PropertiesConfigSource;
+import org.apache.deltaspike.core.spi.config.ConfigSource;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +32,15 @@ import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 @ApplicationScoped
 public class OctopusConfig implements ModuleConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OctopusConfig.class);
-
-    protected Properties configProperties;
+    private static final String OCTOPUS_CONFIG_PROPERTIES = "octopusConfig.properties";
 
     private Class<? extends Annotation> namedPermissionCheckClass;
 
@@ -51,12 +55,22 @@ public class OctopusConfig implements ModuleConfig {
 
     @PostConstruct
     public void init() {
-        configProperties = new Properties();
+
+        // The properties read from a URL specified by -Doctopus.cfg
+        OctopusConfigSource octopusConfigSource = new OctopusConfigSource();
+        octopusConfigSource.loadProperties();
+        List<ConfigSource> configSourcesToAdd = new ArrayList<ConfigSource>();
+        configSourcesToAdd.add(octopusConfigSource);
+
+        //The properties file octopusConfig.properties on the class path
+        Properties configProperties = new Properties();
         try {
             InputStream resourceStream = OctopusConfig.class.getClassLoader()
-                    .getResourceAsStream("octopusConfig.properties");
+                    .getResourceAsStream(OCTOPUS_CONFIG_PROPERTIES);
             if (resourceStream != null) {
                 configProperties.load(resourceStream);
+
+
             } else {
                 LOGGER.warn("File octopusConfig.properties not found.");
             }
@@ -64,71 +78,87 @@ public class OctopusConfig implements ModuleConfig {
             LOGGER.warn("Exception during reading of the octopusConfig.properties file");
         }
 
+        configSourcesToAdd.add(new PropertiesConfigSource(configProperties) {
+
+            @Override
+            public int getOrdinal() {
+                return 5;
+            }
+
+            @Override
+            public String getConfigName() {
+                return OCTOPUS_CONFIG_PROPERTIES;
+            }
+        });
+
+        // Add the 2 additional sources. System properties are already supported by DeltaSpike
+        ConfigResolver.addConfigSources(configSourcesToAdd);
+
     }
 
     @ConfigEntry
     public String getLocationSecuredURLProperties() {
-        return configProperties.getProperty("securedURLs.file", "/WEB-INF/securedURLs.ini");
+        return ConfigResolver.getPropertyValue("securedURLs.file", "/WEB-INF/securedURLs.ini");
     }
 
     @ConfigEntry
     public String getNamedPermission() {
-        return configProperties.getProperty("namedPermission.class", "");
+        return ConfigResolver.getPropertyValue("namedPermission.class", "");
     }
 
     @ConfigEntry
     public String getNamedPermissionCheck() {
-        return configProperties.getProperty("namedPermissionCheck.class", "");
+        return ConfigResolver.getPropertyValue("namedPermissionCheck.class", "");
     }
 
     @ConfigEntry
     public String getNamedRole() {
-        return configProperties.getProperty("namedRole.class", "");
+        return ConfigResolver.getPropertyValue("namedRole.class", "");
     }
 
     @ConfigEntry
     public String getNamedRoleCheck() {
-        return configProperties.getProperty("namedRoleCheck.class", "");
+        return ConfigResolver.getPropertyValue("namedRoleCheck.class", "");
     }
 
     @ConfigEntry
     public String getAliasNameLoginbean() {
-        return configProperties.getProperty("aliasNameLoginBean", "");
+        return ConfigResolver.getPropertyValue("aliasNameLoginBean", "");
     }
 
     @ConfigEntry
     public String getLoginPage() {
-        return configProperties.getProperty("loginPage", "/login.xhtml");
+        return ConfigResolver.getPropertyValue("loginPage", "/login.xhtml");
     }
 
     @ConfigEntry
     public String getUnauthorizedExceptionPage() {
-        return configProperties.getProperty("unauthorizedExceptionPage", "/unauthorized.xhtml");
+        return ConfigResolver.getPropertyValue("unauthorizedExceptionPage", "/unauthorized.xhtml");
     }
 
     @ConfigEntry
     public String getHashAlgorithmName() {
-        return configProperties.getProperty("hashAlgorithmName", "");
+        return ConfigResolver.getPropertyValue("hashAlgorithmName", "");
     }
 
     @ConfigEntry
     public String getSaltLength() {
-        return configProperties.getProperty("saltLength", "0");
+        return ConfigResolver.getPropertyValue("saltLength", "0");
     }
 
     @ConfigEntry
     public String getPostIsAllowedSavedRequest() {
-        return configProperties.getProperty("allowPostAsSavedRequest", "true");
+        return ConfigResolver.getPropertyValue("allowPostAsSavedRequest", "true");
     }
 
     @ConfigEntry
     public String getCacheManager() {
-        return configProperties.getProperty("cacheManager.class", MemoryConstrainedCacheManager.class.getName());
+        return ConfigResolver.getPropertyValue("cacheManager.class", MemoryConstrainedCacheManager.class.getName());
     }
 
     @ConfigEntry
     public String getAdditionalShiroIniFileNames() {
-        return configProperties.getProperty("additionalShiroIniFileNames", "classpath:shiro_extra.ini");
+        return ConfigResolver.getPropertyValue("additionalShiroIniFileNames", "classpath:shiro_extra.ini");
     }
 
     public Class<? extends Annotation> getNamedPermissionCheckClass() {

@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.client;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.inject.Specializes;
 
@@ -35,12 +36,12 @@ public class SSOClientConfiguration extends OctopusConfig {
 
     @ConfigEntry
     public String getSSOServer() {
-        return configProperties.getProperty("SSO.server", "");
+        return ConfigResolver.getPropertyValue("SSO.server", "");
     }
 
     @ConfigEntry
     public String getSSOApplication() {
-        return configProperties.getProperty("SSO.application", "");
+        return ConfigResolver.getPropertyValue("SSO.application", "");
     }
 
 }
