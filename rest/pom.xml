@@ -38,7 +38,7 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>jsf-core</artifactId>
+            <artifactId>core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
