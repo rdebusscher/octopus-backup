@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.util;
 
+import be.c4j.ee.security.Combined;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 
@@ -62,5 +63,22 @@ public final class AnnotationUtil {
         }
 
         return result;
+    }
+
+    public static Combined getPermissionCombination(Annotation customAnnotation) {
+        String value = null;
+        for (Method method : customAnnotation.getClass().getDeclaredMethods()) {
+            if ("combine".equals(method.getName())) {
+                try {
+                    value = method.invoke(customAnnotation, null).toString();
+
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Combined.findFor(value);
     }
 }

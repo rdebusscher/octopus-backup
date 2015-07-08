@@ -24,6 +24,7 @@ import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
+import be.c4j.ee.security.Combined;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
@@ -78,13 +79,24 @@ public class SecurityCheckNamedPermissionCheck implements SecurityCheck {
 
         BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
 
+        Combined permissionCombination = AnnotationUtil.getPermissionCombination(customNamedCheck);
+        boolean onePermissionGranted = false;
         for (Object permissionConstant : AnnotationUtil.getPermissionValues(customNamedCheck)) {
             String beanName = nameFactory.generatePermissionBeanName(((NamedPermission) permissionConstant).name());
 
             GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
                     , GenericPermissionVoter.class);
-            result.addAll(voter.checkPermission(context));
+            Set<SecurityViolation> violations = voter.checkPermission(context);
+            if (violations.isEmpty()) {
+                onePermissionGranted = true;
+            }
+            result.addAll(violations);
 
+        }
+        // When we have specified OR and there is one permissions which didn't result in some violations
+        // Remove all the collected violations since access is granted.
+        if (permissionCombination == Combined.OR && onePermissionGranted) {
+            result.clear();
         }
         return result;
     }
