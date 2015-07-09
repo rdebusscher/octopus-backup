@@ -2,6 +2,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaData;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.scribe.model.Token;
 
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  *
  */
-@Path("/info")
+@Path("/user")
 @Singleton
 public class UserController {
 
@@ -30,11 +31,15 @@ public class UserController {
     @Inject
     private ExternalInternalIdMapper externalInternalIdMapper;
 
+    @Inject
+    private UserPrincipal userPrincipal;
+
     @PostConstruct
     public void init() {
         oAuth2ProviderMetaDataList = BeanProvider.getContextualReferences(OAuth2ProviderMetaData.class, false);
     }
 
+    @Path("/info")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public OAuth2User getUserInfo(@HeaderParam("token") String token, @HeaderParam("provider") String provider, @Context HttpServletRequest req) {
@@ -51,8 +56,29 @@ public class UserController {
             Token authToken = new Token(token, "", "Octopus");
 
             result = infoProvider.retrieveUserInfo(authToken, req);
-            result.setLocalId(externalInternalIdMapper.getLocalId(result.getId()));
+            if (result != null) {
+                result.setLocalId(externalInternalIdMapper.getLocalId(result.getId()));
+            }
         }
         return result;
+    }
+
+    @Path("/authenticate")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserToken returnUserToken() {
+        return new UserToken(userPrincipal.getInfo().get("token").toString());
+    }
+
+    private static class UserToken {
+        private String token;
+
+        public UserToken(String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
     }
 }
