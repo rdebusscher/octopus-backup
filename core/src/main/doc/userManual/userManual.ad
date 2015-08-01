@@ -44,6 +44,10 @@ include::authorization.adi[]
 
 include::configuration.adi[]
 
+== Limits
+
+include::limits.adi[]
+
 == Using Oracle Users for authentication
 
 include::oracleUser.adi[]
