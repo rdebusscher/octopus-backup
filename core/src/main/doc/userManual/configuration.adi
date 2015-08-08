@@ -8,7 +8,7 @@ This chapter describes all the configuration options of the Octopus framework.
 
 default : */WEB-INF/securedURLs.ini*
 
-The securedURLs.ini file contains the permissions required to access some URLs.  See ?? for the format of the file.
+The securedURLs.ini file contains the permissions required to access some URLs.  See ?? for the format of the file. The file must always exists and contain at least one URL entry.
 
 ==== namedPermission.class
 
