@@ -18,6 +18,7 @@ package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
@@ -31,8 +32,10 @@ import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterConte
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 
 import javax.annotation.security.PermitAll;
+import javax.ejb.Asynchronous;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -74,6 +77,8 @@ public class OctopusInterceptor implements Serializable {
 
         Class<?> classType = context.getTarget().getClass();
         Method method = context.getMethod();
+
+        supportForAsynchronousEJB(context, method);
 
         AccessDecisionVoterContext accessContext = new CustomAccessDecissionVoterContext(context);
 
@@ -142,6 +147,19 @@ public class OctopusInterceptor implements Serializable {
             throw new OctopusUnauthorizedException("No Authorization requirements available", infoProducer.getViolationInfo(accessContext));
         }
         return context.proceed();
+    }
+
+    private void supportForAsynchronousEJB(InvocationContext context, Method method) {
+        Asynchronous asynchronous = method.getAnnotation(Asynchronous.class);
+        if (asynchronous != null) {
+            for (Object parameter : context.getParameters()) {
+
+                if (parameter != null && OctopusSecurityContext.class.isAssignableFrom(parameter.getClass())) {
+                    Subject subject = ((OctopusSecurityContext) parameter).getSubject();
+                    ThreadContext.bind(subject);
+                }
+            }
+        }
     }
 
     private AnnotationInfo getAllAnnotations(Class<?> someClassType, Method someMethod) {
