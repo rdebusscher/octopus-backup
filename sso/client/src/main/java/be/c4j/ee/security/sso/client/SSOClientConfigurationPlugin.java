@@ -31,8 +31,8 @@ public class SSOClientConfigurationPlugin implements ConfigurationPlugin {
     @Override
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        mainSection.put("credentialsMatcher", OAuth2CredentialsMatcher.class.getName());
-        mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
+        mainSection.put("OAuth2Matcher", OAuth2CredentialsMatcher.class.getName());
+        mainSection.put("credentialsMatcher.matcher", "$OAuth2Matcher");
 
     }
 }
