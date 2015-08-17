@@ -17,7 +17,7 @@
 package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
-import be.c4j.ee.security.interceptor.testclasses.ClassLevelCustomVoter;
+import be.c4j.ee.security.interceptor.testclasses.ClassLevelSystemAccount;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -33,9 +33,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 @RunWith(Parameterized.class)
-public class OctopusInterceptor_ClassLevelCustomVoterTest extends OctopusInterceptorTest {
+public class OctopusInterceptor_ClassLevelSystemAccountTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_ClassLevelCustomVoterTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
+    public OctopusInterceptor_ClassLevelSystemAccountTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
         super(authenticated, permission, customAccess, shiroPermission, systemAccount);
     }
 
@@ -53,10 +53,10 @@ public class OctopusInterceptor_ClassLevelCustomVoterTest extends OctopusInterce
     }
 
     @Test
-    public void testInterceptShiroSecurity_CustomerVoter1() throws Exception {
+    public void testInterceptShiroSecurity_SystemAccount1() throws Exception {
 
-        Object target = new ClassLevelCustomVoter();
-        Method method = target.getClass().getMethod("customVoter1");
+        Object target = new ClassLevelSystemAccount();
+        Method method = target.getClass().getMethod("systemAccount1");
         InvocationContext context = new TestInvocationContext(target, method);
 
         performAndCheck(context);
@@ -68,25 +68,23 @@ public class OctopusInterceptor_ClassLevelCustomVoterTest extends OctopusInterce
         try {
             octopusInterceptor.interceptShiroSecurity(context);
 
-            assertThat(customAccess).isTrue();
+            assertThat(authenticated).isTrue();
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);
-            assertThat(feedback).contains(ClassLevelCustomVoter.CLASS_LEVEL_CUSTOM_VOTER);
+            assertThat(feedback).contains(ClassLevelSystemAccount.CLASS_LEVEL_SYSTEM_ACCOUNT);
+            assertThat(systemAccount).isEqualTo(ACCOUNT1);
 
         } catch (OctopusUnauthorizedException e) {
-
-            assertThat(customAccess).isFalse();
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).isEmpty();
-
         }
     }
 
     @Test
-    public void testInterceptShiroSecurity_CustomVoter2() throws Exception {
+    public void testInterceptShiroSecurity_RequiresUser2() throws Exception {
 
-        Object target = new ClassLevelCustomVoter();
-        Method method = target.getClass().getMethod("customVoter2");
+        Object target = new ClassLevelSystemAccount();
+        Method method = target.getClass().getMethod("systemAccount2");
         InvocationContext context = new TestInvocationContext(target, method);
 
         performAndCheck(context);

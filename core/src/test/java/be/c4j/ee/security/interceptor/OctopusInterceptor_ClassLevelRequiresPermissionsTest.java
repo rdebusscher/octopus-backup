@@ -18,7 +18,6 @@ package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.interceptor.testclasses.ClassLevelRequiresPermissions;
-import be.c4j.ee.security.interceptor.testclasses.ClassLevelRequiresUser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -36,19 +35,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Parameterized.class)
 public class OctopusInterceptor_ClassLevelRequiresPermissionsTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_ClassLevelRequiresPermissionsTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
-        super(authenticated, permission, customAccess, shiroPermission);
+    public OctopusInterceptor_ClassLevelRequiresPermissionsTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
+        super(authenticated, permission, customAccess, shiroPermission, systemAccount);
     }
 
     @Parameterized.Parameters
     public static List<Object[]> defineScenarios() {
         return Arrays.asList(new Object[][]{
-                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},            //0
-                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null},               //1
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},                //2
-                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null},        //3
-                {AUTHENTICATED, null, CUSTOM_ACCESS, null},                   //4
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1},            //5
+                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null},            //0
+                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null, null},               //1
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null},                //2
+                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null, null},        //3
+                {AUTHENTICATED, null, CUSTOM_ACCESS, null, null},                   //4
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1, null},            //5
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1},                       //6
         });
     }
 

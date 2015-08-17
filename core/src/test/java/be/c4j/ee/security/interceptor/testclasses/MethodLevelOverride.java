@@ -20,6 +20,7 @@ import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
+import be.c4j.ee.security.systemaccount.SystemAccount;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
 
@@ -40,6 +41,7 @@ public class MethodLevelOverride {
     public static final String METHOD_LEVEL_CUSTOM_VOTER = "MethodLevelOverride#customVoter";
     public static final String METHOD_LEVEL_REQUIRES_PERMISSION1 = "MethodLevelOverride#requiresPermission1";
     public static final String METHOD_LEVEL_REQUIRES_PERMISSION2 = "MethodLevelOverride#requiresPermission2";
+    public static final String METHOD_LEVEL_SYSTEM_ACCOUNT1 = "MethodLevel#systemAccount1";
 
     public void noAnnotation() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_NO_ANNOTATION);
@@ -83,6 +85,11 @@ public class MethodLevelOverride {
     @RequiresPermissions("shiro2:*:*")
     public void requiresPermission2() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_REQUIRES_PERMISSION2);
+    }
+
+    @SystemAccount("account1")
+    public void systemAccountValue1() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_SYSTEM_ACCOUNT1);
     }
 
 }

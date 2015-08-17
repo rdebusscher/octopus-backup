@@ -26,6 +26,7 @@ import be.c4j.ee.security.interceptor.testclasses.TestPermissionCheck;
 import be.c4j.ee.security.interceptor.testclasses.TestRoleCheck;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.SecurityDataProvider;
+import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
@@ -66,6 +67,7 @@ public class OctopusInterceptorTest {
     protected static final Boolean NO_CUSTOM_ACCESS = Boolean.FALSE;
     protected static final Boolean CUSTOM_ACCESS = Boolean.TRUE;
     protected static final String SHIRO1 = "shiro1:*:*";
+    protected static final String ACCOUNT1 = "account1";
 
     protected static final String AUTHORIZATION_PERMISSION = "Authorization:*:*";
 
@@ -87,12 +89,14 @@ public class OctopusInterceptorTest {
     protected String permission;
     protected boolean customAccess;
     protected String shiroPermission;
+    protected String systemAccount;
 
-    public OctopusInterceptorTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
+    public OctopusInterceptorTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
         this.authenticated = authenticated;
         this.permission = permission;
         this.customAccess = customAccess;
         this.shiroPermission = shiroPermission;
+        this.systemAccount = systemAccount;
     }
 
     @Before
@@ -102,7 +106,17 @@ public class OctopusInterceptorTest {
 
         ThreadContext.bind(subjectMock);
         if (authenticated) {
-            when(subjectMock.getPrincipal()).thenReturn(new Object());
+            if (systemAccount != null) {
+                SystemAccountPrincipal systemAccountPrincipal = new SystemAccountPrincipal(systemAccount);
+                when(subjectMock.getPrincipal()).thenReturn(systemAccountPrincipal);
+            } else {
+
+                when(subjectMock.getPrincipal()).thenReturn(new Object());
+
+            }
+            when(subjectMock.isAuthenticated()).thenReturn(true);
+        } else {
+            when(subjectMock.isAuthenticated()).thenReturn(false);
         }
 
         // Define logic at subject level to see if subject has the required permission
@@ -221,6 +235,11 @@ public class OctopusInterceptorTest {
         ReflectionUtil.injectDependencies(securityCheckRequiresPermissions, infoProducerMock);
 
         beanManagerFake.registerBean(securityCheckRequiresPermissions, SecurityCheck.class);
+
+        SecurityCheckSystemAccountCheck securityCheckSystemAccountCheck = new SecurityCheckSystemAccountCheck();
+        ReflectionUtil.injectDependencies(securityCheckSystemAccountCheck, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckSystemAccountCheck, SecurityCheck.class);
     }
 
     @After

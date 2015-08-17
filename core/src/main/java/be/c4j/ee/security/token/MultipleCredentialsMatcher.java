@@ -21,6 +21,7 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
     public MultipleCredentialsMatcher() {
         octopusDefinedMatchers = new ArrayList<CredentialsMatcher>();
         octopusDefinedMatchers.add(new SimpleCredentialsMatcher());
+        octopusDefinedMatchers.add(new SystemAccountCredentialMatcher());
 
         applicationDefinedMatchers = new ArrayList<CredentialsMatcher>();
     }

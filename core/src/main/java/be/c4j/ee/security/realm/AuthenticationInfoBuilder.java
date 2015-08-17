@@ -34,7 +34,7 @@ import java.util.Map;
 @Typed
 public class AuthenticationInfoBuilder {
 
-    private static final String DEFAULT_REALM = "OctopusApp";
+    public static final String DEFAULT_REALM = "OctopusApp";
 
     private Serializable principalId;
     private String name;
@@ -101,6 +101,7 @@ public class AuthenticationInfoBuilder {
         return result;
     }
 
+    // TODO Verify if this isn't required anymore
     public static AuthenticationInfo forOracleAuthentication(String userName) {
         String name = userName.toUpperCase(Locale.ENGLISH);
         UserPrincipal principal = new UserPrincipal(name, name, name);

@@ -27,6 +27,7 @@ import be.c4j.ee.security.interceptor.checks.SecurityCheckInfo;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
+import be.c4j.ee.security.systemaccount.SystemAccount;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.shiro.SecurityUtils;
@@ -172,6 +173,7 @@ public class OctopusInterceptor implements Serializable {
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresRoles.class));
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresPermissions.class));
         result.addMethodAnnotation(someMethod.getAnnotation(CustomVoterCheck.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(SystemAccount.class));
         result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthorization.class));
         result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthentication.class));
         result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthenticationEvent.class));
@@ -188,6 +190,7 @@ public class OctopusInterceptor implements Serializable {
         result.addClassAnnotation(getAnnotation(someClassType, RequiresRoles.class));
         result.addClassAnnotation(getAnnotation(someClassType, RequiresPermissions.class));
         result.addClassAnnotation(getAnnotation(someClassType, CustomVoterCheck.class));
+        result.addClassAnnotation(getAnnotation(someClassType, SystemAccount.class));
         if (config.getNamedPermissionCheckClass() != null) {
             result.addClassAnnotation(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
         }

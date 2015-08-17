@@ -41,19 +41,20 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_MethodLevelOverrideTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission) {
-        super(authenticated, permission, customAccess, shiroPermission);
+    public OctopusInterceptor_MethodLevelOverrideTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
+        super(authenticated, permission, customAccess, shiroPermission, systemAccount);
     }
 
     @Parameterized.Parameters
     public static List<Object[]> defineScenarios() {
         return Arrays.asList(new Object[][]{
-                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},            //0
-                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null},               //1
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null},                //2
-                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null},        //3
-                {AUTHENTICATED, null, CUSTOM_ACCESS, null},                   //4
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1},            //5
+                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null},            //0
+                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null, null},               //1
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null},                //2
+                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null, null},        //3
+                {AUTHENTICATED, null, CUSTOM_ACCESS, null, null},                   //4
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1, null},            //5
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1},                       //6
         });
     }
 
@@ -332,6 +333,32 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
             assertThat(feedback).isEmpty();
         }
     }
+
+    @Test
+    public void testInterceptShiroSecurity_SystemAccount1() throws Exception {
+
+        Object target = new MethodLevelOverride();
+        Method method = target.getClass().getMethod("systemAccountValue1");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevelOverride.METHOD_LEVEL_SYSTEM_ACCOUNT1);
+
+            assertThat(systemAccount).isEqualTo(ACCOUNT1);
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
 
 }
 

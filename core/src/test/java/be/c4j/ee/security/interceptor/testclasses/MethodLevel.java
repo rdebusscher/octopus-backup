@@ -20,6 +20,7 @@ import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
+import be.c4j.ee.security.systemaccount.SystemAccount;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
 
@@ -39,6 +40,8 @@ public class MethodLevel {
     public static final String METHOD_LEVEL_CUSTOM_VOTER = "MethodLevel#customVoter";
     public static final String METHOD_LEVEL_REQUIRES_PERMISSION1 = "MethodLevel#requiresPermission1";
     public static final String METHOD_LEVEL_REQUIRES_PERMISSION2 = "MethodLevel#requiresPermission2";
+    public static final String METHOD_LEVEL_SYSTEM_ACCOUNT1 = "MethodLevel#systemAccount1";
+    public static final String METHOD_LEVEL_SYSTEM_ACCOUNT2 = "MethodLevel#systemAccount2";
 
     @PermitAll
     public void permitAll() {
@@ -89,4 +92,15 @@ public class MethodLevel {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_REQUIRES_PERMISSION2);
     }
 
+    @SystemAccount("account1")
+    public void systemAccountValue1() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_SYSTEM_ACCOUNT1);
+    }
+
+    @SystemAccount("account2")
+    public void systemAccountValue2() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_SYSTEM_ACCOUNT2);
+    }
+
 }
+
