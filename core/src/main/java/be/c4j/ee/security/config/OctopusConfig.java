@@ -161,6 +161,11 @@ public class OctopusConfig implements ModuleConfig {
         return ConfigResolver.getPropertyValue("additionalShiroIniFileNames", "classpath:shiro_extra.ini");
     }
 
+    @ConfigEntry
+    public String getIsGlobalAuditActive() {
+        return ConfigResolver.getPropertyValue("globalAuditActive", "false");
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null && getNamedPermissionCheck().length() != 0) {
 

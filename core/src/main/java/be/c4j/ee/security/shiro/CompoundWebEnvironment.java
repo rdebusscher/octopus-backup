@@ -141,8 +141,14 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     }
 
     private void addManuallyConfiguredUrls(Ini.Section target, Ini.Section source) {
+        Boolean globalAudit = Boolean.valueOf(config.getIsGlobalAuditActive());
+
         for (Map.Entry<String, String> entry : source.entrySet()) {
-            target.put(entry.getKey(), entry.getValue());
+            String value = entry.getValue();
+            if (globalAudit) {
+                value = value + ", audit";
+            }
+            target.put(entry.getKey(), value);
         }
     }
 
