@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus</groupId>
-    <artifactId>javaee6</artifactId>
+    <artifactId>octopus-javaee6</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
     <name>Octopus Java EE 6 version</name>
@@ -38,7 +38,7 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>octopus-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

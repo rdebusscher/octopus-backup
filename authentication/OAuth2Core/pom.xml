@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-    <artifactId>oauth2-core</artifactId>
+    <artifactId>octopus-oauth2-core</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
     <name>OAuth2 Core / common classes</name>
@@ -44,7 +44,7 @@
         <dependency>
 
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>octopus-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

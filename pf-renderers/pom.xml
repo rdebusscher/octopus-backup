@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus</groupId>
-    <artifactId>primefaces</artifactId>
+    <artifactId>octopus-primefaces</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
     <name>PrimeFaces renderers for Octopus framework</name>
@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>jsf-core</artifactId>
+            <artifactId>octopus-jsf-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

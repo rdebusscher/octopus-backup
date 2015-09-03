@@ -42,7 +42,7 @@
     <dependencies>
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>octopus-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

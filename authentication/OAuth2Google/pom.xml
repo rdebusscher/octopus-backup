@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-    <artifactId>oauth2-google</artifactId>
+    <artifactId>octopus-oauth2-google</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
     <name>OAuth2 Google Authentication</name>
@@ -44,14 +44,14 @@
         <dependency>
 
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>octopus-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <!-- OAuth 2 -->
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-            <artifactId>oauth2-common</artifactId>
+            <artifactId>octopus-oauth2-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

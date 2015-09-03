@@ -81,7 +81,7 @@
         </dependency>
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>javaee6-jsf</artifactId>
+            <artifactId>octopus-javaee6-jsf</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

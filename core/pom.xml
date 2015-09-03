@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>octopus-core</artifactId>
     <version>0.9.6-SNAPSHOT</version>
 
     <dependencies>
