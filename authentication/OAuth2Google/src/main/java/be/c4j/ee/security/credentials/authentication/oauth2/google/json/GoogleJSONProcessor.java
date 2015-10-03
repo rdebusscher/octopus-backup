@@ -53,7 +53,9 @@ public class GoogleJSONProcessor {
                 }
                 oAuth2User.setLink(jsonObject.getString("link"));
                 oAuth2User.setPicture(jsonObject.getString("picture"));
-                oAuth2User.setGender(jsonObject.getString("gender"));
+                if (jsonObject.has("gender")) {
+                    oAuth2User.setGender(jsonObject.getString("gender"));
+                }
                 oAuth2User.setLocale(jsonObject.getString("locale"));
             }
 
