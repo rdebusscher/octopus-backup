@@ -123,6 +123,17 @@ public class FacesMessages implements Serializable {
         return result;
     }
 
+    public FacesMessage facesMessage() {
+        String msg = messageContext.message().template(template).argument(arguments).toString();
+        if (severity == null) {
+            severity = determineSeverity(template);
+        }
+        FacesMessage result = new FacesMessage(severity, msg, msg);
+
+        resetData();
+        return result;
+    }
+
     private void resetData() {
         template = null;
         text = null;
