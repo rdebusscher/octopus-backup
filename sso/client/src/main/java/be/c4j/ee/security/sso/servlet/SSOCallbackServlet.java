@@ -62,7 +62,7 @@ public class SSOCallbackServlet extends HttpServlet {
         HttpSession sess = httpServletRequest.getSession();
         String oAuth2Token = httpServletRequest.getParameter("token");
 
-        WebTarget target = client.target(octopusConfig.getSSOServer() + "/OAuth2/info");
+        WebTarget target = client.target(octopusConfig.getSSOServer() + "/OAuth2/user/info");
         OAuth2User oAuth2User = target.request()
                 .accept(MediaType.APPLICATION_JSON)
                 .header("token", oAuth2Token)
