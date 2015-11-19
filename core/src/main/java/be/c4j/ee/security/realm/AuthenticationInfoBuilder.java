@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.authentication.ExternalPasswordAuthenticationInfo;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -43,7 +44,7 @@ public class AuthenticationInfoBuilder {
     private String realmName = DEFAULT_REALM;
     private ByteSource salt;
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
-
+    private boolean externalPasswordCheck = false;
 
     public AuthenticationInfoBuilder principalId(Serializable principalId) {
         this.principalId = principalId;
@@ -79,6 +80,11 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
+    public AuthenticationInfoBuilder externalPasswordCheck() {
+        this.externalPasswordCheck = true;
+        return this;
+    }
+
     public AuthenticationInfoBuilder addUserInfo(Serializable key, Serializable value) {
         userInfo.put(key, value);
         return this;
@@ -94,7 +100,11 @@ public class AuthenticationInfoBuilder {
         principal.addUserInfo(userInfo);
         AuthenticationInfo result;
         if (salt == null) {
-            result = new SimpleAuthenticationInfo(principal, password, realmName);
+            if (externalPasswordCheck) {
+                result = new ExternalPasswordAuthenticationInfo(principal, realmName);
+            } else {
+                result = new SimpleAuthenticationInfo(principal, password, realmName);
+            }
         } else {
             result = new SimpleAuthenticationInfo(principal, password, salt, realmName);
         }

@@ -1,5 +1,6 @@
 package be.c4j.ee.security.token;
 
+import be.c4j.ee.security.authentication.ExternalPasswordAuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -35,10 +36,12 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
             result = matcher.doCredentialsMatch(token, info);
         }
 
-        iterator = octopusDefinedMatchers.iterator();
-        while (!result && iterator.hasNext()) {
-            CredentialsMatcher matcher = iterator.next();
-            result = matcher.doCredentialsMatch(token, info);
+        if (!(info instanceof ExternalPasswordAuthenticationInfo)) {
+            iterator = octopusDefinedMatchers.iterator();
+            while (!result && iterator.hasNext()) {
+                CredentialsMatcher matcher = iterator.next();
+                result = matcher.doCredentialsMatch(token, info);
+            }
         }
 
         return result;

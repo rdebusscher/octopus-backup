@@ -16,6 +16,8 @@
  */
 package be.c4j.ee.security.model;
 
+import be.c4j.ee.security.exception.OctopusIllegalActionException;
+
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
 import java.security.Principal;
@@ -53,6 +55,13 @@ public class UserPrincipal implements Principal, Serializable {
         return name;
     }
 
+    public void setName(String name) {
+        if (this.name != null) {
+            throw new OctopusIllegalActionException("Setting the name of the Principal isn't allowed since there is already a name specified");
+        }
+        this.name = name;
+    }
+
     public String getUserName() {
         return userName;
     }
@@ -66,10 +75,10 @@ public class UserPrincipal implements Principal, Serializable {
     }
 
     public <T> T getUserInfo(Serializable key) {
-        return (T)userInfo.get(key);
+        return (T) userInfo.get(key);
     }
 
-    public Map<Serializable , Serializable > getInfo() {
+    public Map<Serializable, Serializable> getInfo() {
         return userInfo;
     }
 
