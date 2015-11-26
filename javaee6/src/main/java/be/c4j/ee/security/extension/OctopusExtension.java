@@ -79,7 +79,7 @@ public class OctopusExtension implements Extension {
                 Bean<GenericPermissionVoter> bean = new BeanBuilder<GenericPermissionVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericPermissionVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
-                        .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
+                        .scope(ApplicationScoped.class).qualifiers(new NamedLiteral(beanName))
                         .beanLifecycle(new PermissionLifecycleCallback(voterInjectionTarget, namedPermission)).create();
                 afterBeanDiscovery.addBean(bean);
             }
