@@ -17,6 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
+import be.c4j.ee.security.config.PluginOrder;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
@@ -26,6 +27,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
+@PluginOrder(50)
 public class OAuth2ConfigurationPlugin implements ConfigurationPlugin {
 
     @Override

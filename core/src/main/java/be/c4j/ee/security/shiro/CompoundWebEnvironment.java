@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,10 +114,15 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
     private void addPluginConfiguration(Ini ini) {
         List<ConfigurationPlugin> plugins = BeanProvider.getContextualReferences(ConfigurationPlugin.class, true, false);
+        orderPlugins(plugins);
         for (ConfigurationPlugin plugin : plugins) {
             plugin.addConfiguration(ini);
         }
 
+    }
+
+    private void orderPlugins(List<ConfigurationPlugin> plugins) {
+        Collections.sort(plugins, new ConfigurationPluginComparator());
     }
 
     private void addAuthenticationListener(Ini ini) {

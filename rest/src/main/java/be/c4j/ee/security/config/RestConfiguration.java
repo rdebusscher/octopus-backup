@@ -26,6 +26,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
+@PluginOrder(20)
 public class RestConfiguration implements ConfigurationPlugin {
     @Override
     public void addConfiguration(Ini ini) {

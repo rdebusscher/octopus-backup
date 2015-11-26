@@ -17,6 +17,7 @@
 package be.c4j.ee.security.sso.client;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
+import be.c4j.ee.security.config.PluginOrder;
 import be.c4j.ee.security.credentials.authentication.oauth2.matcher.OAuth2CredentialsMatcher;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -27,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
+@PluginOrder(60)
 public class SSOClientConfigurationPlugin implements ConfigurationPlugin {
     @Override
     public void addConfiguration(Ini ini) {

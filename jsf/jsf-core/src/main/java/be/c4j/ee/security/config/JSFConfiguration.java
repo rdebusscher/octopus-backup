@@ -27,6 +27,7 @@ import javax.inject.Inject;
  *
  */
 @ApplicationScoped
+@PluginOrder(10)
 public class JSFConfiguration implements ConfigurationPlugin {
 
     @Inject
