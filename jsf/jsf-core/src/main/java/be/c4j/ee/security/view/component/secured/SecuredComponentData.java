@@ -17,6 +17,7 @@
 package be.c4j.ee.security.view.component.secured;
 
 import javax.faces.component.UIComponent;
+import java.util.List;
 
 /**
  *
@@ -34,6 +35,8 @@ public class SecuredComponentData {
     private final String targets;
 
     private UIComponent targetComponent;
+
+    private List<UIComponent> allTargetComponents;
 
     /**
      * Required for restoring the state
@@ -65,6 +68,17 @@ public class SecuredComponentData {
 
     public UIComponent getTargetComponent() {
         return targetComponent;
+    }
+
+    public List<UIComponent> getAllTargetComponents() {
+        return allTargetComponents;
+    }
+
+    public void setAllTargetComponents(List<UIComponent> allTargetComponents) {
+        this.allTargetComponents = allTargetComponents;
+        if (!allTargetComponents.isEmpty()) {
+            setTargetComponent(allTargetComponents.get(0));
+        }
     }
 
     public String getTargets() {

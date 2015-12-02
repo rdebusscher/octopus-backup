@@ -16,6 +16,8 @@
  */
 package be.c4j.ee.security.util;
 
+
+import javax.el.MethodExpression;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 
@@ -29,6 +31,12 @@ public final class JsfUtils {
 
     public static boolean isRenderResponsePhase() {
         return PhaseId.RENDER_RESPONSE.equals(FacesContext.getCurrentInstance().getCurrentPhaseId());
+    }
+
+    public static MethodExpression createMethodExpression(String methodExpression, Class<?> expectedReturnType, Class<?>... expectedParamTypes) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        return context.getApplication().getExpressionFactory()
+                .createMethodExpression(context.getELContext(), methodExpression, expectedReturnType, expectedParamTypes);
     }
 
 }

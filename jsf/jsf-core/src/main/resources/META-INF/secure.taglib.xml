@@ -114,4 +114,54 @@
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
+
+    <tag>
+        <tag-name>securedListener</tag-name>
+        <handler-class>be.c4j.ee.security.view.component.secured.PermissionListenerHandler</handler-class>
+        <attribute>
+            <description>Defines the voter(s) that will be used for this. multiple names separated by a ,</description>
+            <name>voter</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Defines the permission(s) that will be used for this. multiple names separated by a ,</description>
+            <name>permission</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Defines the role(s) that will be used for this. multiple names separated by a ,</description>
+            <name>role</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Is access allowed when voter veto the access? useful for a usecase where you want to show
+                something when the user is not logged in.
+            </description>
+            <name>not</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>When multiple voters are specified, must the all allow the access. When not specified,
+                or false, access is granted when one voter allows the access.
+            </description>
+            <name>combined</name>
+            <required>false</required>
+            <type>java.lang.Boolean</type>
+        </attribute>
+
+        <attribute>
+            <description>Defines the component id's for which this permission check is performed. Multiple id can be
+                separated by ,. If not specified, the parent is the target.
+            </description>
+            <name>for</name>
+            <required>false</required>
+            <type>java.lang.String</type>
+        </attribute>
+
+    </tag>
+
 </facelet-taglib>
