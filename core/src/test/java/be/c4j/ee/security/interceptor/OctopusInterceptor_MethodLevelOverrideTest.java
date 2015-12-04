@@ -116,7 +116,6 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
         try {
             octopusRealm.getAuthenticationInfo(null);
 
-            assertThat(authenticated).isFalse();
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);
             assertThat(feedback).contains(MethodLevelOverride.METHOD_LEVEL_IN_AUTHENTICATION);
@@ -168,7 +167,6 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
         try {
             octopusRealm.checkPermission(new SimplePrincipalCollection(), AUTHORIZATION_PERMISSION);
 
-            assertThat(authenticated).isFalse();
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);
             assertThat(feedback).contains(MethodLevelOverride.METHOD_LEVEL_IN_AUTHORIZATION);

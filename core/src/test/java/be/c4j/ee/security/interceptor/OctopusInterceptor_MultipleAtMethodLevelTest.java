@@ -78,9 +78,6 @@ public class OctopusInterceptor_MultipleAtMethodLevelTest extends OctopusInterce
 
             if (PERMISSION1.equals(permission)) {
                 assertThat(authenticated).isTrue();
-            } else {
-                assertThat(authenticated).isFalse();
-
             }
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);

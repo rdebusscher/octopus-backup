@@ -39,7 +39,8 @@ public class SecurityCheckOnlyDuringAuthorization implements SecurityCheck {
     @Override
     public SecurityCheckInfo performCheck(Subject subject, AccessDecisionVoterContext accessContext, Annotation securityAnnotation) {
         SecurityCheckInfo result;
-        if (subject.getPrincipal() != null || !SpecialStateChecker.isInAuthorization()) {
+        // No longer perform the check on subject.getPrincipal() in case we wan't to log on when another user is already logged on (and no logout is done)
+        if (!SpecialStateChecker.isInAuthorization()) {
             result = SecurityCheckInfo.withException(
                     new OctopusUnauthorizedException("Execution of method only allowed during authorization process"
                             , infoProducer.getViolationInfo(accessContext)));

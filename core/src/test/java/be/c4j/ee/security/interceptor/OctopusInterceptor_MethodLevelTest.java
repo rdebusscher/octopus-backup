@@ -133,7 +133,6 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         try {
             octopusRealm.getAuthenticationInfo(null);
 
-            assertThat(authenticated).isFalse();
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);
             assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_IN_AUTHENTICATION);
@@ -185,7 +184,6 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         try {
             octopusRealm.checkPermission(new SimplePrincipalCollection(), AUTHORIZATION_PERMISSION);
 
-            assertThat(authenticated).isFalse();
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);
             assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_IN_AUTHORIZATION);
