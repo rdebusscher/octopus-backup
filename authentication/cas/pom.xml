@@ -18,27 +18,42 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>be.c4j.ee.security</groupId>
-        <artifactId>parent</artifactId>
+        <groupId>be.c4j.ee.security.octopus</groupId>
+        <artifactId>authentication</artifactId>
         <version>0.9.6.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <groupId>be.c4j.ee.security.octopus</groupId>
-    <artifactId>authentication</artifactId>
+    <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+    <artifactId>cas</artifactId>
     <version>0.9.6.1-SNAPSHOT</version>
 
-    <name>Authentication</name>
+    <name>jasig/CAS integration</name>
 
-    <modules>
-        <module>oracle</module>
-        <module>OAuth2Core</module>
-        <module>OAuth2Common</module>
-        <module>OAuth2Google</module>
-        <module>cas</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.1.10</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

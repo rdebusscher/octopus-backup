@@ -31,6 +31,7 @@ public class OAuth2Configuration extends OctopusConfig {
 
     public static final String APPLICATION = "application";
 
+    // FIXME, not needed
     @Inject
     private OAuth2ServletInfo oAuth2ServletInfo;
 
