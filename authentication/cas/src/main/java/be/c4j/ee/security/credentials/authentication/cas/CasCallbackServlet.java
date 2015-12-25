@@ -1,6 +1,7 @@
 package be.c4j.ee.security.credentials.authentication.cas;
 
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.credentials.authentication.cas.info.CasInfoProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -36,10 +37,11 @@ public class CasCallbackServlet extends HttpServlet {
 
         String ticket = req.getParameter(TICKET_PARAMETER);
 
-        CasUser casUser = casInfoProvider.retrieveUserInfo(ticket, req);
+        CasUser casUser = null;
         HttpSession sess = req.getSession();
-
         try {
+            casUser = casInfoProvider.retrieveUserInfo(ticket, req);
+
 
             SecurityUtils.getSubject().login(casUser);
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);

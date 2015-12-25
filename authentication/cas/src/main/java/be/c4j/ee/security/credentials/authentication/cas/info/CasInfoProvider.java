@@ -1,5 +1,7 @@
-package be.c4j.ee.security.credentials.authentication.cas;
+package be.c4j.ee.security.credentials.authentication.cas.info;
 
+import be.c4j.ee.security.credentials.authentication.cas.CasAuthenticationException;
+import be.c4j.ee.security.credentials.authentication.cas.CasUser;
 import be.c4j.ee.security.credentials.authentication.cas.config.CasConfiguration;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.*;
@@ -48,12 +50,6 @@ public class CasInfoProvider {
             String userId = casPrincipal.getName();
 
             result.setUserName(userId);
-            /*
-            FIXME
-            log.debug("Validate ticket : {} in CAS server : {} to retrieve user : {}", new Object[]{
-                    ticket, getCasServerUrlPrefix(), userId
-            });
-            */
 
             Map<String, Object> attributes = casPrincipal.getAttributes();
 
@@ -70,6 +66,7 @@ public class CasInfoProvider {
             result.setUserInfo(info);
 
             /*
+             FIXME
             String rememberMeAttributeName = getRememberMeAttributeName();
             String rememberMeStringValue = (String) attributes.get(rememberMeAttributeName);
             boolean isRemembered = rememberMeStringValue != null && Boolean.parseBoolean(rememberMeStringValue);
@@ -78,9 +75,9 @@ public class CasInfoProvider {
             }
             */
 
-
         } catch (TicketValidationException e) {
             LOGGER.error("Validating CAS Ticket failed", e);
+            throw new CasAuthenticationException(e);
         }
         return result;
     }
