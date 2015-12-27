@@ -19,6 +19,23 @@ public class CasConfiguration extends OctopusConfig {
         return "DYNAMIC CAS BASED";
     }
 
+    @Override
+    public String getLogoutPage() {
+        String result;
+        if (getCASSingleLogout()) {
+            result = getSSOServer() + "/logout";
+        } else {
+            result = super.getLogoutPage();
+        }
+        return result;
+    }
+
+    @ConfigEntry
+    public boolean getCASSingleLogout() {
+        String singleLogout = ConfigResolver.getPropertyValue("CAS.single.logout", "true");
+        return Boolean.valueOf(singleLogout);
+    }
+
     @ConfigEntry
     public String getSSOServer() {
         return ConfigResolver.getPropertyValue("SSO.server", "");
