@@ -1,11 +1,13 @@
 package be.c4j.ee.security.credentials.authentication.cas;
 
+import be.c4j.ee.security.authentication.ActiveSessionRegistry;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.credentials.authentication.cas.info.CasInfoProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
+import org.jasig.cas.client.util.XmlUtils;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -31,6 +33,9 @@ public class CasCallbackServlet extends HttpServlet {
     @Inject
     private OctopusConfig octopusConfig;
 
+    @Inject
+    private ActiveSessionRegistry activeSessionRegistry;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
@@ -44,6 +49,8 @@ public class CasCallbackServlet extends HttpServlet {
 
 
             SecurityUtils.getSubject().login(casUser);
+
+            activeSessionRegistry.startSession(ticket, SecurityUtils.getSubject().getPrincipal());
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
             resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
 
@@ -53,5 +60,19 @@ public class CasCallbackServlet extends HttpServlet {
             // DataSecurityProvider decided that google user has no access to application
             resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
         }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+        String logoutRequest = httpServletRequest.getParameter("logoutRequest");
+
+        if (logoutRequest != null && logoutRequest.length() > 0) {
+            if (logoutRequest.startsWith("<samlp:LogoutRequest")) {
+                String sessionIdentifier = XmlUtils.getTextForElement(logoutRequest, "SessionIndex");
+                activeSessionRegistry.endSession(sessionIdentifier);
+            }
+        }
+        // TODO Do we need some logging when we receive post requests which doesn't contain the correct logout protocol?
+
     }
 }

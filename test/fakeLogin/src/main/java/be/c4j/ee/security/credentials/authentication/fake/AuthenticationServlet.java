@@ -20,7 +20,6 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
-import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -36,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- *  TODO Rename to OAuth2AuthenticationServlet
+ * TODO Rename to OAuth2AuthenticationServlet
  */
 @WebServlet("/fakeLogin")
 public class AuthenticationServlet extends HttpServlet {
@@ -48,9 +47,11 @@ public class AuthenticationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        /*
         if (!"localhost".equals(request.getServerName())) {
             throw new AccessDeniedException(null);
         }
+        */
         loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class, true);
         String loginData = request.getParameter("loginData");
 
