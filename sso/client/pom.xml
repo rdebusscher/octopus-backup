@@ -43,7 +43,7 @@
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>octopus-oauth2-core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
     </dependencies>
