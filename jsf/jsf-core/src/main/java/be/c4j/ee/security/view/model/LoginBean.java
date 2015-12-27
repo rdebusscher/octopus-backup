@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.view.model;
 
+import be.c4j.ee.security.logout.LogoutHandler;
 import be.c4j.ee.security.messages.FacesMessages;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -39,6 +40,9 @@ public class LoginBean {
     private String password;
 
     private boolean remember;
+
+    @Inject
+    private LogoutHandler logoutHandler;
 
     @Inject
     private FacesMessages facesMessages;
@@ -68,7 +72,7 @@ public class LoginBean {
     public void logout() throws IOException {
         SecurityUtils.getSubject().logout();
         ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-        externalContext.redirect(getRootUrl(externalContext));
+        externalContext.redirect(logoutHandler.getLogoutPage(externalContext));
     }
 
     public String getUsername() {

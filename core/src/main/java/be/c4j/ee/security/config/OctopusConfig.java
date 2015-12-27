@@ -132,6 +132,11 @@ public class OctopusConfig implements ModuleConfig {
     }
 
     @ConfigEntry
+    public String getLogoutPage() {
+        return ConfigResolver.getPropertyValue("logoutPage", "/");
+    }
+
+    @ConfigEntry
     public String getUnauthorizedExceptionPage() {
         return ConfigResolver.getPropertyValue("unauthorizedExceptionPage", "/unauthorized.xhtml");
     }
