@@ -31,7 +31,6 @@ import org.apache.deltaspike.core.api.literal.NamedLiteral;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.util.bean.BeanBuilder;
 import org.apache.deltaspike.core.util.metadata.builder.DelegatingContextualLifecycle;
-import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
@@ -109,9 +108,8 @@ public class OctopusExtension implements Extension {
 
                 Bean<GenericRoleVoter> bean = new BeanBuilder<GenericRoleVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericRoleVoter.class)
-                        .addTypes(AbstractAccessDecisionVoter.class, GenericRoleVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
-                        .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
+                        .scope(ApplicationScoped.class).qualifiers(new NamedLiteral(beanName))
                         .beanLifecycle(new RoleLifecycleCallback(voterInjectionTarget, namedRole)).create();
                 afterBeanDiscovery.addBean(bean);
             }

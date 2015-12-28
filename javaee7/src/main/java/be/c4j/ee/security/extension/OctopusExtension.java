@@ -30,13 +30,11 @@ import be.c4j.ee.security.util.CDIUtil;
 import org.apache.deltaspike.core.api.literal.NamedLiteral;
 import org.apache.deltaspike.core.util.bean.BeanBuilder;
 import org.apache.deltaspike.core.util.metadata.builder.DelegatingContextualLifecycle;
-import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
-import java.util.Set;
 
 public class OctopusExtension implements Extension {
 
@@ -76,7 +74,7 @@ public class OctopusExtension implements Extension {
     private <T> T getUnmanagedInstance(BeanManager beanManager, Class<T> beanClass) {
         Unmanaged<T> unmanagedConfig = new Unmanaged<T>(beanManager, beanClass);
         Unmanaged.UnmanagedInstance<? extends T> configInstance = unmanagedConfig.newInstance();
-        return  configInstance.produce().inject().postConstruct().get();
+        return configInstance.produce().inject().postConstruct().get();
     }
 
     private void createPermissionVoters(AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
@@ -132,9 +130,8 @@ public class OctopusExtension implements Extension {
 
                 Bean<GenericRoleVoter> bean = new BeanBuilder<GenericRoleVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericRoleVoter.class)
-                        .addTypes(AbstractAccessDecisionVoter.class, GenericRoleVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
-                        .scope(ApplicationScoped.class).addQualifier(new NamedLiteral(beanName))
+                        .scope(ApplicationScoped.class).qualifiers(new NamedLiteral(beanName))
                         .beanLifecycle(new RoleLifecycleCallback(voterInjectionTarget, namedRole)).create();
                 afterBeanDiscovery.addBean(bean);
             }

@@ -26,7 +26,6 @@ import org.apache.shiro.subject.Subject;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.interceptor.InvocationContext;
 import java.util.Set;
 
 /**
@@ -54,5 +53,15 @@ public class GenericRoleVoter extends AbstractAccessDecisionVoter {
 
         }
 
+    }
+
+    public boolean verifyPermission() {
+        boolean result = true;
+        try {
+            subject.checkPermission(namedRole);
+        } catch (AuthorizationException e) {
+            result = false;
+        }
+        return result;
     }
 }
