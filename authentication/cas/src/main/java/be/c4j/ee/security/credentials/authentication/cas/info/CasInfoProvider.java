@@ -69,8 +69,7 @@ public class CasInfoProvider {
 
             Map<String, Object> attributes = casPrincipal.getAttributes();
 
-            // FIXME email -> needs to be configurable
-            result.setEmail((String) attributes.get("email"));
+            result.setEmail((String) attributes.get(casConfiguration.getCASEmailProperty()));
 
             Map<Serializable, Serializable> info = new HashMap<Serializable, Serializable>();
             for (Map.Entry<String, Object> entry : attributes.entrySet()) {

@@ -53,6 +53,11 @@ public class CasConfiguration extends OctopusConfig {
     }
 
     @ConfigEntry
+    public String getCASEmailProperty() {
+        return ConfigResolver.getPropertyValue("CAS.property.email", "email");
+    }
+
+    @ConfigEntry
     public String getSSOServer() {
         return ConfigResolver.getPropertyValue("SSO.server", "");
     }
