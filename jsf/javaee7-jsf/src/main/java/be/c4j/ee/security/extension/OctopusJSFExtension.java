@@ -17,7 +17,7 @@
 package be.c4j.ee.security.extension;
 
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.view.model.LoginBean;
 import org.apache.deltaspike.core.util.bean.BeanBuilder;
 import org.apache.deltaspike.core.util.metadata.builder.DelegatingContextualLifecycle;
@@ -28,10 +28,9 @@ import java.util.Set;
 
 public class OctopusJSFExtension implements Extension {
 
-    private OctopusConfig config;
+    private OctopusJSFConfig config;
 
-    private Class<OctopusConfig> configClass = OctopusConfig.class;
-
+    private Class<OctopusJSFConfig> configClass = OctopusJSFConfig.class;
 
     void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
         config = getUnmanagedInstance(beanManager, configClass);

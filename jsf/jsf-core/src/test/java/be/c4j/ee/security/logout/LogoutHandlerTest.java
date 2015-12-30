@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.logout;
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -39,7 +39,7 @@ public class LogoutHandlerTest {
     private ExternalContext externalContextMock;
 
     @Mock
-    private OctopusConfig octopusConfigMock;
+    private OctopusJSFConfig octopusConfigMock;
 
     @InjectMocks
     private LogoutHandler logoutHandler;

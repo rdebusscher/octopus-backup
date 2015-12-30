@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.sso.client;
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -26,7 +26,7 @@ import javax.enterprise.inject.Specializes;
  *
  */
 @Specializes
-public class SSOClientConfiguration extends OctopusConfig {
+public class SSOClientConfiguration extends OctopusJSFConfig {
     @Override
     public String getLoginPage() {
         String result = "";

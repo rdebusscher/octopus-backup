@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.exception;
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +83,7 @@ public class AuthorizationExceptionHandler extends ExceptionHandlerWrapper {
             externalContext.getFlash().putNow("interceptionInfo", ((OctopusUnauthorizedException) unauthorized).getExceptionPointInfo());
         }
         try {
-            OctopusConfig config = BeanProvider.getContextualReference(OctopusConfig.class);
+            OctopusJSFConfig config = BeanProvider.getContextualReference(OctopusJSFConfig.class);
             externalContext.redirect(externalContext.getRequestContextPath() + config.getUnauthorizedExceptionPage());
 
         } catch (IOException e) {

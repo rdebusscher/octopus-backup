@@ -41,6 +41,14 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- EE API's for testing -->
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+            <version>${myfaces.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>

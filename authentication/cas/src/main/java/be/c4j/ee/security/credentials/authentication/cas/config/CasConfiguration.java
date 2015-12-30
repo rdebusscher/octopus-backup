@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas.config;
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -26,7 +26,7 @@ import javax.enterprise.inject.Specializes;
  *
  */
 @Specializes
-public class CasConfiguration extends OctopusConfig {
+public class CasConfiguration extends OctopusJSFConfig {
 
     private String casService;
 

@@ -17,7 +17,7 @@
 package be.c4j.ee.security.extension;
 
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.view.model.LoginBean;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.util.bean.BeanBuilder;
@@ -29,11 +29,11 @@ import java.util.Set;
 
 public class OctopusJSFExtension implements Extension {
 
-    private OctopusConfig config;
+    private OctopusJSFConfig config;
 
     void configModule(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
-        config = BeanProvider.getContextualReference(beanManager, OctopusConfig.class, true);
+        config = BeanProvider.getContextualReference(beanManager, OctopusJSFConfig.class, true);
 
         if (config.getAliasNameLoginbean().length() != 0) {
             setAlternativeNameForLoginBean(afterBeanDiscovery, beanManager);

@@ -31,7 +31,7 @@ import javax.inject.Inject;
 public class JSFConfiguration implements ConfigurationPlugin {
 
     @Inject
-    private OctopusConfig config;
+    private OctopusJSFConfig config;
 
     @Override
     public void addConfiguration(Ini ini) {

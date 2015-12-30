@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.fake;
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
@@ -42,7 +42,7 @@ import java.io.IOException;
 public class AuthenticationServlet extends HttpServlet {
 
     @Inject
-    private OctopusConfig octopusConfig;
+    private OctopusJSFConfig octopusConfig;
 
     private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
 

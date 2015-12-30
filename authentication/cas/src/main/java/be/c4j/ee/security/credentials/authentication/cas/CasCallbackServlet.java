@@ -17,7 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.cas;
 
 import be.c4j.ee.security.authentication.ActiveSessionRegistry;
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.cas.info.CasInfoProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -47,7 +47,7 @@ public class CasCallbackServlet extends HttpServlet {
     private CasInfoProvider casInfoProvider;
 
     @Inject
-    private OctopusConfig octopusConfig;
+    private OctopusJSFConfig octopusConfig;
 
     @Inject
     private ActiveSessionRegistry activeSessionRegistry;

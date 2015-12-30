@@ -17,7 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 
-import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
@@ -52,7 +52,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
     private GoogleJSONProcessor jsonProcessor;
 
     @Inject
-    private OctopusConfig octopusConfig;
+    private OctopusJSFConfig octopusConfig;
 
     @Inject
     @GoogleProvider

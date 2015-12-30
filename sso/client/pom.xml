@@ -45,6 +45,11 @@
             <artifactId>octopus-oauth2-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-jsf-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
     </dependencies>
 
