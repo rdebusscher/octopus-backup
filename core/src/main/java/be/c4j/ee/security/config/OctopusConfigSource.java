@@ -18,6 +18,8 @@ package be.c4j.ee.security.config;
 
 import org.apache.deltaspike.core.impl.config.BaseConfigSource;
 import org.apache.deltaspike.core.util.PropertyFileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,6 +32,8 @@ import java.util.Properties;
  */
 public class OctopusConfigSource extends BaseConfigSource {
 
+    protected static final Logger LOGGER = LoggerFactory.getLogger(OctopusConfigSource.class);
+
     private Properties properties;
 
     public void loadProperties() {
@@ -41,8 +45,7 @@ public class OctopusConfigSource extends BaseConfigSource {
 
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            // FIXME Logger
+            LOGGER.error("unable to read configuration from : " + configFile, e);
         } finally {
             if (properties == null) {
                 properties = new Properties();

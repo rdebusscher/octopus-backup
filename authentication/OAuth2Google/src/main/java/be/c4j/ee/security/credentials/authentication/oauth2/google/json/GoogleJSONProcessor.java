@@ -40,7 +40,6 @@ public class GoogleJSONProcessor {
             JSONObject jsonObject = new JSONObject(new JSONTokener(json));
 
             if (!jsonObject.has("error")) {
-                // TODO log error in case there is one
                 oAuth2User = new OAuth2User();
                 oAuth2User.setId(jsonObject.getString("id"));
                 oAuth2User.setEmail(jsonObject.getString("email"));
@@ -57,6 +56,8 @@ public class GoogleJSONProcessor {
                     oAuth2User.setGender(jsonObject.getString("gender"));
                 }
                 oAuth2User.setLocale(jsonObject.getString("locale"));
+            } else {
+                logger.warn("Received following response from Google token resolving \n" + json);
             }
 
         } catch (JSONException e) {

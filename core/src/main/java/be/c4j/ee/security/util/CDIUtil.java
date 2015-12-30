@@ -19,6 +19,8 @@ package be.c4j.ee.security.util;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJBException;
 import javax.enterprise.context.spi.CreationalContext;
@@ -37,9 +39,20 @@ public final class CDIUtil {
     private static final Map<Class<?>, Method> OPTIONAL_BEAN_INFO = new HashMap<Class<?>, Method>();
     private static final Map<Class<?>, Object> OPTIONAL_BEAN = new HashMap<Class<?>, Object>();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CDIUtil.class);
+
     private CDIUtil() {
     }
 
+    /**
+     * Return the instance of bean for that class. The method should only be used for beans that needs to be exists at the moment
+     * we call this method, but we can't use an @Inject because the bean is only needed in certain conditions.
+     * If you want to check for an really optional Bean instance, have a look at the getOptionalBean() method in this class.
+     *
+     * @param targetClass
+     * @param <T>
+     * @return the bean instance or
+     */
     public static <T> T getBeanManually(Class<T> targetClass) {
         T result = null;
 
@@ -53,7 +66,7 @@ public final class CDIUtil {
                     result = (T) method.invoke(bean);
                     OPTIONAL_BEAN.put(targetClass, result);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();  // FIXME
+                    LOGGER.error("Exception occured during invocation of producer method", e);
                 } catch (InvocationTargetException e) {
                     if (e.getTargetException() instanceof EJBException) {
                         EJBException ejbException = (EJBException) e.getTargetException();
@@ -64,6 +77,9 @@ public final class CDIUtil {
                     }
                 }
             }
+        }
+        if (result == null) {
+            throw new IllegalArgumentException("No bean found for " + targetClass.getName());
         }
         return result;
 

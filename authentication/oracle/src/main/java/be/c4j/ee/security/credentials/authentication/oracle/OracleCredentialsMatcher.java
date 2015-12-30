@@ -35,7 +35,7 @@ public class OracleCredentialsMatcher implements CredentialsMatcher {
             UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
             return passwordExecutor.checkPassword(usernamePasswordToken.getUsername(), String.valueOf(usernamePasswordToken.getPassword()));
         } else {
-            // FIXME logging
+            // No logging required as we can have multiple matcher defined and another can handle it.
             return false;
         }
     }
