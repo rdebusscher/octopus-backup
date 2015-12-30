@@ -45,15 +45,13 @@ public final class CDIUtil {
     }
 
     /**
-     * Return the instance of bean for that class. The method should only be used for beans that needs to be exists at the moment
-     * we call this method, but we can't use an @Inject because the bean is only needed in certain conditions.
-     * If you want to check for an really optional Bean instance, have a look at the getOptionalBean() method in this class.
+     * Return the instance of bean for that class defined by Producers. But we can't use an @Inject because the execution comes to early.
      *
      * @param targetClass
      * @param <T>
-     * @return the bean instance or
+     * @return the bean instance
      */
-    public static <T> T getBeanManually(Class<T> targetClass) {
+    public static <T> T getBeanManually(Class<T> targetClass, boolean optional) {
         T result = null;
 
         if (OPTIONAL_BEAN.containsKey(targetClass)) {
@@ -78,7 +76,7 @@ public final class CDIUtil {
                 }
             }
         }
-        if (result == null) {
+        if (result == null && !optional) {
             throw new IllegalArgumentException("No bean found for " + targetClass.getName());
         }
         return result;
@@ -92,7 +90,7 @@ public final class CDIUtil {
         } catch (IllegalStateException e) {
             // OpenWebBeans is stricter (as per spec should) and beans with generic types doesn't match in our case.
             // But we also use it for optional beans
-            result = CDIUtil.getBeanManually(targetClass);
+            result = CDIUtil.getBeanManually(targetClass, true);
         }
         return result;
     }

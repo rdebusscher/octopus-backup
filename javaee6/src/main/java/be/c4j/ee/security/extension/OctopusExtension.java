@@ -134,7 +134,7 @@ public class OctopusExtension implements Extension {
             // We can't move this to the Extension itself.
             // The producer of this PermissionLookup goes to the database and this isn't possible until we are completely ready.
 
-            PermissionLookup<? extends NamedPermission> permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class);
+            PermissionLookup<? extends NamedPermission> permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class, true);
             if (permissionLookup == null) {
                 throw new OctopusConfigurationException("When using the named permissions, please configure them with the PermissionLookup.  See manual ??? TODO");
             }
@@ -166,7 +166,7 @@ public class OctopusExtension implements Extension {
 
             // We can't move this to the Extension itself.
             // The producer of this RoleLookup goes to the database and this isn't possible until we are completely ready.
-            RoleLookup<? extends NamedRole> roleLookup = CDIUtil.getBeanManually(RoleLookup.class);
+            RoleLookup<? extends NamedRole> roleLookup = CDIUtil.getBeanManually(RoleLookup.class, true);
             if (roleLookup == null) {
                 throw new OctopusConfigurationException("When using the named roles, please configure them with the RoleLookup.  See manual ??? TODO");
             }

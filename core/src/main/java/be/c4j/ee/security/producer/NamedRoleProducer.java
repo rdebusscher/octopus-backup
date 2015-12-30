@@ -18,14 +18,13 @@ package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
-import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -53,7 +52,8 @@ public class NamedRoleProducer {
 
     @PostConstruct
     public void init() {
-        lookup = CDIUtil.getBeanManually(RoleLookup.class);
+        // True to make sure that if the bean is created without actually needing it, we don't get into trouble if the lookup isn't defined.
+        lookup = CDIUtil.getBeanManually(RoleLookup.class, true);
     }
 
     @Produces
@@ -65,7 +65,7 @@ public class NamedRoleProducer {
                             " annotation to determine the correct bean");
         }
         NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
-        if (roles.length>1) {
+        if (roles.length > 1) {
             throw new AmbiguousResolutionException("Only one named role can be specified.");
         }
 
@@ -83,8 +83,12 @@ public class NamedRoleProducer {
                             " annotation to determine the correct bean");
         }
         NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
-        if (roles.length>1) {
+        if (roles.length > 1) {
             throw new AmbiguousResolutionException("Only one named role can be specified.");
+        }
+
+        if (lookup == null) {
+            throw new OctopusConfigurationException("A @Producer needs to be defined for RoleLookup");
         }
 
         return lookup.getRole(roles[0].name());

@@ -18,6 +18,7 @@ package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
@@ -48,7 +49,8 @@ public class NamedPermissionProducer {
 
     @PostConstruct
     public void init() {
-        lookup = CDIUtil.getBeanManually(PermissionLookup.class);
+        // True to make sure that if the bean is created without actually needing it, we don't get into trouble if the lookup isn't defined.
+        lookup = CDIUtil.getBeanManually(PermissionLookup.class, true);
     }
 
     @Produces
@@ -82,6 +84,10 @@ public class NamedPermissionProducer {
         NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
         if (permissions.length > 1) {
             throw new AmbiguousResolutionException("Only one named permission can be specified.");
+        }
+
+        if (lookup == null) {
+            throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup");
         }
 
         return lookup.getPermission(permissions[0].name());
