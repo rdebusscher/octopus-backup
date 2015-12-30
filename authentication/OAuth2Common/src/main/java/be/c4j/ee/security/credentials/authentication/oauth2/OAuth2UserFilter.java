@@ -19,21 +19,31 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.ApplicationInfo;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.util.Initializable;
 
 /**
  *
  */
-public class OAuth2UserFilter extends OctopusUserFilter {
+public class OAuth2UserFilter extends OctopusUserFilter implements Initializable {
+
+    private ApplicationInfo applicationInfo;
+    private OAuth2ServletInfo oAuth2ServletInfo;
 
     @Override
     public String getLoginUrl() {
-        // FIXME Put these bean references at instance during the 'initialization'
         String result = "";
-        ApplicationInfo applicationInfo = BeanProvider.getContextualReference(ApplicationInfo.class, true);
+
         if (applicationInfo != null) {
             result = '?' + OAuth2Configuration.APPLICATION + '=' + applicationInfo.getName();
         }
-        OAuth2ServletInfo oAuth2ServletInfo = BeanProvider.getContextualReference(OAuth2ServletInfo.class);
+
         return oAuth2ServletInfo.getServletPath() + result;
+    }
+
+    @Override
+    public void init() throws ShiroException {
+        applicationInfo = BeanProvider.getContextualReference(ApplicationInfo.class, true);
+        oAuth2ServletInfo = BeanProvider.getContextualReference(OAuth2ServletInfo.class);
     }
 }
