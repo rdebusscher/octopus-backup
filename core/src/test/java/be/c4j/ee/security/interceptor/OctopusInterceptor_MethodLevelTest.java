@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.interceptor;
 
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.interceptor.testclasses.MethodLevel;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
@@ -26,6 +27,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mockito;
 
 import javax.interceptor.InvocationContext;
 import java.lang.reflect.Method;
@@ -34,6 +36,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -126,7 +129,10 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         // That is also the reason we have to simulate a larger part to test this.
 
         OctopusRealm octopusRealm = new OctopusRealm();
-        ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context));
+
+        OctopusConfig octopusConfigMock = Mockito.mock(OctopusConfig.class);
+        when(octopusConfigMock.getHashAlgorithmName()).thenReturn("");
+        ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context), octopusConfigMock);
 
         finishCDISetup();
 

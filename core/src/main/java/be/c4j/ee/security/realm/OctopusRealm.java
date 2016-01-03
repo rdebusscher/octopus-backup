@@ -16,15 +16,17 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
+import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
+import be.c4j.ee.security.util.CodecUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.codec.Base64;
+import org.apache.shiro.codec.Hex;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
@@ -36,10 +38,17 @@ public class OctopusRealm extends AuthorizingRealm {
 
     private SecurityDataProvider securityDataProvider;
 
+    private OctopusConfig config;
+
+    private CodecUtil codecUtil;
+
     @Override
     protected void onInit() {
         super.onInit();
         securityDataProvider = BeanProvider.getContextualReference(SecurityDataProvider.class);
+        config = BeanProvider.getContextualReference(OctopusConfig.class);
+        codecUtil = BeanProvider.getContextualReference(CodecUtil.class);
+
         setCachingEnabled(true);
         setAuthenticationTokenClass(AuthenticationToken.class);
     }
@@ -73,12 +82,44 @@ public class OctopusRealm extends AuthorizingRealm {
         } else {
             try {
                 authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+                verifyHashEncoding(authenticationInfo);
             } finally {
                 // Even in the case of an exception (access not allowed) we need to reset this flag
                 ThreadContext.remove(IN_AUTHENTICATION_FLAG);
             }
         }
         return authenticationInfo;
+    }
+
+    private void verifyHashEncoding(AuthenticationInfo info) {
+        if (!config.getHashAlgorithmName().isEmpty()) {
+            Object credentials = info.getCredentials();
+
+            if (credentials instanceof String || credentials instanceof char[]) {
+
+                byte[] storedBytes = codecUtil.toBytes(credentials);
+                HashEncoding hashEncoding = config.getHashEncoding();
+
+                try {
+                    // Lets try to decode, if we have an issue the supplied hash password is invalid.
+                    switch (hashEncoding) {
+
+                        case HEX:
+                            Hex.decode(storedBytes);
+                            break;
+                        case BASE64:
+                            Base64.decode(storedBytes);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("hashEncoding " + hashEncoding + " not supported");
+
+                    }
+                } catch (IllegalArgumentException e) {
+                    throw new CredentialsException("Supplied hashed password can't be decoded. Is the 'hashEncoding' correctly set?");
+                }
+            }
+
+        }
     }
 
     protected Object getAuthorizationCacheKey(PrincipalCollection principals) {

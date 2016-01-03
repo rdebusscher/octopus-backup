@@ -22,6 +22,7 @@ import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.util.ByteSource;
+import org.apache.shiro.util.SimpleByteSource;
 
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
@@ -80,6 +81,11 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
+    public AuthenticationInfoBuilder salt(byte[] salt) {
+        this.salt(new SimpleByteSource(salt));
+        return this;
+    }
+
     public AuthenticationInfoBuilder externalPasswordCheck() {
         this.externalPasswordCheck = true;
         return this;
@@ -99,6 +105,7 @@ public class AuthenticationInfoBuilder {
         UserPrincipal principal = new UserPrincipal(principalId, userName, name);
         principal.addUserInfo(userInfo);
         AuthenticationInfo result;
+        // TODO We need to check if developer supplied salt() when octopusConfig.saltLength != 0
         if (salt == null) {
             if (externalPasswordCheck) {
                 result = new ExternalPasswordAuthenticationInfo(principal, realmName);

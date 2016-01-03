@@ -54,8 +54,31 @@ public class SaltHashingUtil {
     }
 
     public String hash(String password, byte[] salt) {
+        HashEncoding hashEncoding = config.getHashEncoding();
+
+        String result;
+        switch (hashEncoding) {
+
+            case HEX:
+                result = hashInHex(password, salt);
+                break;
+            case BASE64:
+                result = hashInBase64(password, salt);
+                break;
+            default:
+                throw new IllegalArgumentException("hashEncoding " + hashEncoding + " not supported");
+        }
+        return result;
+    }
+
+    public String hashInHex(String password, byte[] salt) {
         SimpleHash hash = new SimpleHash(config.getHashAlgorithmName(), password, salt);
         return hash.toHex();
+    }
+
+    public String hashInBase64(String password, byte[] salt) {
+        SimpleHash hash = new SimpleHash(config.getHashAlgorithmName(), password, salt);
+        return hash.toBase64();
     }
 
 }

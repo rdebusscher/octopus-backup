@@ -16,8 +16,10 @@
  */
 package be.c4j.ee.security.config;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
+import be.c4j.ee.security.salt.HashEncoding;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -74,6 +76,16 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     @ConfigEntry
     public String getHashAlgorithmName() {
         return ConfigResolver.getPropertyValue("hashAlgorithmName", "");
+    }
+
+    @ConfigEntry
+    public HashEncoding getHashEncoding() {
+        HashEncoding result = HashEncoding.fromValue(ConfigResolver.getPropertyValue("hashEncoding", "HEX"));
+        if (result == null) {
+            throw new OctopusConfigurationException(
+                    "The 'hashEncoding' parameter value " + ConfigResolver.getPropertyValue("hashEncoding", "HEX") + " isn't valid. Use 'HEX' or 'BASE64'.");
+        }
+        return result;
     }
 
     @ConfigEntry

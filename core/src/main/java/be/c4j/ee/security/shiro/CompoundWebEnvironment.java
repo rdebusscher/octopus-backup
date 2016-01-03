@@ -19,6 +19,7 @@ package be.c4j.ee.security.shiro;
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
+import be.c4j.ee.security.salt.HashEncoding;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
@@ -67,7 +68,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             configureCache(ini);
 
             String hashAlgorithmName = config.getHashAlgorithmName();
-            if (hashAlgorithmName.length() != 0) {
+            if (!hashAlgorithmName.isEmpty()) {
                 try {
                     MessageDigest.getInstance(hashAlgorithmName);
                 } catch (NoSuchAlgorithmException e) {
@@ -135,6 +136,9 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("credentialsMatcher", HashedCredentialsMatcher.class.getName());
         mainSection.put("credentialsMatcher.hashAlgorithmName", someHashAlgorithmName);
+        if (config.getHashEncoding() != HashEncoding.HEX) {
+            mainSection.put("credentialsMatcher.storedCredentialsHexEncoded", "false");
+        }
         mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
     }
 
