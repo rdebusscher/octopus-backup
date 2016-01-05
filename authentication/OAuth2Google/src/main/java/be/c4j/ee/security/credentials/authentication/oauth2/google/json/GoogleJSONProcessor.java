@@ -50,7 +50,9 @@ public class GoogleJSONProcessor {
                 if (jsonObject.has("hd")) {
                     oAuth2User.setDomain(jsonObject.getString("hd"));
                 }
-                oAuth2User.setLink(jsonObject.getString("link"));
+                if (jsonObject.has("link")) {
+                    oAuth2User.setLink(jsonObject.getString("link"));
+                }
                 oAuth2User.setPicture(jsonObject.getString("picture"));
                 if (jsonObject.has("gender")) {
                     oAuth2User.setGender(jsonObject.getString("gender"));
