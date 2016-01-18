@@ -26,7 +26,6 @@ import org.apache.shiro.subject.Subject;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.interceptor.InvocationContext;
 import java.util.Set;
 
 @Typed

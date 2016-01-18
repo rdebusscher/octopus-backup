@@ -19,7 +19,6 @@ package be.c4j.ee.security.interceptor.checks;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresGuest;
 import org.apache.shiro.subject.Subject;
 

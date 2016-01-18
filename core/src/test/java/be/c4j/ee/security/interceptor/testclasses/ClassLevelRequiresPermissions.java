@@ -18,7 +18,6 @@ package be.c4j.ee.security.interceptor.testclasses;
 
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresUser;
 
 /**
  *

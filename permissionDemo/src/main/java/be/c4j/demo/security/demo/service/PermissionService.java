@@ -20,8 +20,6 @@ import be.c4j.demo.security.demo.model.HRAppPermission;
 import be.c4j.demo.security.demo.model.Principal;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
-import be.c4j.ee.security.permission.NamedPermission;
-import org.apache.shiro.authz.annotation.RequiresUser;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJB;
