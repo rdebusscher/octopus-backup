@@ -118,10 +118,4 @@ public class AuthenticationInfoBuilder {
         return result;
     }
 
-    // TODO Verify if this isn't required anymore
-    public static AuthenticationInfo forOracleAuthentication(String userName) {
-        String name = userName.toUpperCase(Locale.ENGLISH);
-        UserPrincipal principal = new UserPrincipal(name, name, name);
-        return new SimpleAuthenticationInfo(principal, null, DEFAULT_REALM);
-    }
 }
