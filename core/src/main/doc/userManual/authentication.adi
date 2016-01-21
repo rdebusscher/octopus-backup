@@ -1,16 +1,47 @@
 [[authentication]]
 
-This chapter describes the steps for integrating the authentication part into your application.
+This chapter describes the details for integrating the authentication part into your application.
+
+There are several authentication methods supported in Octopus. We can categorize them in 3 groups.
+
+. Octopus is able to verify if the user supplied credentials (user name - password combination) is valid. For example Database and File based storages.
+. Octopus passes the user supplied credentials (user name - password combination) to an external source for verification. For example LDAP.
+. Authentication is 'externalised' and application is contacted with a token. Examples are Google OAuths, CAS, SAML, Keycloak, Octopus SSO, etc.
+
+*Octopus verifies*
+
+In this case, we need to supply the password using the +AuthenticationInfoBuilder+ to Octopus(Apache shiro). The defaults matchers (There is also support for hashed password, see _<<Hashed password,hashPassword>>) are able then to verify if the password matches.
+
+*External validation*
+
+In case we can't supply Octopus/Apache Shiro the password, but user has entered credentials in our application, we can ask for an external authentication and supply a correct _Matcher_ which calls the external validation.
+
+*External authentication*
+
+When the user enters the credentials in an external system and the verification also happens there, we need special handling for receiving the token which identifies the authenticated user. In those cases there is also a special _Matcher_.
+
+*Summary*
+
+In the below table, one can see which of the 3 options applies to your situation.
+
+[options="header"]
+|=======================
+|Credential entry|Credential verification |Type
+|Application    |Application     |Octopus Verifies
+|Application    |External| External validation
+|External    |External    |External authentication
+|=======================
+
 
 ==== CDI bean for authentication and authorization
 
-As described in the chapter <<SecurityDataProvider,SecurityDataProvider>>, there is an interface defined in Octopus framework which you need to implement to supply the required security data to the framework.
+As described in the chapter _<<SecurityDataProvider,SecurityDataProvider>>_, there is an interface defined in Octopus framework which you need to implement to supply the required security data to the framework.
 
-So you should create a class which implements this interface and annotate it with @javax.enterprise.context.ApplicationScoped. That way, an instance of your class will be used by Octopus in case it needs some authentication info.  The same bean will be used for the authorization info and will be described in <<authorization,Authorization>> chapter.
+So you should create a class which implements this interface and annotate it with +@javax.enterprise.context.ApplicationScoped+. That way, an instance of your class will be used by Octopus when it needs authentication info.  The same bean will be used for the authorization info and will be described in _<<authorization,Authorization>>_ chapter.
 
 ==== Supply authentication info
 
-Some details about the getAuthenticationInfo() method is described in the section <<getAuthenticationInfo,getAuthenticationInfo()>>. Since you have defined a CDI bean, you can inject any kind of service that you wrote to supply the required information.
+Some details about the +getAuthenticationInfo()+ method is described in the section _<<getAuthenticationInfo,getAuthenticationInfo()>>_. Since you have defined a CDI bean, you can inject any kind of service that you wrote to supply the required information.
 
 When the user specifies an unknown user name, the +getAuthenticationInfo()+ should return null.  Octopus knows then, that it should show an error. More on the configuration of the error messages, see ???.
 
@@ -20,7 +51,7 @@ In case your custom service identifies the user name as valid, you should supply
 . A password for the user.
 . The salt in case of hashed passwords
 
-The password verification is done by the framework itself because the preferred password mechanism is using some kind of hashed password mechanism.  The code to perform such comparisons is called by the Framework itself.  You just have to specify the hash algorithm (through configuration), salt (for optimal security) and the hashed password to be able to perform the comparison.  See aalso ??? password mechanism ?? for some more detail.
+The password verification is done by the framework itself because the preferred password mechanism is using some kind of hashed password mechanism.  The code to perform such comparisons is called by the Framework itself.  You just have to specify the hash algorithm (through configuration), salt (for optimal security) and the hashed password to be able to perform the comparison.  See also ??? password mechanism ?? for some more detail.
 
 The result of the method call is not cached by default, and thus it is safe to change the authentication info in the external system (like database or LDAP) without the need to restart the application.
 
@@ -37,17 +68,23 @@ public class AppAuthentication implements SecurityDataProvider {
     private YourService service;
 
     @Override
-    public AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token) {
-        MyUser user = service.getUserInfo(token.getUsername());
-        if (user == null) {
-          return null;
+    public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+
+        if (token instanceof UsernamePasswordToken) {
+           UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken)token;
+
+           MyUser user = service.getUserInfo(usernamePasswordToken.getUsername());
+           if (user == null) {
+              return null;
+           }
+           AuthenticationInfoBuilder authenticationInfoBuilder =
+              new AuthenticationInfoBuilder();
+           authenticationInfoBuilder.principalId(user.getId()).
+                                   name(user.getName()).
+                                   password(user.getPassword());
+           return authenticationInfoBuilder.build();
         }
-        AuthenticationInfoBuilder authenticationInfoBuilder =
-            new AuthenticationInfoBuilder();
-        authenticationInfoBuilder.principalId(user.getId()).
-                                name(user.getName()).
-                                password(user.getPassword());
-        return authenticationInfoBuilder.build();
+        return null; // Did we use some other authentication method?
     }
 
     @Override
@@ -58,4 +95,14 @@ public class AppAuthentication implements SecurityDataProvider {
 }
 ----
 
-YourService and MyUser class are project specific and not supplied by Octopus.
++YourService+ and +MyUser+ class are project specific and not supplied by Octopus.
+
+==== Using external checking
+
+When you as developer can't supply Octopus with the username and password information, there exists 2 other mechanism. See also _<<Authentication methods,AuthMethods>>_.
+
+For example when the password is only available in an external system, like LDAP, you need to use the +externalPasswordCheck()+ method and a specific +Matcher+ to validate the username and password.
+An example can be found ???here???
+
+You can go even further and the complete authentication (checking if the user specified the correct user name and password combination) can be handled externally by a third party system using OAuth2, CAS, SAML, etc ...
+Specific extensions are designed to work with these system and examples are described ???here???

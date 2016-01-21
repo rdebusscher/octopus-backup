@@ -3,12 +3,12 @@ This is the list of (Application) servers which are tested at this moment
 
 .Java EE 6
 . Glassfish 3.1.2
-. TomEE 1.6
+. TomEE 1.6/1.7
 . Weblogic 12.1c (Octopus v0.9.4)
 
 .Java EE 7
-. Glassfish 4
-. Wildfly 8
+. Glassfish 4 / Payara
+. Wildfly 8/9
 
 List of application servers which will be supported before we reach the 1.0 version
 

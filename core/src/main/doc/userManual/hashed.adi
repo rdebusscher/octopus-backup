@@ -1,0 +1,87 @@
+[[hashPassword]]
+==== Background
+
+https://crackstation.net/hashing-security.htm
+
+Hashed passwords with a different value for the salt for each user is one of the most secure ways of storing password values. Because from thr hashed password, the original value is very hard to retrieve, or practical impossible with the newer hash algorythms like SHA-512.
+
+==== Setup
+
+There is no additional dependency needed to support hashed passwords. The Core artifact (included by the JSF artifact) contain all the required classes.
+
+The parameter +hashAlgorithmName+ defines if the hashed password option is active.
+
+----
+hashAlgorithmName=SHA-256
+----
+
+When this parameter is defined in one of the +octopusConfig.properties+ files, the hashed Password matcher of apache Shiro will be used to compare the entered and the expected password.
+
+Supported hash algorithms are MD2, MD5, SHA-1, SHA-256, SHA-384 and SHA-512.
+
+==== Authentication
+
+In the same way we have to pass a 'regular' (non hashed password) to Octopus/Shiro, we have to do it also in the case of the hashed expected password. But we also have to supply the salt which is used in calculating the hash value.
+
+Warning; the next snippet is not a good production example as the hashed password is calculated for each login!!
+
+[source,java]
+----
+public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+
+    if (token instanceof UsernamePasswordToken) {
+        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
+
+        AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
+        authenticationInfoBuilder.principalId(principalId++).name(token.getPrincipal().toString());
+
+        // Best practice is that each user has his own salt value. So we create a salt here for each checks to simulate that.
+        // See also the saltLength parameter for the length of this salt.
+        // TODO: Change for production. salt needs to be retrieved together with the hashed password and generated as in this example.
+        byte[] salt = saltHashingUtil.nextSalt();
+
+        authenticationInfoBuilder.salt(salt);
+        // TODO: Change for production. Here we use username as password. It is the expected hash of the password
+        String hashedPassword = saltHashingUtil.hash(usernamePasswordToken.getUsername(), salt);
+        authenticationInfoBuilder.password(hashedPassword);
+
+        return authenticationInfoBuilder.build();
+    }
+    return null;
+}
+----
+
+The above example code generates a hash of the username for a created salt value. And passes that information to Octopus.
+
+Important to note here is that we not only need to supply the hashed version of the expected password through the +password()+ method but that we also have to give the salt (by means of the +salt()+ method which needs to to be used to be able to calculate the correct hash.
+
+These are the steps followed to check if the correct password is supplied.
+
+. Prepend the salt to the plain password entered by the user
+. Apply the hash algorithm
+. Compare this calculated value with the expected hash.
+
+
+==== Salt generation
+
+In this scenario, it is likely that you would also like to manage the user from within the application and store the information in for example a database instance.
+
+In those situations, you need a new salt for each new user and it is recommended that you also update the salt when the user changes his/her password. A convenient method for generating a new salt if provided by a utility class of Octopos.
+
+[source,java]
+----
+byte[] salt = saltHashingUtil.nextSalt();
+----
+
+The length of this value is determined by the configuration parameter +saltLength+. And longer salts are safer then short salt values.
+
+==== Other utility methods
+
+Since you also need to store the hash in to a database for example, it is easier when this value contains only regular characters (like a to Z) instead of any type of character (byte) which can also be control characters.
+
+Base64 is a typical conversion which you can use to convert any type of byte sequence to a 'readable' string in a revertable way. (this is different from the one way hashing algorithms used above)
+
+For this purpose you can use the +org.apache.shiro.codec.Base64+ class.
+
+
+

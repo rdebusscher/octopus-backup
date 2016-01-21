@@ -12,4 +12,5 @@ The second blog was written by Rudy De Busscher (www.c4j.be), http://jsfcorner.b
 
 Based on the information in those 2 sources, combined with CDI based configuration and type safe definitions of Named permissions with enums, Octopus was born.
 
-With this new version 0.9.5, CODI is replaced by DeltaSpike.
+The framework concentrates on using the authentication and authorization information, not retrieving this information from any source.
+Therefor it integrates with a wide range of systems where the information can be retrieved from like a Database, LDAP and Token based systems as there are OAuth2 providers (Google, LinkedIn, ...), CAS Server, SAML identity providers, Keycloak, etc...

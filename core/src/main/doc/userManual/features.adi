@@ -1,17 +1,19 @@
 
 This is the list with the most important features of Octopus
 
-. Permission based framework for Java EE (6 and 7)
-. Secures URL, JSF components and CDI and EJB method calls
+. Permission based framework for Java EE (6 and 7).
+. Secures URL, JSF components and CDI and EJB method calls.
 . Very flexible, can be easily integrated within your application
-. Tightly integrated with CDI
-. Type-safe definition of permissions
-. Declarative declaration of JSF security (with tags, not using rendered attribute)
-. Support for salted hashed passwords and remember me functionality
-. Custom voter can be created for more complex security requirements
-. Support for OAuth2 providers (Google for the moment)
-. Support for JAX-RS Controller
-. Pluggeable authentication modules.
+. Highly configurable using a single property file.
+. Tightly integrated with CDI.
+. Type-safe definition of permissions.
+. Declarative declaration of JSF security (with tags, not using rendered attribute).
+. Support for salted hashed passwords and remember me functionality.
+. Custom voter can be created for more complex security requirements.
+. Pluggable authentication modules.
+. Support for OAuth2 providers (Google for the moment).
+. Support for CAS Server.
+. Securing JAX-RS Controller.
 . Single sign on principles for the the OAuth2 application.
-. Provides a offline fake provider for OAuth2.
+. Provides an offline fake provider for OAuth2.
 

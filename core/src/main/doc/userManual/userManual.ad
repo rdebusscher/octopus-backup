@@ -1,6 +1,6 @@
 = Octopus Framework
 C4J - Rudy De Busscher (www.c4j.be) <rudy.debusscher@c4j.be>
-v0.9.5, 27/03/2015
+v0.9.6.1, 19/01/2016
 
 == Release notes
 
@@ -26,7 +26,7 @@ include::compatibility.adi[]
 
 include::setup.adi[]
 
-== Details
+== Setup details
 
 === SecurityDataProvider
 
@@ -40,6 +40,10 @@ include::authentication.adi[]
 
 include::authorization.adi[]
 
+== Exceptions
+
+include::exceptions.adi[]
+
 == Configuration
 
 include::configuration.adi[]
@@ -48,9 +52,13 @@ include::configuration.adi[]
 
 include::limits.adi[]
 
-== Using Oracle Users for authentication
+== Securing JAX-RS endpoints
 
-include::oracleUser.adi[]
+include::rest.adi[]
+
+== Authentication methods
+
+include::authMethods.adi[]
 
 == Appendix
 

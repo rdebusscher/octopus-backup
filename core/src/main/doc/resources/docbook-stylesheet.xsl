@@ -72,6 +72,7 @@
         <xsl:attribute name="border-width">0.5pt</xsl:attribute>
         <xsl:attribute name="border-style">solid</xsl:attribute>
         <xsl:attribute name="border-color">#575757</xsl:attribute>
+        <xsl:attribute name="font-size">9</xsl:attribute>
         <xsl:attribute name="padding">3pt</xsl:attribute>
     </xsl:attribute-set>
 

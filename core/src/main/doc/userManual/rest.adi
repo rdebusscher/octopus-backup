@@ -1,0 +1,39 @@
+[[REST-section]]
+For securing JAX-RS or REST endpoints, we need to add the following dependencies to the project.
+
+The first one is just to translate an unauthorized exception to return a 401 response with the error message in the body.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus</groupId>
+        <artifactId>octopus-rest</artifactId>
+        <version>0.9.6.1</version>
+    </dependency>
+----
+
+In the case we use some token based authentication methods, we need the corresponding artifact. For example the Google OAuth2 module.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>octopus-oauth2-google</artifactId>
+        <version>0.9.6.1</version>
+    </dependency>
+----
+
+The next step we need to do is, to define how the URL endpoints are protected. Defined in the +securedURLs.ini+ file.
+
+----
+   /data/** = noSessionCreation, GoogleAuthcFilter, userRest
+----
+
+_noSessionCreation_ : Defines that Apache Shiro shouldn't create a HTTP session. This is logic for a JAX-RS environment as it is typically stateless.
+
+_GoogleAuthcFilter_ : The authentication filter which defines how the header information is used to determine if the request is valid.
+
+_userRest_ : Translates an unauthorized exception into an HTTP response with status 401.
+
+
+

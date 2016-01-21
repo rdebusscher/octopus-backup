@@ -1,0 +1,87 @@
+==== setup
+
+No additional dependencies are required to support password authentication against an LDAP server.
+
+However, we need a specific Apache Shiro Matcher that will check the supplied user name and passwords against an LDAP instance. That matcher needs to be configured within a +shiro_extra.ini+ file. (Or specified within another ini file but then you need to specify that name in the config)
+
+----
+[main]
+LDAPMatcher = be.c4j.demo.security.LDAPMatcher
+credentialsMatcher.matcher = $LDAPMatcher
+----
+
+==== SecurityDataProvider.getAuthenticationInfo()
+
+We need to define a login form our self, and the +getAuthenticationInfo()+ method of the bean implementing the +SecurityDataProvider+ interface will be called with an instance of +UsernamePasswordToken+.
+
+However, we are unable to supply the correct password for the user to Octopus/Shiro but need to pass them to an LDAP instance. So we have an _external password check_ and thus we need the following snippet in the +getAuthenticationInfo()+ method.
+
+[source,java]
+----
+public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+
+    if (token instanceof UsernamePasswordToken) {
+
+        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
+
+        AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
+        // principalId is used for the authorization
+        authenticationInfoBuilder.principalId(usernamePasswordToken.getUsername());
+
+        // username can be handy for auditing purposes
+        authenticationInfoBuilder.userName(usernamePasswordToken.getUsername());
+        // This means we have to rely on an additional defined CredentialsMatcher
+        authenticationInfoBuilder.externalPasswordCheck();
+
+        return authenticationInfoBuilder.build();
+    }
+
+    return null;
+
+}
+----
+
+==== CredentialsMatcher
+
+The matcher can be written using standard Java code (you don't need an additional library for accessing LDAP instances). The following example uses a custom CDI bean to perform the actual verification (code not shown here).
+
+[source,java]
+----
+public class LDAPMatcher implements CredentialsMatcher, Initializable {
+
+    private LDAPAuthenticator ldapAuthenticator;
+
+    @Override
+    public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
+
+        String name = ldapAuthenticator.isValidAuthentication(token.getPrincipal().toString(), new String((char[]) token.getCredentials()));
+        if (name != null && info instanceof ExternalPasswordAuthenticationInfo) {
+            ExternalPasswordAuthenticationInfo externalInfo = (ExternalPasswordAuthenticationInfo) info;
+            externalInfo.setName(name);
+            //externalInfo.addUserInfo("key", serializableValue);
+        }
+        return name != null;
+    }
+
+    @Override
+    public void init() throws ShiroException {
+        ldapAuthenticator = BeanProvider.getContextualReference(LDAPAuthenticator.class);
+    }
+}
+----
+
+The class implements +org.apache.shiro.util.Initializable+, the Apache Shiro equivalent of the PostConstruct in Java EE. It allows you to prepare the instance for all dependencies.  Here it uses the *DeltaSpike BeanProvider* to retrieve the CDI instance.
+
+The ldapAuthenticator returns the name of the authenticated user (if the credentials are valid)
+
+The +AuthenticationInfo+ class as parameter of +doCredentialsMatch()+ method, is supplied by Apache Shiro but Octopus makes an extension, +ExternalPasswordAuthenticationInfo+ when we have an external password check (as specified by +externalPasswordCheck()+ method of the +AuthenticationInfoBuilder+. This extended class allows you to set additional user info which can be used later on.
+
+[source,java]
+----
+    @Inject
+    private UserPrincipal principal;
+
+    public void doSomething() {
+       principal.getUserInfo("key");
+    }
+----

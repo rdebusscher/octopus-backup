@@ -1,0 +1,18 @@
+[[AuthMethods]]
+Different scenarios around authentication are described in the next sections.
+
+=== Hashed passwords
+
+include::hashed.adi[]
+
+=== LDAP integration
+
+include::ldap.adi[]
+
+=== CAS integration
+
+include::cas.adi[]
+
+=== Using Oracle Users for authentication
+
+include::oracleUser.adi[]

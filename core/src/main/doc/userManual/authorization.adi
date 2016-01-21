@@ -4,13 +4,13 @@ This chapter describes the steps for integrating the authorization part into you
 
 ==== CDI bean for authentication and authorization
 
-As described in the chapter <<SecurityDataProvider,SecurityDataProvider>>, there is an interface defined in Octopus framework which you need to implement to supply the required security data to the framework.
+As described in the chapter _<<SecurityDataProvider,SecurityDataProvider>>_, there is an interface defined in Octopus framework which you need to implement to supply the required security data to the framework.
 
-So you should create a class which implements this interface and annotate it with @javax.enterprise.context.ApplicationScoped. That way, an instance of your class will be used by Octopus in case it needs some authorization info.  The same bean will be used for the authentication info and is described in the <<authentication,Authentication>> chapter.
+So you should create a class which implements this interface and annotate it with @javax.enterprise.context.ApplicationScoped. That way, an instance of your class will be used by Octopus in case it needs some authorization info.  The same bean will be used for the authentication info and is described in the _<<authentication,Authentication>>_ chapter.
 
 ==== Supply authorization info
 
-Some details about the getAuthorizationInfo() method is described in the section <<getAuthorizationInfo,getAuthorizationInfo()>>. Since you have defined a CDI bean, you can inject any kind of service that you wrote to supply the required information.
+Some details about the +getAuthorizationInfo()+ method is described in the section _<<getAuthorizationInfo,getAuthorizationInfo()>>_. Since you have defined a CDI bean, you can inject any kind of service that you wrote to supply the required information.
 
 The authorization info is cached since authorization information is necessary every time a check is required to see if the user is allowed to perform some action. So every request the user makes, multiple checks can be needed and thus caching is indispensable.
 

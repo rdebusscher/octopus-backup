@@ -2,25 +2,25 @@ This chapter describes the minimal steps you need to do to use the Octopus frame
 
 === Add library
 
-Add the octopus artifact to your project dependencies for your application server. The jsf named artifact is needed when you use JSF as front end.  The steps for using secured JAX-RS controllers are described here ???.
+Add the octopus artifact to your project dependencies for your application server(EE6 or EE7). The jsf named artifact is needed when you use JSF as front end.  The steps for using secured JAX-RS controllers are described in the section _<<REST-section, Securing JAX-RS endpoints>>_.
 
 [source,xml]
 ----
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>javaee7-jsf</artifactId>
-        <version>0.9.5</version>
+        <version>0.9.6.1</version>
     </dependency>
 ----
 
-The Octopus rtifacts are available in the C4J OS maven repository. You have to add the following repository definition to your pom.xml file.
+The Octopus artifacts are available in the C4J OS maven repository. You have to add the following repository definition to your pom.xml file.
 
 [source,xml]
 ----
-        <repository>
-            <id>nexus_C4J</id>
-            <url>http://nexus-osc4j.rhcloud.com/content/groups/public/</url>
-        </repository>
+    <repository>
+        <id>nexus_C4J</id>
+        <url>http://nexus-osc4j.rhcloud.com/content/groups/public/</url>
+    </repository>
 ----
 
 
@@ -28,33 +28,33 @@ The Octopus library has a few transient dependencies which are imported automati
 
 [source,xml]
 ----
-        <dependency>
-            <groupId>org.apache.deltaspike.core</groupId>
-            <artifactId>deltaspike-core-api</artifactId>
-            <version>1.2.0</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-api</artifactId>
+        <version>1.2.0</version>
+        <scope>compile</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>org.apache.deltaspike.core</groupId>
-            <artifactId>deltaspike-core-impl</artifactId>
-            <version>1.2.0</version>
-            <scope>runtime</scope>
-        </dependency>
+    <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-impl</artifactId>
+        <version>1.2.0</version>
+        <scope>runtime</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>org.apache.deltaspike.modules</groupId>
-            <artifactId>deltaspike-security-module-api</artifactId>
-            <version>1.2.0</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-api</artifactId>
+        <version>1.2.0</version>
+        <scope>compile</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>org.apache.deltaspike.modules</groupId>
-            <artifactId>deltaspike-security-module-impl</artifactId>
-            <version>1.2.0</version>
-            <scope>runtime</scope>
-        </dependency>
+    <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-impl</artifactId>
+        <version>1.2.0</version>
+        <scope>runtime</scope>
+    </dependency>
 ----
 
 
@@ -66,10 +66,10 @@ TODO
 === URL patterns protection
 
 By just adding the Octopus jar file and his dependencies, your application no longer deploys.  It complains that it is missing a CDI bean which implements the +SecurityDataProvider+ interface.
-This bean is required to supply the authentication and authorization information to the Octopus framework. See <<authentication,configuring authentication>> and <<authorization,configuring authorization>> for the details how you can do this.
+This bean is required to supply the authentication and authorization information to the Octopus framework. See _<<authentication,configuring authentication>>_ and _<<authorization,configuring authorization>>_ for the details how you can do this.
 
 Another thing you need to do before you can start, is to create the +/WEB-INF/securedURLs.ini+ file.
-In this file, you can configure which URLs need to be protected by authentication.  An example is in the following snippet
+In this file, you can configure which URLs need to be protected by authentication.  An example is in the following snippet:
 
 ----
    /pages/** = user
@@ -77,41 +77,42 @@ In this file, you can configure which URLs need to be protected by authenticatio
 
 It makes sure that all the pages within the +pages+ directory and subdirectory can't be accessed without proper authentication.  All other pages in the root or in other directories can be viewed anonymous.
 
-+user+ is the predefined filter by Octopus/shiro that requires authentication.  The other predefined filter is called +anon+ for anonymous access.  See also ??? how you can define other filters based on named permissions and named roles.
++user+ is the predefined filter by Octopus/shiro that requires authentication.  Another predefined filter is called +anon+ for anonymous access.  See also ??? how you can define other filters based on named permissions and named roles.
 
 === Login form
 
-Whenever a user navigates to an URL which needs authentication (and he isn't already authenticated) the login form is shown.  By default this is +/login.xhtml+ JSF page.
+Whenever a user navigates to an URL which needs authentication (and he isn't already authenticated) the login form is shown. In the scenario where Octopus/Shiro itself is responsible for verifying the credentials, see also _<<Authentication methods,AuthMethods>>_. By default this login page is the +/login.xhtml+ JSF page.
 You can use a regular JSF page for this purpose and there is no restrictions on layout, structure or component library which is used.
 
 [source,xml]
 ----
-    <h:form id="login">
-        <h:panelGrid columns="2">
-            <p:outputLabel for="username" value="Username:"/>
-            <p:inputText id="username" value="#{loginBean.username}" required="true"/>
+<h:form id="login">
+    <h:panelGrid columns="2">
+        <p:outputLabel for="username" value="Username:"/>
+        <p:inputText id="username" value="#{loginBean.username}" required="true"/>
 
-            <p:outputLabel for="password" value="Password:"/>
-            <p:password id="password" value="#{loginBean.password}" required="true" feedback="" />
+        <p:outputLabel for="password" value="Password:"/>
+        <p:password id="password" value="#{loginBean.password}" required="true" feedback="" />
 
-            <h:panelGroup/>
-            <p:commandButton value="Login" actionListener="#{loginBean.doLogin}" update="@form" process="@form"/>
+        <h:panelGroup/>
+        <p:commandButton value="Login" actionListener="#{loginBean.doLogin}" update="@form" process="@form"/>
 
-        </h:panelGrid>
-        <p:messages />
-    </h:form>
+    </h:panelGrid>
+    <p:messages />
+</h:form>
 ----
 
 In the above example, the login page is designed with PrimeFaces. Basically, there are 3 important things
 
-.Requirements
 . The user name must be bound to the +username+ attribute of the +loginBean+ like in _value="#{loginBean.username}"_
 . The password must be bound to the +password+ attribute, like in _value="#{loginBean.password}"_
 . The actual authentication cen be performed by calling the method +doLogin()+ by an actionListener, like the _p:commandButton_
 
+No action attribute is required as the user is redirected to the page he originally requested.
+
 === Named Permissions or/and named Roles
 
-We are now at the point that the authentication works, the next thing is the authorization we need to provide.  As specified in the features chapter, the named permissions (and named roles) can be defined by using enumeration constants to make it more typesafe.
+We are now at the point that the authentication (who is it) works, the next thing is the authorization we need to provide.  As specified in the features chapter, the named permissions (and named roles) can be defined by using enumeration constants to make it more type-safe.
 
 As the benefit of Octopus lies in the fact that you can use permissions, we will discuss only permissions in this section. see ??? (for named roles)
 
@@ -124,9 +125,8 @@ public enum DemoPermission implements NamedPermission {
 }
 ----
 
-Since enum classes can't be extended, we can't define an empty class within the octopus framework that you can extend.  Therefor you need to specify the java class where you have defined the constants for the named permission in a configuration file.  This configuration file, named +octopusConfig.properties+, must be located in the class root (If you are using Maven, you can place it in the +src+main/resources+ directory)
+Since enum classes can't be extended, we can't define an empty class within the octopus framework that you can extend.  Therefor you need to specify the java class where you have defined the constants for the named permission in a configuration file.  This configuration file, named +octopusConfig.properties+ by default but can be other file, must be located in the class root (If you are using Maven, you can place it in the +src/main/resources+ directory)
 
-[source,java]
 ----
 namedPermission.class = be.c4j.demo.security.permission.DemoPermission
 namedPermissionCheck.class = be.c4j.demo.security.permission.DemoPermissionCheck
@@ -143,9 +143,9 @@ public @interface DemoPermissionCheck {
 }
 ----
 
-==== Mapping named permissions to domain permissions Apache Shiro
+==== Mapping named permissions to domain permissions of Apache Shiro
 
-Since Apache Shiro works with domain permissions and the verification of the fact that the user has the appropriate rights is performed by Shiro, We need to supply some mapping btween the domain permission and the named permission of Octopus which are the enum constants.
+Since Apache Shiro works with domain permissions and the verification of the fact that the user has the appropriate rights is performed by Shiro, we need to supply some mapping between the domain permission and the named permission of Octopus which are the enum constants.
 
 The PermissionLookup class is designed to do this and an instance of it can be created by the following code.
 
@@ -183,7 +183,7 @@ Octopus is designed to put security on all EJB methods by simply putting followi
     </assembly-descriptor>
 ----
 
-By putting this into the file, any EJB method call will now fail with the exception
+By putting this into the file, any EJB method call will now fail with the exception:
 
 ----
 Caused by: be.c4j.ee.security.exception.OctopusUnauthorizedException: No Authorization requirements available
@@ -198,7 +198,7 @@ In the chapter ??? there is an extensive listing of all the possibilities but th
 
 === Securing JSF components
 
-The third type of artifacts where you can impose security on, are the JSF components.  By using a renderer interceptor mechanism (borrowed for Apache MyFaces Extensions Validation framework), Octopus is able to disable the rendering of components in declarative way.
+The third type of artifacts where you can impose security on, are the JSF components.  By using a renderer interceptor mechanism (borrowed from Apache MyFaces Extensions Validation framework), Octopus is able to disable the rendering of components in declarative way.
 
 The next example shows how you can secure a PrimeFaces button so that only users with the *DEPARTMENT_CREATE* permission can see it.
 

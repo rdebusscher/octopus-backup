@@ -11,12 +11,12 @@ Authorization is then in a second step, to shield some parts of the application 
 
 === Permission
 
-A +Permission+ represents the ability to perform an action or access a resource. A Permission is the most granular, or atomic, unit in a system's security policy.
+A *Permission* represents the ability to perform an action or access to a resource. A Permission is the most granular, or atomic, unit in a system's security policy.
 
 === Domain permission
 
 This concept is taken from Apache Shiro.
-In case of a domain permission, you enlarge the concept of having a permission.  The permission is divided in 3 parts, the functional area it is assigned to, called the domain, and also the action and the target of to the permission.
+In case of a domain permission, you enlarge the concept of having a permission.  The permission is divided in 3 parts, the functional area it is assigned to, called the domain, and also the action and the target of the permission.
 In our example, we can define all the permissions related to the functional area department as having the _domain_ *department*. And we can imagine that we have _actions_ like read, create, list and so on.
 And in the case we have a very fine grained authorization policy, we can define that some of those actions are only allowed for a certain department. For example the department where the employee is working in.  The _target_ could then be the value +own+.  Other actions, like list the name of the departments, should probably allowed by every one.  And then we can specify here the wildcard *.
 

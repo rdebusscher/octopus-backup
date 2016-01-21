@@ -1,0 +1,72 @@
+==== setup
+
+Add the following dependency to your project POM.xml file.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>cas</artifactId>
+        <version>0.9.6.1</version>
+    </dependency>
+----
+
+Define the following parameters in the _octopusConfig.properties_ file (preferably outside the WAR file so that your WAR file becomes environment neutral)
+
+----
+SSO.server=https://<cas-server>/cas
+----
+
+Where the we point to the main context of the CAS server installation.
+
+And that is all what needs to be done to have your application using the CAS server for identity management.
+
+==== SecurityDataProvider.getAuthenticationInfo()
+
+The +getAuthenticationInfo()+ method of the bean implementing the SecurityDataProvider interface will be called with a specific parameter, the +be.c4j.ee.security.credentials.authentication.cas.CasUser+.
+
+This method should return null if the parameter isn't of the correct type, otherwise we can use the AuthenticationInfoBuilder to build the required information for Octopus.
+
+[source,java]
+----
+@Override
+public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+
+    if (token instanceof CasUser) {
+        CasUser user = (CasUser) token;
+
+        AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
+        authenticationInfoBuilder.principalId(user.getTicket()).name(user.getName());
+
+        return authenticationInfoBuilder.build();
+    }
+    return null;
+}
+----
+
+
+==== Retrieving user attributes
+
+The CAS server is able to send some additional attributes to your applications. These can be configured within the CAS configuration. See for example following http://jasig.github.io/cas/4.1.x/integration/Attribute-Release.html[documentation page]
+
+These attributes are available with the CasUser parameter during the +SecurityDataProvider.getAuthenticationInfo()+ method execution. It can be used to retrieve additional information stored about the logged on user or for any other purpose.
+
+We can make these attributes available in an unmodified format if we pass them to the AuthenticationInfoBuilder instance using the +addUserInfo()+ method. These attributes are then available in the principal as follows
+
+[source,java]
+----
+    @Inject
+    private UserPrincipal principal;
+
+    public void doSomething() {
+       principal.getUserInfo("theAttribute");
+    }
+----
+
+
+==== Advanced configuration
+
+Single logout. ??? TODO refer to general explanation what this is.
+
+Protocol CAS versus SAML.  ??? TODO
+

@@ -61,7 +61,6 @@ public class AppAuthentication implements SecurityDataProvider {
         return null;
     }
 
-
     @Override
     public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
 

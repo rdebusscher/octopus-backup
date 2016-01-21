@@ -2,7 +2,11 @@
 
 This chapter describes all the configuration options of the Octopus framework.
 
-=== octopusConfig.properties
+By default, the +octopusConfig.properties+ file is read on the classpath. But we can specify another properties file with a JVM system property so that we can configure the WAR file externally (no need to rebuild the WAR file between environment)
+
+With the -Doctopus.cfg=<someURL> option, we can specify the location of an additional properties file which will be read and use for configuring the system.
+
+=== Configuration properties
 
 ==== securedURLs.file
 
@@ -34,23 +38,49 @@ default : *(none)*
 
 Defines the annotations which can be used on method and class level to define the security requirements.
 
-==== aliasNameLoginBean
+==== additionalShiroIniFileNames
+
+default : *classpath:shiro_extra.ini*
+
+Define the file where we can customize shiro directly. This file will be merged with the config of octopus. Multiple files can be specified by separating them by a ,.
+
+==== globalAuditActive
+
+default : *false*
+
+When true, each server request will result in a CDI event with payload OctopusAuditEvent.
+
+==== aliasNameLoginBean (JSF Only)
 
 default : *(none)*
 
 The CDI managed bean which can be used to login and logout the user is called *loginBean*. With this configuration option you can give it an additional name so that you can use this configured value in the JSF pages instead of *loginBean*.
 
-==== loginPage
+==== loginPage (JSF Only)
 
 default : */login.xhtml*
 
 The JSF page which will be called when the user access a security restricted page in your application and isn't logged in yet.  It should contain the fields and button to allow him to login into your application.
 
-==== unauthorizedExceptionPage
+==== logoutPage (JSF Only)
+
+default : */*
+
+URL used as redirect after the local session is logged out. When the value starts with a '/' the URL is relative to the root, otherwise it should a full address.
+
+==== unauthorizedExceptionPage (JSF Only)
 
 default : */unauthorized.xhtml*
 
 The JSF page which is called when the user access a security restricted page and he doesn't has the required permissions (roles) to access it.
+
+==== allowPostAsSavedRequest (JSF Only)
+
+default : *true*
+
+When user is redirect to the login screen because he is not authenticated yet, the original URL is stored.  So it can be used to redirect to if the user has supplied valid credentials.  However, with JSF applications, posting to an arbitrary page results in exceptions as the state of the previous pages is missing.
+
+With this property you can disable the redirect to an URL which uses POST as HTTP method.  A redirect to the welcome page of your application will be used instead.
 
 ==== hashAlgorithmName
 
@@ -64,19 +94,17 @@ default : *0*
 
 Number of bytes used when creating a salt for the hashing of passwords.  0 means that no salt is used.
 
-==== allowPostAsSavedRequest
+==== hashEncoding
 
-default : *true*
+default : *HEX*
 
-When user is redirect to the login screen because he is not authenticated yet, the original URL is stored.  So it can be used to redirect to if the user has supplied valid credentials.  However, with JSF applications, posting to an arbitrary page results in exceptions as the state of the previous pages is missing.
-
-With this property you can disable the redirect to an URL which uses POST as HTTP method.  A redirect to the welcome page of your application will be used instead.
+Defines how the hashed passwords are encoded (HEX or BASE64) before they are compared to the supplied value which should be identically before access is granted. The value specified in the configuration file is case insensitive compared with the allowed values.
 
 ==== cacheManager.class
 
 default : *org.apache.shiro.cache.MemoryConstrainedCacheManager*
 
-The class responsible for holding/managing the cache of the authentication and authorization data.  The developer can supply a custom implementation of *org.apache.shiro.cache.AbstractCacheManager* have the cache in a different location.
+The class responsible for holding/managing the cache of the authentication and authorization data.  The developer can supply a custom implementation of +org.apache.shiro.cache.AbstractCacheManager+ when the cache needs different logic.
 
 ==== OAuth2.clientId (OAuth2 only)
 
@@ -89,3 +117,33 @@ The value used for the clientId configuration value towards your OAuth2 provider
 default : *(none)*
 
 The value used for the secretId configuration value towards your OAuth2 provider.
+
+==== SSO.server (Octopus SSO, CAS, SAML, Keycloak)
+
+default : *(none)*
+
+The login URL (or part of it) of the remote authentication page. See the specific authentication module for correct usage.
+
+==== CAS.protocol (CAS only)
+
+default : *CAS*
+
+The protocol used with the CAS server for exchange of authentication. Other supported value is SAML.
+
+==== CAS.single.logout (CAS only)
+
+default : *true*
+
+Is Single logout active? When true, after local logout the browser is redirected to the logout page of CAS resulting in ending the SSO session and all Local sessions active under that SSO Session.
+
+==== CAS.property.email (CAS only)
+
+default : *email*
+
+The name of the cas attribute containing the email address.
+
+==== SSO.application (Octopus SSO only)
+
+default : *(none)*
+
+Future usage when Octopus SSO is fully operational.

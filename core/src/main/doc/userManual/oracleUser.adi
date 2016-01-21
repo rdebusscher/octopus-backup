@@ -1,36 +1,55 @@
-?? TODO : Need an additional dependency for this since v0.9.5.
-
 One of the classic scenarios is that the users which are allowed to access your application, are stored in a database table.
 
 However, there exists a range of application running on the Oracle database which uses the database users to perform the authentication. With Octopus this is also possible when a stored function is installed on the database (scripts provided in the appendix)
 
-==== Overview
+==== Setup
 
-As explained in the <<SecurityDataProvider>> chapter, the getAuthenticationInfo() method of the SecurityDataProvider interface is responsible for returning the required data to the Octopus code.
- However, when we use the Oracle database for authentication purposes (users defined as schema owners, not stored in a custom table) this is no longer possible.
- Instead of this, we need to return a special AuthenticationInfo object and we make a configuration change so that apache Shiro can use a special CredentialsMatcher.
+Add the following dependency to your project POM.xml file.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>octopus-oracle</artifactId>
+        <version>0.9.6.1</version>
+    </dependency>
+----
+
+By adding this dependency, specific configuration options are added and no additional steps are needed.
 
 ==== Configuration
 
-In the configuration file, +octopusConfig.properties+, we need to indicate that we will use the Oracle user names.
+As explained in the _<<SecurityDataProvider>>_ chapter, the +getAuthenticationInfo()+ method of the +SecurityDataProvider+ interface is responsible for returning the required data to the Octopus code.
+When we are validating the credentials against the schema users of the Oracle database, we are unable to supply the required password for the user to Octopus/Shiro.
 
-[source]
-----
-oracleAuthentication = true
-----
-
-In fact the value that you specify isn't of any importance. Specifying the +oracleAuthentication+ with a non empty value is enough to activate the feature.  The value will be ignored when you also specify the +hashAlgorithmName+ configuration option.
+In the appendix, you can find a PL/SQL function which is able to verify if a username password combination is valid credentials (they can then also be used to logon to Oracle).
+This function is called from the default entityManager defined in your application by a special +CredentialsMatcher+ which is automatically configured.
 
 ==== Authentication
 
-Since we can't supply Octopus with some valid credentials in response to the call to *getAuthenticationInfo()*, we are allowed to return a special build instance for this situation.
+Although the check is performed by a special +CredentialMatcher+, the logic isn't executed when we don't indicate that we have a valid user name. So the +getAuthenticationInfo()+ method needs to return an instance of +AuthenticationInfo+.
+
+The following snippet is minimal required code:
 
 [source, java]
 ----
-return AuthenticationInfoBuilder.forOracleAuthentication(token.getUserName());
+public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+    if (token instanceof UsernamePasswordToken) {
+        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
+
+        AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
+        authenticationInfoBuilder.principalId(usernamePasswordToken.getUsername()));
+
+        return authenticationInfoBuilder.build();
+
+    }
+    return null;
+}
 ----
+
+But other methods of +AuthenticationInfoBuilder+ can be used to pass information to Octopus/Shiro.
 
 ==== Authorization
 
-For authorization purposes, the getAuthorizationInfo() method is still called and you need to return the permissions the user has.  The principalId which is supplied to this method is to user name in uppercase.
+For authorization purposes, the +getAuthorizationInfo()+ method is still called and you need to return the permissions the user has.  The *principalId* which is supplied to this method is to user name in uppercase.
 

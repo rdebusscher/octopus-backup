@@ -1,14 +1,33 @@
+=== 0.9.6.1
+
+. permissionListener tag to change JSF Attributes based on security requirements.
+. Configurable logout URL.
+. Support for CAS SSO server.
+. BASE64 encoded hashed password support (HEX already supported).
+
 === 0.9.6
 
-. new module structure to allow multiple OAuth2 providers.
-. ????
+. New module structure to allow multiple OAuth2 providers.
+. Easier support for external password validations like LDAP.
+. Propagation of security information to asynchronous started process. (@Asynchronous)
+. Possibility to define Octopus configuration outside of WAR.
+. Possibility to define additional shiro.ini files.
+. Using system accounts (process related and not user related), mainly for background processes.
 . Security Annotations rework (not completely backwards compatible)
+. Auditing access.
+. Named permission and role filter where only one of the permissions/roles need to be satisfied. (instead of all)
+
 
 Breaking changes
-. test module received a different artifact
+
+. Security annotations on method level overrides those on class level.
+. Test module received a different artifact
++
                     <groupId>be.c4j.ee.security.octopus</groupId>
                     <artifactId>fakeLogin</artifactId>
-. authentication modules (oracle and OAuth2Google) received a different artifact
+
+. Authentication modules (oracle and OAuth2Google) received a different artifact
++
                     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
 
 === 0.9.5
@@ -24,4 +43,4 @@ Breaking changes
 
 Breaking changes
 
-. Parameter of *be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()* is now _AuthenticationToken_ and no longer _UsernamePasswordToken_.
+. Parameter of +be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()+ is now *AuthenticationToken* and no longer _UsernamePasswordToken_.
