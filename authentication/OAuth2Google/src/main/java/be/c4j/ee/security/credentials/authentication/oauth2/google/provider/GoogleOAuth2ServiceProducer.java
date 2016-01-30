@@ -17,9 +17,9 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.provider;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
-import be.c4j.ee.security.credentials.authentication.oauth2.google.scribe.Google2Api;
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.oauth.OAuthService;
+import com.github.scribejava.apis.GoogleApi20;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.oauth.OAuth20Service;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,10 +34,10 @@ public class GoogleOAuth2ServiceProducer {
     @Inject
     private OAuth2Configuration configuration;
 
-    public OAuthService createOAuthService(HttpServletRequest req) {
+    public OAuth20Service createOAuthService(HttpServletRequest req) {
         //Configure
         ServiceBuilder builder = new ServiceBuilder();
-        OAuthService service = builder.provider(Google2Api.class)
+        OAuth20Service service = builder
                 .apiKey(configuration.getClientId())
                 .apiSecret(configuration.getClientSecret())
                 .callback(assembleCallbackUrl(req))
@@ -45,7 +45,7 @@ public class GoogleOAuth2ServiceProducer {
                         "https://www.googleapis.com/auth/plus.login " +
                         "https://www.googleapis.com/auth/plus.me")
                 .debug()
-                .build(); //Now build the call
+                .build(GoogleApi20.instance()); //Now build the call
 
         return service;
     }

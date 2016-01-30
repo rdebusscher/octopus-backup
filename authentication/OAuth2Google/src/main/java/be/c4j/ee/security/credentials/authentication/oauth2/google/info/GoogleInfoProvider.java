@@ -21,11 +21,11 @@ import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleProvide
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
-import org.scribe.oauth.OAuthService;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuthService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -48,15 +48,18 @@ public class GoogleInfoProvider implements OAuth2InfoProvider {
     @Override
     public OAuth2User retrieveUserInfo(Token token, HttpServletRequest req) {
 
-        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v2/userinfo");
-
         OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(req);
+        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v3/userinfo", authService);
+
         authService.signRequest(token, oReq);
         Response oResp = oReq.send();
         OAuth2User googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
         if (googleUser != null) {
             googleUser.setToken(token);
         }
+
+        // Offline -> revoke token? https://accounts.google.com/o/oauth2/revoke?token={token}
         return googleUser;
+
     }
 }

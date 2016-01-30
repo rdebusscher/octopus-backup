@@ -18,7 +18,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
-import org.scribe.oauth.OAuthService;
+import com.github.scribejava.core.oauth.OAuth20Service;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -42,13 +42,14 @@ public class GooglePlusServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
-        OAuthService service = googleOAuth2ServiceProducer.createOAuthService(req);
+        OAuth20Service service = googleOAuth2ServiceProducer.createOAuthService(req);
 
         HttpSession sess = req.getSession();
         sess.setAttribute("oauth2Service", service);
 
         sess.setAttribute(OAuth2Configuration.APPLICATION, req.getParameter(OAuth2Configuration.APPLICATION));
-        resp.sendRedirect(service.getAuthorizationUrl(null));
+        String authorizationUrl = service.getAuthorizationUrl();
+        resp.sendRedirect(authorizationUrl);
     }
 
 

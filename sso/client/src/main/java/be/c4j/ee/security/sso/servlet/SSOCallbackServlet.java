@@ -18,11 +18,11 @@ package be.c4j.ee.security.sso.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.sso.client.SSOClientConfiguration;
+import com.github.scribejava.core.model.Token;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
-import org.scribe.model.Token;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;

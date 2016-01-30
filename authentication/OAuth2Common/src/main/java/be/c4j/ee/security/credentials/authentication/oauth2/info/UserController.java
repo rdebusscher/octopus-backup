@@ -19,8 +19,8 @@ package be.c4j.ee.security.credentials.authentication.oauth2.info;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaData;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.model.UserPrincipal;
+import com.github.scribejava.core.model.Token;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.scribe.model.Token;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;

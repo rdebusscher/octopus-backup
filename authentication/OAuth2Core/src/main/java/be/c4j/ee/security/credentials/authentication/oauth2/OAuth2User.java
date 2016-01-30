@@ -17,8 +17,8 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.github.scribejava.core.model.Token;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.scribe.model.Token;
 
 import javax.security.auth.Subject;
 import java.io.Serializable;

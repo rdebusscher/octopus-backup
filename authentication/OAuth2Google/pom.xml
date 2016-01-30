@@ -55,6 +55,19 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- Why aren't they picked up from oauth2-core (through oauth2-common)-->
+        <dependency>
+            <groupId>com.github.scribejava</groupId>
+            <artifactId>scribejava-apis</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20070829</version>
+        </dependency>
+
 
     </dependencies>
 

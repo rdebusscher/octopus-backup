@@ -25,13 +25,13 @@ import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleProvide
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
+import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.Verifier;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
-import org.scribe.oauth.OAuthService;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -76,13 +76,13 @@ public class OAuth2CallbackServlet extends HttpServlet {
         //OK the user have consented so lets find out about the user
 
         HttpSession sess = req.getSession();
-        OAuthService service = (OAuthService) sess.getAttribute("oauth2Service");
+        OAuth20Service service = (OAuth20Service) sess.getAttribute("oauth2Service");
         String applicationName = getApplicationName(sess);
 
         //Get the all important authorization code
         String code = req.getParameter("code");
         //Construct the access token
-        Token token = service.getAccessToken(null, new Verifier(code));
+        Token token = service.getAccessToken(new Verifier(code));
 
         OAuth2User googleUser = infoProvider.retrieveUserInfo(token, req);
 

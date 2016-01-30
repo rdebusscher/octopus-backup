@@ -41,9 +41,11 @@ public class GoogleJSONProcessor {
 
             if (!jsonObject.has("error")) {
                 oAuth2User = new OAuth2User();
-                oAuth2User.setId(jsonObject.getString("id"));
+                oAuth2User.setId(jsonObject.getString("sub"));
                 oAuth2User.setEmail(jsonObject.getString("email"));
-                oAuth2User.setVerifiedEmail(jsonObject.getBoolean("verified_email"));
+                if (jsonObject.has("verified_email")) {
+                    oAuth2User.setVerifiedEmail(jsonObject.getBoolean("verified_email"));
+                }
                 oAuth2User.setLastName(jsonObject.getString("family_name"));
                 oAuth2User.setFirstName(jsonObject.getString("given_name"));
                 oAuth2User.setFullName(jsonObject.getString("name"));
