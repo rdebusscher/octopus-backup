@@ -22,12 +22,12 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.6.1</version>
+        <version>0.9.6.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>async_manual</artifactId>
-    <version>0.9.6.1</version>
+    <version>0.9.6.2-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Asynchronous and manual subject demo</name>
 
