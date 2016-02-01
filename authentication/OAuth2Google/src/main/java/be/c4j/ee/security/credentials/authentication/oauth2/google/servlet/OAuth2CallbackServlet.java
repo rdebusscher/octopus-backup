@@ -18,7 +18,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 
 import be.c4j.ee.security.config.OctopusJSFConfig;
-import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2SessionAttributes;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleProvider;
@@ -32,6 +32,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -49,10 +50,16 @@ import java.io.IOException;
 public class OAuth2CallbackServlet extends HttpServlet {
 
     @Inject
+    private Logger logger;
+
+    @Inject
     private GoogleJSONProcessor jsonProcessor;
 
     @Inject
     private OctopusJSFConfig octopusConfig;
+
+    @Inject
+    private OAuth2SessionAttributes oAuth2SessionAttributes;
 
     @Inject
     @GoogleProvider
@@ -64,10 +71,22 @@ public class OAuth2CallbackServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
+        HttpSession sess = req.getSession();
+
         //Check if the user have rejected
         String error = req.getParameter("error");
         if ((null != error) && ("access_denied".equals(error.trim()))) {
-            HttpSession sess = req.getSession();
+            logger.warn("Google informs us that no valid credentials are supplied or that consent is not given");
+            sess.invalidate();
+            resp.sendRedirect(req.getContextPath());
+            return;
+        }
+
+        String csrfToken = oAuth2SessionAttributes.getCSRFToken(req);
+        String state = req.getParameter("state");
+        if (!csrfToken.equals(state)) {
+            logger.warn("The CSRF token do no match");
+            // The CSRF token do not match, deny access.
             sess.invalidate();
             resp.sendRedirect(req.getContextPath());
             return;
@@ -75,9 +94,8 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         //OK the user have consented so lets find out about the user
 
-        HttpSession sess = req.getSession();
-        OAuth20Service service = (OAuth20Service) sess.getAttribute("oauth2Service");
-        String applicationName = getApplicationName(sess);
+        OAuth20Service service = oAuth2SessionAttributes.getOAuth2Service(req);
+        String applicationName = oAuth2SessionAttributes.getApplication(req);
 
         //Get the all important authorization code
         String code = req.getParameter("code");
@@ -102,6 +120,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
                 resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
             }
         } catch (AuthenticationException e) {
+            // TODO Move to OAuth2SessionAttributes
             sess.setAttribute(OAuth2User.OAUTH2_USER_INFO, googleUser);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             // DataSecurityProvider decided that google user has no access to application
@@ -110,7 +129,4 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
     }
 
-    private String getApplicationName(HttpSession sess) {
-        return (String) sess.getAttribute(OAuth2Configuration.APPLICATION);
-    }
 }

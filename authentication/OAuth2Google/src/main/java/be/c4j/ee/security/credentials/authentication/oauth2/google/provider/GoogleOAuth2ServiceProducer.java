@@ -34,20 +34,27 @@ public class GoogleOAuth2ServiceProducer {
     @Inject
     private OAuth2Configuration configuration;
 
-    public OAuth20Service createOAuthService(HttpServletRequest req) {
+    /**
+     * @param req
+     * @param csrfToken value for the state parameter, allowed to be null in case you don't need it
+     * @return
+     */
+    public OAuth20Service createOAuthService(HttpServletRequest req, String csrfToken) {
         //Configure
         ServiceBuilder builder = new ServiceBuilder();
-        OAuth20Service service = builder
+        ServiceBuilder serviceBuilder = builder
                 .apiKey(configuration.getClientId())
                 .apiSecret(configuration.getClientSecret())
                 .callback(assembleCallbackUrl(req))
                 .scope("openid profile email " +
                         "https://www.googleapis.com/auth/plus.login " +
                         "https://www.googleapis.com/auth/plus.me")
-                .debug()
-                .build(GoogleApi20.instance()); //Now build the call
+                .debug();
+        if (csrfToken != null && !csrfToken.isEmpty()) {
+            serviceBuilder.state(csrfToken);
+        }
 
-        return service;
+        return serviceBuilder.build(GoogleApi20.instance());
     }
 
     private String assembleCallbackUrl(HttpServletRequest req) {

@@ -48,7 +48,8 @@ public class GoogleInfoProvider implements OAuth2InfoProvider {
     @Override
     public OAuth2User retrieveUserInfo(Token token, HttpServletRequest req) {
 
-        OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(req);
+        // No state here so token can be null.
+        OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(req, null);
         OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v3/userinfo", authService);
 
         authService.signRequest(token, oReq);

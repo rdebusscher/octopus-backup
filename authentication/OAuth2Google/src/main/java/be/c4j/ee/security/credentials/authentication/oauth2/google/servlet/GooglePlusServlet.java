@@ -17,6 +17,8 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
+import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2SessionAttributes;
+import be.c4j.ee.security.credentials.authentication.oauth2.csrf.CSRFTokenProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
@@ -38,16 +40,23 @@ public class GooglePlusServlet extends HttpServlet {
     @Inject
     private GoogleOAuth2ServiceProducer googleOAuth2ServiceProducer;
 
+    @Inject
+    private CSRFTokenProducer csrfTokenProducer;
+
+    @Inject
+    private OAuth2SessionAttributes oAuth2SessionAttributes;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
 
-        OAuth20Service service = googleOAuth2ServiceProducer.createOAuthService(req);
+        String token = csrfTokenProducer.nextToken();
+        OAuth20Service service = googleOAuth2ServiceProducer.createOAuthService(req, token);
 
-        HttpSession sess = req.getSession();
-        sess.setAttribute("oauth2Service", service);
+        oAuth2SessionAttributes.setOAuth2Service(req, service);
+        oAuth2SessionAttributes.setCSRFToken(req, token);
+        oAuth2SessionAttributes.setApplication(req, req.getParameter(OAuth2Configuration.APPLICATION));
 
-        sess.setAttribute(OAuth2Configuration.APPLICATION, req.getParameter(OAuth2Configuration.APPLICATION));
         String authorizationUrl = service.getAuthorizationUrl();
         resp.sendRedirect(authorizationUrl);
     }
