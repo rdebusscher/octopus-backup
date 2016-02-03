@@ -58,7 +58,9 @@ public class OAuth2User implements AuthenticationToken, Principal {
 
     private String domain;
 
-    private boolean verifiedEmail;
+    private boolean verifiedEmail;  // Needs to become properties
+
+    private Map<String, String> userInfo = new HashMap<String, String>();
 
     private Token token;
 
@@ -160,6 +162,10 @@ public class OAuth2User implements AuthenticationToken, Principal {
         this.verifiedEmail = verifiedEmail;
     }
 
+    public void addUserInfo(String key, String value) {
+        userInfo.put(key, value);
+    }
+
     public boolean isLoggedOn() {
         return id != null;
     }
@@ -187,7 +193,11 @@ public class OAuth2User implements AuthenticationToken, Principal {
         result.put("gender", gender);
         result.put("domain", domain);
         result.put("locale", locale);
-        result.put("token", token.getToken());
+        if (token != null) {
+            result.put("token", token.getToken());
+        }
+        result.putAll(userInfo);
+
         return result;
     }
 

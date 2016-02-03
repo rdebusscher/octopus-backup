@@ -38,6 +38,7 @@
         <module>OAuth2Core</module>
         <module>OAuth2Common</module>
         <module>OAuth2Google</module>
+        <module>OAuth2Github</module>
         <module>cas</module>
     </modules>
 
