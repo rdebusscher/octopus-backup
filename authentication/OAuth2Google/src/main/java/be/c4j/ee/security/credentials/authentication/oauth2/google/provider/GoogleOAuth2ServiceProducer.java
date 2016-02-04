@@ -17,6 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.provider;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
+import be.c4j.ee.security.credentials.authentication.oauth2.provider.OAuth2ServiceProducer;
 import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
@@ -29,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 @ApplicationScoped
-public class GoogleOAuth2ServiceProducer {
+public class GoogleOAuth2ServiceProducer extends OAuth2ServiceProducer{
 
     @Inject
     private OAuth2Configuration configuration;
@@ -57,12 +58,4 @@ public class GoogleOAuth2ServiceProducer {
         return serviceBuilder.build(GoogleApi20.instance());
     }
 
-    private String assembleCallbackUrl(HttpServletRequest req) {
-        StringBuilder result = new StringBuilder();
-        result.append(req.getScheme()).append("://");
-        result.append(req.getServerName()).append(':');
-        result.append(req.getServerPort());
-        result.append(req.getContextPath()).append("/oauth2callback");
-        return result.toString();
-    }
 }

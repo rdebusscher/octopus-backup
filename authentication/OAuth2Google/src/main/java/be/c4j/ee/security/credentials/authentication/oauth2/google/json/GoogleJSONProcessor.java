@@ -17,22 +17,22 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google.json;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2UserInfoProcessor;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
  */
 @ApplicationScoped
-public class GoogleJSONProcessor {
+public class GoogleJSONProcessor extends OAuth2UserInfoProcessor {
 
-    @Inject
-    private Logger logger;
+    private static final List<String> KEYS = Arrays.asList("sub", "email", "verified_email", "family_name", "given_name", "name", "hd", "link", "picture", "gender", "locale");
 
     public OAuth2User extractGoogleUser(String json) {
         OAuth2User oAuth2User = null;
@@ -43,23 +43,18 @@ public class GoogleJSONProcessor {
                 oAuth2User = new OAuth2User();
                 oAuth2User.setId(jsonObject.getString("sub"));
                 oAuth2User.setEmail(jsonObject.getString("email"));
-                if (jsonObject.has("verified_email")) {
-                    oAuth2User.setVerifiedEmail(jsonObject.getBoolean("verified_email"));
-                }
-                oAuth2User.setLastName(jsonObject.getString("family_name"));
-                oAuth2User.setFirstName(jsonObject.getString("given_name"));
-                oAuth2User.setFullName(jsonObject.getString("name"));
-                if (jsonObject.has("hd")) {
-                    oAuth2User.setDomain(jsonObject.getString("hd"));
-                }
-                if (jsonObject.has("link")) {
-                    oAuth2User.setLink(jsonObject.getString("link"));
-                }
-                oAuth2User.setPicture(jsonObject.getString("picture"));
-                if (jsonObject.has("gender")) {
-                    oAuth2User.setGender(jsonObject.getString("gender"));
-                }
-                oAuth2User.setLocale(jsonObject.getString("locale"));
+
+                oAuth2User.setVerifiedEmail(jsonObject.optBoolean("verified_email"));
+                oAuth2User.setLastName(jsonObject.optString("family_name"));
+                oAuth2User.setFirstName(jsonObject.optString("given_name"));
+                oAuth2User.setFullName(jsonObject.optString("name"));
+                oAuth2User.setDomain(jsonObject.optString("hd"));
+                oAuth2User.setLink(jsonObject.optString("link"));
+                oAuth2User.setPicture(jsonObject.optString("picture"));
+                oAuth2User.setGender(jsonObject.optString("gender"));
+                oAuth2User.setLocale(jsonObject.optString("locale"));
+
+                processJSON(oAuth2User, jsonObject, KEYS);
             } else {
                 logger.warn("Received following response from Google token resolving \n" + json);
             }
