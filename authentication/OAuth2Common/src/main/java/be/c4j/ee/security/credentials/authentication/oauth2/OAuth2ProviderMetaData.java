@@ -17,6 +17,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
+import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackProcessor;
 
 /**
  *
@@ -28,4 +29,6 @@ public interface OAuth2ProviderMetaData {
     String getName();
 
     OAuth2InfoProvider getInfoProvider();
+
+    Class<? extends OAuth2CallbackProcessor> getCallbackProcessor();
 }

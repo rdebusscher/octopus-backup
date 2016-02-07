@@ -16,9 +16,11 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.provider;
 
+import be.c4j.ee.security.credentials.authentication.oauth2.DefaultOauth2ServletInfo;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -26,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Typed
 public abstract class OAuth2ServiceProducer {
+
+    @Inject
+    private DefaultOauth2ServletInfo defaultOauth2ServletInfo;
 
     /**
      * @param req

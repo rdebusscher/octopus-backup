@@ -17,7 +17,9 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.github;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaData;
+import be.c4j.ee.security.credentials.authentication.oauth2.github.servlet.GithubOAuth2CallbackProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
+import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackProcessor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -47,5 +49,8 @@ public class GithubProviderMetaData implements OAuth2ProviderMetaData {
         return infoProvider;
     }
 
-
+    @Override
+    public Class<? extends OAuth2CallbackProcessor> getCallbackProcessor() {
+        return GithubOAuth2CallbackProcessor.class;
+    }
 }

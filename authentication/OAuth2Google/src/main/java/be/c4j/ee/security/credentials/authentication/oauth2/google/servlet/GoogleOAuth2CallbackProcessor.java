@@ -14,16 +14,14 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.credentials.authentication.oauth2.github.servlet;
+package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 
-import be.c4j.ee.security.credentials.authentication.oauth2.github.GithubProvider;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
-import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackServlet;
+import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackProcessor;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -32,24 +30,21 @@ import java.io.IOException;
 /**
  *
  */
-@WebServlet(urlPatterns = {"/oauth2callback"})
-public class GithubOAuth2CallbackServlet extends OAuth2CallbackServlet {
+public class GoogleOAuth2CallbackProcessor extends OAuth2CallbackProcessor {
 
     @Inject
-    @GithubProvider
+    @GoogleProvider
     private OAuth2InfoProvider infoProvider;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void processCallback(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         //Check if the user have rejected
         String error = request.getParameter("error");
-        // Fixme check if this is the correct answer by Github
         if ((null != error) && ("access_denied".equals(error.trim()))) {
-            logger.warn("Github informs us that no valid credentials are supplied or that consent is not given");
-            HttpSession sess = request.getSession();
-            sess.invalidate();
+            logger.warn("Google informs us that no valid credentials are supplied or that consent is not given");
+            HttpSession session = request.getSession();
+            session.invalidate();
             response.sendRedirect(request.getContextPath());
             return;
         }
@@ -60,6 +55,7 @@ public class GithubOAuth2CallbackServlet extends OAuth2CallbackServlet {
 
         //OK the user have consented so lets process authentication within Octopus/Shiro
         doAuthenticate(request, response, infoProvider);
+
     }
 
 }

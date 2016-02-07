@@ -19,8 +19,10 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.inject.Specializes;
+import javax.inject.Inject;
 
 /**
  *
@@ -30,6 +32,9 @@ public class OAuth2Configuration extends OctopusJSFConfig {
 
     public static final String APPLICATION = "application";
 
+    @Inject
+    private OAuth2ProviderMetaDataControl oAuth2ProviderMetaDataControl;
+
     @Override
     public String getLoginPage() {
         return "DYNAMIC OAUTH2 BASED";
@@ -37,11 +42,47 @@ public class OAuth2Configuration extends OctopusJSFConfig {
 
     @ConfigEntry
     public String getClientId() {
-        return ConfigResolver.getPropertyValue("OAuth2.clientId", "");
+        return defineConfigValue("OAuth2.clientId");
+    }
+
+    private String defineConfigValue(String configParameter) {
+        StringBuilder result = new StringBuilder();
+        if (oAuth2ProviderMetaDataControl.getProviderInfos().size() < 2) {
+            result.append(ConfigResolver.getPropertyValue(configParameter, ""));
+        } else {
+            String userProviderSelection = getUserProviderSelection();
+            if (userProviderSelection == null || userProviderSelection.isEmpty()) {
+                for (OAuth2ProviderMetaData oAuth2ProviderMetaData : oAuth2ProviderMetaDataControl.getProviderInfos()) {
+                    result.append(oAuth2ProviderMetaData.getName()).append(" : ");
+                    result.append(ConfigResolver.getPropertyValue(oAuth2ProviderMetaData.getName() + '.' + configParameter, ""));
+                    result.append("\n");
+                }
+            } else {
+                result.append(ConfigResolver.getPropertyValue(userProviderSelection + '.' + configParameter, ""));
+            }
+        }
+        return result.toString();
     }
 
     @ConfigEntry
     public String getClientSecret() {
-        return ConfigResolver.getPropertyValue("OAuth2.clientSecret", "");
+        return defineConfigValue("OAuth2.clientSecret");
+    }
+
+    @ConfigEntry
+    public String getOAuth2ProviderSelectionPage() {
+        return ConfigResolver.getPropertyValue("OAuth2.provider.selectionPage", "/login.xhtml");
+    }
+
+    private String getUserProviderSelection() {
+        try {
+            DefaultOauth2ServletInfo defaultOauth2ServletInfo = BeanProvider.getContextualReference(DefaultOauth2ServletInfo.class);
+            return defaultOauth2ServletInfo.getUserProviderSelection();
+        } catch (Exception e) {
+            // At startup logging, the session scope is not active yet and thus we get an exception here.
+            // return null to indicate that the user hasn't made a choice yet.
+            return null;
+
+        }
     }
 }
