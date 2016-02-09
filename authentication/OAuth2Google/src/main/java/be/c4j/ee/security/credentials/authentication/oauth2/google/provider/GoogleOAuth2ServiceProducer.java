@@ -47,9 +47,7 @@ public class GoogleOAuth2ServiceProducer extends OAuth2ServiceProducer{
                 .apiKey(configuration.getClientId())
                 .apiSecret(configuration.getClientSecret())
                 .callback(assembleCallbackUrl(req))
-                .scope("openid profile email " +
-                        "https://www.googleapis.com/auth/plus.login " +
-                        "https://www.googleapis.com/auth/plus.me")
+                .scope("openid profile email")
                 .debug();
         if (csrfToken != null && !csrfToken.isEmpty()) {
             serviceBuilder.state(csrfToken);
