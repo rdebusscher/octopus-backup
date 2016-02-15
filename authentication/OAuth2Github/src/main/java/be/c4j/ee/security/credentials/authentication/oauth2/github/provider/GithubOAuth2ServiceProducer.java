@@ -50,6 +50,11 @@ public class GithubOAuth2ServiceProducer extends OAuth2ServiceProducer {
                 .callback(assembleCallbackUrl(req))
                 .debug();
         // No scopes needed, as we just need to have read access to public information.
+
+        String scopes = configuration.getOAuth2Scopes();
+        if (scopes != null && scopes.length() > 0) {
+            serviceBuilder.scope(scopes);
+        }
         if (csrfToken != null && !csrfToken.isEmpty()) {
             serviceBuilder.state(csrfToken);
         }

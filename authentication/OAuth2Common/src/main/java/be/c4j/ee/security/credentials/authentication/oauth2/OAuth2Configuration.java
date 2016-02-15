@@ -74,6 +74,11 @@ public class OAuth2Configuration extends OctopusJSFConfig {
         return ConfigResolver.getPropertyValue("OAuth2.provider.selectionPage", "/login.xhtml");
     }
 
+    @ConfigEntry
+    public String getOAuth2Scopes() {
+        return ConfigResolver.getPropertyValue("OAuth2.scopes", "");
+    }
+
     private String getUserProviderSelection() {
         try {
             DefaultOauth2ServletInfo defaultOauth2ServletInfo = BeanProvider.getContextualReference(DefaultOauth2ServletInfo.class);

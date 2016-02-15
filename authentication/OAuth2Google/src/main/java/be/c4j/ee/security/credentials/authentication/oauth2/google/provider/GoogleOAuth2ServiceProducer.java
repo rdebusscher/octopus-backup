@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  */
 @ApplicationScoped
-public class GoogleOAuth2ServiceProducer extends OAuth2ServiceProducer{
+public class GoogleOAuth2ServiceProducer extends OAuth2ServiceProducer {
 
     @Inject
     private OAuth2Configuration configuration;
@@ -47,7 +47,7 @@ public class GoogleOAuth2ServiceProducer extends OAuth2ServiceProducer{
                 .apiKey(configuration.getClientId())
                 .apiSecret(configuration.getClientSecret())
                 .callback(assembleCallbackUrl(req))
-                .scope("openid profile email")
+                .scope("openid profile email " + configuration.getOAuth2Scopes())
                 .debug();
         if (csrfToken != null && !csrfToken.isEmpty()) {
             serviceBuilder.state(csrfToken);
