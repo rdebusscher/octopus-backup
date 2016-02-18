@@ -39,6 +39,7 @@
         <module>OAuth2Common</module>
         <module>OAuth2Google</module>
         <module>OAuth2Github</module>
+        <module>OAuth2Linkedin</module>
         <module>cas</module>
     </modules>
 
