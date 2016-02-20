@@ -44,6 +44,7 @@ public class OctopusDataTableRenderer extends DataTableRenderer {
             if (securedRuntimeManager.allowed((UIComponent) column)) {
 
                 super.encodeCell(context, table, column, clientId, selected);
+                securedRuntimeManager.resetRenderedStatus((UIComponent) column);
             } else {
                 renderEmptyCell(context);
             }
