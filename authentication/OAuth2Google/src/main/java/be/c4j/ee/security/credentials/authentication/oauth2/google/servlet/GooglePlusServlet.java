@@ -22,6 +22,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2Servle
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -41,6 +42,18 @@ public class GooglePlusServlet extends OAuth2Servlet {
         redirectToAuthorizationURL(request, response, googleOAuth2ServiceProducer);
     }
 
-
+    @Override
+    protected String postProcessAuthorizationUrl(HttpServletRequest request, String authorizationUrl) {
+        boolean multipleAccounts = false;
+        for (Cookie cookie : request.getCookies()) {
+            if (MultipleAccountServlet.OCTOPUS_GOOGLE_MULTIPLE_ACCOUNTS.equals(cookie.getName())) {
+                multipleAccounts = true;
+            }
+        }
+        if (multipleAccounts) {
+            authorizationUrl += "&prompt=select_account";
+        }
+        return authorizationUrl;
+    }
 }
 

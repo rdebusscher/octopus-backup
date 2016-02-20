@@ -48,7 +48,11 @@ public class OAuth2Servlet extends HttpServlet {
         oAuth2SessionAttributes.setApplication(request, request.getParameter(OAuth2Configuration.APPLICATION));
 
         String authorizationUrl = service.getAuthorizationUrl();
-        response.sendRedirect(authorizationUrl);
+        response.sendRedirect(postProcessAuthorizationUrl(request, authorizationUrl));
+    }
+
+    protected String postProcessAuthorizationUrl(HttpServletRequest request, String authorizationUrl) {
+        return authorizationUrl;
     }
 
 }
