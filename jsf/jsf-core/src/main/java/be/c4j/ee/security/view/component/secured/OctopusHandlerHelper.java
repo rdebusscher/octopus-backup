@@ -64,20 +64,29 @@ public class OctopusHandlerHelper {
     }
 
     private String getVoterName(UIComponent component) {
+        StringBuilder result = new StringBuilder();
         String voter = ComponentUtil.findValue(component, "voter", String.class);
-        if (voter == null || voter.length() == 0) {
-            String permission = ComponentUtil.findValue(component, "permission", String.class);
-            if (permission != null && permission.length() != 0) {
-                voter = voterNameFactory.generatePermissionBeanName(permission);
-            }
+        appendVoterNames(result, voter);
+        String permission = ComponentUtil.findValue(component, "permission", String.class);
+        if (permission != null && permission.length() != 0) {
+            voter = voterNameFactory.generatePermissionBeanName(permission);
+            appendVoterNames(result, voter);
         }
-        if (voter == null || voter.length() == 0) {
-            String role = ComponentUtil.findValue(component, "role", String.class);
-            if (role != null && role.length() != 0) {
-                voter = voterNameFactory.generateRoleBeanName(role);
-            }
+        String role = ComponentUtil.findValue(component, "role", String.class);
+        if (role != null && role.length() != 0) {
+            voter = voterNameFactory.generateRoleBeanName(role);
+            appendVoterNames(result, voter);
         }
-        return voter;
+        return result.toString();
+    }
+
+    private void appendVoterNames(StringBuilder result, String voter) {
+        if (voter != null && !voter.trim().isEmpty()) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(voter);
+        }
     }
 
     private SecuredComponentDataParameter[] findParameters(UIComponent c) {
