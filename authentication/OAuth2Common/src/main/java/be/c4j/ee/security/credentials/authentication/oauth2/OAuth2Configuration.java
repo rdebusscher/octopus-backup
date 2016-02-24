@@ -40,7 +40,7 @@ public class OAuth2Configuration extends OctopusJSFConfig {
         return "DYNAMIC OAUTH2 BASED";
     }
 
-    @ConfigEntry
+    @ConfigEntry(noLogging = true)
     public String getClientId() {
         return defineConfigValue("OAuth2.clientId");
     }
@@ -64,7 +64,7 @@ public class OAuth2Configuration extends OctopusJSFConfig {
         return result.toString();
     }
 
-    @ConfigEntry
+    @ConfigEntry(noLogging = true)
     public String getClientSecret() {
         return defineConfigValue("OAuth2.clientSecret");
     }

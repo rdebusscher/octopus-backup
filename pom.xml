@@ -74,7 +74,7 @@
         <deltaspike.version>1.2.0</deltaspike.version>
         <shiro.version>1.2.2</shiro.version>
         <myfaces.version>2.0.2</myfaces.version>
-        <jerry.version>0.2.1</jerry.version>
+        <jerry.version>0.3-SNAPSHOT</jerry.version>
 
         <slf4j.version>1.7.7</slf4j.version>
 
