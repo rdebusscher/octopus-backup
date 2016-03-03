@@ -18,6 +18,7 @@ package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.filter.GlobalFilterConfiguration;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import be.c4j.ee.security.salt.HashEncoding;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -32,10 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CompoundWebEnvironment extends IniWebEnvironment {
 
@@ -153,11 +151,31 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void addManuallyConfiguredUrls(Ini.Section target, Ini.Section source) {
         Boolean globalAudit = Boolean.valueOf(config.getIsGlobalAuditActive());
 
+        List<GlobalFilterConfiguration> globalFilterConfigurations = BeanProvider.getContextualReferences(GlobalFilterConfiguration.class, true);
+
         for (Map.Entry<String, String> entry : source.entrySet()) {
             String value = entry.getValue();
+
+            List<String> additionalFilters = new ArrayList<String>();
+
             if (globalAudit) {
-                value = value + ", audit";
+                additionalFilters.add("audit");
             }
+
+            for (GlobalFilterConfiguration globalFilterConfiguration : globalFilterConfigurations) {
+                additionalFilters.addAll(globalFilterConfiguration.addFiltersTo(entry.getKey()));
+
+            }
+
+            if (!additionalFilters.isEmpty()) {
+                StringBuilder filters = new StringBuilder();
+                filters.append(value);
+                for (String additionalFilter : additionalFilters) {
+                    filters.append(", ").append(additionalFilter);
+                }
+                value = filters.toString();
+            }
+
             target.put(entry.getKey(), value);
         }
     }
