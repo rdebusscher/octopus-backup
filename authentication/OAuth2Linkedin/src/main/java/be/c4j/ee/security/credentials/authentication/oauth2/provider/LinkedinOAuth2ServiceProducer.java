@@ -17,7 +17,6 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.provider;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
-import com.github.scribejava.apis.GitHubApi;
 import com.github.scribejava.apis.LinkedInApi20;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
@@ -50,7 +49,6 @@ public class LinkedinOAuth2ServiceProducer extends OAuth2ServiceProducer {
                 .callback(assembleCallbackUrl(req))
                 .scope("r_basicprofile r_emailaddress " + configuration.getOAuth2Scopes())
                 .debug();
-        // No scopes needed, as we just need to have read access to public information.
 
         if (csrfToken != null && !csrfToken.isEmpty()) {
             serviceBuilder.state(csrfToken);
