@@ -16,22 +16,25 @@
  * limitations under the License.
  *
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
-<h:head>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+>
 
-</h:head>
-<h:body>
-    <h2>Authenticate</h2>
-    <h:form id="login">
-        Authentication providers supported :<br/>
-        <ui:repeat value="#{defaultOauth2ServletInfo.providers}" var="_provider">
-            <p:commandLink actionListener="#{defaultOauth2ServletInfo.authenticateWith(_provider)}" value="#{_provider}"/>
-            <br/>
+<body>
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">OAuth2 Info</ui:define>
+
+    <ui:define name="body">
+        Secured page. <br/>
+        Information supplied by provider
+
+        <h:graphicImage value="#{userPrincipal.info.picture}"/> <br/>
+        <ui:repeat value="#{infoBean.keys}" var="_key">
+            #{_key} : #{infoBean.getInfoValue(_key)} <br/>
         </ui:repeat>
-        <p:messages/>
-    </h:form>
-
-</h:body>
+    </ui:define>
+</ui:composition>
+</body>
 </html>

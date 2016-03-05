@@ -17,21 +17,16 @@
  *
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:p="http://primefaces.org/ui">
 <h:head>
-
+    <title>Octopus OAuth2 demo</title>
+    <meta http-equiv="content-type" content="text/xhtml; charset=UTF-8"/>
 </h:head>
-<h:body>
-    <h2>Authenticate</h2>
-    <h:form id="login">
-        Authentication providers supported :<br/>
-        <ui:repeat value="#{defaultOauth2ServletInfo.providers}" var="_provider">
-            <p:commandLink actionListener="#{defaultOauth2ServletInfo.authenticateWith(_provider)}" value="#{_provider}"/>
-            <br/>
-        </ui:repeat>
-        <p:messages/>
-    </h:form>
 
+<h:body>
+    <p:panel header="Welcome">
+        Testing OAuth2 authentication methods.
+    </p:panel>
+    <a href="pages/secured.xhtml">Secured page</a>
 </h:body>
 </html>
