@@ -18,6 +18,8 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.PluginOrder;
+import be.c4j.ee.security.credentials.authentication.oauth2.filter.GenericOAuth2AuthcFilter;
+import be.c4j.ee.security.credentials.authentication.oauth2.matcher.OAuth2CredentialsMatcher;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
@@ -34,6 +36,8 @@ public class OAuth2ConfigurationPlugin implements ConfigurationPlugin {
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("user", OAuth2UserFilter.class.getName());
-
+        mainSection.put("OAuth2Matcher", OAuth2CredentialsMatcher.class.getName());
+        mainSection.put("credentialsMatcher.matcher", "$OAuth2Matcher");
+        mainSection.put("oauth2AuthcFilter", GenericOAuth2AuthcFilter.class.getName());
     }
 }

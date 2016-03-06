@@ -26,12 +26,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,6 +57,12 @@ public class UserController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public OAuth2User getUserInfo(@HeaderParam("token") String token, @HeaderParam("provider") String provider, @Context HttpServletRequest req) {
+        if (token == null || token.isEmpty()) {
+            throw new WebApplicationException(Response.status(412).entity(new ErrorEntity("token is required")).build());
+        }
+        if (provider == null || provider.isEmpty()) {
+            throw new WebApplicationException(Response.status(412).entity(new ErrorEntity("provider is required")).build());
+        }
         OAuth2InfoProvider infoProvider = null;
         Iterator<OAuth2ProviderMetaData> iterator = oAuth2ProviderMetaDataList.iterator();
         while (infoProvider == null && iterator.hasNext()) {

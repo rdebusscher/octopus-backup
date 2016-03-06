@@ -19,7 +19,6 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.PluginOrder;
 import be.c4j.ee.security.credentials.authentication.oauth2.filter.LinkedinAuthcFilter;
-import be.c4j.ee.security.credentials.authentication.oauth2.matcher.OAuth2CredentialsMatcher;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
@@ -31,15 +30,13 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @PluginOrder(72)
 public class OAuth2LinkedinConfigurationPlugin implements ConfigurationPlugin {
-    private void setGithubBasedMatcher(Ini ini) {
+    private void setLinkedInBasedMatcher(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        mainSection.put("OAuth2Matcher", OAuth2CredentialsMatcher.class.getName());
-        mainSection.put("credentialsMatcher.matcher", "$OAuth2Matcher");
         mainSection.put("LinkedinAuthcFilter", LinkedinAuthcFilter.class.getName());
     }
 
     @Override
     public void addConfiguration(Ini ini) {
-        setGithubBasedMatcher(ini);
+        setLinkedInBasedMatcher(ini);
     }
 }

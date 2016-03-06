@@ -17,6 +17,8 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.google;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaData;
+import be.c4j.ee.security.credentials.authentication.oauth2.filter.AbstractOAuth2AuthcFilter;
+import be.c4j.ee.security.credentials.authentication.oauth2.google.filter.GoogleAuthcFilter;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.servlet.GoogleOAuth2CallbackProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackProcessor;
@@ -49,9 +51,13 @@ public class GoogleProviderMetaData implements OAuth2ProviderMetaData {
         return infoProvider;
     }
 
-
     @Override
     public Class<? extends OAuth2CallbackProcessor> getCallbackProcessor() {
         return GoogleOAuth2CallbackProcessor.class;
+    }
+
+    @Override
+    public Class<? extends AbstractOAuth2AuthcFilter> getOAuth2AuthcFilter() {
+        return GoogleAuthcFilter.class;
     }
 }

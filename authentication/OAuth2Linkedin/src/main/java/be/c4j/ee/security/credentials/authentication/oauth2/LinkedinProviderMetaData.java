@@ -16,6 +16,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import be.c4j.ee.security.credentials.authentication.oauth2.filter.AbstractOAuth2AuthcFilter;
+import be.c4j.ee.security.credentials.authentication.oauth2.filter.LinkedinAuthcFilter;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.servlet.LinkedinOAuth2CallbackProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackProcessor;
@@ -51,5 +53,10 @@ public class LinkedinProviderMetaData implements OAuth2ProviderMetaData {
     @Override
     public Class<? extends OAuth2CallbackProcessor> getCallbackProcessor() {
         return LinkedinOAuth2CallbackProcessor.class;
+    }
+
+    @Override
+    public Class<? extends AbstractOAuth2AuthcFilter> getOAuth2AuthcFilter() {
+        return LinkedinAuthcFilter.class;
     }
 }
