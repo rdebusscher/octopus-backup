@@ -9,7 +9,7 @@ Add the octopus artifact to your project dependencies for your application serve
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>javaee7-jsf</artifactId>
-        <version>0.9.6.1</version>
+        <version>0.9.6.2</version>
     </dependency>
 ----
 
@@ -24,7 +24,7 @@ The Octopus artifacts are available in the C4J OS maven repository. You have to 
 ----
 
 
-The Octopus library has a few transient dependencies which are imported automatically (like Jerry). But it also depends on DeltaSpike, which is not included by default (see ???here??? for the explanation). You need the Core and the security modules.
+The Octopus library has a few transient dependencies which are imported automatically (like Jerry). But it also depends on DeltaSpike, which is not included by default (so that you can define yourself what version of DeltaSpike you want to use in your application without the risk of having a dependency conflict). You need the Core and the security modules.
 
 [source,xml]
 ----
@@ -81,7 +81,7 @@ It makes sure that all the pages within the +pages+ directory and subdirectory c
 
 === Login form
 
-Whenever a user navigates to an URL which needs authentication (and he isn't already authenticated) the login form is shown. In the scenario where Octopus/Shiro itself is responsible for verifying the credentials, see also _<<Authentication methods,AuthMethods>>_. By default this login page is the +/login.xhtml+ JSF page.
+Whenever a user navigates to an URL which needs authentication (and he isn't already authenticated) the login form is shown. In the scenario where Octopus/Shiro itself is responsible for verifying the credentials, see also _<<Authentication methods,AuthMethods>>_. By default this login page is the _/login.xhtml_ JSF page.
 You can use a regular JSF page for this purpose and there is no restrictions on layout, structure or component library which is used.
 
 [source,xml]

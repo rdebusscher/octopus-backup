@@ -1,3 +1,14 @@
+=== 0.9.6.2
+
+. Support for the CSRF token of Google OAuth2 (state parameter).
+. You can register a custom Shiro filter to some or all URL programmatic.
+. Support for GitHub and Linked OAuth2.
+. Support for multiple OAuth2 providers within the same application.
+
+Breaking changes
+
+. The Token class from Scribe dependency changed to a new package. Possibly you have used it in LoginAuthenticationTokenProvider or some integration test using OAuth2User.
+
 === 0.9.6.1
 
 . permissionListener tag to change JSF Attributes based on security requirements.

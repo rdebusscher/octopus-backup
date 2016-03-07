@@ -118,6 +118,18 @@ default : *(none)*
 
 The value used for the secretId configuration value towards your OAuth2 provider.
 
+==== OAuth2.scopes (OAuth2 only)
+
+default : *(none)*
+
+The additional scopes you want to use when the authentication is performed with the OAuth2 Provider.
+
+==== OAuth2.provider.selectionPage (OAuth2 only)
+
+default : */login.xhtml*
+
+The page which is shown to the user when multiple OAuth2 providers are found on the classpath so that the user can choose which provider he wants to take.
+
 ==== SSO.server (Octopus SSO, CAS, SAML, Keycloak)
 
 default : *(none)*

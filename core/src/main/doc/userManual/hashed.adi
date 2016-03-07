@@ -3,7 +3,7 @@
 
 https://crackstation.net/hashing-security.htm
 
-Hashed passwords with a different value for the salt for each user is one of the most secure ways of storing password values. Because from thr hashed password, the original value is very hard to retrieve, or practical impossible with the newer hash algorythms like SHA-512.
+Hashed passwords with a different value for the salt for each user is one of the most secure ways of storing password values. Because from the hashed password, the original value is very hard to retrieve, or practical impossible with the newer hash algorithms like SHA-512.
 
 ==== Setup
 

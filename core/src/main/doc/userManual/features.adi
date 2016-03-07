@@ -11,7 +11,7 @@ This is the list with the most important features of Octopus
 . Support for salted hashed passwords and remember me functionality.
 . Custom voter can be created for more complex security requirements.
 . Pluggable authentication modules.
-. Support for OAuth2 providers (Google for the moment).
+. Support for OAuth2 providers.
 . Support for CAS Server.
 . Securing JAX-RS Controller.
 . Single sign on principles for the the OAuth2 application.

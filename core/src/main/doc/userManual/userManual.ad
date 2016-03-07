@@ -58,7 +58,32 @@ include::rest.adi[]
 
 == Authentication methods
 
-include::authMethods.adi[]
+[[AuthMethods]]
+Different scenarios around authentication are described in the next sections.
+
+=== Hashed passwords
+
+include::hashed.adi[]
+
+=== LDAP integration
+
+include::ldap.adi[]
+
+=== OAuth2 integration
+
+include::OAuth2.adi[]
+
+=== CAS integration
+
+include::cas.adi[]
+
+=== Using Oracle Users for authentication
+
+include::oracleUser.adi[]
+
+== Other features
+
+include::others.adi[]
 
 == Appendix
 
