@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>examples</artifactId>
-        <version>0.9.6.2-SNAPSHOT</version>
+        <version>0.9.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <groupId>be.c4j.ee.security.octopus.examples</groupId>
     <artifactId>auth-methods-examples</artifactId>
-    <version>0.9.6.2-SNAPSHOT</version>
+    <version>0.9.7-SNAPSHOT</version>
 
     <name>Authentication method examples</name>
 

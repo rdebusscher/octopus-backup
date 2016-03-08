@@ -20,7 +20,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>authentication</artifactId>
-        <version>0.9.6.2-SNAPSHOT</version>
+        <version>0.9.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
     <artifactId>octopus-oauth2-github</artifactId>
-    <version>0.9.6.2-SNAPSHOT</version>
+    <version>0.9.7-SNAPSHOT</version>
 
     <name>OAuth2 Github Authentication</name>
 
