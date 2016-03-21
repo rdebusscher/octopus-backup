@@ -61,7 +61,7 @@ public class SecurityViolationInfoProducer {
         return violation.toString();
     }
 
-    private AuthorizationViolation defineOctopusViolation(InvocationContext invocationContext, Permission violatedPermission) {
+    public AuthorizationViolation defineOctopusViolation(InvocationContext invocationContext, Permission violatedPermission) {
         String permissionInfo = null;
         if (violatedPermission instanceof NamedDomainPermission) {
             NamedDomainPermission namedPermission = (NamedDomainPermission) violatedPermission;

@@ -45,11 +45,12 @@ public class NamedPermissionOneFilter extends AuthorizationFilter {
         return permitted;
     }
 
+    // FIXME Need the use of Initializable and StringPermissionLookup
     private void checkLookup() {
         // We can't do this in onFilterConfigSet as it is to soon.  Not available at that time
         if (permissionLookup == null) {
             // at this time, we need the lookup to be present, otherwise the rest of the isAccessAllowed() method doesn't make much sense.
-            permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class, false);
+            permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
         }
     }
 }

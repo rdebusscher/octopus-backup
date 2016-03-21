@@ -20,6 +20,7 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
+import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import be.c4j.ee.security.interceptor.checks.*;
 import be.c4j.ee.security.interceptor.testclasses.TestCustomVoter;
 import be.c4j.ee.security.interceptor.testclasses.TestPermissionCheck;
@@ -68,6 +69,10 @@ public class OctopusInterceptorTest {
     protected static final Boolean CUSTOM_ACCESS = Boolean.TRUE;
     protected static final String SHIRO1 = "shiro1:*:*";
     protected static final String ACCOUNT1 = "account1";
+    protected static final String NAMED_OCTOPUS = "named:octopus:*";
+    protected static final String OCTOPUS = "octopus:*:*";
+
+    protected SecurityCheckOctopusPermission securityCheckOctopusPermission;
 
     protected static final String AUTHORIZATION_PERMISSION = "Authorization:*:*";
 
@@ -82,6 +87,8 @@ public class OctopusInterceptorTest {
 
     @InjectMocks
     protected OctopusInterceptor octopusInterceptor;
+
+    protected VoterNameFactory voterNameFactory;
 
     protected BeanManagerFake beanManagerFake;
 
@@ -182,14 +189,14 @@ public class OctopusInterceptorTest {
         beanManagerFake.registerBean(infoProducerMock, SecurityViolationInfoProducer.class);
         when(infoProducerMock.getViolationInfo(any(AccessDecisionVoterContext.class), any(NamedDomainPermission.class))).thenReturn("Violation Info");
         when(infoProducerMock.getViolationInfo(any(AccessDecisionVoterContext.class))).thenReturn("Violation Info");
+        when(infoProducerMock.defineOctopusViolation(any(InvocationContext.class), any(Permission.class))).thenReturn(new BasicAuthorizationViolation("X", "Y"));
 
         // The custom voter bound to CDI
         TestCustomVoter customVoter = new TestCustomVoter();
         customVoter.setCustomAccess(customAccess);
         beanManagerFake.registerBean(customVoter, TestCustomVoter.class);
 
-        // A required dependency for the interceptor, not mocked
-        ReflectionUtil.injectDependencies(octopusInterceptor, new VoterNameFactory());
+        voterNameFactory = new VoterNameFactory();
 
         SecurityCheckOnlyDuringAuthorization securityCheckOnlyDuringAuthorization = new SecurityCheckOnlyDuringAuthorization();
         ReflectionUtil.injectDependencies(securityCheckOnlyDuringAuthorization, infoProducerMock);
@@ -216,13 +223,13 @@ public class OctopusInterceptorTest {
 
 
         SecurityCheckNamedPermissionCheck securityCheckNamedPermissionCheck = new SecurityCheckNamedPermissionCheck();
-        ReflectionUtil.injectDependencies(securityCheckNamedPermissionCheck, infoProducerMock, octopusConfigMock, new VoterNameFactory());
+        ReflectionUtil.injectDependencies(securityCheckNamedPermissionCheck, infoProducerMock, octopusConfigMock, voterNameFactory);
 
         beanManagerFake.registerBean(securityCheckNamedPermissionCheck, SecurityCheck.class);
 
 
         SecurityCheckNamedRoleCheck securityCheckNamedRoleCheck = new SecurityCheckNamedRoleCheck();
-        ReflectionUtil.injectDependencies(securityCheckNamedRoleCheck, infoProducerMock, octopusConfigMock, new VoterNameFactory());
+        ReflectionUtil.injectDependencies(securityCheckNamedRoleCheck, infoProducerMock, octopusConfigMock, voterNameFactory);
 
         beanManagerFake.registerBean(securityCheckNamedRoleCheck, SecurityCheck.class);
 
@@ -240,6 +247,11 @@ public class OctopusInterceptorTest {
         ReflectionUtil.injectDependencies(securityCheckSystemAccountCheck, infoProducerMock);
 
         beanManagerFake.registerBean(securityCheckSystemAccountCheck, SecurityCheck.class);
+
+        securityCheckOctopusPermission = new SecurityCheckOctopusPermission();
+        ReflectionUtil.injectDependencies(securityCheckOctopusPermission, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckOctopusPermission, SecurityCheck.class);
     }
 
     @After

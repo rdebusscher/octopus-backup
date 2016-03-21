@@ -51,7 +51,12 @@ public final class CDIUtil {
      * @param <T>
      * @return the bean instance
      */
-    public static <T> T getBeanManually(Class<T> targetClass, boolean optional) {
+    public static <T> T getBeanManually(Class<T> targetClass) {
+        return getBeanManually(targetClass, true);
+    }
+
+
+    private static <T> T getBeanManually(Class<T> targetClass, boolean optional) {
         T result = null;
 
         if (OPTIONAL_BEAN.containsKey(targetClass)) {
@@ -83,6 +88,7 @@ public final class CDIUtil {
 
     }
 
+    // FIXME Check everywhere where the beans which should be created by a producer method are always looked up through this method !!
     public static <T> T getOptionalBean(Class<T> targetClass) {
         T result;
         try {

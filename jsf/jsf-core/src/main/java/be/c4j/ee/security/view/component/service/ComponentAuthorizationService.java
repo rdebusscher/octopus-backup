@@ -17,16 +17,21 @@
 package be.c4j.ee.security.view.component.service;
 
 import be.c4j.ee.security.CustomAccessDecissionVoterContext;
+import be.c4j.ee.security.permission.GenericPermissionVoter;
+import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.el.ValueExpression;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
@@ -44,8 +49,13 @@ public class ComponentAuthorizationService {
 
     private BeanManager beanManager;
 
-    public ComponentAuthorizationService() {
+    private StringPermissionLookup stringLookup;
+
+    @PostConstruct
+    public void init() {
         beanManager = BeanManagerProvider.getInstance().getBeanManager();
+        // StringPermissionLookup is Optional
+        stringLookup = BeanProvider.getContextualReference(StringPermissionLookup.class, true);
     }
 
     public boolean hasAccess(final SecuredComponentData secureComponentData) {
@@ -94,11 +104,31 @@ public class ComponentAuthorizationService {
     }
 
     private AbstractAccessDecisionVoter getBean(final String name) {
+        // TODO Write tests for this !!
         AbstractAccessDecisionVoter result = null;
-        try {
-            result = CDIUtil.getContextualReferenceByName(beanManager, name, AbstractAccessDecisionVoter.class);
-        } catch (NoSuchElementException e) {
-            logger.warn("The AccessDecisionVoter with name " + name + " is not found.");
+
+        if (name.contains(":")) {
+            NamedDomainPermission permission;
+            if (name.startsWith(":")) {
+                if (stringLookup == null) {
+                    // We found a name but developer didn't specify some lookup. So assume :*:* at the end
+                    permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(name), name + ":*:*");
+                } else {
+                    permission = stringLookup.getPermission(name.substring(1));
+                    // Remove the leading :
+                }
+            } else {
+                // A full blown wildcard shiro permission
+                permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(name), name);
+            }
+            result = GenericPermissionVoter.createInstance(permission);
+
+        } else {
+            try {
+                result = CDIUtil.getContextualReferenceByName(beanManager, name, AbstractAccessDecisionVoter.class);
+            } catch (NoSuchElementException e) {
+                logger.warn("The AccessDecisionVoter with name " + name + " is not found.");
+            }
         }
         return result;
     }

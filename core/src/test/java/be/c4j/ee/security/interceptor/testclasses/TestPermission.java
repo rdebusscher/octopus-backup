@@ -22,5 +22,5 @@ import be.c4j.ee.security.permission.NamedPermission;
  *
  */
 public enum TestPermission implements NamedPermission {
-    PERMISSION1, PERMISSION2
+    PERMISSION1, PERMISSION2, PERMISSION3
 }

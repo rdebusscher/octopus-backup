@@ -37,17 +37,17 @@ public class PermissionLookup<T extends Enum<T>> {
         // although this bean is excluded, Weld (Glassfish 3.1.2.2) wants it to have a no arg constructor.
     }
 
-    public PermissionLookup(List<NamedDomainPermission> allPermission, Class<T> clazz) {
+    public PermissionLookup(List<NamedDomainPermission> allPermissions, Class<T> clazz) {
         enumClazz = clazz;
         map = new EnumMap<T, NamedDomainPermission>(clazz);
         // map the lookups together
-        for (NamedDomainPermission item : allPermission) {
+        for (NamedDomainPermission item : allPermissions) {
             T key;
             try {
                 key = Enum.valueOf(clazz, item.getName());
                 map.put(key, item);
             } catch (IllegalArgumentException e) {
-                LOGGER.info("There is no type safe equivalent and CDI Bean for named permission "+item.getName());
+                LOGGER.info("There is no type safe equivalent and CDI Bean for named permission " + item.getName());
             }
         }
     }
@@ -58,6 +58,16 @@ public class PermissionLookup<T extends Enum<T>> {
 
     public NamedDomainPermission getPermission(String namedPermission) {
         return getPermission(Enum.valueOf(enumClazz, namedPermission));
+    }
+
+    public boolean containsPermission(String namedPermission) {
+        boolean result = true;
+        try {
+            Enum.valueOf(enumClazz, namedPermission);
+        } catch (IllegalArgumentException e) {
+            result = false;
+        }
+        return result;
     }
 }
 

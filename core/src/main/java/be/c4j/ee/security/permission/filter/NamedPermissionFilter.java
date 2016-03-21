@@ -18,38 +18,64 @@ package be.c4j.ee.security.permission.filter;
 
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
+import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.util.CDIUtil;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-public class NamedPermissionFilter extends AuthorizationFilter {
+public class NamedPermissionFilter extends AuthorizationFilter implements Initializable {
 
     private PermissionLookup<? extends NamedPermission> permissionLookup;
+
+    private StringPermissionLookup stringLookup;
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws
             Exception {
         Subject subject = getSubject(request, response);
         String[] permissions = (String[]) mappedValue;
-        checkLookup();
 
         boolean permitted = true;
         for (String permissionName : permissions) {
-            if (!subject.isPermitted(permissionLookup.getPermission(permissionName))) {
+
+            Permission permission = getPermission(permissionName);
+            if (!subject.isPermitted(permission)) {
                 permitted = false;
             }
         }
         return permitted;
     }
 
-    private void checkLookup() {
-        // We can't do this in onFilterConfigSet as it is to soon.  Not available at that time
-        if (permissionLookup == null) {
-            // at this time, we need the lookup to be present, otherwise the rest of the isAccessAllowed() method doesn't make much sense.
-            permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class, false);
+    private Permission getPermission(String permissionName) {
+        Permission result;
+        if (permissionLookup != null) {
+            result = permissionLookup.getPermission(permissionName);
+        } else {
+            if (stringLookup != null) {
+                result = stringLookup.getPermission(permissionName);
+            } else {
+                if (permissionName.contains(":")) {
+                    result = new WildcardPermission(permissionName);
+                } else {
+                    result = new WildcardPermission(permissionName + ":*:*");
+                }
+            }
         }
+        return result;
     }
+
+    @Override
+    public void init() throws ShiroException {
+        // Optional
+        permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
+        stringLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
+    }
+
 }

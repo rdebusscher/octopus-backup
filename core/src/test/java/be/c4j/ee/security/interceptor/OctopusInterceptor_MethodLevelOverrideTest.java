@@ -21,6 +21,7 @@ import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.interceptor.testclasses.MethodLevelOverride;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionLookupFixture;
 import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.util.ReflectionUtil;
 import org.apache.shiro.subject.SimplePrincipalCollection;
@@ -217,6 +218,8 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
 
         beanManagerFake.registerBean("permission1PermissionVoter", permissionVoter);
 
+        PermissionLookupFixture.registerPermissionLookup(beanManagerFake);
+
         finishCDISetup();
 
         try {
@@ -247,6 +250,8 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
         ReflectionUtil.injectDependencies(permissionVoter, subjectMock, namedPermission);
 
         beanManagerFake.registerBean("permission2PermissionVoter", permissionVoter);
+
+        PermissionLookupFixture.registerPermissionLookup(beanManagerFake);
 
         finishCDISetup();
 

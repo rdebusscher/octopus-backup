@@ -52,8 +52,8 @@ public class NamedRoleProducer {
 
     @PostConstruct
     public void init() {
-        // True to make sure that if the bean is created without actually needing it, we don't get into trouble if the lookup isn't defined.
-        lookup = CDIUtil.getBeanManually(RoleLookup.class, true);
+        // Optional to make sure that if the bean is not created without actually needing it, we don't get into trouble if the lookup isn't defined.
+        lookup = CDIUtil.getOptionalBean(RoleLookup.class);
     }
 
     @Produces
