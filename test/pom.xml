@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.6.2</version>
+        <version>0.9.6.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>test</artifactId>
-    <version>0.9.6.2</version>
+    <version>0.9.6.3-SNAPSHOT</version>
 
     <name>Fake modules of Octopus</name>
 
