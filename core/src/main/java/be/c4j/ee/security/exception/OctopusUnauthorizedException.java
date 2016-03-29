@@ -17,6 +17,8 @@
 package be.c4j.ee.security.exception;
 
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
+import org.apache.shiro.authc.AccountException;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.UnauthorizedException;
 
 import java.util.Set;
@@ -73,7 +75,7 @@ public class OctopusUnauthorizedException extends UnauthorizedException {
     public static Throwable getUnauthorizedException(Throwable someException) {
         Throwable result = null;
         if (someException != null) {
-            if (someException instanceof UnauthorizedException) {
+            if (someException instanceof UnauthorizedException || someException instanceof AccountException || someException instanceof AuthenticationException) {
                 result = someException;
             } else {
                 if (someException.getCause() != null) {

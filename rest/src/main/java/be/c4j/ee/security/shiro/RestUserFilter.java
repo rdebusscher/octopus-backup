@@ -49,4 +49,9 @@ public class RestUserFilter extends UserFilter {
         super.cleanup(request, response, existing);
 
     }
+
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        return true;  // Let the chain continue, other filters can handle it and authenticate based on the parameters.
+    }
 }

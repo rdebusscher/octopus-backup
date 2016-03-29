@@ -17,6 +17,7 @@
 package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -36,11 +37,21 @@ public class ProducerBean {
     @RequestScoped
     @Named("userPrincipal")
     public UserPrincipal producePrincipal() {
-        UserPrincipal principal = (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
-        if (principal == null) {
-            principal = new UserPrincipal();
+        Object principal = SecurityUtils.getSubject().getPrincipal();
+        UserPrincipal result = null;
+        if (principal instanceof UserPrincipal) {
+
+            result = (UserPrincipal) principal;
         }
-        return principal;
+        if (principal instanceof SystemAccountPrincipal) {
+            SystemAccountPrincipal systemAccountPrincipal = (SystemAccountPrincipal) principal;
+            String identifier = systemAccountPrincipal.getIdentifier();
+            result = new UserPrincipal(identifier, identifier, identifier);
+        }
+        if (principal == null) {
+            result = new UserPrincipal();
+        }
+        return result;
     }
 
     @Produces

@@ -17,40 +17,43 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
-        <artifactId>examples</artifactId>
+        <artifactId>authentication</artifactId>
         <version>0.9.6.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <groupId>be.c4j.ee.security.octopus.examples</groupId>
-    <artifactId>rest-examples</artifactId>
+    <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+    <artifactId>jwt</artifactId>
     <version>0.9.6.3-SNAPSHOT</version>
 
-    <name>Rest Examples</name>
+    <name>JWT signed tokens as authentication</name>
 
-    <modules>
-        <module>Google</module>
-        <module>jwt-util</module>
-        <module>jwt</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <build>
-        <plugins>
-            <!-- don't need to deploy the POM to nexus. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+        <dependency>
+
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-jsf-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>4.12</version>
+        </dependency>
+
+    </dependencies>
+
 </project>

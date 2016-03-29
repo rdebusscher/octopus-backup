@@ -1,3 +1,7 @@
+=== 0.9.6.3
+
+. Support for authentication based on JWT tokens on the header of HTTPRequest
+
 === 0.9.6.2
 
 . Support for the CSRF token of Google OAuth2 (state parameter).

@@ -154,6 +154,22 @@ default : *email*
 
 The name of the cas attribute containing the email address.
 
+==== jwk.file (JWT only)
+
+default : *(none)*
+
+Location of the JWK file (with RSA public keys) for the JWT signature verification. See ???
+
+==== jwt.systemaccounts.only (JWT only)
+
+default : *True*
+
+Are only SystemAccounts allowed when using authentication based on JWT tokens?
+
+==== jwt.systemaccounts.map (JWT only)
+
+Properties file where the system accounts are defined for each api-key.
+
 ==== SSO.application (Octopus SSO only)
 
 default : *(none)*

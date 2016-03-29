@@ -1,0 +1,11 @@
+{
+  "keys": [
+   {
+      "alg":"PS512",
+      "e":"AQAB",
+      "n":"nGEiEr2DBgWKqztE3mL2dnebWljUUMpcvg8Ve4YXIW9KeUB-kTw5HhlvfU0cLUjNbTowizfJJu2E_wstkonQaz7niV9m8zgEToDq6FXLwzewWZrFHcFOtIjottrzgUeClddRR7KiBLJCVAxvxiN-bGK4FuAfvxS8SF3oaowD3R50PX4La6TwFpfK_w0aMC0wycfINM4k_pSbOKW02-1UuOu-AeXrEvlX4Ijrx27S55L6ijUKv-Nyl8ekH-me-VEnYNUnhs8aF5oxL1Gci8tBhfOhJAr7iNTeLnBcffFgUiT7jQRYgn1qo4aUQuBsk0QwbjhZ5nt_7yC8i-Qn6-16xw",
+      "kty":"RSA",
+      "use":"sig",
+      "kid":"cbeba027-39e1-4c70-a584-77081422e16a"
+   }]
+}

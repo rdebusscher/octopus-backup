@@ -20,6 +20,7 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
+import be.c4j.ee.security.token.IncorrectDataToken;
 import be.c4j.ee.security.util.CodecUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.*;
@@ -75,17 +76,19 @@ public class OctopusRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
-        AuthenticationInfo authenticationInfo;
+        AuthenticationInfo authenticationInfo = null;
         if (token instanceof SystemAccountAuthenticationToken) {
             // TODO Check about the realm names
             authenticationInfo = new SimpleAuthenticationInfo(token.getPrincipal(), "", AuthenticationInfoBuilder.DEFAULT_REALM);
         } else {
-            try {
-                authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
-                verifyHashEncoding(authenticationInfo);
-            } finally {
-                // Even in the case of an exception (access not allowed) we need to reset this flag
-                ThreadContext.remove(IN_AUTHENTICATION_FLAG);
+            if (!(token instanceof IncorrectDataToken)) {
+                try {
+                    authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+                    verifyHashEncoding(authenticationInfo);
+                } finally {
+                    // Even in the case of an exception (access not allowed) we need to reset this flag
+                    ThreadContext.remove(IN_AUTHENTICATION_FLAG);
+                }
             }
         }
         return authenticationInfo;

@@ -1,0 +1,152 @@
+=== Authorization with JWT (JSON Web Tokens)
+
+==== Use case
+
+When you have some JAX-RS (Rest) endpoints which needs to be called by other processes within your organization, you need some way to make sure that you can authorize does calls.
+
+Since the other party is a process, user name and password are too fragile (insecure) to use. The use of a signed JWT token (with the Private key of an RSA key) gives us a quit reliable way of establishing the authentication.
+
+==== Setup for accessing JAX-RS endpoints with Service accounts.
+
+We need the following dependencies in the project setup:
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus</groupId>
+        <artifactId>octopus-rest</artifactId>
+        <version>0.9.6.3-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>jwt</artifactId>
+        <version>0.9.6.3-SNAPSHOT</version>
+    </dependency>
+
+----
+
+The _rest_ dependency will give us the _userRest_ filter so that authentication exceptions are translated to a 401 response.
+
+The _jwt_ dependency has the _jwt_ filter that perform the authentication and populate the security context with the System account.
+
+For an introduction around JWT, JWK and relates concepts, have a look on internet and/or this excellent http://jwt.io/introduction/[site] for an introduction.
+
+The source repository contains 2 helper programs to create the required JWT/JWK artefacts for this usage scenario.
+
+/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWKManager
+
+When you run this program; it prints out 3 artifacts on the console:
+
+x-api-key : This is an unique identification for your third party
+Private : a JWK file containing the private and public parts of an RSA key which can be used to sign the JWT token which they will send to your Rest endpoint.
+Public : A JWK file containing the public part of the same RSA key which octopus will use the verify the signing part of the JWT token.
+
+You need to give the private JWK file to your third party, the public part needs to be integrated within your applicatioN;
+
+/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWTTester
+
+An example how you can create a JWT token and read the content from a token.
+
+Copy the information of the private and public JWK file in the private.jwk and public.jwk file in the resource folder.
+
+Specify the required configuration options in the octopusConfig.properties file (src/main/resources)
+
+[octopusConfig.properties]
+----
+jwk.file = demo.jwk
+jwt.systemaccounts.map = systemAccounts.properties
+-----
+
+The jwk.file indicates the file with the public key(s) of the RSA key. For an example, you can also look at the public.jwk file in the /examples/rest/jwt-util module.
+
+By default, Octopus only allows system accounts and the list of system accounts which are allowed for each api key is defined in the +systemAccounts.properties+ file.
+
+[systemAccounts.properties]
+----
+cbeba027-39e1-4c70-a584-77081422e16a=xDataScience
+----
+
+In the above example, we define that only the accounts xDataScience (the value of the sub claim in the JWT token) is allowed for the api key.  See further for an example of a valid JWT token.
+
+The last configuration step we have to do is to specify the correct filters for the URL of our REST end point.  This is done in the +webapp/WEB-INF/securedURLs.ini+ file.
+
+[webapp/WEB-INF/securedURLs.ini]
+----
+/data/** = noSessionCreation, userRest, jwt
+----
+
+The _userRest_ filter converts any authentication exception into an HTTP status 401.
+
+The _jwt_ filter is performing the authentication based on the  HTTPServlet request parameters.
+
+??? We can use the @SystemAccount annotation to grant a certain System account access to an EJB method.
+
+==== HTTPServlet request requirements for JWT authorization
+
+Each request, JWT is stateless by design, must contain the following parameters
+
+[options="header"]
+|=======================
+|Parameter name | example
+|x-api-key | cbeba027-39e1-4c70-a584-77081422e16a
+|Authorization | Bearer eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6ImNiZWJhMDI3LTM5ZTEtNGM3MC1...
+|=======================
+
+
+The _Authorization_ parameter contains the JWT token, and the general structure looks like
+
+xxxxx.yyyyy.zzzzz
+
+xxxxx = Header
+
+And should contains the following items
+
+{"alg":"RS512","typ":"JWT","kid":"cbeba027-39e1-4c70-a584-77081422e16a"}
+
+[options="header"]
+|=======================
+|key | Description
+|alg | Signing algorithm
+|typ | Type of token, Octopus only supports JWT
+|kid | Key ID
+|=======================
+
+The Key ID must be the same value as the _x-api-key_ parameter. The reason why it is defined outside the token is that it determines which RSA public Key needs to be used to verify the integrity of the JWT. And thus it is better that we have that information outside the key (so that we don't need to read the content before we can verify it's integrity.
+
+yyyyy = Payload or Claims
+
+{"exp":1458918709,"sub":"xDataScience","aud":"CVApp","clientAddress":"127.0.0.1","iat":1458918649}
+
+[options="header"]
+|=======================
+|iat | Issued At (timestamp, not used by default by Octopus)
+|exp | Expiration time (timestamp, not used by default by Octopus)
+|sub | subject (will be the name of the system account)
+|aud | Audience (intended for, not used by default by Octopus)
+|=======================
+
+In the above example, there is also an example of a custom claim (clientAddress)
+
+zzzzz = Signature
+
+Octopus uses RSA keys to bne sure that the request for access can only be originated by 1 third party (the one we have given the private key used to create the signing part of the JWT)
+
+=== Additional checks on JWT
+
+==== Use case
+
+The developer can impose additional checks on the JWT before it is considered valid.
+
+It can therefor implement the interface +be.c4j.ee.security.credentials.authentication.jwt.CheckJWTClaims+.
+
+-----
+public interface CheckJWTClaims {
+
+    void areClaimsValid(HttpServletRequest request, Map<String, Object> headerParams, Map<String, Object> claims);
+----
+
+The parameter contains the HTTPServletRequest, header parameters and claims of the JWT. In case, the requirements aren't met for the developer, it can throw an +be.c4j.ee.security.credentials.authentication.jwt.ClaimCredentialsException+. The authentication process will then fail.
+
+The implementation must be a CDI bean, preferably ApplicationScoped since there is no need to keep state.
+
