@@ -30,6 +30,7 @@ public class UserPrincipal implements Principal, Serializable {
     private Serializable id;
     private String userName;
     private String name;
+    private boolean systemAccount = false;
 
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
 
@@ -37,6 +38,13 @@ public class UserPrincipal implements Principal, Serializable {
     public UserPrincipal() {
     }
 
+    /**
+     * Regular creation of the user principal for a user which has identified itself.
+     *
+     * @param id       unique id of the user.
+     * @param userName The user name.
+     * @param name     The name.
+     */
     public UserPrincipal(Serializable id, String userName, String name) {
         if (id == null) {
             throw new IllegalArgumentException("id cannot be null");
@@ -44,6 +52,16 @@ public class UserPrincipal implements Principal, Serializable {
         this.id = id;
         this.userName = userName;
         this.name = name;
+    }
+
+    /**
+     * Creation of the user principal for a system account.
+     *
+     * @param systemAccount The system account name.
+     */
+    public UserPrincipal(String systemAccount) {
+        this(systemAccount, systemAccount, systemAccount);
+        this.systemAccount = true;
     }
 
     public Serializable getId() {
@@ -80,6 +98,10 @@ public class UserPrincipal implements Principal, Serializable {
 
     public Map<Serializable, Serializable> getInfo() {
         return userInfo;
+    }
+
+    public boolean isSystemAccount() {
+        return systemAccount;
     }
 
     @Override

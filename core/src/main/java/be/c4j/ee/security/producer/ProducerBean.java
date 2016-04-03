@@ -46,7 +46,7 @@ public class ProducerBean {
         if (principal instanceof SystemAccountPrincipal) {
             SystemAccountPrincipal systemAccountPrincipal = (SystemAccountPrincipal) principal;
             String identifier = systemAccountPrincipal.getIdentifier();
-            result = new UserPrincipal(identifier, identifier, identifier);
+            result = new UserPrincipal(identifier);
         }
         if (principal == null) {
             result = new UserPrincipal();
