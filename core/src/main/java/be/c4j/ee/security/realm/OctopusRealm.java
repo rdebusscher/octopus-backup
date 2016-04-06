@@ -129,6 +129,14 @@ public class OctopusRealm extends AuthorizingRealm {
         return principals.getPrimaryPrincipal();
     }
 
+    protected boolean isAuthenticationCachingEnabled(AuthenticationToken token, AuthenticationInfo info) {
+        boolean result = false;  // For systemAccounts, no caching
+        if (!(token instanceof SystemAccountAuthenticationToken)) {
+            result = isAuthenticationCachingEnabled();
+        }
+        return result;
+    }
+
     public static class InAuthentication {
 
         private InAuthentication() {

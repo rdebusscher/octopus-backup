@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.config;
 
+import be.c4j.ee.security.shiro.NoRememberMeManager;
 import be.c4j.ee.security.shiro.RestUserFilter;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -32,6 +33,13 @@ public class RestConfiguration implements ConfigurationPlugin {
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("userRest", RestUserFilter.class.getName());
+
+        // Doesn't look in the cookies for the principal
+        mainSection.put("noRemember", NoRememberMeManager.class.getName());
+        mainSection.put("securityManager.rememberMeManager", "$noRemember");
+
+        // Don't store principal into the session.
+        mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator.sessionStorageEnabled", "false");
 
     }
 }
