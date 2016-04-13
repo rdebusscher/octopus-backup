@@ -30,10 +30,16 @@
         This is the demo project for security context propagation to Asynchronous calls and manual authentication of system accounts.
     </p:panel>
 
-    <h2>Test Asynchronous</h2>
+    <p:messages autoUpdate="true"/>
+
+    <h2>Test Asynchronous / System Account</h2>
     <h:form id="async">
         Async method response : #{pageBean.text} <br/>
         <p:commandButton value="async hello" update=":async" actionListener="#{pageBean.testAsync}"/>
+
+        <br/>
+        SystemAccount method response : #{pageBean.textSystem} <br/>
+        <p:commandButton value="SystemAccount message" update=":async" actionListener="#{pageBean.testSystemAccount}"/>
 
         <br/>
         <h:panelGroup>
@@ -43,7 +49,7 @@
 
         <h:panelGroup>
             <sec:requiresUser/>
-            User #{loggedInUser} is logged in. <h:commandLink value="Logout" actionListener="#{userBean.logout}"/>
+            User #{loggedInUser} is logged in. <h:commandLink value="Logout" actionListener="#{loginBean.logout}"/>
         </h:panelGroup>
     </h:form>
 

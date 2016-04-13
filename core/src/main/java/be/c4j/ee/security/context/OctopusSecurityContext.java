@@ -19,10 +19,8 @@ package be.c4j.ee.security.context;
 import be.c4j.ee.security.exception.SystemAccountActivationException;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
-import be.c4j.ee.security.util.SpecialStateChecker;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 
 import javax.enterprise.context.Dependent;
 import java.io.Serializable;
@@ -32,8 +30,6 @@ import java.io.Serializable;
  */
 @Dependent
 public class OctopusSecurityContext implements Serializable {
-
-    public static final String SYSTEM_ACCOUNT_AUTHENTICATION = "SystemAccountAuthentication";
 
     private Subject subject;
 
@@ -60,35 +56,13 @@ public class OctopusSecurityContext implements Serializable {
             // TODO Do we need to protect this by checking it is from a trusted place?
             SystemAccountPrincipal accountPrincipal = new SystemAccountPrincipal(systemAccountIdentifier);
 
-            ThreadContext.put(SYSTEM_ACCOUNT_AUTHENTICATION, new InSystemAccountAuthentication());
-            try {
-                SecurityUtils.getSubject().login(new SystemAccountAuthenticationToken(accountPrincipal));
-            } finally {
-                ThreadContext.remove(SYSTEM_ACCOUNT_AUTHENTICATION);
-            }
+            SecurityUtils.getSubject().login(new SystemAccountAuthenticationToken(accountPrincipal));
         }
 
-    }
-
-    public static void startInSystemAccountAuthentication() {
-        if (SpecialStateChecker.isInAuthentication()) {
-            ThreadContext.put(SYSTEM_ACCOUNT_AUTHENTICATION, new InSystemAccountAuthentication());
-        } else {
-            throw new IllegalStateException("InSystemAccountAuthentication can't be started since we aren't within the Authentication process");
-        }
-    }
-
-    public static void endInSystemAccountAuthentication() {
-        ThreadContext.remove(SYSTEM_ACCOUNT_AUTHENTICATION);
     }
 
     public static boolean isSystemAccount(Object principal) {
         return principal instanceof SystemAccountPrincipal;
     }
 
-    public static final class InSystemAccountAuthentication {
-        // So that we only can create this class from this class.
-        private InSystemAccountAuthentication() {
-        }
-    }
 }

@@ -16,7 +16,6 @@
  */
 package be.c4j.ee.security.util;
 
-import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.event.OctopusAuthenticationListener;
 import be.c4j.ee.security.realm.OctopusRealm;
 import org.apache.shiro.util.ThreadContext;
@@ -42,7 +41,7 @@ public final class SpecialStateChecker {
     }
 
     public static boolean isInSystemAccountAuthentication() {
-        return ThreadContext.get(OctopusSecurityContext.SYSTEM_ACCOUNT_AUTHENTICATION) instanceof OctopusSecurityContext.InSystemAccountAuthentication;
+        return ThreadContext.get(OctopusRealm.SYSTEM_ACCOUNT_AUTHENTICATION) instanceof OctopusRealm.InSystemAccountAuthentication;
 
     }
 }

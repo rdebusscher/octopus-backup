@@ -36,6 +36,7 @@ public class OctopusRealm extends AuthorizingRealm {
 
     public static final String IN_AUTHENTICATION_FLAG = "InAuthentication";
     public static final String IN_AUTHORIZATION_FLAG = "InAuthorization";
+    public static final String SYSTEM_ACCOUNT_AUTHENTICATION = "SystemAccountAuthentication";
 
     private SecurityDataProvider securityDataProvider;
 
@@ -75,13 +76,13 @@ public class OctopusRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
         AuthenticationInfo authenticationInfo = null;
         if (token instanceof SystemAccountAuthenticationToken) {
             // TODO Check about the realm names
             authenticationInfo = new SimpleAuthenticationInfo(token.getPrincipal(), "", AuthenticationInfoBuilder.DEFAULT_REALM);
         } else {
             if (!(token instanceof IncorrectDataToken)) {
+                ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
                 try {
                     authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
                     verifyHashEncoding(authenticationInfo);
@@ -137,6 +138,16 @@ public class OctopusRealm extends AuthorizingRealm {
         return result;
     }
 
+    @Override
+    protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
+        ThreadContext.put(SYSTEM_ACCOUNT_AUTHENTICATION, new InSystemAccountAuthentication());
+        try {
+            super.assertCredentialsMatch(token, info);
+        } finally {
+            ThreadContext.remove(SYSTEM_ACCOUNT_AUTHENTICATION);
+        }
+    }
+
     public static class InAuthentication {
 
         private InAuthentication() {
@@ -148,4 +159,11 @@ public class OctopusRealm extends AuthorizingRealm {
         private InAuthorization() {
         }
     }
+
+    public static final class InSystemAccountAuthentication {
+        // So that we only can create this class from this class.
+        private InSystemAccountAuthentication() {
+        }
+    }
+
 }
