@@ -17,6 +17,7 @@
 package be.c4j.ee.security.config;
 
 import be.c4j.ee.security.shiro.NoRememberMeManager;
+import be.c4j.ee.security.shiro.NoStorageEvaluator;
 import be.c4j.ee.security.shiro.RestUserFilter;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -39,7 +40,11 @@ public class RestConfiguration implements ConfigurationPlugin {
         mainSection.put("securityManager.rememberMeManager", "$noRemember");
 
         // Don't store principal into the session.
-        mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator.sessionStorageEnabled", "false");
+        mainSection.put("noStorageEvaluator", NoStorageEvaluator.class.getName());
+        mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator", "$noStorageEvaluator");
+        // this isn't good enough since it uses the session if it is available.
+        // mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator.sessionStorageEnabled", "false");
+        // Don't know what creates the session, it appears to be happening outside of Shiro.
 
     }
 }
