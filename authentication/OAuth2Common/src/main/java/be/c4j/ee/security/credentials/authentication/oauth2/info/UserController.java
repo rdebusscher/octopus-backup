@@ -90,7 +90,7 @@ public class UserController {
         return new UserToken(userPrincipal.getInfo().get("token").toString());
     }
 
-    private static class UserToken {
+    public static class UserToken {
         private String token;
 
         public UserToken(String token) {
