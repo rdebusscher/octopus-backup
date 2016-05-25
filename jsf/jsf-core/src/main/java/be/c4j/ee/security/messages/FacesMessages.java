@@ -22,6 +22,8 @@ import org.apache.deltaspike.core.util.StringUtils;
 
 import javax.enterprise.context.Dependent;
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -114,6 +116,12 @@ public class FacesMessages implements Serializable {
             }
         }
         instance.addMessage(clientId, new FacesMessage(severity, msg, msg));
+        if (clientId != null) {
+            UIComponent component = instance.getViewRoot().findComponent(clientId);
+            if (component instanceof UIInput && FacesMessage.SEVERITY_ERROR.equals(severity)) {
+                ((UIInput) component).setValid(false);
+            }
+        }
         resetData();
     }
 
