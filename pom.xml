@@ -190,6 +190,8 @@
                         <exclude>target/*</exclude>
                         <!-- don't check anything in documentation -->
                         <exclude>**/doc/**/*</exclude>
+                        <!-- don't check anything in JSON Web Keystores -->
+                        <exclude>**/*.jwk</exclude>
                         <!-- README files in markdown format -->
                         <exclude>README.md</exclude>
                     </excludes>
