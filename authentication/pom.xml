@@ -41,6 +41,7 @@
         <module>OAuth2Github</module>
         <module>OAuth2Linkedin</module>
         <module>cas</module>
+        <module>jwt</module>
     </modules>
 
 </project>
