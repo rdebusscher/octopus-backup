@@ -1,7 +1,7 @@
 === What is Octopus?
 
-Octopus is a Permission based security framework for Java EE, which is able to secure URL's, EJB and CDI method calls and JSF components with the same code.
-It emphasis the Type safety approach by supporting named permissions defined by enum constants and deeply integrating it with the CDI mechanism.
+Octopus is a Permission-based security framework for Java EE, which is able to secure URL's, EJB and CDI method calls and JSF components with the same code.
+It emphasises the Type safety approach by supporting named permissions defined by enum constants and deeply integrating it with the CDI mechanism.
 
 The basis of the Octopus framework can be found in 2 blog posts.
 
