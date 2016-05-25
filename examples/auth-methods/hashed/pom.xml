@@ -22,7 +22,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus.examples</groupId>
         <artifactId>auth-methods-examples</artifactId>
-        <version>0.9.6.3-SNAPSHOT</version>
+        <version>0.9.6.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

@@ -20,7 +20,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>sso</artifactId>
-        <version>0.9.6.3-SNAPSHOT</version>
+        <version>0.9.6.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
 
     <artifactId>octopus-sso-client</artifactId>
-    <version>0.9.6.3-SNAPSHOT</version>
+    <version>0.9.6.3</version>
 
     <name>SSO Client</name>
 

@@ -22,13 +22,13 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus.examples</groupId>
         <artifactId>auth-methods-examples</artifactId>
-        <version>0.9.6.3-SNAPSHOT</version>
+        <version>0.9.6.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>oauth2</artifactId>
 
-    <version>0.9.6.3-SNAPSHOT</version>
+    <version>0.9.6.3</version>
     <packaging>war</packaging>
 
     <properties>
@@ -55,19 +55,19 @@
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>octopus-oauth2-google</artifactId>
-            <version>0.9.6.3-SNAPSHOT</version>
+            <version>0.9.6.3</version>
         </dependency>
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>octopus-oauth2-github</artifactId>
-            <version>0.9.6.3-SNAPSHOT</version>
+            <version>0.9.6.3</version>
         </dependency>
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>octopus-oauth2-linkedin</artifactId>
-            <version>0.9.6.3-SNAPSHOT</version>
+            <version>0.9.6.3</version>
         </dependency>
 
         <dependency>
