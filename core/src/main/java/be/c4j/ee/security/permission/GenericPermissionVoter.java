@@ -37,6 +37,9 @@ public class GenericPermissionVoter extends AbstractAccessDecisionVoter {
     private NamedDomainPermission namedPermission;
 
     public void setNamedPermission(NamedDomainPermission someNamedPermission) {
+        if (namedPermission != null) {
+            throw new IllegalStateException("NamedDomainPermission already set and not allowed to change it.");
+        }
         namedPermission = someNamedPermission;
     }
 
@@ -48,7 +51,6 @@ public class GenericPermissionVoter extends AbstractAccessDecisionVoter {
             SecurityViolationInfoProducer infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
             violations.add(newSecurityViolation(infoProducer.getViolationInfo(accessDecisionVoterContext, namedPermission)));
         }
-
     }
 
     public boolean verifyPermission() {
@@ -58,6 +60,13 @@ public class GenericPermissionVoter extends AbstractAccessDecisionVoter {
         } catch (AuthorizationException e) {
             result = false;
         }
+        return result;
+    }
+
+    public static GenericPermissionVoter createInstance(NamedDomainPermission someNamedPermission) {
+        GenericPermissionVoter result = new GenericPermissionVoter();
+        result.subject = BeanProvider.getContextualReference(Subject.class);
+        result.namedPermission = someNamedPermission;
         return result;
     }
 }

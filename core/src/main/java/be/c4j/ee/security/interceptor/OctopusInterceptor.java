@@ -24,6 +24,7 @@ import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.interceptor.checks.AnnotationCheckFactory;
 import be.c4j.ee.security.interceptor.checks.SecurityCheckInfo;
+import be.c4j.ee.security.realm.OctopusPermissions;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
@@ -172,6 +173,7 @@ public class OctopusInterceptor implements Serializable {
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresUser.class));
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresRoles.class));
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresPermissions.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OctopusPermissions.class));
         result.addMethodAnnotation(someMethod.getAnnotation(CustomVoterCheck.class));
         result.addMethodAnnotation(someMethod.getAnnotation(SystemAccount.class));
         result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthorization.class));

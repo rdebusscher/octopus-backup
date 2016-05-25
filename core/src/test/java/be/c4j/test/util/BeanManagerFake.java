@@ -23,6 +23,7 @@ import org.mockito.stubbing.Answer;
 
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -36,7 +37,7 @@ public class BeanManagerFake {
 
     private BeanManager beanManagerMock;
 
-    private Map<Class<?>, List<Object>> registeredObjects;
+    private Map<Class<?>, List<InstanceAndQualifier>> registeredObjects;
     private Map<String, Object> registeredBeans;
 
     public BeanManagerFake() {
@@ -46,17 +47,21 @@ public class BeanManagerFake {
 
         provider.setBeanManager(null, beanManagerMock);
 
-        registeredObjects = new HashMap<Class<?>, List<Object>>();
+        registeredObjects = new HashMap<Class<?>, List<InstanceAndQualifier>>();
         registeredBeans = new HashMap<String, Object>();
     }
 
     public void registerBean(Object instance, Class<?> typeToRegister) {
-        List<Object> objects = registeredObjects.get(typeToRegister);
+        registerBean(instance, typeToRegister, new AnyLiteral());
+    }
+
+    public void registerBean(Object instance, Class<?> typeToRegister, Annotation qualifier) {
+        List<InstanceAndQualifier> objects = registeredObjects.get(typeToRegister);
         if (objects == null) {
-            objects = new ArrayList<Object>();
+            objects = new ArrayList<InstanceAndQualifier>();
             registeredObjects.put(typeToRegister, objects);
         }
-        objects.add(instance);
+        objects.add(new InstanceAndQualifier(instance, qualifier));
     }
 
     public void registerBean(String beanName, Object instance) {
@@ -64,17 +69,27 @@ public class BeanManagerFake {
     }
 
     public void endRegistration() {
-        for (Map.Entry<Class<?>, List<Object>> entry : registeredObjects.entrySet()) {
-            Set<Bean<?>> beans = new HashSet<Bean<?>>();
-            for (Object obj : entry.getValue()) {
-                beans.add(new FakeBean<Object>(obj));
+        for (Map.Entry<Class<?>, List<InstanceAndQualifier>> entry : registeredObjects.entrySet()) {
+            Map<Annotation, Set<Bean<?>>> beans = new HashMap<Annotation, Set<Bean<?>>>();
+            for (InstanceAndQualifier obj : entry.getValue()) {
+                Set<Bean<?>> set = beans.get(obj.getQualifier());
+                if (set == null) {
+                    set = new HashSet<Bean<?>>();
+                    beans.put(obj.getQualifier(), set);
+                }
+
+                set.add(new FakeBean<Object>(obj.getInstance()));
             }
-            when(beanManagerMock.getBeans(entry.getKey(), new AnyLiteral())).thenReturn(beans);
-            when(beanManagerMock.getBeans(entry.getKey())).thenReturn(beans);
 
-            for (Bean<?> bean : beans) {
+            for (Map.Entry<Annotation, Set<Bean<?>>> beanEntry : beans.entrySet()) {
 
-                when(beanManagerMock.getReference(bean, entry.getKey(), null)).thenReturn(((FakeBean) bean).getRealBean());
+                when(beanManagerMock.getBeans(entry.getKey(), beanEntry.getKey())).thenReturn(beanEntry.getValue());
+                when(beanManagerMock.getBeans(entry.getKey())).thenReturn(beanEntry.getValue());
+
+                for (Bean<?> bean : beanEntry.getValue()) {
+
+                    when(beanManagerMock.getReference(bean, entry.getKey(), null)).thenReturn(((FakeBean) bean).getRealBean());
+                }
             }
         }
 
@@ -111,5 +126,23 @@ public class BeanManagerFake {
 
         reset(beanManagerMock);
         beanManagerMock = null;
+    }
+
+    private static class InstanceAndQualifier {
+        private Object instance;
+        private Annotation qualifier;
+
+        public InstanceAndQualifier(Object instance, Annotation qualifier) {
+            this.instance = instance;
+            this.qualifier = qualifier;
+        }
+
+        public Object getInstance() {
+            return instance;
+        }
+
+        public Annotation getQualifier() {
+            return qualifier;
+        }
     }
 }

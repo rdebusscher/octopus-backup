@@ -52,7 +52,7 @@ public class NamedRoleFilter extends AuthorizationFilter {
         // We can't do this in onFilterConfigSet as it is to soon.  Not available at that time
         if (roleLookup == null) {
             // at this time, we need the lookup to be present, otherwise the rest of the isAccessAllowed() method doesn't make much sense.
-            roleLookup = CDIUtil.getBeanManually(RoleLookup.class, false);
+            roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
         }
     }
 }

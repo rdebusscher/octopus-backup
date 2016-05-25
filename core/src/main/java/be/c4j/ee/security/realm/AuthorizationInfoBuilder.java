@@ -17,6 +17,7 @@
 package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.role.NamedRole;
@@ -43,18 +44,22 @@ public class AuthorizationInfoBuilder {
     private RoleLookup roleLookup;
 
     public AuthorizationInfoBuilder() {
-        permissionLookup = CDIUtil.getBeanManually(PermissionLookup.class, true);
-        roleLookup = CDIUtil.getBeanManually(RoleLookup.class, true);
+        permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
+        roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
     }
 
     private Set<Permission> permissionsAndRoles = new HashSet<Permission>();
 
     public AuthorizationInfoBuilder addPermission(NamedPermission namedPermission) {
-        if (permissionLookup == null) {
-            throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup");
-        }
+        if (namedPermission instanceof NamedDomainPermission) {
+            permissionsAndRoles.add((NamedDomainPermission) namedPermission);
+        } else {
+            if (permissionLookup == null) {
+                throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup");
+            }
 
-        permissionsAndRoles.add(permissionLookup.getPermission(namedPermission.name()));
+            permissionsAndRoles.add(permissionLookup.getPermission(namedPermission.name()));
+        }
         return this;
     }
 

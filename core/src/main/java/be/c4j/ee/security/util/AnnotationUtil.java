@@ -37,9 +37,27 @@ public final class AnnotationUtil {
                     result = (T[]) method.invoke(someCustomNamedCheck, null);
 
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    e.printStackTrace();  // FIXME
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    e.printStackTrace(); // FIXME
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static String[] getStringPermissionValues(Annotation someCustomNamedCheck) {
+        String[] result = null;
+        for (Method method : someCustomNamedCheck.getClass().getDeclaredMethods()) {
+            if ("value".equals(method.getName())) {
+                try {
+                    result = (String[]) method.invoke(someCustomNamedCheck, null);
+
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();  // FIXME
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace(); // FIXME
                 }
             }
         }

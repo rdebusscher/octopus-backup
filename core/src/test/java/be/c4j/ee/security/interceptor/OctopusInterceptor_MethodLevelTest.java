@@ -21,6 +21,8 @@ import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.interceptor.testclasses.MethodLevel;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionLookupFixture;
+import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.util.ReflectionUtil;
 import org.apache.shiro.subject.SimplePrincipalCollection;
@@ -31,6 +33,7 @@ import org.mockito.Mockito;
 
 import javax.interceptor.InvocationContext;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,7 +60,9 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
                 {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null, null},        //3
                 {AUTHENTICATED, null, CUSTOM_ACCESS, null, null},                   //4
                 {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1, null},            //5
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1}           //6
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1},           //6
+                {AUTHENTICATED, NAMED_OCTOPUS, NO_CUSTOM_ACCESS, null, null},        //7
+                {AUTHENTICATED, OCTOPUS, NO_CUSTOM_ACCESS, null, null}        //8
         });
     }
 
@@ -235,6 +240,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
 
         beanManagerFake.registerBean("permission1PermissionVoter", permissionVoter);
 
+        PermissionLookupFixture.registerPermissionLookup(beanManagerFake);
+
         finishCDISetup();
 
         try {
@@ -265,6 +272,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         ReflectionUtil.injectDependencies(permissionVoter, subjectMock, namedPermission);
 
         beanManagerFake.registerBean("permission2PermissionVoter", permissionVoter);
+
+        PermissionLookupFixture.registerPermissionLookup(beanManagerFake);
 
         finishCDISetup();
 
@@ -392,6 +401,59 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
             octopusInterceptor.interceptShiroSecurity(context);
 
             fail("In our test, subject has never systemAccount 2");
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusPermission1() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("octopusPermission1");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        List<NamedDomainPermission> allPermissions = new ArrayList<NamedDomainPermission>();
+        allPermissions.add(new NamedDomainPermission("permissionName", NAMED_OCTOPUS));
+        StringPermissionLookup lookup = new StringPermissionLookup(allPermissions);
+        beanManagerFake.registerBean(lookup, StringPermissionLookup.class);
+
+        finishCDISetup();
+
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_PERMISSION1);
+
+            assertThat(permission).isEqualTo(NAMED_OCTOPUS);
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusPermission2() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("octopusPermission2");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+
+
         } catch (OctopusUnauthorizedException e) {
 
             List<String> feedback = CallFeedbackCollector.getCallFeedback();

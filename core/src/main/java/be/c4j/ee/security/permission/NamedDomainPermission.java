@@ -19,7 +19,7 @@ package be.c4j.ee.security.permission;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authz.permission.DomainPermission;
 
-public class NamedDomainPermission extends DomainPermission {
+public class NamedDomainPermission extends DomainPermission implements NamedPermission {
 
     private String name;
 
@@ -32,7 +32,48 @@ public class NamedDomainPermission extends DomainPermission {
         name = someName;
     }
 
+    /**
+     * When we need to create the the NamedDomainPermission based on a name and a wildcardString of Shiro. For example Department:create:* as wildcard string.
+     *
+     * @param someName
+     * @param wildcardString
+     */
+    public NamedDomainPermission(String someName, String wildcardString) {
+        setParts(wildcardString);
+        this.name = someName;
+    }
+
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String name() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NamedDomainPermission)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        NamedDomainPermission that = (NamedDomainPermission) o;
+
+        return name.equals(that.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
     }
 }

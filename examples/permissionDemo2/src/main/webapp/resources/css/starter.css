@@ -1,0 +1,29 @@
+#logoutFrm {
+    display: inline-block;
+    float: right;
+}
+
+#header {
+    background-color: lightgray;
+}
+
+.ui-widget {
+    font-size: 1em !important;
+}
+
+#menu {
+    float: left;
+    width: 100px;
+}
+
+body {
+    width: 950px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    color: #4f4f4f;
+}
+
+#main {
+    float: left;
+    width: 850px;
+}

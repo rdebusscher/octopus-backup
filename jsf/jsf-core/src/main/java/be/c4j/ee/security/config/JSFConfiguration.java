@@ -39,5 +39,18 @@ public class JSFConfiguration implements ConfigurationPlugin {
         mainSection.put("user", OctopusUserFilter.class.getName());
         mainSection.put("user.loginUrl", config.getLoginPage());
 
+        // FIXME For Issue 83, We need to add here the other filters
+        /*
+        namedPermission = be.c4j.ee.security.permission.filter.NamedPermissionFilter
+        namedPermission1 = be.c4j.ee.security.permission.filter.NamedPermissionOneFilter
+        np = be.c4j.ee.security.permission.filter.NamedPermissionFilter
+        np1 = be.c4j.ee.security.permission.filter.NamedPermissionOneFilter
+        namedRole = be.c4j.ee.security.role.filter.NamedRoleFilter
+        namedRole1 = be.c4j.ee.security.role.filter.NamedRoleOneFilter
+        nr = be.c4j.ee.security.role.filter.NamedRoleFilter
+        nr1 = be.c4j.ee.security.role.filter.NamedRoleOneFilter
+        voter = be.c4j.ee.security.custom.filter.CustomVoterFilter
+         */
+
     }
 }

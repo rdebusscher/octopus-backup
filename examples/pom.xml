@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.6.3</version>
+        <version>0.9.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,13 +30,14 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>examples</artifactId>
-    <version>0.9.6.3</version>
+    <version>0.9.7-SNAPSHOT</version>
 
     <name>Examples</name>
 
     <modules>
         <module>rest</module>
         <module>auth-methods</module>
+        <module>permissionDemo2</module>
     </modules>
 
     <build>

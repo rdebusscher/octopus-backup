@@ -21,6 +21,7 @@ import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.interceptor.testclasses.MultipleAtMethodLevel;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionLookupFixture;
 import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.util.ReflectionUtil;
 import org.junit.Test;
@@ -104,6 +105,8 @@ public class OctopusInterceptor_MultipleAtMethodLevelTest extends OctopusInterce
         InvocationContext context = new TestInvocationContext(target, method);
 
         registerPermissionVoter();
+
+        PermissionLookupFixture.registerPermissionLookup(beanManagerFake);
 
         finishCDISetup();
 
