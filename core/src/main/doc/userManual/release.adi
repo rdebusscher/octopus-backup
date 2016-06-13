@@ -1,3 +1,7 @@
+=== 0.9.6.4
+
+. Additional CDI bean which allows to add entries for the userInfo map of UserPrincipal (SSO client module)
+
 === 0.9.6.3
 
 . Support for authentication based on JWT tokens on the header of HTTPRequest.
