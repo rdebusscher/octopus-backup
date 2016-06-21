@@ -18,11 +18,16 @@ package be.c4j.ee.security.realm.event;
 
 import be.c4j.ee.security.model.UserPrincipal;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  */
 public class ClearAuthorizationCacheEvent {
     private UserPrincipal userPrincipal;
+
+    private Map<String, Object> info = new HashMap<String, Object>();
 
     public ClearAuthorizationCacheEvent(UserPrincipal userPrincipal) {
         this.userPrincipal = userPrincipal;
@@ -30,5 +35,13 @@ public class ClearAuthorizationCacheEvent {
 
     public UserPrincipal getUserPrincipal() {
         return userPrincipal;
+    }
+
+    public void addInfo(String key, Object value) {
+        info.put(key, value);
+    }
+
+    public Object getInfo(String key) {
+        return info.get(key);
     }
 }
