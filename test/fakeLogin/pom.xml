@@ -35,10 +35,11 @@
 
     <dependencies>
 
-        <!-- TODO We can have a fakeLogin for other types as OAuth2. Dependency on this module isn't a problem as it contains only a few POJOs-->
+        <!-- TODO We can have a fakeLogin for other types as OAuth2. Dependency on this module isn't a problem as it contains only a few POJOs
+         Now we changed from core to common. This means we needs different fakeLogins for each authentication type.-->
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-            <artifactId>octopus-oauth2-core</artifactId>
+            <artifactId>octopus-oauth2-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

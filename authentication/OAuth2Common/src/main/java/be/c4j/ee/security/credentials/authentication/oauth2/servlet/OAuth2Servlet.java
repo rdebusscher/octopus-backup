@@ -19,10 +19,14 @@ package be.c4j.ee.security.credentials.authentication.oauth2.servlet;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2SessionAttributes;
 import be.c4j.ee.security.credentials.authentication.oauth2.csrf.CSRFTokenProducer;
+import be.c4j.ee.security.credentials.authentication.oauth2.fake.EmailControl;
+import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeOAuth2Authentication;
 import be.c4j.ee.security.credentials.authentication.oauth2.provider.OAuth2ServiceProducer;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +43,29 @@ public class OAuth2Servlet extends HttpServlet {
     @Inject
     private OAuth2SessionAttributes oAuth2SessionAttributes;
 
+    @Inject
+    private EmailControl emailControl;
+
+    private FakeOAuth2Authentication fakeOAuth2Authentication;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+
+        fakeOAuth2Authentication = BeanProvider.getContextualReference(FakeOAuth2Authentication.class, true);
+    }
+
     protected void redirectToAuthorizationURL(HttpServletRequest request, HttpServletResponse response, OAuth2ServiceProducer serviceProducer) throws IOException {
+        String userParameter = request.getParameter(OAuth2Configuration.USER);
+        if (fakeOAuth2Authentication != null && emailControl.isValidEmail(userParameter)) {
+            boolean handled = fakeOAuth2Authentication.forwardForTokenCreation(getServletContext(), request, response, userParameter);
+            if (handled) {
+                return;
+            } else {
+                response.sendError(404, "Fake user data incorrect");
+            }
+        }
+
         String token = csrfTokenProducer.nextToken();
         OAuth20Service service = serviceProducer.createOAuthService(request, token);
 
