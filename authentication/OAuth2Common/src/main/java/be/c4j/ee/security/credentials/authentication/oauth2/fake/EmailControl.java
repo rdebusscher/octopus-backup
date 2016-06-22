@@ -44,7 +44,7 @@ public class EmailControl {
         result[0] = capitalizeFirstLetter(split[0]);
 
         if (split.length > 1) {
-            result[1] = capitalizeFirstLetter(split[0]);
+            result[1] = capitalizeFirstLetter(split[1]);
         } else {
             result[1] = "??";
         }
