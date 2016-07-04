@@ -19,6 +19,8 @@ package be.c4j.ee.security.permission;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authz.permission.DomainPermission;
 
+import java.util.Set;
+
 public class NamedDomainPermission extends DomainPermission {
 
     private String name;
@@ -34,5 +36,22 @@ public class NamedDomainPermission extends DomainPermission {
 
     public String getName() {
         return name;
+    }
+
+    public String getWildcardNotation() {
+        return getDomain() + PART_DIVIDER_TOKEN +
+                collectionNotationFor(getActions()) + PART_DIVIDER_TOKEN +
+                collectionNotationFor(getTargets());
+    }
+
+    private String collectionNotationFor(Set<String> entries) {
+        StringBuilder result = new StringBuilder();
+        for (String entry : entries) {
+            if (result.length() > 0) {
+                result.append(SUBPART_DIVIDER_TOKEN);
+            }
+            result.append(entry);
+        }
+        return result.toString();
     }
 }
