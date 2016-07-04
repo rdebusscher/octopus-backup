@@ -62,6 +62,8 @@ public class OAuth2User implements AuthenticationToken, Principal {
 
     private Map<String, String> userInfo = new HashMap<String, String>();
 
+    private Map<String, String> info = new HashMap<String, String>();
+
     private Token token;
 
     private String applicationName;
@@ -184,6 +186,14 @@ public class OAuth2User implements AuthenticationToken, Principal {
 
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+
+    public Map<String, String> getInfo() {
+        return info;
+    }
+
+    public void setInfo(Map<String, String> info) {
+        this.info = info;
     }
 
     public Map<Serializable, Serializable> getUserInfo() {

@@ -74,6 +74,11 @@ public class UserController {
         } else {
             result = getUserInfoStandard(token, provider, req);
         }
+
+        RestOAuth2UserInfoProvider infoProvider = BeanProvider.getContextualReference(RestOAuth2UserInfoProvider.class, true);
+        if (infoProvider != null) {
+            result.setInfo(infoProvider.defineInfo(result));
+        }
         return result;
     }
 
