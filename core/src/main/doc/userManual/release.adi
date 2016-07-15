@@ -1,6 +1,7 @@
 === 0.9.6.4
 
 . Additional CDI bean which allows to add entries for the userInfo map of UserPrincipal (SSO client module)
+. @CacheResult interceptor for verifying permission based on method result.
 
 === 0.9.6.3
 
