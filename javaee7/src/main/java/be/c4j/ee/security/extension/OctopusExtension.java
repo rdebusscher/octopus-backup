@@ -102,6 +102,7 @@ public class OctopusExtension implements Extension {
                         .passivationCapable(false).beanClass(GenericPermissionVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
                         .scope(ApplicationScoped.class).qualifiers(new NamedLiteral(beanName))
+                        .passivationCapable(true).id(beanName)
                         .beanLifecycle(new PermissionLifecycleCallback(voterInjectionTarget, namedPermission)).create();
                 afterBeanDiscovery.addBean(bean);
             }
@@ -132,6 +133,7 @@ public class OctopusExtension implements Extension {
                         .passivationCapable(false).beanClass(GenericRoleVoter.class)
                         .injectionPoints(voterInjectionTarget.getInjectionPoints()).name(beanName)
                         .scope(ApplicationScoped.class).qualifiers(new NamedLiteral(beanName))
+                        .passivationCapable(true).id(beanName)
                         .beanLifecycle(new RoleLifecycleCallback(voterInjectionTarget, namedRole)).create();
                 afterBeanDiscovery.addBean(bean);
             }
