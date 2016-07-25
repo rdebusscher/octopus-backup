@@ -175,3 +175,9 @@ Properties file where the system accounts are defined for each api-key.
 default : *(none)*
 
 Future usage when Octopus SSO is fully operational.
+
+==== SSO.application.suffix (Octopus SSO only)
+
+default : *(none)*
+
+Future usage when Octopus SSO is fully operational.
