@@ -14,20 +14,25 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.credentials.authentication.cas.matcher;
+package be.c4j.ee.security.config;
 
-import be.c4j.ee.security.credentials.authentication.cas.CasUser;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.config.Ini;
 
 /**
  *
  */
-public class CasCredentialsMatcher implements CredentialsMatcher {
-    @Override
-    public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        // When the token is from Cas server, authentication is already performed
-        return token instanceof CasUser;
+public final class ConfigurationPluginHelper {
+
+    private ConfigurationPluginHelper() {
+    }
+
+    public static void addToList(Ini ini, String sectionName, String key, String value) {
+        Ini.Section section = ini.get(sectionName);
+        String currentValue = section.get(key);
+        if (currentValue == null) {
+            section.put(key, value);
+        } else {
+            section.put(key, currentValue + "," + value);
+        }
     }
 }

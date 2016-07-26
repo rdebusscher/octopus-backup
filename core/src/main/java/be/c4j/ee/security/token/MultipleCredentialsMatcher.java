@@ -63,9 +63,16 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
         return result;
     }
 
+    /*
+    Kept for backwards compatibility reasons
+     */
     public void setMatcher(CredentialsMatcher credentialsMatcher) {
         if (!applicationDefinedMatchers.contains(credentialsMatcher)) {
             applicationDefinedMatchers.add(credentialsMatcher);
         }
+    }
+
+    public void setMatchers(List<CredentialsMatcher> applicationDefinedMatchers) {
+        this.applicationDefinedMatchers = applicationDefinedMatchers;
     }
 }
