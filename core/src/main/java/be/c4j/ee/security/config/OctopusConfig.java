@@ -28,6 +28,8 @@ import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig {
@@ -39,6 +41,8 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     private Class<? extends Annotation> namedRoleCheckClass;
 
     private Class<? extends NamedRole> namedRoleClass;
+
+    private List<Debug> debugValues;
 
     protected OctopusConfig() {
     }
@@ -111,6 +115,29 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     @ConfigEntry
     public String getIsGlobalAuditActive() {
         return ConfigResolver.getPropertyValue("globalAuditActive", "false");
+    }
+
+    @ConfigEntry
+    public List<Debug> showDebugFor() {
+        if (debugValues == null) {
+            // TODO Do we need to make this thread-safe?
+            List<Debug> result = new ArrayList<Debug>();
+            String value = ConfigResolver.getPropertyValue("show.debug", "");
+            String[] parts = value.split(",");
+            for (String part : parts) {
+                String code = part.trim();
+                if (code.length() > 0) {
+                    try {
+                        Debug debug = Debug.valueOf(code);
+                        result.add(debug);
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.error("Value defined in the show.debug property unknown ", part);
+                    }
+                }
+            }
+            debugValues = result;
+        }
+        return debugValues;
     }
 
     public Class<? extends Annotation> getNamedPermissionCheckClass() {

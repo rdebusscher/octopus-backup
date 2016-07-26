@@ -17,6 +17,7 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
+import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.filter.GlobalFilterConfiguration;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
@@ -82,7 +83,21 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             LOGGER.error("Exception during configuration of Apache Shiro", ex);
         }
 
+        if (config.showDebugFor().contains(Debug.INI)) {
+            logIniContents(ini);
+        }
+
         super.setIni(ini);
+    }
+
+    private void logIniContents(Ini ini) {
+        System.out.println("Shiro INI contents");
+        for (Map.Entry<String, Ini.Section> entry : ini.entrySet()) {
+            System.out.println("Section : " + entry.getKey());
+            for (Map.Entry<String, String> sectionEntry : entry.getValue().entrySet()) {
+                System.out.println(sectionEntry.getKey() + " = " + sectionEntry.getValue());
+            }
+        }
     }
 
     private void processAdditionalIniFiles(Ini ini) {
@@ -139,7 +154,6 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         }
         mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
     }
-
 
     private Ini readURLPatterns() {
         Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});

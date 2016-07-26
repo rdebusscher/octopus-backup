@@ -50,6 +50,13 @@ default : *false*
 
 When true, each server request will result in a CDI event with payload OctopusAuditEvent.
 
+==== show.debug
+
+default : *(none)*
+
+Defines the type of debug information which needs to be logged. Theese are the supported values (multiple values can be specified with , separation)
+INI : Log the dynamically generated shiro ini file.
+
 ==== aliasNameLoginBean (JSF Only)
 
 default : *(none)*
