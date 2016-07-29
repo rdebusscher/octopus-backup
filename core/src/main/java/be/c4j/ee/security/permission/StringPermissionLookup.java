@@ -22,7 +22,7 @@ public class StringPermissionLookup {
     public StringPermissionLookup(List<NamedDomainPermission> allPermissions) {
         this();
         for (NamedDomainPermission item : allPermissions) {
-            map.put(item.getName(), item);
+            map.put(item.getName().toUpperCase(Locale.ENGLISH), item);
         }
     }
 
@@ -31,9 +31,10 @@ public class StringPermissionLookup {
             throw new IllegalArgumentException("namedPermission value can't be null or empty.");
         }
         // namedPermission : a String indicating a named permission defined by the constructor, or a wildcardString
+        String key = namedPermission.toUpperCase(Locale.ENGLISH);
         NamedDomainPermission result = null;
-        if (map.containsKey(namedPermission)) {
-            result = map.get(namedPermission);
+        if (map.containsKey(key)) {
+            result = map.get(key);
         } else {
             result = new NamedDomainPermission(createNameForPermission(namedPermission), namedPermission);
         }

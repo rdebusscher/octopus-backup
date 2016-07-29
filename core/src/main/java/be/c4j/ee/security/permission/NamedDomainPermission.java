@@ -19,6 +19,7 @@ package be.c4j.ee.security.permission;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authz.permission.DomainPermission;
 
+import java.util.List;
 import java.util.Set;
 
 public class NamedDomainPermission extends DomainPermission implements NamedPermission {
@@ -41,7 +42,14 @@ public class NamedDomainPermission extends DomainPermission implements NamedPerm
      * @param wildcardString
      */
     public NamedDomainPermission(String someName, String wildcardString) {
-        setParts(wildcardString);
+        setParts(wildcardString.replaceAll(" ", ""));
+        // Now call setXXX because we need to set the values also in those variables.
+        List<Set<String>> parts = getParts();
+        setDomain(parts.get(0).iterator().next());
+        setTargets(parts.get(2)); // This can't be the last call since there is an issue with setTargets. (alsways return in the middle
+        // of the method and thus set parts not called and thus wrong values.
+        // This is tested by be.c4j.ee.security.permission.NamedDomainPermissionTest.testBypassBugithinSetTargets()
+        setActions(parts.get(1));
         this.name = someName;
     }
 
