@@ -14,34 +14,26 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.realm.event;
+package be.c4j.ee.security.result.testclasses;
 
-import be.c4j.ee.security.model.UserPrincipal;
-
-import java.util.HashMap;
-import java.util.Map;
+import be.c4j.ee.security.result.CheckResultVoter;
 
 /**
  *
  */
-public class ClearAuthorizationCacheEvent {
-    private UserPrincipal userPrincipal;
+public class ResultCheckBoundary {
 
-    private Map<String, Object> info = new HashMap<String, Object>();
-
-    public ClearAuthorizationCacheEvent(UserPrincipal userPrincipal) {
-        this.userPrincipal = userPrincipal;
+    @CheckResultVoter(TrueResultVoter.class)
+    public boolean returnTrue() {
+        return true;
     }
 
-    public UserPrincipal getUserPrincipal() {
-        return userPrincipal;
+    @CheckResultVoter(TrueResultVoter.class)
+    public boolean returnFalse() {
+        return false;
     }
 
-    public void addInfo(String key, Object value) {
-        info.put(key, value);
-    }
-
-    public Object getInfo(String key) {
-        return info.get(key);
+    public boolean missingVoter() {
+        return true;
     }
 }

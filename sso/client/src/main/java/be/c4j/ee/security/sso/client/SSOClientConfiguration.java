@@ -30,7 +30,7 @@ public class SSOClientConfiguration extends OctopusJSFConfig {
     @Override
     public String getLoginPage() {
         String result = "";
-        return getSSOServer() + "/googleplus?application=" + getSSOApplication();
+        return getSSOServer() + "/googleplus?application=" + getSSOApplication() + getSSOApplicationSuffix();
         // FIXME /googleplus is because we don't have the SSo server module yet
     }
 
@@ -42,6 +42,11 @@ public class SSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry
     public String getSSOApplication() {
         return ConfigResolver.getPropertyValue("SSO.application", "");
+    }
+
+    @ConfigEntry
+    public String getSSOApplicationSuffix() {
+        return ConfigResolver.getPropertyValue("SSO.application.suffix", "");
     }
 
 }

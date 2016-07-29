@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaData;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeUserInfo;
 import be.c4j.ee.security.model.UserPrincipal;
 import com.github.scribejava.core.model.Token;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -48,9 +49,12 @@ public class UserController {
     @Inject
     private UserPrincipal userPrincipal;
 
+    private FakeUserInfo fakeUserInfo;
+
     @PostConstruct
     public void init() {
         oAuth2ProviderMetaDataList = BeanProvider.getContextualReferences(OAuth2ProviderMetaData.class, false);
+        fakeUserInfo = BeanProvider.getContextualReference(FakeUserInfo.class, true);
     }
 
     @Path("/info")
@@ -63,6 +67,31 @@ public class UserController {
         if (provider == null || provider.isEmpty()) {
             throw new WebApplicationException(Response.status(412).entity(new ErrorEntity("provider is required")).build());
         }
+
+        OAuth2User result;
+        if (token.startsWith("Fake")) {
+            result = getUserInfoFake(token);
+        } else {
+            result = getUserInfoStandard(token, provider, req);
+        }
+
+        RestOAuth2UserInfoProvider infoProvider = BeanProvider.getContextualReference(RestOAuth2UserInfoProvider.class, true);
+        if (infoProvider != null) {
+            result.setInfo(infoProvider.defineInfo(result));
+        }
+        return result;
+    }
+
+    private OAuth2User getUserInfoFake(String token) {
+        OAuth2User result = null;
+        if (fakeUserInfo != null) {
+            result = fakeUserInfo.getUser(token);
+        }
+        return result;
+    }
+
+    private OAuth2User getUserInfoStandard(String token, String provider, HttpServletRequest req) {
+        OAuth2User result = null;
         OAuth2InfoProvider infoProvider = null;
         Iterator<OAuth2ProviderMetaData> iterator = oAuth2ProviderMetaDataList.iterator();
         while (infoProvider == null && iterator.hasNext()) {
@@ -71,7 +100,6 @@ public class UserController {
                 infoProvider = metaData.getInfoProvider();
             }
         }
-        OAuth2User result = null;
         if (infoProvider != null) {
             Token authToken = new Token(token, "", "Octopus");
 

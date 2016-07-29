@@ -31,6 +31,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -41,15 +42,23 @@ public class SSOClientSecurityProvider implements SecurityDataProvider {
     @Inject
     private PermissionProvider permissionProvider;
 
+    @Inject
+    private AuthenticationInfoProvider authenticationInfoProvider;
+
     @Override
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
         if (token instanceof OAuth2User) {
             OAuth2User googleUser = (OAuth2User) token;
             AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
             authenticationInfoBuilder.principalId(googleUser.getId()).name(googleUser.getFullName());
-            authenticationInfoBuilder.addUserInfo(googleUser.getUserInfo());
+            Map<Serializable, Serializable> userInfo = googleUser.getUserInfo();
+
+            authenticationInfoBuilder.addUserInfo(userInfo);
 
             authenticationInfoBuilder.addUserInfo(OAuth2User.LOCAL_ID, googleUser.getLocalId());
+
+            authenticationInfoBuilder.addUserInfo(authenticationInfoProvider.additionalUserInfo(userInfo));
+
             return authenticationInfoBuilder.build();
 
         }

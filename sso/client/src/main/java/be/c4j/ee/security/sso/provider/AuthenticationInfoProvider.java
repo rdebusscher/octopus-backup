@@ -14,34 +14,15 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.realm.event;
+package be.c4j.ee.security.sso.provider;
 
-import be.c4j.ee.security.model.UserPrincipal;
-
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.Map;
 
 /**
- *
+ * Allows to determine additional infomation placed in the UserInfo map of UserPrincipal.
  */
-public class ClearAuthorizationCacheEvent {
-    private UserPrincipal userPrincipal;
+public interface AuthenticationInfoProvider {
 
-    private Map<String, Object> info = new HashMap<String, Object>();
-
-    public ClearAuthorizationCacheEvent(UserPrincipal userPrincipal) {
-        this.userPrincipal = userPrincipal;
-    }
-
-    public UserPrincipal getUserPrincipal() {
-        return userPrincipal;
-    }
-
-    public void addInfo(String key, Object value) {
-        info.put(key, value);
-    }
-
-    public Object getInfo(String key) {
-        return info.get(key);
-    }
+    Map<? extends Serializable, ? extends Serializable> additionalUserInfo(Map<? extends Serializable, ? extends Serializable> userInfo);
 }

@@ -45,9 +45,11 @@ public class GooglePlusServlet extends OAuth2Servlet {
     @Override
     protected String postProcessAuthorizationUrl(HttpServletRequest request, String authorizationUrl) {
         boolean multipleAccounts = false;
-        for (Cookie cookie : request.getCookies()) {
-            if (MultipleAccountServlet.OCTOPUS_GOOGLE_MULTIPLE_ACCOUNTS.equals(cookie.getName())) {
-                multipleAccounts = true;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (MultipleAccountServlet.OCTOPUS_GOOGLE_MULTIPLE_ACCOUNTS.equals(cookie.getName())) {
+                    multipleAccounts = true;
+                }
             }
         }
         if (multipleAccounts) {

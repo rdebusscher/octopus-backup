@@ -9,7 +9,7 @@ Add the octopus artifact to your project dependencies for your application serve
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>javaee7-jsf</artifactId>
-        <version>0.9.6.3</version>
+        <version>0.9.6.4-SNAPSHOT</version>
     </dependency>
 ----
 
