@@ -17,14 +17,11 @@
 package be.c4j.ee.security.credentials.authentication.cas;
 
 import be.c4j.ee.security.authentication.ActiveSessionRegistry;
-import be.c4j.ee.security.credentials.authentication.cas.config.CasConfiguration;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Initializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -35,28 +32,19 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class CasUserFilter extends OctopusUserFilter implements Initializable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CasUserFilter.class);
-
-    private CasConfiguration casConfiguration;
     private ActiveSessionRegistry activeSessionRegistry;
-
-    private boolean loginUrlDefined = false;
-    private String casService;
+    private CasConfigurationHelper casConfigurationHelper;
 
     @Override
     public void init() throws ShiroException {
-        casConfiguration = BeanProvider.getContextualReference(CasConfiguration.class);
         activeSessionRegistry = BeanProvider.getContextualReference(ActiveSessionRegistry.class);
+        casConfigurationHelper = BeanProvider.getContextualReference(CasConfigurationHelper.class);
     }
 
     @Override
     protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
-        if (!loginUrlDefined) {
-            defineLoginURL((HttpServletRequest) request);
-            loginUrlDefined = true;
-            LOGGER.info("CAS service = " + casService);
-            casConfiguration.setCasService(casService);
-        }
+        String loginURL = casConfigurationHelper.defineCasLoginURL((HttpServletRequest) request);
+        setLoginUrl(loginURL);
         return super.isLoginRequest(request, response);
     }
 
@@ -73,30 +61,6 @@ public class CasUserFilter extends OctopusUserFilter implements Initializable {
 
             return accessAllowed;
         }
-    }
-
-    private void defineLoginURL(HttpServletRequest request) {
-        StringBuilder result = new StringBuilder();
-        String ssoServer = casConfiguration.getSSOServer();
-        result.append(ssoServer);
-        if (!ssoServer.endsWith("/")) {
-            result.append("/");
-        }
-        result.append("login?service=");
-
-        casService = assembleCallbackUrl(request);
-        result.append(casService);
-
-        setLoginUrl(result.toString());
-    }
-
-    private String assembleCallbackUrl(HttpServletRequest req) {
-        StringBuilder result = new StringBuilder();
-        result.append(req.getScheme()).append("://");
-        result.append(req.getServerName()).append(':');
-        result.append(req.getServerPort());
-        result.append(req.getContextPath()).append("/cas-callback");
-        return result.toString();
     }
 
 }

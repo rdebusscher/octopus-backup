@@ -69,7 +69,9 @@ public class SSOCallbackServlet extends HttpServlet {
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
 
-        OctopusSSOUser user = response.readEntity(OctopusSSOUser.class);
+        String json = response.readEntity(String.class);
+        OctopusSSOUser user = OctopusSSOUser.fromJSON(json);
+
         response.close();
 
         user.setToken(realToken);

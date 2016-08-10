@@ -16,8 +16,9 @@
  */
 package be.c4j.ee.security.sso;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.security.auth.Subject;
 import java.security.Principal;
@@ -27,7 +28,6 @@ import java.util.Map;
 /**
  *
  */
-@JsonIgnoreProperties(value = {"token", "principal", "credentials"}, ignoreUnknown = true)
 public class OctopusSSOUser implements AuthenticationToken, Principal {
 
     public static final String USER_INFO_KEY = OctopusSSOUser.class.getSimpleName();
@@ -152,7 +152,45 @@ public class OctopusSSOUser implements AuthenticationToken, Principal {
     @Override
     public Object getCredentials() {
         return token;
-
     }
 
+    public String toJSON() {
+        JSONObject result = new JSONObject();
+        try {
+            result.put("id", id);
+            result.put("localId", localId);
+            result.put("userName", userName);
+
+            result.put("lastName", lastName);
+            result.put("firstName", firstName);
+            result.put("fullName", fullName);
+            result.put("email", email);
+        } catch (JSONException e) {
+            // FIXME
+            e.printStackTrace();
+        }
+
+        return result.toString();
+    }
+
+    public static OctopusSSOUser fromJSON(String json) {
+        OctopusSSOUser result = null;
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            result = new OctopusSSOUser();
+            result.setId(jsonObject.getString("id"));
+            result.setLocalId(jsonObject.getString("localId"));
+            result.setUserName(jsonObject.getString("userName"));
+
+            result.setLastName(jsonObject.getString("lastName"));
+            result.setFirstName(jsonObject.getString("firstName"));
+            result.setFullName(jsonObject.getString("fullName"));
+            result.setEmail(jsonObject.getString("email"));
+
+        } catch (JSONException e) {
+            // FIXME
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

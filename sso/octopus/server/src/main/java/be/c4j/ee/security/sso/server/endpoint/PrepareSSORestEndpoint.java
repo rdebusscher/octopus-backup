@@ -14,23 +14,14 @@
  * limitations under the License.
  *
  */
-package be.c4j.ee.security.sso.encryption;
+package be.c4j.ee.security.sso.server.endpoint;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Used by the SSO Client / Server parts to encrypt (with JWT for example) the applicationName.
- * And thus an additional protection for unauthorized usage of the SSO facilities of Octopus.
+ *
  */
-public interface SSODataEncryptionHandler {
+public interface PrepareSSORestEndpoint {
 
-    String encryptData(String application, String apiKey);
-
-    String decryptData(String encryptedApplication, String apiKey);
-
-    boolean requiresApiKey();
-
-    boolean validate(HttpServletRequest servletRequest);
-
-    boolean validate(String apiKey, String token);
+    void init(HttpServletRequest httpServletRequest);
 }

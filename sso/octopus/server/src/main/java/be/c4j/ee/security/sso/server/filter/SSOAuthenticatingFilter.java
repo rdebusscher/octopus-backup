@@ -78,7 +78,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
     private OctopusSSOUser createOctopusToken(HttpServletRequest request, String apiKey, String token) {
         String realToken;
-        if (encryptionHandler != null) {
+        if (encryptionHandler != null && encryptionHandler.validate(apiKey, token)) {
             realToken = encryptionHandler.decryptData(token, apiKey);
         } else {
             realToken = token;
