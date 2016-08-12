@@ -17,13 +17,14 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
+import be.c4j.ee.security.config.ConfigurationPluginHelper;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.filter.GlobalFilterConfiguration;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import be.c4j.ee.security.salt.HashEncoding;
+import be.c4j.ee.security.salt.OctopusHashedCredentialsMatcher;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -147,12 +148,13 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
     private void addHashedCredentialsConfig(Ini ini, String someHashAlgorithmName) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        mainSection.put("credentialsMatcher", HashedCredentialsMatcher.class.getName());
-        mainSection.put("credentialsMatcher.hashAlgorithmName", someHashAlgorithmName);
+
+        mainSection.put("hashedMatcher", OctopusHashedCredentialsMatcher.class.getName());
+        mainSection.put("hashedMatcher.hashAlgorithmName", someHashAlgorithmName);
         if (config.getHashEncoding() != HashEncoding.HEX) {
-            mainSection.put("credentialsMatcher.storedCredentialsHexEncoded", "false");
+            mainSection.put("hashedMatcher.storedCredentialsHexEncoded", "false");
         }
-        mainSection.put("appRealm.credentialsMatcher", "$credentialsMatcher");
+        ConfigurationPluginHelper.addToList(ini, IniSecurityManagerFactory.MAIN_SECTION_NAME, "credentialsMatcher.matchers", "$hashedMatcher");
     }
 
     private Ini readURLPatterns() {
