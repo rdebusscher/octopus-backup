@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface SSODataEncryptionHandler {
 
-    String encryptData(String application, String apiKey);
+    String encryptData(String data, String apiKey);
 
-    String decryptData(String encryptedApplication, String apiKey);
+    String decryptData(String encryptedData, String apiKey);
 
     boolean requiresApiKey();
 
