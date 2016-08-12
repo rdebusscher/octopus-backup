@@ -23,7 +23,10 @@ import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.rest.AuthenticationInfo;
 import be.c4j.ee.security.sso.server.rest.RestAuthenticationHandler;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.slf4j.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -40,15 +43,15 @@ import javax.ws.rs.core.Response;
 public class OctopusSSORestEndpoint {
 
     @Inject
+    private Logger logger;
+
+    @Inject
     private SSODataEncryptionHandler encryptionHandler;
 
-    @Inject
     private JSONHandler jsonHandler;
 
-    @Inject
     private RestAuthenticationHandler authenticationHandler;
 
-    @Inject
     private PrepareSSORestEndpoint prepareSSORestEndpoint;
 
     @Inject
@@ -57,13 +60,35 @@ public class OctopusSSORestEndpoint {
     @Inject
     private ActiveSessionRegistry activeSessionRegistry;
 
+    private boolean active;
+
     // FIXME Add these URLs automatically to the securedURL to that the user doesn't need to add them.
 
+    @PostConstruct
+    public void init() {
+        prepareSSORestEndpoint = BeanProvider.getContextualReference(PrepareSSORestEndpoint.class, true);
+        jsonHandler = BeanProvider.getContextualReference(JSONHandler.class, true);
+        authenticationHandler = BeanProvider.getContextualReference(RestAuthenticationHandler.class, true);
+        active = authenticationHandler != null && jsonHandler != null && prepareSSORestEndpoint != null;
+        if (authenticationHandler != null) {
+            logger.warn("Octopus SSO Rest Endpoint is inactive because no implementation RestAuthenticationHandler is specified");
+        }
+        if (jsonHandler != null) {
+            logger.warn("Octopus SSO Rest Endpoint is inactive because no implementation JSONHandler is specified");
+        }
+        if (prepareSSORestEndpoint != null) {
+            logger.warn("Octopus SSO Rest Endpoint is inactive because no implementation PrepareSSORestEndpoint is specified");
+        }
+    }
     @Path("/user")
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
     public String getUserInfo(String token, @HeaderParam("x-api-key") String apiKey, @Context HttpServletRequest httpServletRequest) {
+        if (!active) {
+            throw new WebApplicationException(Response.Status.METHOD_NOT_ALLOWED);
+        }
+
         prepareSSORestEndpoint.init(httpServletRequest);
         String result = null;
         if (encryptionHandler.validate(apiKey, token)) {
