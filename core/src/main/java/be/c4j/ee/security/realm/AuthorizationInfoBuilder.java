@@ -20,6 +20,7 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
+import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
@@ -41,10 +42,13 @@ public class AuthorizationInfoBuilder {
 
     private PermissionLookup permissionLookup;
 
+    private StringPermissionLookup stringLookup;
+
     private RoleLookup roleLookup;
 
     public AuthorizationInfoBuilder() {
         permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
+        stringLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
         roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
     }
 
@@ -54,11 +58,16 @@ public class AuthorizationInfoBuilder {
         if (namedPermission instanceof NamedDomainPermission) {
             permissionsAndRoles.add((NamedDomainPermission) namedPermission);
         } else {
-            if (permissionLookup == null) {
-                throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup");
+            if (permissionLookup == null && stringLookup == null) {
+                throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup or StringPermissionLookup");
             }
-
-            permissionsAndRoles.add(permissionLookup.getPermission(namedPermission.name()));
+            Permission permission = null;
+            if (permissionLookup != null) {
+                permission = permissionLookup.getPermission(namedPermission.name());
+            } else {
+                permission = stringLookup.getPermission(namedPermission.name());
+            }
+            permissionsAndRoles.add(permission);
         }
         return this;
     }

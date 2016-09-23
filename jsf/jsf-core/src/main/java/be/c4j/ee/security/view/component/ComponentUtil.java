@@ -86,7 +86,7 @@ public final class ComponentUtil {
                                 .class, new RelocateSecurityInformationEventListener(component));
                         result.add(component);
                     } else {
-                        LOGGER.warn("Unable to find component with ID " + targetId + "in view.");
+                        LOGGER.warn("Unable to find component with ID " + targetId + " in view.");
                     }
                 }
             }

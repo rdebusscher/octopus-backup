@@ -102,6 +102,9 @@ public class AuthenticationInfoBuilder {
     }
 
     public AuthenticationInfo build() {
+        if (principalId == null) {
+            throw new IllegalArgumentException("principalId is required for an authenticated user");
+        }
         UserPrincipal principal = new UserPrincipal(principalId, userName, name);
         principal.addUserInfo(userInfo);
         AuthenticationInfo result;
