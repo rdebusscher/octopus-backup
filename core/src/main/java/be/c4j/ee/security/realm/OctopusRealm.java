@@ -18,11 +18,16 @@ package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
+import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.token.IncorrectDataToken;
+import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
+import be.c4j.ee.security.twostep.TwoStepConfig;
+import be.c4j.ee.security.twostep.TwoStepProvider;
 import be.c4j.ee.security.util.CodecUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -42,6 +47,8 @@ public class OctopusRealm extends AuthorizingRealm {
 
     private OctopusConfig config;
 
+    private TwoStepConfig twoStepConfig;
+
     private CodecUtil codecUtil;
 
     @Override
@@ -49,6 +56,7 @@ public class OctopusRealm extends AuthorizingRealm {
         super.onInit();
         securityDataProvider = BeanProvider.getContextualReference(SecurityDataProvider.class);
         config = BeanProvider.getContextualReference(OctopusConfig.class);
+        twoStepConfig = BeanProvider.getContextualReference(TwoStepConfig.class);
         codecUtil = BeanProvider.getContextualReference(CodecUtil.class);
 
         setCachingEnabled(true);
@@ -80,17 +88,24 @@ public class OctopusRealm extends AuthorizingRealm {
         if (token instanceof SystemAccountAuthenticationToken) {
             // TODO Check about the realm names
             authenticationInfo = new SimpleAuthenticationInfo(token.getPrincipal(), "", AuthenticationInfoBuilder.DEFAULT_REALM);
-        } else {
-            if (!(token instanceof IncorrectDataToken)) {
-                ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
-                try {
-                    authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
-                    verifyHashEncoding(authenticationInfo);
-                } finally {
-                    // Even in the case of an exception (access not allowed) we need to reset this flag
-                    ThreadContext.remove(IN_AUTHENTICATION_FLAG);
-                }
+        }
+        if (authenticationInfo == null && twoStepConfig.getTwoStepAuthenticationActive()) {
+            if (SecurityUtils.getSubject().getPrincipal() != null) {
+                // When we are performing validayion of the second step, we have already a Principal (unauthenticated)
+                TwoStepProvider twoStepProvider = BeanProvider.getContextualReference(TwoStepProvider.class);
+                authenticationInfo = twoStepProvider.defineAuthenticationInfo(token, (UserPrincipal) SecurityUtils.getSubject().getPrincipal());
             }
+        }
+        if (authenticationInfo == null && !(token instanceof IncorrectDataToken)) {
+            ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
+            try {
+                authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+                verifyHashEncoding(authenticationInfo);
+            } finally {
+                // Even in the case of an exception (access not allowed) we need to reset this flag
+                ThreadContext.remove(IN_AUTHENTICATION_FLAG);
+            }
+
         }
         return authenticationInfo;
     }
@@ -131,8 +146,8 @@ public class OctopusRealm extends AuthorizingRealm {
     }
 
     protected boolean isAuthenticationCachingEnabled(AuthenticationToken token, AuthenticationInfo info) {
-        boolean result = false;  // For systemAccounts, no caching
-        if (!(token instanceof SystemAccountAuthenticationToken)) {
+        boolean result = false;  // For systemAccounts, TwoStepFactor, no caching
+        if (!(token instanceof SystemAccountAuthenticationToken) && !(token instanceof TwoStepAuthenticationInfo)) {
             result = isAuthenticationCachingEnabled();
         }
         return result;
@@ -143,8 +158,22 @@ public class OctopusRealm extends AuthorizingRealm {
         ThreadContext.put(SYSTEM_ACCOUNT_AUTHENTICATION, new InSystemAccountAuthentication());
         try {
             super.assertCredentialsMatch(token, info);
+
+            defineTwoStepAuthentication(info);
         } finally {
             ThreadContext.remove(SYSTEM_ACCOUNT_AUTHENTICATION);
+        }
+    }
+
+    private void defineTwoStepAuthentication(AuthenticationInfo info) {
+        if (info instanceof TwoStepAuthenticationInfo) {
+            return;
+        }
+        UserPrincipal userPrincipal = (UserPrincipal) info.getPrincipals().getPrimaryPrincipal();
+        if (twoStepConfig.getAlwaysTwoStepAuthentication() != null) {
+            if (twoStepConfig.getAlwaysTwoStepAuthentication()) {
+                userPrincipal.setNeedsTwoStepAuthentication(true);
+            }
         }
     }
 

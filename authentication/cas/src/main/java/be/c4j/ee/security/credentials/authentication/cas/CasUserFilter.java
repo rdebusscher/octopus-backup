@@ -54,8 +54,9 @@ public class CasUserFilter extends OctopusUserFilter implements Initializable {
         } else {
             Subject subject = getSubject(request, response);
             // If principal is not null, then the user is known and should be allowed access.
-            boolean accessAllowed = subject.getPrincipal() != null;
+            boolean accessAllowed = subject.getPrincipal() != null && subject.isAuthenticated();
             if (accessAllowed) {
+                // TODO I think this kind of logic needs also be used in other UserFilters like OAuth2UserFilter
                 accessAllowed = activeSessionRegistry.isSessionActive(subject.getPrincipal());
             }
 

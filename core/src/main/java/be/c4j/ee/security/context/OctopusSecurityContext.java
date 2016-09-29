@@ -17,12 +17,21 @@
 package be.c4j.ee.security.context;
 
 import be.c4j.ee.security.exception.SystemAccountActivationException;
+import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
+import be.c4j.ee.security.twostep.TwoStepProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.util.SavedRequest;
+import org.apache.shiro.web.util.WebUtils;
 
 import javax.enterprise.context.Dependent;
+import javax.faces.context.ExternalContext;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -59,6 +68,29 @@ public class OctopusSecurityContext implements Serializable {
             SecurityUtils.getSubject().login(new SystemAccountAuthenticationToken(accountPrincipal));
         }
 
+    }
+
+    public void loginWithRedirect(HttpServletRequest request, ExternalContext externalContext, AuthenticationToken token, String rootUrl) throws IOException {
+
+        SecurityUtils.getSubject().login(token);
+
+        if (SecurityUtils.getSubject().isAuthenticated()) {
+            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
+
+            externalContext.redirect(savedRequest != null ? savedRequest.getRequestUrl() : rootUrl);
+        } else {
+            // Not authenticated, so we need to startup the Two Step authentication flow.
+            TwoStepProvider twoStepProvider = BeanProvider.getContextualReference(TwoStepProvider.class);
+            UserPrincipal principal = (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
+            twoStepProvider.startSecondStep(request, principal);
+
+            try {
+                externalContext.redirect(request.getContextPath() + "/secondStep.xhtml");
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
     }
 
     public static boolean isSystemAccount(Object principal) {

@@ -27,7 +27,6 @@ import org.apache.shiro.util.SimpleByteSource;
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -46,6 +45,7 @@ public class AuthenticationInfoBuilder {
     private ByteSource salt;
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
     private boolean externalPasswordCheck = false;
+    private Boolean needs2StepAuthentication;
 
     public AuthenticationInfoBuilder principalId(Serializable principalId) {
         this.principalId = principalId;
@@ -91,6 +91,11 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
+    public AuthenticationInfoBuilder needs2StepAuthentication(boolean twoStepAuthentication) {
+        this.needs2StepAuthentication = twoStepAuthentication;
+        return this;
+    }
+
     public AuthenticationInfoBuilder addUserInfo(Serializable key, Serializable value) {
         userInfo.put(key, value);
         return this;
@@ -106,6 +111,7 @@ public class AuthenticationInfoBuilder {
             throw new IllegalArgumentException("principalId is required for an authenticated user");
         }
         UserPrincipal principal = new UserPrincipal(principalId, userName, name);
+        principal.setNeedsTwoStepAuthentication(needs2StepAuthentication);
         principal.addUserInfo(userInfo);
         AuthenticationInfo result;
         // TODO We need to check if developer supplied salt() when octopusConfig.saltLength != 0

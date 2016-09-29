@@ -28,8 +28,12 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.util.CollectionUtils;
 import org.apache.shiro.web.config.IniFilterChainResolverFactory;
+import org.apache.shiro.web.config.WebIniSecurityManagerFactory;
 import org.apache.shiro.web.env.IniWebEnvironment;
+import org.apache.shiro.web.filter.mgt.FilterChainResolver;
+import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,5 +203,43 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void addURLsWithNamedPermission(Ini someIni) {
         URLPermissionProtector protector = BeanProvider.getContextualReference(URLPermissionProtector.class);
         protector.configurePermissions(someIni.getSection(IniFilterChainResolverFactory.URLS));
+    }
+
+    @Override
+    protected void configure() {
+        // Copied From supr class with only 1 change: calling the  createOctopusSecurityManager()
+        this.objects.clear();
+
+        WebSecurityManager securityManager = createOctopusSecurityManager();
+        setWebSecurityManager(securityManager);
+
+        FilterChainResolver resolver = createFilterChainResolver();
+        if (resolver != null) {
+            setFilterChainResolver(resolver);
+        }
+
+    }
+
+    private WebSecurityManager createOctopusSecurityManager() {
+        // Based on super.createWebSecurityManager
+        WebIniSecurityManagerFactory factory;
+        Ini ini = getIni();
+        if (CollectionUtils.isEmpty(ini)) {
+            factory = new OctopusSecurityManagerFactory();
+        } else {
+            factory = new OctopusSecurityManagerFactory(ini);
+        }
+
+        WebSecurityManager wsm = (WebSecurityManager) factory.getInstance();
+
+        //SHIRO-306 - get beans after they've been created (the call was before the factory.getInstance() call,
+        //which always returned null.
+        Map<String, ?> beans = factory.getBeans();
+        if (!CollectionUtils.isEmpty(beans)) {
+            this.objects.putAll(beans);
+        }
+
+        return wsm;
+
     }
 }

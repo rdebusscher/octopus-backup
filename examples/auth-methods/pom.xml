@@ -37,6 +37,8 @@
     <modules>
         <module>hashed</module>
         <module>OAuth2</module>
+        <module>twoStep</module>
+        <module>totp</module>
     </modules>
 
     <build>

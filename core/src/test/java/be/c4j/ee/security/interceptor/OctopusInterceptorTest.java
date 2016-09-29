@@ -28,6 +28,7 @@ import be.c4j.ee.security.interceptor.testclasses.TestRoleCheck;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
+import be.c4j.ee.security.twostep.TwoStepConfig;
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
@@ -48,6 +49,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import javax.enterprise.inject.spi.BeanManager;
 import javax.interceptor.InvocationContext;
 import java.util.Locale;
 
@@ -78,6 +80,9 @@ public class OctopusInterceptorTest {
 
     @Mock
     private OctopusConfig octopusConfigMock;
+
+    @Mock
+    private TwoStepConfig twoStepConfigConfig;
 
     @Mock
     private SecurityViolationInfoProducer infoProducerMock;

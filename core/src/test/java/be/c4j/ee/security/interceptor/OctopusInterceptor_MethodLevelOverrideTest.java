@@ -23,6 +23,7 @@ import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.PermissionLookupFixture;
 import be.c4j.ee.security.realm.OctopusRealm;
+import be.c4j.ee.security.twostep.TwoStepConfig;
 import be.c4j.util.ReflectionUtil;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
@@ -115,7 +116,11 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
         OctopusRealm octopusRealm = new OctopusRealm();
         OctopusConfig octopusConfigMock = Mockito.mock(OctopusConfig.class);
         when(octopusConfigMock.getHashAlgorithmName()).thenReturn("");
-        ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context), octopusConfigMock);
+
+        TwoStepConfig twoStepConfigMock = Mockito.mock(TwoStepConfig.class);
+        when(twoStepConfigMock.getAlwaysTwoStepAuthentication()).thenReturn(false);
+
+        ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context), octopusConfigMock, twoStepConfigMock);
 
         finishCDISetup();
 

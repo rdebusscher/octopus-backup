@@ -27,10 +27,13 @@ import java.util.Map;
 @Typed
 public class UserPrincipal implements Principal, Serializable {
 
+    public static final String MOBILE_NUMBER = "mobileNumber";
+
     private Serializable id;
     private String userName;
     private String name;
     private boolean systemAccount = false;
+    private Boolean needsTwoStepAuthentication;
 
     private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
 
@@ -102,6 +105,23 @@ public class UserPrincipal implements Principal, Serializable {
 
     public boolean isSystemAccount() {
         return systemAccount;
+    }
+
+    public void setNeedsTwoStepAuthentication(Boolean needsTwoStepAuthentication) {
+        this.needsTwoStepAuthentication = needsTwoStepAuthentication;
+    }
+
+    public boolean needsTwoStepAuthentication() {
+        boolean result = false;
+        if (needsTwoStepAuthentication != null && needsTwoStepAuthentication) {
+            result = true;
+        }
+        return result;
+    }
+
+    public String getMobileNumber() {
+        Serializable value = userInfo.get(MOBILE_NUMBER);
+        return value == null ? null : value.toString();
     }
 
     @Override

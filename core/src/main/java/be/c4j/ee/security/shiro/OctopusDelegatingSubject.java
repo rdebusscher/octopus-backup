@@ -1,0 +1,96 @@
+package be.c4j.ee.security.shiro;
+
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.HostAuthenticationToken;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.session.SessionException;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.DelegatingSubject;
+import org.apache.shiro.web.subject.support.WebDelegatingSubject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+/**
+ *
+ */
+public class OctopusDelegatingSubject extends WebDelegatingSubject {
+
+    private static final Logger log = LoggerFactory.getLogger(OctopusDelegatingSubject.class);
+
+    private static final String RUN_AS_PRINCIPALS_SESSION_KEY =
+            OctopusDelegatingSubject.class.getName() + ".RUN_AS_PRINCIPALS_SESSION_KEY";
+
+    public OctopusDelegatingSubject(PrincipalCollection principals, boolean authenticated, String host, Session session, ServletRequest request, ServletResponse response, SecurityManager securityManager) {
+        super(principals, authenticated, host, session, request, response, securityManager);
+    }
+
+    public OctopusDelegatingSubject(PrincipalCollection principals, boolean authenticated, String host, Session session, boolean sessionEnabled, ServletRequest request, ServletResponse response, SecurityManager securityManager) {
+        super(principals, authenticated, host, session, sessionEnabled, request, response, securityManager);
+    }
+
+    @Override
+    public void login(AuthenticationToken token) throws AuthenticationException {
+        clearRunAsIdentitiesInternal();
+        Subject subject = securityManager.login(this, token);
+
+        PrincipalCollection principals;
+
+        String host = null;
+
+        if (subject instanceof DelegatingSubject) {
+            DelegatingSubject delegating = (DelegatingSubject) subject;
+            //we have to do this in case there are assumed identities - we don't want to lose the 'real' principals:
+            principals = delegating.getPrincipals();
+            host = delegating.getHost();
+        } else {
+            principals = subject.getPrincipals();
+        }
+
+        if (principals == null || principals.isEmpty()) {
+            String msg = "Principals returned from securityManager.login( token ) returned a null or " +
+                    "empty value.  This value must be non null and populated with one or more elements.";
+            throw new IllegalStateException(msg);
+        }
+        this.principals = principals;
+        this.authenticated = subject.isAuthenticated();  // This is the only change !!
+        // FIXME We have now a lot of overwritten Shiro code for small changed.
+        // Consider integrating Shiro into Octopus.
+        if (token instanceof HostAuthenticationToken) {
+            host = ((HostAuthenticationToken) token).getHost();
+        }
+        if (host != null) {
+            this.host = host;
+        }
+        Session session = subject.getSession(false);
+        if (session != null) {
+            this.session = decorate(session);
+        } else {
+            this.session = null;
+        }
+
+    }
+
+    private void clearRunAsIdentitiesInternal() {
+        //try/catch added for SHIRO-298
+        try {
+            clearRunAsIdentities();
+        } catch (SessionException se) {
+            log.debug("Encountered session exception trying to clear 'runAs' identities during logout.  This " +
+                    "can generally safely be ignored.", se);
+        }
+    }
+
+    private void clearRunAsIdentities() {
+        Session session = getSession(false);
+        if (session != null) {
+            session.removeAttribute(RUN_AS_PRINCIPALS_SESSION_KEY);
+        }
+    }
+
+}

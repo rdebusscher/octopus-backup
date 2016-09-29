@@ -18,6 +18,7 @@ package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.UserFilter;
 
 import javax.servlet.ServletRequest;
@@ -60,4 +61,14 @@ public class OctopusUserFilter extends UserFilter {
         }
     }
 
+    @Override
+    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+        if (isLoginRequest(request, response)) {
+            return true;
+        } else {
+            Subject subject = getSubject(request, response);
+            // If principal is not null, then the user is known and should be allowed access.
+            return subject.getPrincipal() != null && subject.isAuthenticated();
+        }
+    }
 }

@@ -17,10 +17,11 @@
 package be.c4j.ee.security.token;
 
 import be.c4j.ee.security.authentication.ExternalPasswordAuthenticationInfo;
+import be.c4j.ee.security.shiro.OctopusSimpleCredentialsMatcher;
+import be.c4j.ee.security.twostep.GenericTwoStepCredentialsMatcher;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
-import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,8 +38,9 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
 
     public MultipleCredentialsMatcher() {
         octopusDefinedMatchers = new ArrayList<CredentialsMatcher>();
-        octopusDefinedMatchers.add(new SimpleCredentialsMatcher());
+        octopusDefinedMatchers.add(new OctopusSimpleCredentialsMatcher());
         octopusDefinedMatchers.add(new SystemAccountCredentialMatcher());
+        octopusDefinedMatchers.add(new GenericTwoStepCredentialsMatcher());
 
         applicationDefinedMatchers = new ArrayList<CredentialsMatcher>();
     }
@@ -75,4 +77,5 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
     public void setMatchers(List<CredentialsMatcher> applicationDefinedMatchers) {
         this.applicationDefinedMatchers = applicationDefinedMatchers;
     }
+
 }
