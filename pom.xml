@@ -38,7 +38,8 @@
 
     <scm>
         <connection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</connection>
-        <developerConnection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</developerConnection>
+        <developerConnection>scm:git:https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git
+        </developerConnection>
         <url>https://bitbucket.org/contribute-bitbucket/javaeesecurityfirst.git</url>
         <tag>HEAD</tag>
     </scm>
@@ -116,6 +117,13 @@
     </repositories>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${shiro.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.deltaspike.core</groupId>
             <artifactId>deltaspike-core-api</artifactId>

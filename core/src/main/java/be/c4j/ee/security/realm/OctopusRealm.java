@@ -18,6 +18,7 @@ package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
+import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -85,6 +86,11 @@ public class OctopusRealm extends AuthorizingRealm {
                 ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
                 try {
                     authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+                    // TODO Document this action
+                    if (authenticationInfo != null) {
+                        UserPrincipal user = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
+                        user.addUserInfo("token", token);  // TODO Create constants!!
+                    }
                     verifyHashEncoding(authenticationInfo);
                 } finally {
                     // Even in the case of an exception (access not allowed) we need to reset this flag

@@ -42,6 +42,8 @@
         <module>OAuth2Linkedin</module>
         <module>cas</module>
         <module>jwt</module>
+        <module>keycloakSE</module>
+        <module>keycloak</module>
     </modules>
 
 </project>

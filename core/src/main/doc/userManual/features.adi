@@ -13,6 +13,7 @@ This is the list with the most important features of Octopus
 . Pluggable authentication modules.
 . Support for OAuth2 providers.
 . Support for CAS Server.
+. Support for Keycloak server.
 . Securing JAX-RS Controller.
 . Single sign on principles for the the OAuth2 application.
 . Provides an offline fake provider for OAuth2.
