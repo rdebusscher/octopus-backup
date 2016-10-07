@@ -20,6 +20,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.ApplicationInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
+import be.c4j.ee.security.token.IncorrectDataToken;
 import com.github.scribejava.core.model.Token;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
@@ -69,9 +70,7 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
         String authorizationHeader = getAuthzHeader(request);
         if (authorizationHeader == null || authorizationHeader.length() == 0) {
-            // Create an empty authentication token since there is no
-            // Authorization header.
-            return createToken("", "", request, response);
+            return new IncorrectDataToken("No Authorization header found on the request");
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -80,7 +79,7 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
 
         String[] authTokens = authorizationHeader.split(" ");
         if (authTokens.length < 2) {
-            return null;
+            return new IncorrectDataToken("Invalid structure of the Authorization header on the request");
         }
 
         String authToken = authTokens[1];
@@ -101,8 +100,9 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
         }
 
         if (oauth2User == null) {
+            // FIXME Check of this stratus setting is required.
             ((HttpServletResponse) response).setStatus(401);
-            return new DummyOAuth2AuthenticationToken();
+            return new IncorrectDataToken("Unable to create the Authentication token based on the request info");
         }
 
         setApplication(oauth2User);
@@ -130,7 +130,6 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
         return getInfoProvider().retrieveUserInfo(token, WebUtils.toHttp(request));
     }
 
-
     private OAuth2User useFakeLogin(ServletRequest request, String authToken) {
         OAuth2User result = null;
         if ("localhost".equals(request.getServerName()) && loginAuthenticationTokenProvider != null) {
@@ -138,7 +137,6 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
         }
         return result;
     }
-
 
     private OAuth2User getCachedOAuth2User(String authToken) {
         OAuth2User result = null;
@@ -163,19 +161,6 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
         }
 
         return cache;
-    }
-
-    public static class DummyOAuth2AuthenticationToken implements AuthenticationToken {
-
-        @Override
-        public Object getPrincipal() {
-            return null;
-        }
-
-        @Override
-        public Object getCredentials() {
-            return null;
-        }
     }
 
     public static class CachedOAuth2User {

@@ -17,9 +17,7 @@
 package be.c4j.ee.security.sso.server.config;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
-import be.c4j.ee.security.config.ConfigurationPluginHelper;
 import be.c4j.ee.security.config.PluginOrder;
-import be.c4j.ee.security.sso.matcher.OctopusSSOCredentialsMatcher;
 import be.c4j.ee.security.sso.server.filter.DuringAuthenticationFilter;
 import be.c4j.ee.security.sso.server.filter.SSOAuthenticatingFilter;
 import org.apache.shiro.config.Ini;
@@ -40,7 +38,5 @@ public class SSOServerConfiguration implements ConfigurationPlugin {
         mainSection.put("ssoFilter", SSOAuthenticatingFilter.class.getName());
         mainSection.put("ssoAuthFilter", DuringAuthenticationFilter.class.getName());
 
-        mainSection.put("octopusMatcher", OctopusSSOCredentialsMatcher.class.getName());
-        ConfigurationPluginHelper.addToList(ini, IniSecurityManagerFactory.MAIN_SECTION_NAME, "credentialsMatcher.matchers", "$octopusMatcher");
     }
 }

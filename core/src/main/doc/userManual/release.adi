@@ -1,3 +1,10 @@
+=== 0.9.7
+
+. String based Permissions.
+. TwoStep authentication with support for SMS (Twilio) and TOTP.
+. Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
+
+
 === 0.9.6.4
 
 . Additional CDI bean which allows to add entries for the userInfo map of UserPrincipal (SSO client module)

@@ -16,9 +16,9 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.scribejava.core.model.Token;
-import org.apache.shiro.authc.AuthenticationToken;
 
 import javax.security.auth.Subject;
 import java.io.Serializable;
@@ -30,7 +30,7 @@ import java.util.Map;
  *
  */
 @JsonIgnoreProperties(value = {"token", "userInfo", "principal", "credentials"}, ignoreUnknown = true)
-public class OAuth2User implements AuthenticationToken, Principal {
+public class OAuth2User implements ValidatedAuthenticationToken, Principal {
 
     public static final String LOCAL_ID = "LOCAL_ID";
 

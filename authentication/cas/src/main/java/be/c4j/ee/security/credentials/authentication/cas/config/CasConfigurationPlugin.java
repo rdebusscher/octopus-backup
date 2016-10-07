@@ -17,10 +17,8 @@
 package be.c4j.ee.security.credentials.authentication.cas.config;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
-import be.c4j.ee.security.config.ConfigurationPluginHelper;
 import be.c4j.ee.security.config.PluginOrder;
 import be.c4j.ee.security.credentials.authentication.cas.CasUserFilter;
-import be.c4j.ee.security.credentials.authentication.cas.matcher.CasCredentialsMatcher;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
@@ -37,9 +35,6 @@ public class CasConfigurationPlugin implements ConfigurationPlugin {
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("user", CasUserFilter.class.getName());
-
-        mainSection.put("casMatcher", CasCredentialsMatcher.class.getName());
-        ConfigurationPluginHelper.addToList(ini, IniSecurityManagerFactory.MAIN_SECTION_NAME, "credentialsMatcher.matchers", "$casMatcher");
 
     }
 }

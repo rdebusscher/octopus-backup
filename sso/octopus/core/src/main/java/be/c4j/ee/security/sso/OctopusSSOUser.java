@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.sso;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  *
  */
-public class OctopusSSOUser implements AuthenticationToken, Principal {
+public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     public static final String USER_INFO_KEY = OctopusSSOUser.class.getSimpleName();
 

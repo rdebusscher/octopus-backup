@@ -16,14 +16,14 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 
 import java.security.Principal;
 
 /**
  *
  */
-public class JWTUser implements AuthenticationToken, Principal {
+public class JWTUser implements ValidatedAuthenticationToken, Principal {
 
     private String name;
 

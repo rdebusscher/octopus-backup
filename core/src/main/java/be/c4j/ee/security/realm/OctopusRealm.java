@@ -100,6 +100,12 @@ public class OctopusRealm extends AuthorizingRealm {
             ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
             try {
                 authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
+                // TODO Document this action
+                if (authenticationInfo != null) {
+                    UserPrincipal user = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
+                    user.addUserInfo("token", token);  // TODO Create constants!!
+                }
+
                 verifyHashEncoding(authenticationInfo);
             } finally {
                 // Even in the case of an exception (access not allowed) we need to reset this flag

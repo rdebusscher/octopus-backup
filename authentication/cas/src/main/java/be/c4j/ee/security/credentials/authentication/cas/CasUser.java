@@ -16,7 +16,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 
 import java.io.Serializable;
 import java.security.Principal;
@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  *
  */
-public class CasUser implements AuthenticationToken, Principal {
+public class CasUser implements ValidatedAuthenticationToken, Principal {
 
     public static final String CAS_USER_INFO = "CASUserInfo";
 

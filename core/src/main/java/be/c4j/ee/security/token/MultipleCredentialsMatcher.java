@@ -18,6 +18,7 @@ package be.c4j.ee.security.token;
 
 import be.c4j.ee.security.authentication.ExternalPasswordAuthenticationInfo;
 import be.c4j.ee.security.shiro.OctopusSimpleCredentialsMatcher;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.twostep.GenericTwoStepCredentialsMatcher;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -48,6 +49,10 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
         boolean result = false;
+        if (token instanceof ValidatedAuthenticationToken) {
+            return true;
+        }
+
         Iterator<CredentialsMatcher> iterator = applicationDefinedMatchers.iterator();
         while (!result && iterator.hasNext()) {
             CredentialsMatcher matcher = iterator.next();
