@@ -50,9 +50,45 @@
         </dependency>
 
         <dependency>
-            <groupId>be.c4j.ee.security.octopus.two-step</groupId>
-            <artifactId>otp</artifactId>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-javaee7-jsf</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus.two-step</groupId>
+            <artifactId>totp-web</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <!-- core-api is defined as provided at top level, so we have to overrule it here -->
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-api</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <!-- security-api is defined as provided at top level, so we have to overrule it here -->
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-security-module-api</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-security-module-impl</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-jsf-module-impl</artifactId>
+            <version>${deltaspike.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -70,7 +106,7 @@
 
 
     <build>
-        <finalName>twoStep</finalName>
+        <finalName>totp</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>

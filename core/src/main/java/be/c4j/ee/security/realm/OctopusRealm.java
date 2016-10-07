@@ -90,10 +90,11 @@ public class OctopusRealm extends AuthorizingRealm {
             authenticationInfo = new SimpleAuthenticationInfo(token.getPrincipal(), "", AuthenticationInfoBuilder.DEFAULT_REALM);
         }
         if (authenticationInfo == null && twoStepConfig.getTwoStepAuthenticationActive()) {
-            if (SecurityUtils.getSubject().getPrincipal() != null) {
-                // When we are performing validayion of the second step, we have already a Principal (unauthenticated)
+            UserPrincipal userPrincipal = (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
+            if (userPrincipal != null && userPrincipal.needsTwoStepAuthentication()) {
+                // When we are performing validation of the second step, we have already a Principal (unauthenticated)
                 TwoStepProvider twoStepProvider = BeanProvider.getContextualReference(TwoStepProvider.class);
-                authenticationInfo = twoStepProvider.defineAuthenticationInfo(token, (UserPrincipal) SecurityUtils.getSubject().getPrincipal());
+                authenticationInfo = twoStepProvider.defineAuthenticationInfo(token, userPrincipal);
             }
         }
         if (authenticationInfo == null && !(token instanceof IncorrectDataToken)) {

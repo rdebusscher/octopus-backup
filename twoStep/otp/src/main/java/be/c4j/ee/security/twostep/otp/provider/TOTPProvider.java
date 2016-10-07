@@ -62,7 +62,7 @@ public class TOTPProvider implements OTPProvider {
     public boolean valid(OTPUserData data, int window, String userOTP) {
         long l = new Date().getTime() / TimeUnit.SECONDS.toMillis(30);
         boolean result = false;
-        for (int i = -window; i < window; i++) {
+        for (int i = -window; i < 1; i++) {
             String code = generateForValue(data.getKey(), l + i);
             if (code.equals(userOTP)) {
                 result = true;

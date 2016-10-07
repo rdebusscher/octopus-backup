@@ -37,7 +37,7 @@ public class OTPConfig extends AbstractOctopusConfig implements ModuleConfig {
         try {
             result = Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            throw new OctopusConfigurationException("otp.length properties must be numeric (Integer)");
+            throw new OctopusConfigurationException("otp.length property must be numeric (Integer)");
         }
         return result;
     }

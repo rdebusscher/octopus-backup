@@ -56,7 +56,7 @@ public class TOTPProviderTest {
     }
 
     private OTPUserData getUserData(byte[] key) {
-        return new OTPUserData(key, 0);
+        return new OTPUserData(key, 0L);
     }
 
     private byte[] createSecret() {

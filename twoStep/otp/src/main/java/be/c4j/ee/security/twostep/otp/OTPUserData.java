@@ -8,7 +8,7 @@ public class OTPUserData {
     private byte[] key;
     private Long value;  // The counter for HOTP, the time slot for TOTP, ...
 
-    public OTPUserData(byte[] key, long value) {
+    public OTPUserData(byte[] key, Long value) {
         this.key = key;
         this.value = value;
     }

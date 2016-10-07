@@ -44,7 +44,7 @@ public class TwilioTwoStepProvider implements TwoStepProvider {
         if (mobileNumber == null || mobileNumber.isEmpty()) {
             // FIXME
         }
-        OTPProvider provider = otpProviderFactory.retrieveOTPProvider(otpConfig.getOTPLength());
+        OTPProvider provider = otpProviderFactory.retrieveOTPProvider();
 
         String otpValue = provider.generate(otpUserDataPersistence.retrieveData(userPrincipal));
         smsSender.sendSMS(userPrincipal, otpValue);

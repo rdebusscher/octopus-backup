@@ -25,11 +25,11 @@ public class OTPProviderFactory {
 
     private OTPProvider otpProvider;
 
-    public OTPProvider retrieveOTPProvider(int digits) {
+    public OTPProvider retrieveOTPProvider() {
         if (otpProvider == null) {
             otpProvider = createOTPProvider();
             Properties config = defineConfig();
-            otpProvider.setProperties(digits, config);
+            otpProvider.setProperties(otpConfig.getOTPLength(), config);
         }
         return otpProvider;
     }
