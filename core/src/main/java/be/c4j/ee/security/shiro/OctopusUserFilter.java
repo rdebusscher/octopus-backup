@@ -40,7 +40,13 @@ public class OctopusUserFilter extends UserFilter {
         if ("partial/ajax".equals(request.getHeader("Faces-Request"))) {
             res.setContentType("text/xml");
             res.setCharacterEncoding("UTF-8");
-            res.getWriter().printf(FACES_REDIRECT_XML, request.getContextPath() + getLoginUrl());
+
+            String loginUrl = getLoginUrl();
+            if (loginUrl.startsWith("/") || !loginUrl.startsWith("http")) {
+                // If it is a relative URL, use the context path.
+                loginUrl = request.getContextPath() + loginUrl;
+            }
+            res.getWriter().printf(FACES_REDIRECT_XML, loginUrl);
         } else {
             super.redirectToLogin(req, res);
         }
