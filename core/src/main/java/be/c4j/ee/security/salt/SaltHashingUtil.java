@@ -36,6 +36,8 @@ public class SaltHashingUtil {
     @Inject
     private OctopusConfig config;
 
+    private SecureRandom sr;
+
     @PostConstruct
     public void init() {
         try {
@@ -44,11 +46,11 @@ public class SaltHashingUtil {
             LOGGER.warn("Salt length config parameter can't be converted to integer (value = " + config.getSaltLength()
                     + ") 16 is taken as value");
         }
+        sr = new SecureRandom();
     }
 
     public byte[] nextSalt() {
         byte[] salt = new byte[saltLength];
-        SecureRandom sr = new SecureRandom();
         sr.nextBytes(salt);
         return salt;
     }
