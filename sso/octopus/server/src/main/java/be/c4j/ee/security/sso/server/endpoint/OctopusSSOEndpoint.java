@@ -19,7 +19,9 @@ package be.c4j.ee.security.sso.server.endpoint;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import org.apache.shiro.authz.annotation.RequiresUser;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -47,6 +49,7 @@ public class OctopusSSOEndpoint {
     @Path("/user")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresUser
     public String getUserInfo() {
         OctopusSSOUser userInfo = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
         return userInfo.toJSON();
@@ -55,6 +58,7 @@ public class OctopusSSOEndpoint {
     @Path("/user/permissions/{applicationName}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresUser
     public Map<String, String> getUserPermissions(@PathParam("applicationName") String application) {
         OctopusSSOUser ssoUser = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
         return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
@@ -63,6 +67,7 @@ public class OctopusSSOEndpoint {
     @Path("/permissions/{applicationName}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @PermitAll
     public Map<String, String> getPermissions(@PathParam("applicationName") String application) {
         // Return the list of all permissions !!!
         // For the moment anon access!!
