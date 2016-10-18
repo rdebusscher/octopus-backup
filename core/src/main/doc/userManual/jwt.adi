@@ -31,9 +31,10 @@ The _jwt_ dependency has the _jwt_ filter that perform the authentication and po
 
 For an introduction around JWT, JWK and relates concepts, have a look on internet and/or this excellent http://jwt.io/introduction/[site] for an introduction.
 
-The source repository contains 2 helper programs to create the required JWT/JWK artefacts for this usage scenario.
+The source repository contains 2 helper programs to create the required JWT/JWK artefacts for this usage scenario. RSA and EC keys versions of the programs are available.
 
-/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWKManager
+/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWKManagerRSA
+/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWKManagerEC
 
 When you run this program; it prints out 3 artifacts on the console:
 
@@ -41,9 +42,10 @@ x-api-key : This is an unique identification for your third party
 Private : a JWK file containing the private and public parts of an RSA key which can be used to sign the JWT token which they will send to your Rest endpoint.
 Public : A JWK file containing the public part of the same RSA key which octopus will use the verify the signing part of the JWT token.
 
-You need to give the private JWK file to your third party, the public part needs to be integrated within your applicatioN;
+You need to give the private JWK file to your third party, the public part needs to be integrated within your application;
 
-/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWTTester
+/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWTTesterRSA
+/examples/rest/jwt-util module; be.c4j.ee.security.jwt.JWTTesterEC
 
 An example how you can create a JWT token and read the content from a token.
 

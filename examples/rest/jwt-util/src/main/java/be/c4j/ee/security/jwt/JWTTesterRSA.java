@@ -31,15 +31,14 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Scanner;
 
-
 /**
  *
  */
-public class JWTTester {
+public class JWTTesterRSA {
 
     public static void main(String[] args) throws IOException, ParseException, JOSEException {
 
-        String privateContent = readFile("private.jwk");
+        String privateContent = readFile("private_RSA.jwk");
         JWK publicJWK = JWK.parse(privateContent);
 
         String apiKey = publicJWK.getKeyID();
@@ -47,7 +46,7 @@ public class JWTTester {
 
         String token = createToken((RSAKey) publicJWK, apiKey);
 
-        String publicContent = readFile("public.jwk");
+        String publicContent = readFile("public_RSA.jwk");
 
         JWKSet jwkSet = JWKSet.parse(publicContent);
 
@@ -85,7 +84,7 @@ public class JWTTester {
         // Prepare JWT with claims set
         JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder();
         claimsSetBuilder.subject("xDataScience");
-        claimsSetBuilder.audience("CVApp");
+        claimsSetBuilder.audience("OctopusApp");
 
         claimsSetBuilder.issueTime(new Date());
         claimsSetBuilder.expirationTime(new Date(new Date().getTime() + 60 * 1000));
@@ -107,7 +106,7 @@ public class JWTTester {
     }
 
     private static String readFile(String fileName) {
-        InputStream privateKeys = JWTTester.class.getClassLoader().getResourceAsStream(fileName);
+        InputStream privateKeys = JWTTesterRSA.class.getClassLoader().getResourceAsStream(fileName);
         return new Scanner(privateKeys).useDelimiter("\\Z").next();
     }
 }
