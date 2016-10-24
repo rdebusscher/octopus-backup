@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
@@ -27,9 +28,12 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  *
@@ -97,5 +101,25 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             throw e; // Propagate the error further so that UserRest filter can properly handle it.
         }
         return super.onLoginFailure(token, e, request, response);
+    }
+
+    /**
+     * Overrides the default behavior to show and swallow the exception if the exception is
+     * {@link org.apache.shiro.authz.UnauthenticatedException}.
+     */
+    @Override
+    protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
+        Throwable unauthorized = OctopusUnauthorizedException.getUnauthorizedException(existing);
+        if (unauthorized != null) {
+            try {
+                ((HttpServletResponse) response).setStatus(401);
+                response.getOutputStream().println(unauthorized.getMessage());
+                existing = null;
+            } catch (Exception e) {
+                existing = e;
+            }
+        }
+        super.cleanup(request, response, existing);
+
     }
 }
