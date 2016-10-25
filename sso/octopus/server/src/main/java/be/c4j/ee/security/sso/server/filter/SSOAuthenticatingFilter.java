@@ -90,8 +90,13 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
     private OctopusSSOUser createOctopusToken(HttpServletRequest request, String apiKey, String token) {
         String realToken;
-        if (encryptionHandler != null && encryptionHandler.validate(apiKey, token)) {
-            realToken = encryptionHandler.decryptData(token, apiKey);
+        if (encryptionHandler != null) {
+            if (encryptionHandler.validate(apiKey, token)) {
+                realToken = encryptionHandler.decryptData(token, apiKey);
+            } else {
+                logger.info("JWT Token is not valid " + token);
+                return null;
+            }
         } else {
             realToken = token;
         }
