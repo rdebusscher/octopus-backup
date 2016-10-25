@@ -19,8 +19,11 @@ package be.c4j.ee.security.sso.server.endpoint;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.server.rest.RestUserInfoProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.RequiresUser;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
@@ -46,13 +49,26 @@ public class OctopusSSOEndpoint {
     @Inject
     private SSOPermissionProvider ssoPermissionProvider;
 
+    private RestUserInfoProvider userInfoProvider;
+
+    @PostConstruct
+    public void init() {
+        userInfoProvider = BeanProvider.getContextualReference(RestUserInfoProvider.class, true);
+    }
+
     @Path("/user")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresUser
     public String getUserInfo() {
         OctopusSSOUser userInfo = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
-        return userInfo.toJSON();
+
+        Map<String, String> info = new HashMap<String, String>();
+        if (userInfoProvider != null) {
+            info = userInfoProvider.defineInfo(userInfo);
+        }
+
+        return userInfo.toJSON(info);
     }
 
     @Path("/user/permissions/{applicationName}")

@@ -154,7 +154,11 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         return token;
     }
 
-    public String toJSON() {
+    public String getUserInfo(String key) {
+        return userInfo.get(key);
+    }
+
+    public String toJSON(Map<String, String> info) {
         JSONObject result = new JSONObject();
         try {
             result.put("id", id);
@@ -165,6 +169,11 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
             result.put("firstName", firstName);
             result.put("fullName", fullName);
             result.put("email", email);
+
+            for (Map.Entry<String, String> infoEntry : info.entrySet()) {
+                result.put(infoEntry.getKey(), infoEntry.getValue());
+            }
+
         } catch (JSONException e) {
             // FIXME
             e.printStackTrace();
