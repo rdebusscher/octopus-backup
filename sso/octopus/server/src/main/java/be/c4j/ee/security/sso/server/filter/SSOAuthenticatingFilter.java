@@ -27,6 +27,8 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -43,6 +45,8 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     private SSODataEncryptionHandler encryptionHandler;
 
     private SSOTokenStore tokenStore;
+
+    private Logger logger = LoggerFactory.getLogger(SSOAuthenticatingFilter.class);
 
     @Override
     public void init() throws ShiroException {
@@ -77,7 +81,11 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             return new IncorrectDataToken("Authorization header value must start with Bearer");
         }
 
-        return createOctopusToken(request, apiKey, parts[1]);
+        OctopusSSOUser octopusToken = createOctopusToken(request, apiKey, parts[1]);
+        if (octopusToken == null) {
+            return new IncorrectDataToken("Authentication failed");
+        }
+        return octopusToken;
     }
 
     private OctopusSSOUser createOctopusToken(HttpServletRequest request, String apiKey, String token) {
@@ -87,7 +95,11 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         } else {
             realToken = token;
         }
-        return tokenStore.getUser(realToken);
+        OctopusSSOUser user = tokenStore.getUser(realToken);
+        if (user == null) {
+            logger.info("No user information found for token " + realToken);
+        }
+        return user;
     }
 
     @Override
