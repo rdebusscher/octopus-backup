@@ -43,7 +43,7 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
         octopusDefinedMatchers.add(new SystemAccountCredentialMatcher());
         octopusDefinedMatchers.add(new GenericTwoStepCredentialsMatcher());
 
-        applicationDefinedMatchers = new ArrayList<CredentialsMatcher>();
+        applicationDefinedMatchers = new ArrayList<CredentialsMatcher>(); // TODO ApplicationDefined is not a good name, they are the moduleDefined ones.
     }
 
     @Override
@@ -67,6 +67,7 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
             }
         }
 
+        // True means the user/caller is allowed and there is no way in stopping him/her anymore further on in the code.
         return result;
     }
 

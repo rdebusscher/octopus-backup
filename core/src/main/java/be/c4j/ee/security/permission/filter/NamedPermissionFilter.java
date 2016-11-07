@@ -40,7 +40,7 @@ public class NamedPermissionFilter extends AuthorizationFilter implements Initia
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws
             Exception {
         Subject subject = getSubject(request, response);
-        String[] permissions = (String[]) mappedValue;
+        String[] permissions = (String[]) mappedValue;  // TODO What does Shiro give as as we don't specify value like np[]
 
         boolean permitted = true;
         for (String permissionName : permissions) {
