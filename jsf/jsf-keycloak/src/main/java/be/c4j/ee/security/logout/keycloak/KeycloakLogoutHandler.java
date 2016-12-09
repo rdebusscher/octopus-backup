@@ -52,7 +52,7 @@ public class KeycloakLogoutHandler extends LogoutHandler {
         if (keycloakConfiguration.getKeycloakSingleLogout()) {
 
             //userprincipal == null !!
-            KeycloakUser user = userPrincipal.getUserInfo("token"); // TODO Use constant.
+            KeycloakUser user = userPrincipal.getUserInfo("authenticationToken"); // TODO Use constant.
 
             authenticator.logout(user);
         }

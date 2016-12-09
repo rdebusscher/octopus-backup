@@ -51,7 +51,7 @@ public class InfoBean {
     }
 
     public String getAccessToken() {
-        KeycloakUser token = userPrincipal.getUserInfo("token");
+        KeycloakUser token = userPrincipal.getUserInfo("authenticationToken");
         return token.getAccessToken().getToken();
     }
 }

@@ -89,7 +89,7 @@ public class OctopusRealm extends AuthorizingRealm {
                     // TODO Document this action
                     if (authenticationInfo != null) {
                         UserPrincipal user = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
-                        user.addUserInfo("token", token);  // TODO Create constants!!
+                        user.addUserInfo("authenticationToken", token);  // TODO Create constants!!
                     }
                     verifyHashEncoding(authenticationInfo);
                 } finally {
