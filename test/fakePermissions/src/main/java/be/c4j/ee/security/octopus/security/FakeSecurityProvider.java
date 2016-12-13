@@ -31,7 +31,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- *
+ * FIXME Documentation
  */
 @Specializes
 public class FakeSecurityProvider extends SSOClientSecurityProvider {

@@ -1,0 +1,53 @@
+There are various helper classes that can be handy during development.
+
+==== Offline OAuth2 support
+
+In order to completely work offline with OAuth2, you need a fake login handler.
+
+By adding the following dependency, we add a servlet which is capable of providing some authentication information to Octopus.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus</groupId>
+        <artifactId>fakeLogin</artifactId>
+        <version>0.9.6.4-SNAPSHOT</version>
+    </dependency>
+
+----
+
+It is advisable to use this dependency only in development, through a maven profile, because it allows bypassing the OAuth2 authentication which you obviously don't want to be possible in a production system.
+However, there is safety mechanism implemented which allows the fake login only on the localhost URL.
+
+See the +fakeLogin.localhostOnly+ configuration property if you want to change this.
+
+The authentication information you like to use when performing an offline authentication, can be specified in a CDI bean (ApplicationScoped) which implements +be.c4j.ee.security.fake.LoginAuthenticationTokenProvider+
+
+This is an example implementation
+
+[source,java]
+----
+@ApplicationScoped
+public class DemoLoginAuthenticationTokenProvider implements LoginAuthenticationTokenProvider {
+
+    @Override
+    public AuthenticationToken determineAuthenticationToken(String loginData) {
+        return defaultUser();
+    }
+
+    private OAuth2User defaultUser() {
+        OAuth2User result = new OAuth2User();
+        result.setFirstName("_Rudy_");
+        result.setLastName("_De Busscher_");
+
+        // These are all required
+        result.setFullName("_Rudy De Busscher_");
+        result.setId("Fake");
+        result.setDomain("c4j.be");
+        result.setEmail("rudy.debusscher@c4j.be");
+        result.setToken(new Token("Fake", ""));
+        return result;
+    }
+}
+----
+

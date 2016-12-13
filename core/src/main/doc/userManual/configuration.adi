@@ -194,6 +194,12 @@ Are only SystemAccounts allowed when using authentication based on JWT tokens?
 
 Properties file where the system accounts are defined for each api-key.
 
+==== fakeLogin.localhostOnly (fakeLogin only)
+
+default : *true*
+
+When using offline login authentication instead of OAuth2, is this only allowed on localhost.
+
 ==== SSO.application (Octopus SSO only)
 
 default : *(none)*

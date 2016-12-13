@@ -89,6 +89,10 @@ include::cas.adi[]
 
 include::oracleUser.adi[]
 
+=== Local development
+
+include::fakeLogin.adi[]
+
 == Other features
 
 include::others.adi[]

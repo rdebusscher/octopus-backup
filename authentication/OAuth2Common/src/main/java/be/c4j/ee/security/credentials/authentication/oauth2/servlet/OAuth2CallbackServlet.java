@@ -65,6 +65,7 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
     private boolean handleFakeLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         boolean result = false;
+        // Document this functionality properly.
         if (request.getAttribute(FAKE_MARKER) != null) {
             result = true;
 
