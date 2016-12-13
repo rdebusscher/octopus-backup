@@ -40,6 +40,10 @@ include::authentication.adi[]
 
 include::authorization.adi[]
 
+=== Authorize URLs
+
+include::url.adi[]
+
 == Exceptions
 
 include::exceptions.adi[]
