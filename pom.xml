@@ -205,6 +205,8 @@
                         <exclude>**/doc/**/*</exclude>
                         <!-- don't check anything in JSON Web Keystores -->
                         <exclude>**/*.jwk</exclude>
+                        <!-- don't check anything in JSON config files -->
+                        <exclude>**/*.json</exclude>
                         <!-- README files in markdown format -->
                         <exclude>README.md</exclude>
                     </excludes>
