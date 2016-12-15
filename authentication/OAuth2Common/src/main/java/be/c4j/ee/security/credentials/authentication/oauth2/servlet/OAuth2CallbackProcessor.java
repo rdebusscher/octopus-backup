@@ -22,6 +22,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
+import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.Token;
 import com.github.scribejava.core.model.Verifier;
 import com.github.scribejava.core.oauth.OAuth20Service;
@@ -82,6 +83,11 @@ public abstract class OAuth2CallbackProcessor {
 
         OAuth2User oAuth2User = infoProvider.retrieveUserInfo(token, request);
 
+        // It is possible that the infoProvider can't retrieve the information. So handle this here
+        if (oAuth2User == null) {
+            throw new OAuthException("Failed to retrieve information from the OAuth2 Authentication token");
+        }
+
         oAuth2User.setApplicationName(applicationName);
         customCallbackProvider = BeanProvider.getContextualReference(CustomCallbackProvider.class, true);
         String callbackURL = null;
@@ -110,6 +116,5 @@ public abstract class OAuth2CallbackProcessor {
     protected String getAccessTokenParameterName() {
         return "code";
     }
-
 
 }
