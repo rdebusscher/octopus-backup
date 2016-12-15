@@ -16,11 +16,13 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.servlet;
 
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.DefaultOauth2ServletInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaDataControl;
 import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeCallbackHandler;
 import com.github.scribejava.core.exceptions.OAuthException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.authz.UnauthenticatedException;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -67,6 +69,9 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
         try {
             processor.processCallback(request, response);
+        } catch (UnauthenticatedException exception) {
+            OctopusJSFConfig config = BeanProvider.getContextualReference(OctopusJSFConfig.class);
+            request.getRequestDispatcher(config.getUnauthorizedExceptionPage()).forward(request, response);
         } catch (OAuthException exception) {
             logger.warn(exception.getMessage());
             response.reset();
