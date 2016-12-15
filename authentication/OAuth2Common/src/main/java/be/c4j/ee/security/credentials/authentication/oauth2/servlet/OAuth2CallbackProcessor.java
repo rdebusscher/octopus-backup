@@ -59,7 +59,7 @@ public abstract class OAuth2CallbackProcessor {
         boolean result = true;
         String csrfToken = oAuth2SessionAttributes.getCSRFToken(request);
         String state = request.getParameter("state");
-        if (!csrfToken.equals(state)) {
+        if (csrfToken == null || !csrfToken.equals(state)) {
             logger.warn("The CSRF token does no match");
             // The CSRF token do not match, deny access.
             HttpSession sess = request.getSession();
