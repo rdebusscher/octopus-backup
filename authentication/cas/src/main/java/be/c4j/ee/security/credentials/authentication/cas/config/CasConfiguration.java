@@ -23,7 +23,8 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
 import javax.enterprise.inject.Specializes;
 
 /**
- *
+ * FIXME Split this into JSF and non-JSF configuration properties.
+ * And create a cas-se for usage outside JSF/Rest
  */
 @Specializes
 public class CasConfiguration extends OctopusJSFConfig {
@@ -64,6 +65,7 @@ public class CasConfiguration extends OctopusJSFConfig {
 
     @ConfigEntry
     public String getCASProtocol() {
+        // TODO Validate the contents
         return ConfigResolver.getPropertyValue("CAS.protocol", "CAS"); // SAML should also be supported
     }
 

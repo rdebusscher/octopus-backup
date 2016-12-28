@@ -38,6 +38,7 @@
         <module>rest</module>
         <module>auth-methods</module>
         <module>permissionDemo2</module>
+        <module>test</module>
     </modules>
 
     <build>

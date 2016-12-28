@@ -18,8 +18,10 @@ package be.c4j.ee.security.credentials.authentication.fake;
 
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -46,10 +48,21 @@ public class AuthenticationServlet extends HttpServlet {
 
     private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
 
+    private Boolean localhostOnly;
+
+    @Override
+    public void init() throws ServletException {
+        // TODO Documentation
+        localhostOnly = Boolean.valueOf(ConfigResolver.getPropertyValue("fakeLogin.localhostOnly", "true"));
+        if (localhostOnly == null) {
+            localhostOnly = Boolean.TRUE;
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        if (!"localhost".equals(request.getServerName())) {
+        if (localhostOnly && !"localhost".equals(request.getServerName())) {
             throw new AccessDeniedException(null);
         }
 
@@ -57,6 +70,11 @@ public class AuthenticationServlet extends HttpServlet {
         String loginData = request.getParameter("loginData");
 
         AuthenticationToken token = loginAuthenticationTokenProvider.determineAuthenticationToken(loginData);
+
+        if (token == null) {
+            throw new OctopusConfigurationException("LoginAuthenticationTokenProvider implementation returns null which is not allowed");
+        }
+
         try {
             SecurityUtils.getSubject().login(token);
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);

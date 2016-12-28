@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.json;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2UserInfoProcessor;
+import org.apache.shiro.authz.UnauthenticatedException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -57,6 +58,7 @@ public class GoogleJSONProcessor extends OAuth2UserInfoProcessor {
                 processJSON(oAuth2User, jsonObject, KEYS);
             } else {
                 logger.warn("Received following response from Google token resolving \n" + json);
+                throw new UnauthenticatedException(json);
             }
 
         } catch (JSONException e) {

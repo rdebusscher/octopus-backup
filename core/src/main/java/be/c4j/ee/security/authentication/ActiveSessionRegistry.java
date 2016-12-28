@@ -39,4 +39,8 @@ public class ActiveSessionRegistry {
     public void endSession(String token) {
         tokenPrincipalMapping.remove(token);
     }
+
+    public void endAll() {
+        tokenPrincipalMapping.clear();
+    }
 }

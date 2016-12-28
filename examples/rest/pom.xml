@@ -36,6 +36,9 @@
 
     <modules>
         <module>Google</module>
+        <module>jwt-util</module>
+        <module>jwt</module>
+        <module>keycloak</module>
     </modules>
 
     <build>

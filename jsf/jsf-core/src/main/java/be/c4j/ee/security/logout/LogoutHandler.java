@@ -47,4 +47,8 @@ public class LogoutHandler {
         return externalContext.getRequestContextPath();
     }
 
+    public void preLogoutAction() {
+        // By default, we don't need to do anything.
+        //But Token based Authentication mechanisms can use it to handle the global logout or SLO.
+    }
 }

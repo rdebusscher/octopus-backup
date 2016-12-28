@@ -1,0 +1,73 @@
+Description of the filters we can use in the *securedURL.ini* file.
+
+==== Shiro defined ones
+
+In theory, all Shiro defined filters can be used. But only these seems us useful.
+
+*anon*    Added by default so that any URL whic doesn't match another pattern is mapped to this anonymous filter meaning that every access is allowed.
+
+*user*    We need an authenticated use before the URL can be accessed.
+
+*ssl*    Access must be through a secure http connection (https)
+
+*noSessionCreation*   Handy in the case of URLs used with JAX-RS endpoints to disable the creation of a HTTP session.
+
+==== Octopus Core
+
+*namedPermission* Specify between brackets the named permission names which are needed to allow access like +namedPermission[perm1, perm2]+
+
+*np*    alias for the _namedPermission_ filter
+
+*namedPermission1*    When multiple permissions are specified, only one of them is required to allow access. This in contrary to _namedPermission_ where all permissions are needed.
+
+*np1*    alias for _namedPermission1_ filter
+
+namedRole   Specify between brackets the named roles which are needed to allow access like +namedRole[role1, role2]+
+
+*nr*    alias for the _namedRole_ filter
+
+*namedRole1*    When multiple roles are specified, only one of them is required to allow access. This in contrary to _namedRole_ where all roles are needed.
+
+*nr1*    alias for _namedRole1_ filter
+
+*voter*   Specify the named voter wich needs to be used to verify if the user has access to the URL.
+
+*audit*   Filter for auditing access, is used when the configuration parameter +globalAuditActive+ is set but can also be used on selective URL patterns.
+
+*none*   All access to these URL patterns is prohibited.
+
+==== OAuth2 Google module
+
+*user*   is redefined specific for Google OAuth2 functionality.
+
+*GoogleAuthcFilter*  Uses the value in the +Authorization+ header as a bearer token/access token and verifies it with Google.
+
+==== OAuth2 GitHub module
+
+*user*   is redefined specific for GitHub OAuth2 functionality.
+
+*GithubAuthcFilter*  Uses the value in the +Authorization+ header as a bearer token/access token and verifies it with Github.
+
+==== OAuth2 LinkedIn module
+
+*user*   is redefined specific for LinkedIn OAuth2 functionality.
+
+*LinkedinAuthcFilter*  Uses the value in the +Authorization+ header as a bearer token/access token and verifies it with LinkedIn.
+
+==== CAS module
+
+*user*   is redefined specific for CAS functionality.
+
+==== Keycloak module
+
+*user*   is redefined specific for Keycloak functionality.
+
+==== JWT module
+
+*jwt*   Filter which uses the value of the +Authorization+ header in combination with an implementation of  *be.c4j.ee.security.credentials.authentication.jwt.jwt.JWTHelper* to define if the call is allowed.
+
+
+
+
+
+

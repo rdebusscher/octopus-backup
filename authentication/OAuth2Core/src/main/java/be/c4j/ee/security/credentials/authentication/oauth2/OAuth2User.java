@@ -225,7 +225,7 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", domain='").append(domain).append('\'');
         sb.append(", verifiedEmail=").append(verifiedEmail);
-        sb.append(", C4J-app='").append(applicationName).append('\'');
+        sb.append(", Octopus-app='").append(applicationName).append('\'');
         sb.append('}');
         return sb.toString();
     }

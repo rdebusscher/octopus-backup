@@ -39,6 +39,8 @@
         <module>OAuth2</module>
         <module>twoStep</module>
         <module>totp</module>
+        <module>keycloakSE</module>
+        <module>keycloak</module>
     </modules>
 
     <build>

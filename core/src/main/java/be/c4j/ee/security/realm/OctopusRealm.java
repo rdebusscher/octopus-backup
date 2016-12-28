@@ -153,8 +153,8 @@ public class OctopusRealm extends AuthorizingRealm {
     }
 
     protected boolean isAuthenticationCachingEnabled(AuthenticationToken token, AuthenticationInfo info) {
-        boolean result = false;  // For systemAccounts, TwoStepFactor, no caching
-        if (!(token instanceof SystemAccountAuthenticationToken) && !(token instanceof TwoStepAuthenticationInfo)) {
+        boolean result = false;  // For systemAccounts, no caching
+        if (!(token instanceof SystemAccountAuthenticationToken)) {
             result = isAuthenticationCachingEnabled();
         }
         return result;

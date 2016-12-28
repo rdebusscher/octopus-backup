@@ -1,6 +1,6 @@
 = Octopus Framework
 C4J - Rudy De Busscher (www.c4j.be) <rudy.debusscher@c4j.be>
-v0.9.6.3, 25/05/2016
+v0.9.6.4, 28/12/2016
 
 == Release notes
 
@@ -40,6 +40,10 @@ include::authentication.adi[]
 
 include::authorization.adi[]
 
+=== Authorize URLs
+
+include::url.adi[]
+
 == Exceptions
 
 include::exceptions.adi[]
@@ -73,7 +77,13 @@ include::ldap.adi[]
 
 include::OAuth2.adi[]
 
+=== Authorization with JWT (JSON Web Tokens)
+
 include::jwt.adi[]
+
+=== Keycloak integration
+
+include::keycloak.adi[]
 
 === CAS integration
 
@@ -82,6 +92,10 @@ include::cas.adi[]
 === Using Oracle Users for authentication
 
 include::oracleUser.adi[]
+
+=== Local development
+
+include::fakeLogin.adi[]
 
 == Other features
 

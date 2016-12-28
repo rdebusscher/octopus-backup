@@ -44,9 +44,15 @@ public class FacesMessages implements Serializable {
     private MessageContext messageContext;
 
     public FacesMessages template(String template) {
-        this.template = template;
         if (!template.startsWith("{") && !template.endsWith("}")) {
-            this.template = "{" + template + "}";
+            if (template.contains(" ")) {
+                this.text = template; // When it doesn't start with { (and end with } ) and contains spaces -> just text.
+            } else {
+                this.template = "{" + template + "}";
+            }
+        } else {
+            this.template = template;
+
         }
         return this;
     }
@@ -108,6 +114,9 @@ public class FacesMessages implements Serializable {
         String msg;
         if (StringUtils.isEmpty(template)) {
             msg = text;
+            if (severity == null) {  // If we are using text, and the developer didn't specify a severity => Assume ERROR.
+                severity = FacesMessage.SEVERITY_ERROR;
+            }
         } else {
             msg = messageContext.message().template(template).argument(arguments).toString();
 

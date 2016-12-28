@@ -38,6 +38,7 @@
         <module>jsf-core</module>
         <module>javaee6-jsf</module>
         <module>javaee7-jsf</module>
+        <module>jsf-keycloak</module>
     </modules>
 
 </project>

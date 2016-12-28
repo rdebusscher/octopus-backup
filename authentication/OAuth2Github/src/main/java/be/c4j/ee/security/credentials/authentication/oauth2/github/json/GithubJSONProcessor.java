@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.github.json;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2UserInfoProcessor;
+import org.apache.shiro.authz.UnauthenticatedException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -54,6 +55,7 @@ public class GithubJSONProcessor extends OAuth2UserInfoProcessor {
 
             } else {
                 logger.warn("Received following response from Github token resolving \n" + json);
+                throw new UnauthenticatedException(json);
             }
 
         } catch (JSONException e) {
