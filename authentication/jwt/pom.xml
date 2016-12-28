@@ -20,7 +20,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>authentication</artifactId>
-        <version>0.9.6.4-SNAPSHOT</version>
+        <version>0.9.6.4</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
     <artifactId>jwt</artifactId>
-    <version>0.9.6.4-SNAPSHOT</version>
+    <version>0.9.6.4</version>
 
     <name>JWT signed tokens as authentication</name>
 

@@ -52,6 +52,7 @@ public class AuthenticationServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
+        // TODO Documentation
         localhostOnly = Boolean.valueOf(ConfigResolver.getPropertyValue("fakeLogin.localhostOnly", "true"));
         if (localhostOnly == null) {
             localhostOnly = Boolean.TRUE;

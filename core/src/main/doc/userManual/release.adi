@@ -1,9 +1,10 @@
 === 0.9.6.4
 
 . Additional CDI bean which allows to add entries for the userInfo map of UserPrincipal (SSO client module)
-. @CacheResult interceptor for verifying permission based on method result.
+. @CheckResult interceptor for verifying permission based on method result.
 . Support for Keycloak as authentication provider.
-. none filter to block all access to the URL patter
+. none filter to block all access to the URL pattern
+. Some fixes (Exception handling) related to OAuth2
 
 === 0.9.6.3
 

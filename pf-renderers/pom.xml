@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.6.4-SNAPSHOT</version>
+        <version>0.9.6.4</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>octopus-primefaces</artifactId>
-    <version>0.9.6.4-SNAPSHOT</version>
+    <version>0.9.6.4</version>
 
     <name>PrimeFaces renderers for Octopus framework</name>
 
