@@ -162,8 +162,12 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     }
 
     private Ini readURLPatterns() {
-        Ini iniWithURLS = getSpecifiedIni(new String[]{config.getLocationSecuredURLProperties()});
+        Ini iniWithURLS = createIni(config.getLocationSecuredURLProperties(), false);
 
+        //securedURLs.ini is optional since 0.9.7
+        if  (iniWithURLS == null) {
+            iniWithURLS = new Ini();
+        }
         iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
         return iniWithURLS;
     }
