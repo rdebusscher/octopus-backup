@@ -29,7 +29,7 @@
 
     <groupId>be.c4j.ee.security.demo</groupId>
     <artifactId>permission</artifactId>
-    <!-- My mistake that it isn't 0.9.6  Was separately before but now integrated in multi module POM-->
+    <!-- My mistake that it isn't 0.9.7  Was separately before but now integrated in multi module POM-->
     <version>1.1.1</version>
     <packaging>war</packaging>
     <name>Permission demo</name>
