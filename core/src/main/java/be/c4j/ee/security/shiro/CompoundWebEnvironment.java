@@ -165,7 +165,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         Ini iniWithURLS = createIni(config.getLocationSecuredURLProperties(), false);
 
         //securedURLs.ini is optional since 0.9.7
-        if  (iniWithURLS == null) {
+        if (iniWithURLS == null) {
             iniWithURLS = new Ini();
         }
         iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
@@ -180,6 +180,11 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         for (Map.Entry<String, String> entry : source.entrySet()) {
             String value = entry.getValue();
 
+            String url = entry.getKey();
+            if (!url.startsWith("/")) {
+                url = '/' + url;
+            }
+
             List<String> additionalFilters = new ArrayList<String>();
 
             if (globalAudit) {
@@ -187,7 +192,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             }
 
             for (GlobalFilterConfiguration globalFilterConfiguration : globalFilterConfigurations) {
-                additionalFilters.addAll(globalFilterConfiguration.addFiltersTo(entry.getKey()));
+                additionalFilters.addAll(globalFilterConfiguration.addFiltersTo(url));
 
             }
 
@@ -200,7 +205,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                 value = filters.toString();
             }
 
-            target.put(entry.getKey(), value);
+            target.put(url, value);
         }
     }
 
