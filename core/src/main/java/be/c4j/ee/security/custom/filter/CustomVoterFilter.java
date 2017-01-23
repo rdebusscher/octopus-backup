@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  */
 package be.c4j.ee.security.custom.filter;
 
+import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import be.c4j.ee.security.custom.AbstractGenericVoter;
 import be.c4j.ee.security.util.CDIUtil;
-import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;

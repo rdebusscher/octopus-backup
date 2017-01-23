@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.OctopusConfig;
@@ -123,7 +139,7 @@ public class NamedPermissionProducerTest {
         when(octopusPermissionsMock.value()).thenReturn(new String[]{TEST_PERMISSION});
 
         when(stringPermissionLookupMock.getPermission(TEST_PERMISSION)).thenReturn(new NamedDomainPermission(TEST_PERMISSION, "test:*:*"));
-        
+
         Subject subjectMock = mock(Subject.class);
         beanManagerFake.registerBean(subjectMock, Subject.class);
 

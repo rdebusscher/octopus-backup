@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.Map;
  *
  */
 @Typed
-public class RoleLookup <T extends Enum<T>> {
+public class RoleLookup<T extends Enum<T>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleLookup.class);
 
     private Map<T, NamedApplicationRole> map;  // for holding the mapping between the two
@@ -50,7 +50,7 @@ public class RoleLookup <T extends Enum<T>> {
                 key = Enum.valueOf(clazz, item.getRoleName());
                 map.put(key, item);
             } catch (IllegalArgumentException e) {
-                LOGGER.info("There is no type safe equivalent and CDI Bean for named role "+item.getRoleName());
+                LOGGER.info("There is no type safe equivalent and CDI Bean for named role " + item.getRoleName());
             }
         }
     }

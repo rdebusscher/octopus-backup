@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import be.c4j.demo.security.demo.service.EmployeeService;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.ViewAccessScoped;
-
 
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;

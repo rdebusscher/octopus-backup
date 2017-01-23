@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * limitations under the License.
  *
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://java.sun.com/jsf/core">
 
@@ -27,7 +27,7 @@
 
         <f:metadata>
             <f:viewParam name="employeeId" value="#{employeeBean.employeeId}"/>
-            <f:event type="preRenderView" listener="#{employeeBean.loadEmployee}" />
+            <f:event type="preRenderView" listener="#{employeeBean.loadEmployee}"/>
         </f:metadata>
     </ui:define>
     <ui:define name="title">Primefaces Sample</ui:define>
@@ -35,8 +35,8 @@
     <ui:define name="body">
 
         <p:panel header="Employee #{employeeBean.employee.name}">
-            <p:outputLabel for="salary" value="salary" />
-            <p:inputText id="salary"  value="#{employeeBean.employee.salary}" required="true" />
+            <p:outputLabel for="salary" value="salary"/>
+            <p:inputText id="salary" value="#{employeeBean.employee.salary}" required="true"/>
             <f:facet name="footer">
                 <p:commandButton value="Save" ajax="false" action="/pages/employeeInfo.xhtml"
                                  actionListener="#{employeeBean.saveSalary}">
@@ -44,7 +44,7 @@
                 </p:commandButton>
 
                 <p:commandButton value="Cancel" ajax="false" action="/pages/employeeInfo.xhtml"
-                                 immediate="true" >
+                                 immediate="true">
                     <f:param name="employeeId" value="#{employeeBean.employee.id}"/>
                 </p:commandButton>
             </f:facet>

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="employeeId" value="#{employeeBean.employeeId}"/>
-            <f:event type="preRenderView" listener="#{employeeBean.loadEmployee}" />
+            <f:event type="preRenderView" listener="#{employeeBean.loadEmployee}"/>
         </f:metadata>
     </ui:define>
 
@@ -36,19 +36,19 @@
 
         <p:panel header="Employee information of #{employeeBean.employee.name}">
             <p:panelGrid columns="2">
-                <h:outputText value="salary"/> <h:outputText value="#{employeeBean.employee.salary}" />
+                <h:outputText value="salary"/> <h:outputText value="#{employeeBean.employee.salary}"/>
                 <h:outputText value="department"/>
                 <h:link outcome="/pages/departmentEmployees.xhtml" value="#{employeeBean.employee.department.name}">
-                    <f:param name="departmentId" value="#{employeeBean.employee.department.id}" />
+                    <f:param name="departmentId" value="#{employeeBean.employee.department.id}"/>
                 </h:link>
-                <h:outputText value="manager"/> <h:outputText value="#{employeeBean.employee.manager.name}" />
+                <h:outputText value="manager"/> <h:outputText value="#{employeeBean.employee.manager.name}"/>
 
             </p:panelGrid>
             And other confidential information like address but here not shown as it is a demo. <br/>
-            <p:button value="Update salary" outcome="updateSalary.xhtml" >
-                <f:param name="employeeId" value="#{employeeBean.employee.id}" />
-                <sec:securedComponent voter="employeeSalaryUpdateVoter" >
-                    <sec:securedComponentParameter value="#{employeeBean.employee.id}" />
+            <p:button value="Update salary" outcome="updateSalary.xhtml">
+                <f:param name="employeeId" value="#{employeeBean.employee.id}"/>
+                <sec:securedComponent voter="employeeSalaryUpdateVoter">
+                    <sec:securedComponentParameter value="#{employeeBean.employee.id}"/>
                 </sec:securedComponent>
             </p:button>
         </p:panel>

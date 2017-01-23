@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
             <p:inputText id="username" value="#{loginBean.username}" required="true"/>
 
             <p:outputLabel for="password" value="Password:"/>
-            <p:password id="password" value="#{loginBean.password}" required="true" feedback="" />
+            <p:password id="password" value="#{loginBean.password}" required="true" feedback=""/>
 
             <p:outputLabel for="rememberMe" value="Remember Me:"/>
             <p:selectBooleanCheckbox id="rememberMe" value="#{loginBean.remember}"/>
@@ -38,7 +38,7 @@
             <p:commandButton value="Login" actionListener="#{loginBean.doLogin}" update="@form" process="@form"/>
 
         </h:panelGrid>
-        <p:messages />
+        <p:messages/>
     </h:form>
     For this starter, password is the same as username and any username will be accepted.
 </h:body>

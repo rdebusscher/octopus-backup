@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class EmployeeService {
     public void updateSalary(Employee employee) {
         Employee dataEmployee = data.getEmployee(employee.getId());
         if (dataEmployee.getSalary() > employee.getSalary()) {
-           throw new EmployeeLowerSalaryException();
+            throw new EmployeeLowerSalaryException();
         }
         dataEmployee.setSalary(employee.getSalary());
         data.updateEmployee(dataEmployee);

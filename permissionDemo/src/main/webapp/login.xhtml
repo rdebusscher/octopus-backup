@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
  *
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <h:outputStylesheet library="css" name="starter.css" />
+    <h:outputStylesheet library="css" name="starter.css"/>
 </h:head>
 <h:body>
     <h2>Login</h2>
@@ -37,7 +37,7 @@
         </h:panelGrid>
         <p:messages globalOnly="true" layout="table" autoUpdate="true"/>
     </h:form>
-    In below table you can find the valid user names.  The pasword is the reverse of the user name.  User name and password are case sensitive.
+    In below table you can find the valid user names. The pasword is the reverse of the user name. User name and password are case sensitive.
     <p:dataTable value="#{infoBean.users}" var="user">
         <p:column headerText="User name">
             #{user.userName}
@@ -46,7 +46,7 @@
             #{user.name}
         </p:column>
         <p:column headerText="Permission">
-        #{user.permissionInfo}
-    </p:column> </p:dataTable>
+            #{user.permissionInfo}
+        </p:column> </p:dataTable>
 </h:body>
 </html>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,13 +80,21 @@ public class Employee {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true;}
-        if (o == null || getClass() != o.getClass()) {return false;}
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Employee employee = (Employee) o;
 
-        if (!hireDate.equals(employee.hireDate)) {return false;}
-        if (!name.equals(employee.name)) {return false;}
+        if (!hireDate.equals(employee.hireDate)) {
+            return false;
+        }
+        if (!name.equals(employee.name)) {
+            return false;
+        }
 
         return true;
     }

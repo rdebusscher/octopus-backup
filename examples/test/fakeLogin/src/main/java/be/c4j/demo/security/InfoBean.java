@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class InfoBean {
 
     public String getInfoValue(String key) {
         Object info = userPrincipal.getUserInfo(key);
-        return info == null ? "" :  info.toString();
+        return info == null ? "" : info.toString();
     }
 
     public List<Serializable> getKeys() {

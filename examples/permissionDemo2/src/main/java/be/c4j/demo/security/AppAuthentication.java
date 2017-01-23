@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
  */
 package be.c4j.demo.security;
 
-import be.c4j.demo.security.demo.model.HRAppPermission;
 import be.c4j.demo.security.demo.model.Principal;
-import be.c4j.demo.security.demo.service.InMemoryDatabase;
 import be.c4j.demo.security.demo.service.PermissionService;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
@@ -35,7 +33,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Produces;
-import java.util.ArrayList;
 import java.util.List;
 
 

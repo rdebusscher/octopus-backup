@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class DepartmentSalaryOverviewVoter extends AbstractGenericVoter {
 
         boolean allowed = permissionSalaryAll.verifyPermission();
         if (!allowed) {
-            if (permissionSalaryManager.verifyPermission())  {
+            if (permissionSalaryManager.verifyPermission()) {
 // TODO Check op parameter
                 InvocationContext invocationContext = accessDecisionVoterContext.getSource();
                 DepartmentWithSalaryTotal department = methodParameterCheckUtil.getAssignableParameter(invocationContext, DepartmentWithSalaryTotal.class);

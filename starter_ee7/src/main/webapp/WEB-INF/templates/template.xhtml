@@ -1,6 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +16,19 @@
  * limitations under the License.
  *
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 
 <h:head>
     <title><ui:define name="title">Application Title</ui:define></title>
-    <meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
-    <h:outputStylesheet library="css" name="starter.css" />
+    <meta http-equiv="content-type" content="text/xhtml; charset=UTF-8"/>
+    <h:outputStylesheet library="css" name="starter.css"/>
 </h:head>
 
 <h:body>
-    <div id="header">Welcome #{loggedInUser} <h:form id="logoutFrm"><h:commandLink id="logoutLink" actionListener="#{loginBean.logout()}">Logout</h:commandLink> </h:form></div>
+    <div id="header">Welcome #{loggedInUser} <h:form id="logoutFrm"><h:commandLink id="logoutLink"
+                                                                                   actionListener="#{loginBean.logout()}">Logout</h:commandLink>
+    </h:form></div>
     <ui:insert name="body">Default content</ui:insert>
 </h:body>
 </html>

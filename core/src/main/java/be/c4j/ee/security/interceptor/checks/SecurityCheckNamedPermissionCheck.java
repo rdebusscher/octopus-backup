@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 package be.c4j.ee.security.interceptor.checks;
 
+import be.c4j.ee.security.Combined;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
@@ -24,7 +25,6 @@ import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
-import be.c4j.ee.security.Combined;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;

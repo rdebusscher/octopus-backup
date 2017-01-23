@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,7 @@ public class OctopusSSORestEndpoint {
             logger.warn("Octopus SSO Rest Endpoint is inactive because no implementation PrepareSSORestEndpoint is specified");
         }
     }
+
     @Path("/user")
     @POST
     @Produces(MediaType.TEXT_PLAIN)

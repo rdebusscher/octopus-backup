@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
-            <description>Defines the permission(s) that will be used for this. multiple names separated by a ,</description>
+            <description>Defines the permission(s) that will be used for this. multiple names separated by a ,
+            </description>
             <name>permission</name>
             <required>false</required>
             <type>java.lang.String</type>
@@ -125,7 +126,8 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
-            <description>Defines the permission(s) that will be used for this. multiple names separated by a ,</description>
+            <description>Defines the permission(s) that will be used for this. multiple names separated by a ,
+            </description>
             <name>permission</name>
             <required>false</required>
             <type>java.lang.String</type>

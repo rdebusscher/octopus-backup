@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -379,7 +379,7 @@ public class InMemoryDatabase {
     public Department getDepartmentByName(String departmentName) {
         Department result = null;
         String basicName = departmentName.trim().toLowerCase();
-        for (Department department  : departments.values()) {
+        for (Department department : departments.values()) {
             if (department.getName().toLowerCase().equals(basicName)) {
                 result = department;
                 break;
@@ -389,7 +389,7 @@ public class InMemoryDatabase {
     }
 
     public void createDepartment(Department department) {
-        department.setId((long) (departments.size()+1));
+        department.setId((long) (departments.size() + 1));
         departments.put(department.getId(), department);
     }
 }
