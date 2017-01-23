@@ -54,8 +54,8 @@ public class OctopusJSFExtension implements Extension {
             Bean<LoginBean> newBean = new BeanBuilder<LoginBean>(beanManager)
                     .passivationCapable(false).beanClass(LoginBean.class)
                     .injectionPoints(bean.getInjectionPoints()).name(config.getAliasNameLoginbean())
-                    .scope(bean.getScope()).addQualifiers(bean.getQualifiers())
-                    .addTypes(bean.getTypes()).alternative(bean.isAlternative()).nullable(bean.isNullable())
+                    .scope(bean.getScope()).qualifiers(bean.getQualifiers())
+                    .types(bean.getTypes()).alternative(bean.isAlternative()).nullable(bean.isNullable())
                     .stereotypes(bean.getStereotypes())
                     .beanLifecycle(new DelegatingContextualLifecycle(loginInjectionTarget)).create();
             afterBeanDiscovery.addBean(newBean);
