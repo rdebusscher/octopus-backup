@@ -30,10 +30,6 @@
     <artifactId>hashed-password</artifactId>
     <packaging>war</packaging>
 
-    <properties>
-        <deltaspike.version>1.5.0</deltaspike.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -92,7 +88,7 @@
             <!-- core-api is defined as provided at top level, so we have to overrule it here -->
             <groupId>org.apache.deltaspike.core</groupId>
             <artifactId>deltaspike-core-api</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -100,21 +96,21 @@
             <!-- security-api is defined as provided at top level, so we have to overrule it here -->
             <groupId>org.apache.deltaspike.modules</groupId>
             <artifactId>deltaspike-security-module-api</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.deltaspike.modules</groupId>
             <artifactId>deltaspike-security-module-impl</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.deltaspike.modules</groupId>
             <artifactId>deltaspike-jsf-module-impl</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>runtime</scope>
         </dependency>
 

@@ -35,9 +35,6 @@
 
     <name>Rest endpoint protected by Keycloak Bearer</name>
 
-    <properties>
-        <deltaspike.version>1.4.0</deltaspike.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
@@ -62,28 +59,28 @@
         <dependency>
             <groupId>org.apache.deltaspike.core</groupId>
             <artifactId>deltaspike-core-api</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.deltaspike.modules</groupId>
             <artifactId>deltaspike-security-module-api</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.deltaspike.core</groupId>
             <artifactId>deltaspike-core-impl</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.deltaspike.modules</groupId>
             <artifactId>deltaspike-security-module-impl</artifactId>
-            <version>${deltaspike.version}</version>
+            <version>${deltaspike.version.demo}</version>
             <scope>runtime</scope>
         </dependency>
 

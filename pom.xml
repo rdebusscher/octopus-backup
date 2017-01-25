@@ -78,7 +78,8 @@
     </distributionManagement>
 
     <properties>
-        <deltaspike.version>1.2.0</deltaspike.version>
+        <deltaspike.version>1.0.0</deltaspike.version>  <!-- building the framework -->
+        <deltaspike.version.demo>1.7.0</deltaspike.version.demo> <!-- used in de demos and examples -->
         <shiro.version>1.2.2</shiro.version>
         <myfaces.version>2.0.2</myfaces.version>
         <jerry.version>0.4.0</jerry.version>
