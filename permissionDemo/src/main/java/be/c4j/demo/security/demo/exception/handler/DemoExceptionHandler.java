@@ -15,6 +15,7 @@
  */
 package be.c4j.demo.security.demo.exception.handler;
 
+import be.c4j.demo.security.demo.exception.DemoBusinessException;
 import be.c4j.ee.security.messages.FacesMessages;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
@@ -76,6 +77,10 @@ public class DemoExceptionHandler extends ExceptionHandlerWrapper {
         Throwable result = null;
         if (exception != null && exception.getCause() instanceof EJBException) {
             result = ((EJBException) exception.getCause()).getCausedByException();
+            if (!(result instanceof DemoBusinessException)) {
+                result = null;
+            }
+
         }
         return result;
     }
