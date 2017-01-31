@@ -18,6 +18,7 @@ package be.c4j.ee.security.realm;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.permission.OctopusPermissionResolver;
 import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -60,6 +61,7 @@ public class OctopusRealm extends AuthorizingRealm {
 
         setCachingEnabled(true);
         setAuthenticationTokenClass(AuthenticationToken.class);
+        setPermissionResolver(BeanProvider.getContextualReference(OctopusPermissionResolver.class));
     }
 
     @Override

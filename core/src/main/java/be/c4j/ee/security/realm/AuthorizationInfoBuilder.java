@@ -18,8 +18,6 @@ package be.c4j.ee.security.realm;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
-import be.c4j.ee.security.permission.PermissionLookup;
-import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
@@ -39,44 +37,38 @@ import java.util.Set;
 @Typed
 public class AuthorizationInfoBuilder {
 
-    private PermissionLookup permissionLookup;
-
-    private StringPermissionLookup stringLookup;
-
     private RoleLookup roleLookup;
 
     public AuthorizationInfoBuilder() {
-        permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
-        stringLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
         roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
     }
 
     private Set<Permission> permissionsAndRoles = new HashSet<Permission>();
+    private Set<String> stringPermissions = new HashSet<String>();
 
     public AuthorizationInfoBuilder addPermission(NamedPermission namedPermission) {
         if (namedPermission instanceof NamedDomainPermission) {
             permissionsAndRoles.add((NamedDomainPermission) namedPermission);
         } else {
-            if (permissionLookup == null && stringLookup == null) {
-                throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup or StringPermissionLookup");
-            }
-            Permission permission = null;
-            if (permissionLookup != null) {
-                permission = permissionLookup.getPermission(namedPermission.name());
-            } else {
-                permission = stringLookup.getPermission(namedPermission.name());
-            }
-            permissionsAndRoles.add(permission);
+            addPermission(namedPermission.name());
         }
         return this;
     }
 
+    public AuthorizationInfoBuilder addPermission(String permissionName) {
+        stringPermissions.add(permissionName);
+        return this;
+    }
+
     public AuthorizationInfoBuilder addPermissions(Collection<? extends NamedPermission> namedPermissions) {
-        Iterator<? extends NamedPermission> iter = namedPermissions.iterator();
-        while (iter.hasNext()) {
-            NamedPermission namedPermission = iter.next();
+        for (NamedPermission namedPermission : namedPermissions) {
             addPermission(namedPermission);
         }
+        return this;
+    }
+
+    public AuthorizationInfoBuilder addStringPermissions(Collection<String> permissions) {
+        stringPermissions.addAll(permissions);
         return this;
     }
 
@@ -86,6 +78,7 @@ public class AuthorizationInfoBuilder {
     }
 
     public AuthorizationInfoBuilder addRole(NamedRole namedRole) {
+        // FIXME Need to use RolePermissionResolver
         if (roleLookup == null) {
             throw new OctopusConfigurationException("A @Producer needs to be defined for RoleLookup");
         }
@@ -106,6 +99,7 @@ public class AuthorizationInfoBuilder {
     public AuthorizationInfo build() {
         SimpleAuthorizationInfo result = new SimpleAuthorizationInfo();
         result.addObjectPermissions(permissionsAndRoles);
+        result.addStringPermissions(stringPermissions);
         return result;
     }
 

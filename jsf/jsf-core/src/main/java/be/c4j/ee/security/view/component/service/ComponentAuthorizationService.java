@@ -28,13 +28,13 @@ import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVo
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.el.ValueExpression;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -44,7 +44,8 @@ import java.util.Set;
 @ApplicationScoped
 public class ComponentAuthorizationService {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    @Inject
+    private Logger logger;
 
     private BeanManager beanManager;
 
@@ -57,7 +58,7 @@ public class ComponentAuthorizationService {
         stringLookup = BeanProvider.getContextualReference(StringPermissionLookup.class, true);
     }
 
-    public boolean hasAccess(final SecuredComponentData secureComponentData) {
+    public boolean hasAccess(SecuredComponentData secureComponentData) {
         boolean result = secureComponentData.isCombined();
         boolean partialResult;
         Object[] contextParameters = getContextParameters(secureComponentData);
@@ -90,6 +91,9 @@ public class ComponentAuthorizationService {
     }
 
     private Object[] getContextParameters(SecuredComponentData secureComponentData) {
+        if (secureComponentData.getParameters() == null) {
+            return new Object[0];
+        }
         Object[] result = new Object[secureComponentData.getParameters().length];
         int idx = 0;
         for (SecuredComponentDataParameter parameter : secureComponentData.getParameters()) {
@@ -102,21 +106,23 @@ public class ComponentAuthorizationService {
         return result;
     }
 
-    private AbstractAccessDecisionVoter getBean(final String name) {
-        // TODO Write tests for this !!
+    private AbstractAccessDecisionVoter getBean(String name) {
         AbstractAccessDecisionVoter result = null;
 
         if (name.contains(":")) {
             NamedDomainPermission permission;
             if (name.startsWith(":")) {
+                // Remove the leading :
+                String realName = name.substring(1);
                 if (stringLookup == null) {
                     // We found a name but developer didn't specify some lookup. So assume :*:* at the end
-                    permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(name), name + ":*:*");
+
+                    permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(realName), realName + ":*:*");
                 } else {
-                    permission = stringLookup.getPermission(name.substring(1));
-                    // Remove the leading :
+                    permission = stringLookup.getPermission(realName);
                 }
             } else {
+                // TODO During testing we found out that x:y fails, need to perform checks everywhere
                 // A full blown wildcard shiro permission
                 permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(name), name);
             }
@@ -132,7 +138,7 @@ public class ComponentAuthorizationService {
         return result;
     }
 
-    private static Object evaluateExpression(final String valueExpression) {
+    private static Object evaluateExpression(String valueExpression) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ValueExpression expression = facesContext.getApplication().getExpressionFactory()
                 .createValueExpression(facesContext

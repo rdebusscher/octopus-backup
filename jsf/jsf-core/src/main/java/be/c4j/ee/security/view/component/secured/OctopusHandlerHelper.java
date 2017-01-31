@@ -17,6 +17,7 @@ package be.c4j.ee.security.view.component.secured;
 
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.view.component.ComponentUtil;
+import be.c4j.ee.security.view.component.OctopusComponentUsageException;
 import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -40,6 +41,9 @@ public class OctopusHandlerHelper {
 
     public SecuredComponentData gatherSecurityInfo(UIComponent component, UIComponent parent) {
         String voter = getVoterName(component);
+        if (voter.trim().isEmpty()) {
+            throw new OctopusComponentUsageException("securedComponent needs one of the properties voter, permission or role specified");
+        }
 
         Boolean not = ComponentUtil.findValue(component, "not", Boolean.class);
         if (not == null) {
@@ -82,13 +86,14 @@ public class OctopusHandlerHelper {
     private void appendVoterNames(StringBuilder result, String voter) {
         if (voter != null && !voter.trim().isEmpty()) {
             if (result.length() > 0) {
-                result.append(", ");
+                result.append(',');
             }
             result.append(voter);
         }
     }
 
     private SecuredComponentDataParameter[] findParameters(UIComponent c) {
+        // TODO Write some examples about this usage
         List<SecuredComponentDataParameter> result = new ArrayList<SecuredComponentDataParameter>();
         for (UIComponent child : c.getChildren()) {
             if (child instanceof UIParameter) {

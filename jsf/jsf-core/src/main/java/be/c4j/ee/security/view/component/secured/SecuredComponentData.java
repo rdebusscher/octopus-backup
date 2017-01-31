@@ -44,21 +44,22 @@ public class SecuredComponentData {
         this("", false, false, null, null);
     }
 
-    public SecuredComponentData(final String someVoter, final boolean someNot, final boolean someCombined,
-                                final SecuredComponentDataParameter[] someParameters, final String someTargets) {
-        voters = someVoter.split(",");
-        not = someNot;
-        combined = someCombined;
-        parameters = someParameters;
-        targets = someTargets;
+    public SecuredComponentData(String voter, boolean notValue, boolean combined,
+                                SecuredComponentDataParameter[] parameters, String targets) {
+        voters = voter.split(",");
+        not = notValue;
+        this.combined = combined;
+        this.parameters = parameters;
+        this.targets = targets;
     }
 
-    public SecuredComponentData(final SecuredComponentData securedComponentData) {
+    public SecuredComponentData(SecuredComponentData securedComponentData) {
         voters = securedComponentData.getVoters();
         not = securedComponentData.isNot();
         combined = securedComponentData.isCombined();
         parameters = securedComponentData.getParameters();
         targets = securedComponentData.getTargets();
+        // TODO Verify the allTargetComponents property
     }
 
     public void setTargetComponent(UIComponent someTargetComponent) {
