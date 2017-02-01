@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
+
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -44,7 +46,13 @@ public class MultipleAccountServlet extends HttpServlet {
         if (!multipleAccountContent.isUnsatisfied()) {
             multipleAccountContent.get().doGet(request, response);
         } else {
-            response.getWriter().write("Octopus : Multiple accounts for google is active ? " + usingMultiple);
+            try {
+                response.getWriter().write("Octopus : Multiple accounts for google is active ? " + usingMultiple);
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
         }
     }
 

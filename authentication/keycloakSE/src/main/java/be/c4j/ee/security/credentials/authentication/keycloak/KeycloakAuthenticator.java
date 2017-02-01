@@ -149,6 +149,7 @@ public class KeycloakAuthenticator {
             ServerRequest.invokeLogout(deployment, user.getAccessToken().getRefreshToken());
         } catch (IOException e) {
             e.printStackTrace(); // FIXME
+            //throw new OctopusUnexpectedException(e); FIXME We need a new module so that SE thing can depend on this
         } catch (ServerRequest.HttpFailure httpFailure) {
             httpFailure.printStackTrace();  // FIXME
         }

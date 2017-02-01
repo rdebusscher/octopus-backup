@@ -19,6 +19,7 @@ import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.DefaultOauth2ServletInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaDataControl;
 import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeCallbackHandler;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import com.github.scribejava.core.exceptions.OAuthException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.UnauthenticatedException;
@@ -52,31 +53,37 @@ public class OAuth2CallbackServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        if (handleFakeLogin(request, response)) {
-            return; // Fake login handled properly
-        }
-
-        OAuth2CallbackProcessor processor;
-        if (defaultOauth2ServletInfo.getProviders().size() == 1) {
-            processor = BeanProvider.getContextualReference(OAuth2CallbackProcessor.class);
-
-        } else {
-            String userProviderSelection = defaultOauth2ServletInfo.getUserProviderSelection();
-            Class<? extends OAuth2CallbackProcessor> callbackProcessor = oAuth2ProviderMetaDataControl.getProviderMetaData(userProviderSelection).getCallbackProcessor();
-            processor = BeanProvider.getContextualReference(callbackProcessor);
-        }
-
         try {
-            processor.processCallback(request, response);
-        } catch (UnauthenticatedException exception) {
-            OctopusJSFConfig config = BeanProvider.getContextualReference(OctopusJSFConfig.class);
-            request.getRequestDispatcher(config.getUnauthorizedExceptionPage()).forward(request, response);
-        } catch (OAuthException exception) {
-            logger.warn(exception.getMessage());
-            response.reset();
-            response.setContentType("text/plain");
-            response.getWriter().write("There was an issue processing the OAuth2 information.");
+            if (handleFakeLogin(request, response)) {
+                return; // Fake login handled properly
+            }
+
+            OAuth2CallbackProcessor processor;
+            if (defaultOauth2ServletInfo.getProviders().size() == 1) {
+                processor = BeanProvider.getContextualReference(OAuth2CallbackProcessor.class);
+
+            } else {
+                String userProviderSelection = defaultOauth2ServletInfo.getUserProviderSelection();
+                Class<? extends OAuth2CallbackProcessor> callbackProcessor = oAuth2ProviderMetaDataControl.getProviderMetaData(userProviderSelection).getCallbackProcessor();
+                processor = BeanProvider.getContextualReference(callbackProcessor);
+            }
+
+            try {
+                processor.processCallback(request, response);
+            } catch (UnauthenticatedException exception) {
+                OctopusJSFConfig config = BeanProvider.getContextualReference(OctopusJSFConfig.class);
+                request.getRequestDispatcher(config.getUnauthorizedExceptionPage()).forward(request, response);
+            } catch (OAuthException exception) {
+                logger.warn(exception.getMessage());
+                response.reset();
+                response.setContentType("text/plain");
+                response.getWriter().write("There was an issue processing the OAuth2 information.");
+            }
+        } catch (IOException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
         }
+
     }
 
     private boolean handleFakeLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {

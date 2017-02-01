@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.twostep.totp;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.messages.FacesMessages;
 import be.c4j.ee.security.twostep.otp.Base32;
 import be.c4j.ee.security.twostep.otp.OTPUserData;
@@ -70,7 +71,7 @@ public class InputBean implements Serializable {
                 facesMessages.text("TOTP is NOT valid").asError().show();
             }
         } catch (Base32.DecodingException e) {
-            e.printStackTrace();
+            throw new OctopusUnexpectedException(e);
         }
     }
 }

@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,8 +175,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
             }
 
         } catch (JSONException e) {
-            // FIXME
-            e.printStackTrace();
+            throw new OctopusUnexpectedException(e);
         }
 
         return result.toString();
@@ -196,8 +196,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
             result.setEmail(jsonObject.getString("email"));
 
         } catch (JSONException e) {
-            // FIXME
-            e.printStackTrace();
+            throw new OctopusUnexpectedException(e);
         }
         return result;
     }

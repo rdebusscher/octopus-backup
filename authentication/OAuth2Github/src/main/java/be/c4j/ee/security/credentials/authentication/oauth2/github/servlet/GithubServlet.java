@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.github.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.github.provider.GithubOAuth2ServiceProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2Servlet;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -38,7 +39,13 @@ public class GithubServlet extends OAuth2Servlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
 
-        redirectToAuthorizationURL(request, response, githubOAuth2ServiceProducer);
+        try {
+            redirectToAuthorizationURL(request, response, githubOAuth2ServiceProducer);
+        } catch (IOException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
+
+        }
     }
 
 }

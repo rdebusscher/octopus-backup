@@ -215,13 +215,13 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
     @Override
     protected void configure() {
-        // Copied From supr class with only 1 change: calling the  createOctopusSecurityManager()
+        // Copied From super class with : calling the  createOctopusSecurityManager() and createOctopusFilterChainResolver
         this.objects.clear();
 
         WebSecurityManager securityManager = createOctopusSecurityManager();
         setWebSecurityManager(securityManager);
 
-        FilterChainResolver resolver = createFilterChainResolver();
+        FilterChainResolver resolver = createOctopusFilterChainResolver();
         if (resolver != null) {
             setFilterChainResolver(resolver);
         }
@@ -250,4 +250,25 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         return wsm;
 
     }
+
+    private FilterChainResolver createOctopusFilterChainResolver() {
+
+        FilterChainResolver resolver = null;
+
+        Ini ini = getIni();
+
+        if (!CollectionUtils.isEmpty(ini)) {
+            //only create a resolver if the 'filters' or 'urls' sections are defined:
+            Ini.Section urls = ini.getSection(IniFilterChainResolverFactory.URLS);
+            Ini.Section filters = ini.getSection(IniFilterChainResolverFactory.FILTERS);
+            if (!CollectionUtils.isEmpty(urls) || !CollectionUtils.isEmpty(filters)) {
+                //either the urls section or the filters section was defined.  Go ahead and create the resolver:
+                IniFilterChainResolverFactory factory = new OctopusIniFilterChainResolverFactory(ini, this.objects);
+                resolver = factory.getInstance();
+            }
+        }
+
+        return resolver;
+    }
+
 }

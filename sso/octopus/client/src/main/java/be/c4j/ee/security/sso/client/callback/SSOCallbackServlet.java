@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.client.callback;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
@@ -79,14 +80,26 @@ public class SSOCallbackServlet extends HttpServlet {
             SecurityUtils.getSubject().login(user);
 
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
-            resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
+            try {
+                resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
 
         } catch (AuthenticationException e) {
             HttpSession sess = request.getSession();
             sess.setAttribute(OctopusSSOUser.USER_INFO_KEY, user);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             // DataSecurityProvider decided that Octopus user has no access to application
-            resp.sendRedirect(request.getContextPath() + config.getUnauthorizedExceptionPage());
+            try {
+                resp.sendRedirect(request.getContextPath() + config.getUnauthorizedExceptionPage());
+            } catch (IOException ioException) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(ioException);
+
+            }
         }
     }
 

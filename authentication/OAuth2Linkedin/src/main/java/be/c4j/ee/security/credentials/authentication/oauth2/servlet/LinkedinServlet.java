@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.provider.LinkedinOAuth2ServiceProducer;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -37,7 +38,13 @@ public class LinkedinServlet extends OAuth2Servlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
 
-        redirectToAuthorizationURL(request, response, linkedinOAuth2ServiceProducer);
+        try {
+            redirectToAuthorizationURL(request, response, linkedinOAuth2ServiceProducer);
+        } catch (IOException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
+
+        }
     }
 
 }

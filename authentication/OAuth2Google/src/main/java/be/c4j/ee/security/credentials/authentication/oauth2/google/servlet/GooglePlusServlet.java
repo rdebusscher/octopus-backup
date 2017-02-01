@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2Servlet;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -38,11 +39,18 @@ public class GooglePlusServlet extends OAuth2Servlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        redirectToAuthorizationURL(request, response, googleOAuth2ServiceProducer);
+        try {
+            redirectToAuthorizationURL(request, response, googleOAuth2ServiceProducer);
+        } catch (IOException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
+
+        }
     }
 
     @Override
     protected String postProcessAuthorizationUrl(HttpServletRequest request, String authorizationUrl) {
+        String result = authorizationUrl;
         boolean multipleAccounts = false;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {

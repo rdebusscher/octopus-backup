@@ -1,21 +1,36 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Taken with small modifications
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (C) 2004, OATH.  All rights reserved.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * License to copy and use this software is granted provided that it
+ * is identified as the "OATH HOTP Algorithm" in all material
+ * mentioning or referencing this software or this function.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * License is also granted to make and use derivative works provided
+ * that such works are identified as
+ *  "derived from OATH HOTP algorithm"
+ * in all material mentioning or referencing the derived work.
+ *
+ * OATH (Open AuTHentication) and its members make no
+ * representations concerning either the merchantability of this
+ * software or the suitability of this software for any particular
+ * purpose.
+ *
+ * It is provided "as is" without express or implied warranty
+ * of any kind and OATH AND ITS MEMBERS EXPRESSaLY DISCLAIMS
+ * ANY WARRANTY OR LIABILITY OF ANY KIND relating to this software.
+ *
+ * These notices must be retained in any copies of any part of this
+ * documentation and/or software.
+ *
+ *
+ * Portions Copyrighted [2011] [ForgeRock AS]
  */
 package be.c4j.ee.security.twostep.otp.provider;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.twostep.otp.OTPProvider;
 import be.c4j.ee.security.twostep.otp.OTPUserData;
 
@@ -84,10 +99,9 @@ public class HOTPProvider implements OTPProvider {
             data.setValue(base);
             return generateOTP(data.getKey(), base);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new OctopusUnexpectedException(e);
         }
 
-        return null;
     }
 
     @Override

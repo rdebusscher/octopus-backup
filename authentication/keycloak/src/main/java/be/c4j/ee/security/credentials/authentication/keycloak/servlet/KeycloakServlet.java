@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.keycloak.servlet;
 import be.c4j.ee.security.authentication.ActiveSessionRegistry;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.keycloak.config.KeycloakConfiguration;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.adapters.AdapterUtils;
 import org.keycloak.adapters.KeycloakDeployment;
@@ -68,9 +69,21 @@ public class KeycloakServlet extends HttpServlet {
             request.getSession().setAttribute(OAuth2Constants.STATE, state);
 
             String redirectUri = adapter.getRedirectUri(state);
-            response.sendRedirect(redirectUri);
+            try {
+                response.sendRedirect(redirectUri);
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
         } else {
-            adapter.authenticate(code);
+            try {
+                adapter.authenticate(code);
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
         }
 
     }

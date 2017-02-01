@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
@@ -61,7 +62,13 @@ public class AuthenticationServlet extends HttpServlet {
         String callback = applicationCallback.determineCallback(application);
         String token = createToken(apiKey);
         callback += "?token=" + token;
-        resp.sendRedirect(callback);
+        try {
+            resp.sendRedirect(callback);
+        } catch (IOException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
+
+        }
     }
 
     private String createToken(String apiKey) {

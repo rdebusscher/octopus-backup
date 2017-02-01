@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -94,7 +95,7 @@ public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable
             externalContext
                     .redirect(savedRequest != null ? savedRequest.getRequestUrl() : getRootUrl(externalContext));
         } catch (IOException e) {
-            e.printStackTrace();  // FIXME
+            throw new OctopusUnexpectedException(e);
         }
 
     }

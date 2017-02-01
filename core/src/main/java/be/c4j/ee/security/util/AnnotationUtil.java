@@ -16,6 +16,7 @@
 package be.c4j.ee.security.util;
 
 import be.c4j.ee.security.Combined;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 
@@ -34,11 +35,10 @@ public final class AnnotationUtil {
             if ("value".equals(method.getName())) {
                 try {
                     result = (T[]) method.invoke(someCustomNamedCheck, null);
-
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();  // FIXME
+                    throw new OctopusUnexpectedException(e);
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace(); // FIXME
+                    throw new OctopusUnexpectedException(e);
                 }
             }
         }
@@ -54,9 +54,9 @@ public final class AnnotationUtil {
                     result = (String[]) method.invoke(someCustomNamedCheck, null);
 
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();  // FIXME
+                    throw new OctopusUnexpectedException(e);
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace(); // FIXME
+                    throw new OctopusUnexpectedException(e);
                 }
             }
         }
@@ -72,9 +72,9 @@ public final class AnnotationUtil {
                     result = (T[]) method.invoke(someCustomRoleCheck, null);
 
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new OctopusUnexpectedException(e);
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    throw new OctopusUnexpectedException(e);
                 }
             }
         }
@@ -90,9 +90,9 @@ public final class AnnotationUtil {
                     value = method.invoke(customAnnotation, null).toString();
 
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new OctopusUnexpectedException(e);
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    throw new OctopusUnexpectedException(e);
                 }
             }
         }

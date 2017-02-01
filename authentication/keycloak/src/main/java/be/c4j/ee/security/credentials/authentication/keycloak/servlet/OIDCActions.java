@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.keycloak.servlet;
 
 import be.c4j.ee.security.authentication.ActiveSessionRegistry;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.keycloak.adapters.CorsHeaders;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.common.util.StreamUtil;
@@ -126,7 +127,7 @@ public class OIDCActions {
             }
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new OctopusUnexpectedException(e);
         }
     }
 
@@ -145,7 +146,7 @@ public class OIDCActions {
             }
             deployment.setNotBefore(action.getNotBefore());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new OctopusUnexpectedException(e);
         }
     }
 
@@ -161,7 +162,7 @@ public class OIDCActions {
             TestAvailabilityAction action = JsonSerialization.readValue(token.getContent(), TestAvailabilityAction.class);
             validateAction(action);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new OctopusUnexpectedException(e);
         }
     }
 
@@ -217,7 +218,7 @@ public class OIDCActions {
             response.setHeader("Content-Type", "application/json");
             JsonSerialization.writeValueToStream(response.getOutputStream(), VersionRepresentation.SINGLETON);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new OctopusUnexpectedException(e);
         }
     }
 

@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.fake;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -77,12 +78,24 @@ public class AuthenticationServlet extends HttpServlet {
         try {
             SecurityUtils.getSubject().login(token);
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
-            response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
+            try {
+                response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
         } catch (AuthenticationException e) {
             // DataSecurityProvider decided that google user has no access to application
             request.getSession().setAttribute(OAuth2User.OAUTH2_USER_INFO, token);
             request.getSession().setAttribute("AuthenticationExceptionMessage", e.getMessage());
-            response.sendRedirect(request.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+            try {
+                response.sendRedirect(request.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+            } catch (IOException ioException) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(ioException);
+
+            }
         }
 
     }

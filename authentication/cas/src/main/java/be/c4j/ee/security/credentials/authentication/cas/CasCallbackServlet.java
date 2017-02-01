@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.cas;
 import be.c4j.ee.security.authentication.ActiveSessionRegistry;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.cas.info.CasInfoProvider;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -67,13 +68,24 @@ public class CasCallbackServlet extends HttpServlet {
 
             activeSessionRegistry.startSession(ticket, SecurityUtils.getSubject().getPrincipal());
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(req);
-            resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
+            try {
+                resp.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : req.getContextPath());
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+                // FIXME see that we cache this at the filter and it never gets exposed to the client
+            }
 
         } catch (AuthenticationException e) {
             sess.setAttribute(CasUser.CAS_USER_INFO, casUser);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             // DataSecurityProvider decided that google user has no access to application
-            resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+            try {
+                resp.sendRedirect(req.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+            } catch (IOException ioException) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(ioException);
+            }
         }
     }
 

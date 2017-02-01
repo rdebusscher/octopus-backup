@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.jwt.jwt;
 
 import be.c4j.ee.security.credentials.authentication.jwt.config.JWTConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 
@@ -25,6 +26,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Scanner;
@@ -60,6 +62,13 @@ public class JWKManager {
         } catch (ParseException e) {
             throw new OctopusConfigurationException("Parsing the JWK file failed with " + e.getMessage());
         }
+
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+
         return result;
     }
 

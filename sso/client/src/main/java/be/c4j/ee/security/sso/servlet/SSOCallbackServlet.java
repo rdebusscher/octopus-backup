@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.servlet;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.client.SSOClientConfiguration;
 import com.github.scribejava.core.model.Token;
 import org.apache.shiro.SecurityUtils;
@@ -79,13 +80,25 @@ public class SSOCallbackServlet extends HttpServlet {
 
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
 
-            httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : getRootUrl(httpServletRequest));
+            try {
+                httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : getRootUrl(httpServletRequest));
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
 
 
         } catch (AuthenticationException e) {
             sess.setAttribute(OAuth2User.OAUTH2_USER_INFO, oAuth2User);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
-            httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+            try {
+                httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());
+            } catch (IOException ioException) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(ioException);
+
+            }
         }
 
     }

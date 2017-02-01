@@ -19,6 +19,7 @@ import be.c4j.ee.security.credentials.authentication.jwt.CheckJWTClaims;
 import be.c4j.ee.security.credentials.authentication.jwt.JWTUser;
 import be.c4j.ee.security.credentials.authentication.jwt.config.JWTConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -82,6 +83,12 @@ public class JWTHelper {
             }
         } catch (IOException e) {
             throw new OctopusConfigurationException(e.getMessage());
+        }
+
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            throw new OctopusUnexpectedException(e);
         }
 
     }
