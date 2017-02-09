@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.exception;
 
+import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.authc.AccountException;
 import org.apache.shiro.authc.AuthenticationException;
@@ -27,33 +28,39 @@ import java.util.Set;
  */
 public class OctopusUnauthorizedException extends UnauthorizedException {
 
-    private StringBuilder violations;
+    private String message;
     private String exceptionPointInfo;
 
     public OctopusUnauthorizedException(String violation, String exceptionPointInfo) {
-        violations = new StringBuilder();
-        violations.append(violation);
+        message = violation;
         this.exceptionPointInfo = exceptionPointInfo;
     }
 
     public OctopusUnauthorizedException(Set<SecurityViolation> securityViolations) {
-        violations = new StringBuilder();
+        StringBuilder violations = new StringBuilder();
         violations.append("Violation of ");
         boolean first = true;
         String violationName;
         String info;
         for (SecurityViolation violation : securityViolations) {
-            if (violation.getReason().contains("@")) {
-                String[] parts = violation.getReason().split("@", 2);
-                violationName = parts[0];
-                info = parts[1];
-
-            } else {
-                violationName = violation.getReason();
-                info = null;
-            }
             if (!first) {
                 violations.append(" - ");
+            }
+            // TODO Review this logic
+            if (violation instanceof BasicAuthorizationViolation) {
+                BasicAuthorizationViolation basicViolation = (BasicAuthorizationViolation) violation;
+                violationName = basicViolation.getReason();
+                info = basicViolation.getExceptionPoint();
+            } else {
+                if (violation.getReason().contains("@")) {
+                    String[] parts = violation.getReason().split("@", 2);
+                    violationName = parts[0];
+                    info = parts[1];
+
+                } else {
+                    violationName = violation.getReason();
+                    info = null;
+                }
             }
             violations.append(violationName);
             if (exceptionPointInfo == null && info != null) {
@@ -61,10 +68,11 @@ public class OctopusUnauthorizedException extends UnauthorizedException {
             }
             first = false;
         }
+        message = violations.toString();
     }
 
     public String getMessage() {
-        return violations.toString();
+        return message;
     }
 
     public String getExceptionPointInfo() {
