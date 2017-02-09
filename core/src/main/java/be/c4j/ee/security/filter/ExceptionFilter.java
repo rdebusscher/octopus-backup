@@ -23,7 +23,7 @@ public class ExceptionFilter extends AdviceFilter {
                 OctopusUnexpectedException unexpected = (OctopusUnexpectedException) unexpectedException;
                 Logger logger = LoggerFactory.getLogger(ExceptionFilter.class);
                 logger.error(unexpected.getCause().getMessage(), unexpected.getCause());
-                // Since we are in a finally block, this exception takes over and thus erasing all infomation we have about stacktraces
+                // Since we are in a finally block, this exception takes over and thus erasing all information we have about stacktraces
                 // OWASP A6
                 throw new OctopusUnexpectedException("Something went wrong");
             }
@@ -35,6 +35,9 @@ public class ExceptionFilter extends AdviceFilter {
         if (exception instanceof OctopusUnexpectedException) {
             return exception;
         } else {
+            if (exception == null) {
+                return null;
+            }
             return getUnexpectedException(exception.getCause());
         }
     }
