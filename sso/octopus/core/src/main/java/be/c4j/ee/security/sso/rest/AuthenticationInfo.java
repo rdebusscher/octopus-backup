@@ -52,7 +52,7 @@ public class AuthenticationInfo {
     public String toString() {
         return "AuthenticationInfo{" +
                 "userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
+                ", password='????'" +
                 ", applicationName='" + applicationName + '\'' +
                 '}';
     }

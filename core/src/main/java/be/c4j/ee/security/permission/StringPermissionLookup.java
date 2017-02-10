@@ -47,7 +47,7 @@ public class StringPermissionLookup {
         }
         // namedPermission : a String indicating a named permission defined by the constructor, or a wildcardString
         String key = namedPermission.toUpperCase(Locale.ENGLISH);
-        NamedDomainPermission result = null;
+        NamedDomainPermission result;
         if (map.containsKey(key)) {
             result = map.get(key);
         } else {

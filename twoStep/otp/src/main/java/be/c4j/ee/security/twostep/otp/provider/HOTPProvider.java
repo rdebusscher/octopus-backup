@@ -121,7 +121,7 @@ public class HOTPProvider implements OTPProvider {
             if (code.equals(userOTP)) {
                 result = true;
             }
-            break;
+            break;   // TODO Where does this come from and why do we need it?
         }
         return result;
     }

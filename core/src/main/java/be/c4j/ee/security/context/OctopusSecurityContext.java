@@ -83,12 +83,7 @@ public class OctopusSecurityContext implements Serializable {
             UserPrincipal principal = (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
             twoStepProvider.startSecondStep(request, principal);
 
-            try {
-                externalContext.redirect(request.getContextPath() + "/secondStep.xhtml");  // FIXME Parameter
-            } catch (IOException e) {
-                e.printStackTrace(); // FIXME
-                throw e;
-            }
+            externalContext.redirect(request.getContextPath() + "/secondStep.xhtml");  // FIXME Parameter
         }
     }
 

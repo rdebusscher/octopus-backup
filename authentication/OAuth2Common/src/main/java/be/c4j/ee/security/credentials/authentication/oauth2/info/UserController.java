@@ -74,6 +74,11 @@ public class UserController {
             result = getUserInfoStandard(token, provider, req);
         }
 
+        // TODO Check this situation. It can be null but since the method got executed we have always a user. (or should have)
+        if (result == null) {
+            return null;
+        }
+
         RestOAuth2UserInfoProvider infoProvider = BeanProvider.getContextualReference(RestOAuth2UserInfoProvider.class, true);
         if (infoProvider != null) {
             result.setInfo(infoProvider.defineInfo(result));

@@ -35,17 +35,18 @@ public class RestUserFilter extends UserFilter {
      */
     @Override
     protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
-        Throwable unauthorized = OctopusUnauthorizedException.getUnauthorizedException(existing);
+        Exception exception = existing;
+        Throwable unauthorized = OctopusUnauthorizedException.getUnauthorizedException(exception);
         if (unauthorized != null) {
             try {
                 ((HttpServletResponse) response).setStatus(401);
                 response.getOutputStream().println(unauthorized.getMessage());
                 existing = null;
             } catch (Exception e) {
-                existing = e;
+                exception = e;
             }
         }
-        super.cleanup(request, response, existing);
+        super.cleanup(request, response, exception);
 
     }
 

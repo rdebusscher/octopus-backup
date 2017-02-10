@@ -78,6 +78,7 @@ public class EmployeeSalaryUpdateVoter extends AbstractGenericVoter {
             if (scanner.hasNextLong()) {
                 result = scanner.nextLong();
             }
+            scanner.close();
         }
         return result;
     }

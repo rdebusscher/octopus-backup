@@ -60,9 +60,9 @@ public class GooglePlusServlet extends OAuth2Servlet {
             }
         }
         if (multipleAccounts) {
-            authorizationUrl += "&prompt=select_account";
+            result += "&prompt=select_account";
         }
-        return authorizationUrl;
+        return result;
     }
 }
 

@@ -67,7 +67,7 @@ public class OIDCActions {
         }
         logger.debug("checkCorsPreflight " + request.getRequestURI());
 
-        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
         if (request.getHeader(CorsHeaders.ORIGIN) == null) {
@@ -173,7 +173,7 @@ public class OIDCActions {
             return null;
         }
         String token = StreamUtil.readString(request.getInputStream());
-        if (token == null) {
+        if (token == null) {  // TODO Verify if this situation can happen
             logger.warn("admin request failed, no token");
             response.sendError(403, "no token");
             return null;

@@ -44,7 +44,7 @@ public final class ComponentUtil {
             if (Boolean.class.equals(resultClass)) {
                 // He, maybe it should be possible to store the correct type in the attributes.  We specified it in
                 // the taglib.xml
-                result = (T) new Boolean((String) component.getAttributes().get(valueName));
+                result = (T) Boolean.valueOf((String) component.getAttributes().get(valueName));
             } else {
                 result = (T) component.getAttributes().get(valueName);
             }

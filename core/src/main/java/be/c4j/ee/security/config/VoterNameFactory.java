@@ -37,6 +37,7 @@ public class VoterNameFactory {
      * This version can be used from within the extension and doesn't trigger the BeanManager (which isn't possible during execution of the extension.
      * This special version assumes that only one permission name is passed (so no , in parameter value)
      * This method assumes that a PermissionLookup will be available, which is ok since we have defined a NamedPermissionClass within configuration which makes a PermissionLookup required.
+     * FIXME Verify the assumption of PermissionLookup
      *
      * @param permissionName
      * @return
@@ -58,7 +59,7 @@ public class VoterNameFactory {
         }
     }
 
-    private String generateName(String permissionNames, String voter) {
+    private String generateName(String permissionNames, String voterSuffix) {
         String[] names = permissionNames.split(",");
         StringBuilder result = new StringBuilder();
         String voterName;
@@ -70,7 +71,7 @@ public class VoterNameFactory {
             if (permissionLookup != null && permissionLookup.containsPermission(permissionName.trim())) {
                 voterName = transformName(permissionName.trim());
                 result.append(voterName);
-                result.append(voter);
+                result.append(voterSuffix);
             } else {
                 if (permissionName.contains(":")) {
                     // We have a fully defined permission name like octopus:test:*

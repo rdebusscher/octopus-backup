@@ -73,8 +73,7 @@ public final class CDIUtil {
                     if (e.getTargetException() instanceof EJBException) {
                         EJBException ejbException = (EJBException) e.getTargetException();
                         if (ejbException.getCause() instanceof OctopusUnauthorizedException) {
-                            OctopusUnauthorizedException exception = (OctopusUnauthorizedException) ejbException.getCause();
-                            throw exception;
+                            throw (OctopusUnauthorizedException) ejbException.getCause();
                         }
                     }
                 }

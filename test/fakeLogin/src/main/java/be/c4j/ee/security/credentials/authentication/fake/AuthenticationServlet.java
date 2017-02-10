@@ -46,8 +46,6 @@ public class AuthenticationServlet extends HttpServlet {
     @Inject
     private OctopusJSFConfig octopusConfig;
 
-    private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
-
     private Boolean localhostOnly;
 
     @Override
@@ -66,7 +64,7 @@ public class AuthenticationServlet extends HttpServlet {
             throw new AccessDeniedException(null);
         }
 
-        loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class, true);
+        LoginAuthenticationTokenProvider loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class, true);
         String loginData = request.getParameter("loginData");
 
         AuthenticationToken token = loginAuthenticationTokenProvider.determineAuthenticationToken(loginData);

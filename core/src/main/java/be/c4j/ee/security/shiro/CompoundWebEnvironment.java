@@ -95,6 +95,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     }
 
     private void logIniContents(Ini ini) {
+        // TODO use Logger?
         System.out.println("Shiro INI contents");
         for (Map.Entry<String, Ini.Section> entry : ini.entrySet()) {
             System.out.println("Section : " + entry.getKey());

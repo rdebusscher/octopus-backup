@@ -56,13 +56,10 @@ public class OctopusHandleFakeCallback implements FakeCallbackHandler {
         }
         String applicationName = request.getParameter(OAuth2Configuration.APPLICATION);
 
-        if (customCallbackProvider != null) {
-            String callbackURL = customCallbackProvider.determineApplicationCallbackURL(applicationName);
+        String callbackURL = customCallbackProvider.determineApplicationCallbackURL(applicationName);
 
-            String userParameter = request.getParameter("user");
-            response.sendRedirect(callbackURL + "?token=" + tokenStore.retrieveToken(userParameter));
-        } else {
-            logger.warn("Fake login could not be completes as there is no CDI instance for CustomCallbackProvider found");
-        }
+        String userParameter = request.getParameter("user");
+        response.sendRedirect(callbackURL + "?token=" + tokenStore.retrieveToken(userParameter));
+
     }
 }

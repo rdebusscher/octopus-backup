@@ -100,7 +100,8 @@ public class FacesMessages implements Serializable {
         return result;
     }
 
-    private FacesMessage.Severity checkSeverity(FacesMessage.Severity result, String part, String severityText, FacesMessage.Severity severity) {
+    private FacesMessage.Severity checkSeverity(FacesMessage.Severity currentSeverity, String part, String severityText, FacesMessage.Severity severity) {
+        FacesMessage.Severity result = currentSeverity;
         if (severityText.equalsIgnoreCase(part)) {
             result = severity;
         }
