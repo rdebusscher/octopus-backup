@@ -17,8 +17,6 @@ package be.c4j.ee.security.sso.server.filter;
 
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.ShiroException;
-import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.PathMatchingFilter;
 
 import javax.servlet.ServletRequest;
@@ -28,19 +26,17 @@ import javax.servlet.http.HttpServletRequest;
 /**
  *
  */
-public class DuringAuthenticationFilter extends PathMatchingFilter implements Initializable {
+public class DuringAuthenticationFilter extends PathMatchingFilter {
 
     private SSODataEncryptionHandler encryptionHandler;
 
     @Override
     protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
-
+        // We can't use the init (and Initializable ) because it get called during initialization.
+        if (encryptionHandler == null) {
+            encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class);
+        }
         return encryptionHandler.validate((HttpServletRequest) request);
     }
 
-    @Override
-    public void init() throws ShiroException {
-        // Here required. Because when we use this filter we want to check the encryption :)
-        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class);
-    }
 }

@@ -44,7 +44,6 @@ public class OctopusSSORestEndpoint {
     @Inject
     private Logger logger;
 
-    @Inject
     private SSODataEncryptionHandler encryptionHandler;
 
     private JSONHandler jsonHandler;
@@ -69,6 +68,14 @@ public class OctopusSSORestEndpoint {
         jsonHandler = BeanProvider.getContextualReference(JSONHandler.class, true);
         authenticationHandler = BeanProvider.getContextualReference(RestAuthenticationHandler.class, true);
         active = authenticationHandler != null && jsonHandler != null && prepareSSORestEndpoint != null;
+        warnWhyNotActive();
+
+        if (active) {
+            encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
+        }
+    }
+
+    private void warnWhyNotActive() {
         if (authenticationHandler != null) {
             logger.warn("Octopus SSO Rest Endpoint is inactive because no implementation RestAuthenticationHandler is specified");
         }
@@ -91,6 +98,7 @@ public class OctopusSSORestEndpoint {
 
         prepareSSORestEndpoint.init(httpServletRequest);
         String result = null;
+        // FIXME Review logic because SSODataEncryptionHandler is optional
         if (encryptionHandler.validate(apiKey, token)) {
             String data = encryptionHandler.decryptData(token, apiKey);
             AuthenticationInfo authenticationInfo = jsonHandler.decodeFromJSON(data);
