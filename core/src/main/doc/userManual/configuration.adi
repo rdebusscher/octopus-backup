@@ -12,7 +12,13 @@ With the -Doctopus.cfg=<someURL> option, we can specify the location of an addit
 
 default : */WEB-INF/securedURLs.ini*
 
-The securedURLs.ini file contains the permissions required to access some URLs.  See ?? for the format of the file. The file must always exists and contain at least one URL entry.
+The securedURLs.ini file contains the permissions required to access some URLs.  See ?? for the format of the file. The file can be optional since v0.9.7.
+
+The entries can also be defined in a programmatic way. A CDI bean implementing +be.c4j.ee.security.url.ProgrammaticURLProtectionProvider+ will be used to define additional entries.
+
+The key of the Map return value must contain the URL pattern, the value are the filters.
+
+These entries will be placed after the values defined in the file (order is important)
 
 ==== namedPermission.class
 

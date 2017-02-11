@@ -2,8 +2,12 @@
 
 . String based Permissions.
 . TwoStep authentication with support for SMS (Twilio) and TOTP.
+. Programmatic define permissions for URLs
 . Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
 
+Breaking changes
+
+. removed inner class DummyOAuth2AuthenticationToken : TODO Verify the possible impact on apps.
 
 === 0.9.6.4
 

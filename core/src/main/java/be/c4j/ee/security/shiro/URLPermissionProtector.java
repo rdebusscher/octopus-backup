@@ -25,7 +25,7 @@ import java.util.Set;
 
 @Dependent
 public class URLPermissionProtector {
-
+    // FIXME Review usage of this class !! Added early but seems not functional.
     private Ini.Section section;
 
     public void addURLs() {

@@ -23,6 +23,7 @@ import be.c4j.ee.security.filter.GlobalFilterConfiguration;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.salt.OctopusHashedCredentialsMatcher;
+import be.c4j.ee.security.url.ProgrammaticURLProtectionProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
@@ -168,6 +169,19 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         if (iniWithURLS == null) {
             iniWithURLS = new Ini();
         }
+
+        if (iniWithURLS.getSectionProperty(APP_URL, "/**") != null) {
+            LOGGER.warn("securedURLs.ini file contains /** definition and thus blocks programmatic URL definition (by system or developer)");
+        }
+        List<ProgrammaticURLProtectionProvider> urlProtectionProviders = BeanProvider.getContextualReferences(ProgrammaticURLProtectionProvider.class, true);
+
+        for (ProgrammaticURLProtectionProvider urlProtectionProvider : urlProtectionProviders) {
+            for (Map.Entry<String, String> entry : urlProtectionProvider.getURLEntriesToAdd().entrySet()) {
+
+                iniWithURLS.setSectionProperty(APP_URL, entry.getKey(), entry.getValue());
+            }
+        }
+
         iniWithURLS.setSectionProperty(APP_URL, "/**", "anon");
         return iniWithURLS;
     }
