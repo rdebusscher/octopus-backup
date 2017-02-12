@@ -15,7 +15,6 @@
  */
 package be.c4j.ee.security.sso.server.endpoint;
 
-import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.rest.RestUserInfoProvider;
@@ -43,7 +42,7 @@ import java.util.Map;
 public class OctopusSSOEndpoint {
 
     @Inject
-    private UserPrincipal userPrincipal;
+    private OctopusSSOUser ssoUser;
 
     @Inject
     private SSOPermissionProvider ssoPermissionProvider;
@@ -60,14 +59,14 @@ public class OctopusSSOEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresUser
     public String getUserInfo() {
-        OctopusSSOUser userInfo = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
 
-        Map<String, String> info = new HashMap<String, String>();
+        Map<String, String> info = new HashMap<String, String>(ssoUser.getUserInfo());
+        info.remove("token"); // FIXME Create constant
         if (userInfoProvider != null) {
-            info = userInfoProvider.defineInfo(userInfo);
+            info.putAll(userInfoProvider.defineInfo(ssoUser));
         }
 
-        return userInfo.toJSON(info);
+        return ssoUser.toJSON(info);
     }
 
     @Path("/user/permissions/{applicationName}")
@@ -75,7 +74,6 @@ public class OctopusSSOEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresUser
     public Map<String, String> getUserPermissions(@PathParam("applicationName") String application) {
-        OctopusSSOUser ssoUser = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
         return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
     }
 

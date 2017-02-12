@@ -19,6 +19,7 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -44,11 +45,11 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/SSOCallback")
 public class SSOCallbackServlet extends HttpServlet {
 
-    @Inject
-    private SSODataEncryptionHandler encryptionHandler;
 
     @Inject
     private OctopusSSOClientConfiguration config;
+
+    private SSODataEncryptionHandler encryptionHandler;
 
     private Client client;
 
@@ -56,6 +57,7 @@ public class SSOCallbackServlet extends HttpServlet {
     public void init() throws ServletException {
 
         client = ClientBuilder.newClient();
+        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
     }
 
     @Override
@@ -90,7 +92,8 @@ public class SSOCallbackServlet extends HttpServlet {
 
         } catch (AuthenticationException e) {
             HttpSession sess = request.getSession();
-            sess.setAttribute(OctopusSSOUser.USER_INFO_KEY, user);
+            // FIXME
+            //sess.setAttribute(OctopusSSOUser.USER_INFO_KEY, user);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             // DataSecurityProvider decided that Octopus user has no access to application
             try {

@@ -105,7 +105,9 @@ public class OctopusSSORestEndpoint {
             UserPrincipal userPrincipal = authenticationHandler.validate(authenticationInfo);
 
             if (userPrincipal != null) {
-                OctopusSSOUser user = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
+                // FIXME !!
+                //OctopusSSOUser user = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
+                OctopusSSOUser user = null;
                 tokenStore.keepToken(user);
 
                 activeSessionRegistry.startSession(userPrincipal.getId().toString(), userPrincipal);

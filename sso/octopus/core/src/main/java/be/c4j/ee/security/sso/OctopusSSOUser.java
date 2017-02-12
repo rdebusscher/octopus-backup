@@ -17,12 +17,16 @@ package be.c4j.ee.security.sso;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.security.auth.Subject;
+import java.io.Serializable;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,9 +34,7 @@ import java.util.Map;
  */
 public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
-    public static final String USER_INFO_KEY = OctopusSSOUser.class.getSimpleName();
-
-    public static final String SSO_USER_INFO = "ssoUserInfo";
+    private static final List<String> DEFAULT_PROPETY_NAMES = Arrays.asList("id", "localId", "userName", "lastName", "firstName", "fullName", "email");
 
     private String id;
     private String localId;
@@ -115,8 +117,18 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         userInfo.put(key, value);
     }
 
+    public void addUserInfo(Map<Serializable, Serializable> info) {
+        for (Map.Entry<Serializable, Serializable> entry : info.entrySet()) {
+            userInfo.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+    }
+
     public boolean isLoggedOn() {
         return id != null;
+    }
+
+    public Map<String, String> getUserInfo() {
+        return userInfo;
     }
 
     @Override
@@ -190,11 +202,20 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
             result.setLocalId(jsonObject.getString("localId"));
             result.setUserName(jsonObject.getString("userName"));
 
-            result.setLastName(jsonObject.getString("lastName"));
-            result.setFirstName(jsonObject.getString("firstName"));
-            result.setFullName(jsonObject.getString("fullName"));
-            result.setEmail(jsonObject.getString("email"));
+            result.setLastName(jsonObject.optString("lastName"));
+            result.setFirstName(jsonObject.optString("firstName"));
+            result.setFullName(jsonObject.optString("fullName"));
+            result.setEmail(jsonObject.optString("email"));
 
+
+            JSONArray names = jsonObject.names();
+            String keyName;
+            for (int i = 0; i < names.length(); i++) {
+                keyName = names.get(i).toString();
+                if (!DEFAULT_PROPETY_NAMES.contains(keyName)) {
+                    result.addUserInfo(keyName, jsonObject.getString(keyName));
+                }
+            }
         } catch (JSONException e) {
             throw new OctopusUnexpectedException(e);
         }

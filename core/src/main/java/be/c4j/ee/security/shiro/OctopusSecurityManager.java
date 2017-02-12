@@ -16,17 +16,22 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.sso.SSOPrincipalProvider;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.mgt.SubjectFactory;
+import org.apache.shiro.subject.MutablePrincipalCollection;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.SubjectContext;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static be.c4j.ee.security.realm.AuthenticationInfoBuilder.DEFAULT_REALM;
 
 /**
  *
@@ -37,9 +42,13 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
 
     private SubjectFactory twoStepSubjectFactory;
 
+    private SSOPrincipalProvider ssoPrincipalProvider;
+
     public OctopusSecurityManager() {
         twoStepSubjectFactory = new TwoStepSubjectFactory();
         setSubjectFactory(new OctopusSubjectFactory());
+
+        ssoPrincipalProvider = BeanProvider.getContextualReference(SSOPrincipalProvider.class, true);
     }
 
     public Subject login(Subject subject, AuthenticationToken token) throws AuthenticationException {
@@ -93,7 +102,15 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
 
     protected Subject doCreateSubject(SubjectContext context) {
 
-        UserPrincipal userPrincipal = getUserPrincipal(context);
+        PrincipalCollection principals = getPrincipalCollection(context);
+
+        UserPrincipal userPrincipal = getUserPrincipal(principals);
+
+        // FIXME the different realm names isn't solved yet :)
+        if (principals instanceof MutablePrincipalCollection && ssoPrincipalProvider != null) {
+            ((MutablePrincipalCollection) principals).add(ssoPrincipalProvider.createSSOPrincipal(userPrincipal), DEFAULT_REALM);
+        }
+
         Subject result;
         if (userPrincipal != null && userPrincipal.needsTwoStepAuthentication()) {
 
@@ -105,12 +122,16 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
         return result;
     }
 
-    private UserPrincipal getUserPrincipal(SubjectContext context) {
-        PrincipalCollection principals = null;
+    private UserPrincipal getUserPrincipal(PrincipalCollection principals) {
+        return principals == null ? null : (UserPrincipal) principals.getPrimaryPrincipal();
+    }
+
+    private PrincipalCollection getPrincipalCollection(SubjectContext context) {
+        PrincipalCollection result = null;
         AuthenticationInfo authenticationInfo = context.getAuthenticationInfo();
         if (authenticationInfo != null) {
-            principals = authenticationInfo.getPrincipals();
+            result = authenticationInfo.getPrincipals();
         }
-        return principals == null ? null : (UserPrincipal) principals.getPrimaryPrincipal();
+        return result;
     }
 }

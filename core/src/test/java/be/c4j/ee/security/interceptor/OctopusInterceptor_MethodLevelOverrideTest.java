@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 
 import javax.interceptor.InvocationContext;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -121,6 +122,7 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
 
         ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context), octopusConfigMock, twoStepConfigMock);
 
+        ReflectionUtil.setFieldValue(octopusRealm, "octopusDefinedAuthenticationInfoList", new ArrayList());
         finishCDISetup();
 
         try {

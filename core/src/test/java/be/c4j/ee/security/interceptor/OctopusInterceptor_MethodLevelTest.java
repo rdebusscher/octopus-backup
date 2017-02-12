@@ -142,6 +142,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         when(twoStepConfigMock.getAlwaysTwoStepAuthentication()).thenReturn(false);
         ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context), octopusConfigMock, twoStepConfigMock);
 
+        ReflectionUtil.setFieldValue(octopusRealm, "octopusDefinedAuthenticationInfoList", new ArrayList());
+
         finishCDISetup();
 
         try {

@@ -29,6 +29,13 @@ public interface SSODataEncryptionHandler {
 
     boolean requiresApiKey();
 
+    /**
+     * Needs to validate the value of application parameter amongst others.
+     * FIXME Verify if we can define something else then application parameter
+     *
+     * @param servletRequest
+     * @return
+     */
     boolean validate(HttpServletRequest servletRequest);
 
     boolean validate(String apiKey, String token);

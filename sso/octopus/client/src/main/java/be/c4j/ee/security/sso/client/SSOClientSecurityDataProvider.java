@@ -24,6 +24,7 @@ import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -43,17 +44,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static be.c4j.ee.security.sso.OctopusSSOUser.USER_INFO_KEY;
 
 @ApplicationScoped
 public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
+    // FIXME There are various names in use !!
     private static final String OCTOPUS_SSO_TOKEN = "Octopus-SSO-Token";
-    @Inject
-    private SSODataEncryptionHandler encryptionHandler;
 
     @Inject
     private OctopusSSOClientConfiguration config;
+
+    private SSODataEncryptionHandler encryptionHandler;
 
     private Client client;
 
@@ -61,6 +62,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
     public void init() throws ServletException {
 
         client = ClientBuilder.newClient();
+        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
     }
 
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
@@ -75,7 +77,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
                     .userName(user.getUserName())
                     .name(user.getFullName())
                     .addUserInfo(OCTOPUS_SSO_TOKEN, user.getToken())
-                    .addUserInfo(USER_INFO_KEY, user)
+                    //.addUserInfo(USER_INFO_KEY, user) FIXME
                     .addUserInfo("mail", user.getEmail());
 
             return authenticationInfoBuilder.build();

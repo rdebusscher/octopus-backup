@@ -24,11 +24,12 @@ import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.token.IncorrectDataToken;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
 import be.c4j.ee.security.twostep.TwoStepConfig;
-import be.c4j.ee.security.twostep.TwoStepProvider;
 import be.c4j.ee.security.util.CodecUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.CredentialsException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.codec.Base64;
@@ -36,6 +37,9 @@ import org.apache.shiro.codec.Hex;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class OctopusRealm extends AuthorizingRealm {
 
@@ -46,6 +50,8 @@ public class OctopusRealm extends AuthorizingRealm {
     private SecurityDataProvider securityDataProvider;
 
     private OctopusConfig config;
+
+    private List<OctopusDefinedAuthenticationInfo> octopusDefinedAuthenticationInfoList;
 
     private TwoStepConfig twoStepConfig;
 
@@ -58,6 +64,8 @@ public class OctopusRealm extends AuthorizingRealm {
         config = BeanProvider.getContextualReference(OctopusConfig.class);
         twoStepConfig = BeanProvider.getContextualReference(TwoStepConfig.class);
         codecUtil = BeanProvider.getContextualReference(CodecUtil.class);
+
+        octopusDefinedAuthenticationInfoList = BeanProvider.getContextualReferences(OctopusDefinedAuthenticationInfo.class, false);
 
         setCachingEnabled(true);
         setAuthenticationTokenClass(AuthenticationToken.class);
@@ -86,18 +94,14 @@ public class OctopusRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         AuthenticationInfo authenticationInfo = null;
-        if (token instanceof SystemAccountAuthenticationToken) {
-            // TODO Check about the realm names
-            authenticationInfo = new SimpleAuthenticationInfo(token.getPrincipal(), "", AuthenticationInfoBuilder.DEFAULT_REALM);
+
+        // TODO What about IncorrectDataToken, should be return null immediatly??
+        // How is IncorrectDataToken used?
+        Iterator<OctopusDefinedAuthenticationInfo> iterator = octopusDefinedAuthenticationInfoList.iterator();
+        while (authenticationInfo == null && iterator.hasNext()) {
+            authenticationInfo = iterator.next().getAuthenticationInfo(token);
         }
-        if (authenticationInfo == null && twoStepConfig.getTwoStepAuthenticationActive()) {
-            UserPrincipal userPrincipal = (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
-            if (userPrincipal != null && userPrincipal.needsTwoStepAuthentication()) {
-                // When we are performing validation of the second step, we have already a Principal (unauthenticated)
-                TwoStepProvider twoStepProvider = BeanProvider.getContextualReference(TwoStepProvider.class);
-                authenticationInfo = twoStepProvider.defineAuthenticationInfo(token, userPrincipal);
-            }
-        }
+
         if (authenticationInfo == null && !(token instanceof IncorrectDataToken)) {
             ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
             try {

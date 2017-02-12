@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.filter.shiro;
+package be.c4j.ee.security.sso;
 
-import org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver;
-
-import javax.servlet.FilterConfig;
+import be.c4j.ee.security.model.UserPrincipal;
 
 /**
+ *
  */
 
-public class OctopusPathMatchingFilterChainResolver extends PathMatchingFilterChainResolver {
+public interface SSOPrincipalProvider {
 
-    public OctopusPathMatchingFilterChainResolver() {
-        super();
-        setFilterChainManager(new OctopusFilterChainManager());
-    }
-
-    public OctopusPathMatchingFilterChainResolver(FilterConfig filterConfig) {
-        super(filterConfig);
-        setFilterChainManager(new OctopusFilterChainManager(filterConfig));
-    }
-
-
+    Object createSSOPrincipal(UserPrincipal userPrincipal);
 }

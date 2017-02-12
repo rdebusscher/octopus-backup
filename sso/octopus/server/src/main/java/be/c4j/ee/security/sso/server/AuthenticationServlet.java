@@ -16,7 +16,6 @@
 package be.c4j.ee.security.sso.server;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
-import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
@@ -37,7 +36,7 @@ import java.io.IOException;
 public class AuthenticationServlet extends HttpServlet {
 
     @Inject
-    private UserPrincipal userPrincipal;
+    private SSOProducerBean ssoProducerBean;
 
     private SSODataEncryptionHandler encryptionHandler;
 
@@ -55,12 +54,18 @@ public class AuthenticationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        tokenStore.keepToken((OctopusSSOUser) userPrincipal.getInfo().get(OctopusSSOUser.USER_INFO_KEY));
+        // We can't inject the OctopusSSOUSer because we then get a Proxy which is stored.
+        // Bad things will happen ....
+        OctopusSSOUser ssoUser = ssoProducerBean.getOctopusSSOUser();
+        tokenStore.keepToken(ssoUser);
 
         String apiKey = req.getParameter("apiKey");
-        String application = encryptionHandler.decryptData(req.getParameter("application"), apiKey);
-        String callback = applicationCallback.determineCallback(application);
-        String token = createToken(apiKey);
+        String application = req.getParameter("application");
+        if (encryptionHandler != null) {
+            application = encryptionHandler.decryptData(req.getParameter("application"), apiKey);
+        }
+        String callback = applicationCallback.determineCallback(application) + "/octopus/sso/SSOCallback";
+        String token = createToken(ssoUser, apiKey);
         callback += "?token=" + token;
         try {
             resp.sendRedirect(callback);
@@ -71,9 +76,9 @@ public class AuthenticationServlet extends HttpServlet {
         }
     }
 
-    private String createToken(String apiKey) {
+    private String createToken(OctopusSSOUser ssoUser, String apiKey) {
         String result;
-        String token = userPrincipal.getInfo().get("token").toString();
+        String token = ssoUser.getToken();
         if (encryptionHandler != null) {
             result = encryptionHandler.encryptData(token, apiKey);
         } else {

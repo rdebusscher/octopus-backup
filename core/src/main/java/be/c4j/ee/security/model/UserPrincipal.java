@@ -26,7 +26,13 @@ import java.util.Map;
 @Typed
 public class UserPrincipal implements Principal, Serializable {
 
+    // TODO Use these contants also in OctopusSSOUser
     public static final String MOBILE_NUMBER = "mobileNumber";
+    public static final String FIRST_NAME = "firstName";
+    public static final String LAST_NAME = "lastName";
+    public static final String FULL_NAME = "fullName";
+    public static final String EMAIL = "email";
+    public static final String EXTERNAL_ID = "externalId";
 
     private Serializable id;
     private String userName;
@@ -120,6 +126,31 @@ public class UserPrincipal implements Principal, Serializable {
 
     public String getMobileNumber() {
         Serializable value = userInfo.get(MOBILE_NUMBER);
+        return value == null ? null : value.toString();
+    }
+
+    public String getFirstName() {
+        Serializable value = userInfo.get(FIRST_NAME);
+        return value == null ? null : value.toString();
+    }
+
+    public String getLastName() {
+        Serializable value = userInfo.get(LAST_NAME);
+        return value == null ? null : value.toString();
+    }
+
+    public String getFullName() {
+        Serializable value = userInfo.get(FULL_NAME);
+        return value == null ? null : value.toString();
+    }
+
+    public String getEmail() {
+        Serializable value = userInfo.get(EMAIL);
+        return value == null ? null : value.toString();
+    }
+
+    public String getExternalId() {
+        Serializable value = userInfo.get(EXTERNAL_ID);
         return value == null ? null : value.toString();
     }
 
