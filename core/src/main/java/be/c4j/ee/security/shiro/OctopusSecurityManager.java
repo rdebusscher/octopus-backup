@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.shiro;
 
+import be.c4j.ee.security.access.AfterSuccessfulLoginHandler;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
@@ -30,6 +31,8 @@ import org.apache.shiro.subject.SubjectContext;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static be.c4j.ee.security.realm.AuthenticationInfoBuilder.DEFAULT_REALM;
 
@@ -133,5 +136,15 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
             result = authenticationInfo.getPrincipals();
         }
         return result;
+    }
+
+    @Override
+    protected void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject) {
+        List<AfterSuccessfulLoginHandler> handlers = BeanProvider.getContextualReferences(AfterSuccessfulLoginHandler.class, true);
+        for (AfterSuccessfulLoginHandler handler : handlers) {
+            handler.onSuccessfulLogin(token, info, subject);
+        }
+        super.onSuccessfulLogin(token, info, subject); // FIXME Convert the rememberMe to AfterSuccessfulLoginHandler
+
     }
 }

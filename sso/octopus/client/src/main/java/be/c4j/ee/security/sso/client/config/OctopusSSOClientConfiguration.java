@@ -25,7 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Specializes;
 
 /**
- *
+ * FIXME documentation of the config parameters !!
  */
 @Specializes
 public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
@@ -77,6 +77,11 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry
     public String getSSOEndpointRoot() {
         return ConfigResolver.getPropertyValue("SSO.endpoint.root", "data");
+    }
+
+    @ConfigEntry
+    public String getAccessPermission() {
+        return ConfigResolver.getPropertyValue("SSO.application.permission.access", "");
     }
 
 }

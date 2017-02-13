@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.server.realm;
 
 import be.c4j.ee.security.realm.OctopusDefinedAuthenticationInfo;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.realm.SSOAuthenticationInfoBuilder;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 
