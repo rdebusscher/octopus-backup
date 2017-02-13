@@ -15,8 +15,6 @@
  */
 package be.c4j.ee.security.sso.encryption;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * Used by the SSO Client / Server parts to encrypt (with JWT for example) the applicationName.
  * And thus an additional protection for unauthorized usage of the SSO facilities of Octopus.
@@ -28,15 +26,6 @@ public interface SSODataEncryptionHandler {
     String decryptData(String encryptedData, String apiKey);
 
     boolean requiresApiKey();
-
-    /**
-     * Needs to validate the value of application parameter amongst others.
-     * FIXME Verify if we can define something else then application parameter
-     *
-     * @param servletRequest
-     * @return
-     */
-    boolean validate(HttpServletRequest servletRequest);
 
     boolean validate(String apiKey, String token);
 }

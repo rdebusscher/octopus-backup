@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.server.filter;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.ApplicationCallback;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -48,18 +49,44 @@ public class DuringAuthenticationFilter extends UserFilter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String application = httpServletRequest.getParameter("application");
 
+        String realApplication = application;
         boolean result = true;
+
         if (application == null || application.trim().isEmpty()) {
+            // Application query parameter is required
             result = false;
         }
-        if (result && encryptionHandler != null) {
 
-            result = encryptionHandler.validate(httpServletRequest);
+        if (result && encryptionHandler != null) {
+            // If we have encryptionHandler, the application must be checked by encryptionHandler
+            String apiKey = null;
+            if (encryptionHandler.requiresApiKey()) {
+                // If encryptionHandler needs apiKey, then get the value
+                apiKey = httpServletRequest.getParameter("x-api-key");
+            }
+            // Validate
+            result = encryptionHandler.validate(apiKey, application);
+
+            if (result) {
+                // Decrypt the value
+                realApplication = encryptionHandler.decryptData(application, apiKey);
+            }
         }
+
+        // Check to see if the application is configured
+        if (result) {
+            ApplicationCallback applicationCallback = BeanProvider.getContextualReference(ApplicationCallback.class);
+            String callback = applicationCallback.determineCallback(realApplication);
+            if (callback == null || callback.isEmpty()) {
+                result = false;
+            }
+        }
+
 
         if (!result) {
             showErrorMessage((HttpServletResponse) response);
         } else {
+            // Here we do the default login, including a redirect to login if needed or authenticate from cookie.
             result = super.onPreHandle(request, response, mappedValue);
         }
         return result;
@@ -67,10 +94,9 @@ public class DuringAuthenticationFilter extends UserFilter {
 
     private void showErrorMessage(HttpServletResponse response) throws IOException {
         response.reset();
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        httpServletResponse.setContentType("text/plain");
-        httpServletResponse.getWriter().write("Missing some required parameter. Is Octopus SSO Client correctly configured?");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        response.setContentType("text/plain");
+        response.getWriter().write("Missing some required parameter(s) or configuration. Is Octopus SSO Client and Server correctly configured?");
     }
 
     @Override
@@ -98,7 +124,6 @@ public class DuringAuthenticationFilter extends UserFilter {
         }
         return result;
     }
-
 
     private String getSSOTokenCookie(ServletRequest request) {
         String result = null;
