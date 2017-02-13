@@ -18,12 +18,12 @@ package be.c4j.ee.security.sso.client;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookup;
-import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.realm.SSOAuthenticationInfoBuilder;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -48,9 +48,6 @@ import java.util.Map;
 @ApplicationScoped
 public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
-    // FIXME There are various names in use !!
-    private static final String OCTOPUS_SSO_TOKEN = "Octopus-SSO-Token";
-
     @Inject
     private OctopusSSOClientConfiguration config;
 
@@ -70,17 +67,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         if (token instanceof OctopusSSOUser) {
             OctopusSSOUser user = (OctopusSSOUser) token;
 
-            AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
-
-            authenticationInfoBuilder
-                    .principalId(user.getLocalId())
-                    .userName(user.getUserName())
-                    .name(user.getFullName())
-                    .addUserInfo(OCTOPUS_SSO_TOKEN, user.getToken())
-                    //.addUserInfo(USER_INFO_KEY, user) FIXME
-                    .addUserInfo("mail", user.getEmail());
-
-            return authenticationInfoBuilder.build();
+            return new SSOAuthenticationInfoBuilder(user).getAuthenticationInfo();
         }
 
         return null;
@@ -89,7 +76,8 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
     public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
 
         UserPrincipal userPrincipal = (UserPrincipal) principals.getPrimaryPrincipal();
-        String realToken = userPrincipal.getUserInfo(OCTOPUS_SSO_TOKEN);
+        OctopusSSOUser ssoUser = userPrincipal.getUserInfo("token");
+        String realToken = ssoUser.getToken();
 
         WebTarget target = client.target(config.getSSOServer() + "/" + config.getSSOEndpointRoot() + "/octopus/sso/user/permissions/" + config.getSSOApplication());
 
