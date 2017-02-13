@@ -38,7 +38,6 @@ import java.util.List;
 
 import static be.c4j.ee.security.interceptor.testclasses.TestPermission.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**

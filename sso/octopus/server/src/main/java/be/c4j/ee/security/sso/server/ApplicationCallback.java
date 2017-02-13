@@ -16,7 +16,7 @@
 package be.c4j.ee.security.sso.server;
 
 /**
- * TODO Move to the SSO Server!!
+ *
  */
 public interface ApplicationCallback {
 
