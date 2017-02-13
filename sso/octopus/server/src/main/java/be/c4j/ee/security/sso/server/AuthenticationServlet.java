@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.server;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
@@ -36,7 +37,8 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/authenticate")
 public class AuthenticationServlet extends HttpServlet {
 
-    public static final String OCTOPUS_SSO_TOKEN = "OctopusSSOToken";
+    @Inject
+    private SSOServerConfiguration ssoServerConfiguration;
 
     @Inject
     private SSOProducerBean ssoProducerBean;
@@ -84,10 +86,12 @@ public class AuthenticationServlet extends HttpServlet {
     }
 
     private void attachCookie(HttpServletResponse resp, String token) {
-        Cookie cookie = new Cookie(OCTOPUS_SSO_TOKEN, token);
+        Cookie cookie = new Cookie(ssoServerConfiguration.getSSOCookieName(), token);
         cookie.setComment("Octopus SSO token");
 
-        cookie.setMaxAge(60 * 60 * 24 * 365 * 10); // 10 year
+        cookie.setHttpOnly(true);
+        cookie.setSecure(Boolean.valueOf(ssoServerConfiguration.getSSOCookieSecure()));
+        cookie.setMaxAge(ssoServerConfiguration.getSSOCookieTimeToLive() * 60 * 60); // Hours -> Seconds
         resp.addCookie(cookie);
     }
 

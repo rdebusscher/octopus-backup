@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.server.filter;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
@@ -29,8 +30,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import static be.c4j.ee.security.sso.server.AuthenticationServlet.OCTOPUS_SSO_TOKEN;
 
 /**
  *
@@ -103,10 +102,13 @@ public class DuringAuthenticationFilter extends UserFilter {
 
     private String getSSOTokenCookie(ServletRequest request) {
         String result = null;
+
+        SSOServerConfiguration ssoServerConfiguration = BeanProvider.getContextualReference(SSOServerConfiguration.class);
+        String cookieName = ssoServerConfiguration.getSSOCookieName();
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         Cookie[] cookies = servletRequest.getCookies();
         for (Cookie cookie : cookies) {
-            if (OCTOPUS_SSO_TOKEN.equals(cookie.getName())) {
+            if (cookieName.equals(cookie.getName())) {
                 result = cookie.getValue();
             }
         }
