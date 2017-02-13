@@ -173,6 +173,24 @@ default : *(none)*
 
 The login URL (or part of it) of the remote authentication page. See the specific authentication module for correct usage.
 
+==== SSO.cookie.name (Octopus SSO Server)
+
+default : *OctopusSSOToken*
+
+The name of the cookie contain the SSO token (allows an authentication without entering username / password for example when valid cookie found)
+
+==== SSO.cookie.timetolive (Octopus SSO Server)
+
+default : *10h*
+
+The time the SSO cookie is active. By default it is 10 hours. Valid time units are h -> Hours, d -> Days and m -> Months (=30 days)
+
+==== SSO.cookie.secure (Octopus SSO Server)
+
+default : *true*
+
+Is the secure flag on the cookie set, meaning it is only added to https requests.
+
 ==== CAS.protocol (CAS only)
 
 default : *CAS*
