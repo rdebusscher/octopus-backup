@@ -15,24 +15,32 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.web.filter.PathMatchingFilter;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.web.filter.authc.UserFilter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static be.c4j.ee.security.sso.server.AuthenticationServlet.OCTOPUS_SSO_TOKEN;
 
 /**
  *
  */
-public class DuringAuthenticationFilter extends PathMatchingFilter {
+public class DuringAuthenticationFilter extends UserFilter {
 
     private SSODataEncryptionHandler encryptionHandler;
 
     @Override
-    protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
+    public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
         // We can't use the init (and Initializable ) because it get called during initialization.
         if (encryptionHandler == null) {
             encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
@@ -49,15 +57,59 @@ public class DuringAuthenticationFilter extends PathMatchingFilter {
 
             result = encryptionHandler.validate(httpServletRequest);
         }
+
+        if (!result) {
+            showErrorMessage((HttpServletResponse) response);
+        } else {
+            result = super.onPreHandle(request, response, mappedValue);
+        }
         return result;
     }
 
-    @Override
-    protected void postHandle(ServletRequest request, ServletResponse response) throws Exception {
+    private void showErrorMessage(HttpServletResponse response) throws IOException {
         response.reset();
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         httpServletResponse.setContentType("text/plain");
         httpServletResponse.getWriter().write("Missing some required parameter. Is Octopus SSO Client correctly configured?");
+    }
+
+    @Override
+    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+        boolean result = super.isAccessAllowed(request, response, mappedValue);
+        if (!result) {
+            result = tryAuthenticationFromCookie((HttpServletRequest) request, (HttpServletResponse) response);
+        }
+        return result;
+    }
+
+    private boolean tryAuthenticationFromCookie(HttpServletRequest request, HttpServletResponse resp) {
+        boolean result = false;
+        SSOTokenStore tokenStore = BeanProvider.getContextualReference(SSOTokenStore.class);
+
+        OctopusSSOUser user = tokenStore.getUser(getSSOTokenCookie(request));
+        if (user != null) {
+            try {
+                SecurityUtils.getSubject().login(user);
+                result = true;
+            } catch (AuthenticationException e) {
+
+            }
+
+        }
+        return result;
+    }
+
+
+    private String getSSOTokenCookie(ServletRequest request) {
+        String result = null;
+        HttpServletRequest servletRequest = (HttpServletRequest) request;
+        Cookie[] cookies = servletRequest.getCookies();
+        for (Cookie cookie : cookies) {
+            if (OCTOPUS_SSO_TOKEN.equals(cookie.getName())) {
+                result = cookie.getValue();
+            }
+        }
+        return result;
     }
 }

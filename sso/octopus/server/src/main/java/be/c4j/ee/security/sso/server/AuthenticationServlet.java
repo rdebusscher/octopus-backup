@@ -24,6 +24,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,8 @@ import java.io.IOException;
  */
 @WebServlet("/octopus/sso/authenticate")
 public class AuthenticationServlet extends HttpServlet {
+
+    public static final String OCTOPUS_SSO_TOKEN = "OctopusSSOToken";
 
     @Inject
     private SSOProducerBean ssoProducerBean;
@@ -68,12 +71,24 @@ public class AuthenticationServlet extends HttpServlet {
         String token = createToken(ssoUser, apiKey);
         callback += "?token=" + token;
         try {
+            attachCookie(resp, ssoUser.getToken());
+
             resp.sendRedirect(callback);
+
+            req.getSession().invalidate();  // Don't keep the session on the SSO server
         } catch (IOException e) {
             // OWASP A6 : Sensitive Data Exposure
             throw new OctopusUnexpectedException(e);
 
         }
+    }
+
+    private void attachCookie(HttpServletResponse resp, String token) {
+        Cookie cookie = new Cookie(OCTOPUS_SSO_TOKEN, token);
+        cookie.setComment("Octopus SSO token");
+
+        cookie.setMaxAge(60 * 60 * 24 * 365 * 10); // 10 year
+        resp.addCookie(cookie);
     }
 
     private String createToken(OctopusSSOUser ssoUser, String apiKey) {

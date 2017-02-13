@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.server.config;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.config.PluginOrder;
 import be.c4j.ee.security.sso.server.filter.DuringAuthenticationFilter;
 import be.c4j.ee.security.sso.server.filter.SSOAuthenticatingFilter;
@@ -23,19 +24,25 @@ import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  *
  */
 @ApplicationScoped
 @PluginOrder(75)
-public class SSOServerConfiguration implements ConfigurationPlugin {
+public class SSOServerConfigurationPlugin implements ConfigurationPlugin {
+
+    @Inject
+    private OctopusJSFConfig config;
+
     @Override
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         // TODO Confusing Names
         mainSection.put("ssoFilter", SSOAuthenticatingFilter.class.getName());
         mainSection.put("ssoAuthFilter", DuringAuthenticationFilter.class.getName());
+        mainSection.put("ssoAuthFilter.loginUrl", config.getLoginPage());
 
     }
 }
