@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.ApplicationCallback;
@@ -38,6 +39,8 @@ import java.io.IOException;
 public class DuringAuthenticationFilter extends UserFilter {
 
     private SSODataEncryptionHandler encryptionHandler;
+
+    private OctopusUserFilter octopusUserFilter;
 
     @Override
     public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
@@ -138,5 +141,24 @@ public class DuringAuthenticationFilter extends UserFilter {
             }
         }
         return result;
+    }
+
+    @Override
+    protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
+        octopusUserFilter.prepareLoginURL(request, response);
+        return super.isLoginRequest(request, response);
+    }
+
+    @Override
+    public String getLoginUrl() {
+        return octopusUserFilter.getLoginUrl();
+    }
+
+    public OctopusUserFilter getUserFilter() {
+        return octopusUserFilter;
+    }
+
+    public void setUserFilter(OctopusUserFilter userFilter) {
+        this.octopusUserFilter = userFilter;
     }
 }

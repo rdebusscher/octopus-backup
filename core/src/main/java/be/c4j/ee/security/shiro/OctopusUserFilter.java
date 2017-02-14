@@ -76,4 +76,20 @@ public class OctopusUserFilter extends UserFilter {
             return subject.getPrincipal() != null && subject.isAuthenticated();
         }
     }
+
+    @Override
+    protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
+        prepareLoginURL(request, response);
+        return super.isLoginRequest(request, response);
+    }
+
+    /**
+     * Override in subclasses to have specific logic for the preparation of the URL (like CAS, Google OAuth2, ...)
+     * Also called from the ??DuringAuthenticationFilter?? to make sure we have the correct loginURL.
+     *
+     * @param request
+     * @param response
+     */
+    public void prepareLoginURL(ServletRequest request, ServletResponse response) {
+    }
 }

@@ -41,10 +41,9 @@ public class CasUserFilter extends OctopusUserFilter implements Initializable {
     }
 
     @Override
-    protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
+    public void prepareLoginURL(ServletRequest request, ServletResponse response) {
         String loginURL = casConfigurationHelper.defineCasLoginURL((HttpServletRequest) request);
         setLoginUrl(loginURL);
-        return super.isLoginRequest(request, response);
     }
 
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {

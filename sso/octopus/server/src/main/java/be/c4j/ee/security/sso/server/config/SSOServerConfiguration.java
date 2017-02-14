@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.config;
 
-import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  *
  */
 @Specializes
-public class SSOServerConfiguration extends OctopusJSFConfig {
+public class SSOServerConfiguration extends AbstractOctopusConfig {
 
     private final int cookieTimeToLive = 10;
 

@@ -42,7 +42,9 @@ public class SSOServerConfigurationPlugin implements ConfigurationPlugin {
         // TODO Confusing Names
         mainSection.put("ssoFilter", SSOAuthenticatingFilter.class.getName());
         mainSection.put("ssoAuthFilter", DuringAuthenticationFilter.class.getName());
-        mainSection.put("ssoAuthFilter.loginUrl", config.getLoginPage());
+
+        // We need a reference to the User filter. That one knows the correct loginURL (for example CAS is calculated at runtime)
+        mainSection.put("ssoAuthFilter.userFilter", "$user");
 
     }
 }
