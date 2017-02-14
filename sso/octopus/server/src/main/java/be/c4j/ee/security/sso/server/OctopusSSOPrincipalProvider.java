@@ -34,7 +34,7 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
     private SSOTokenProvider ssoTokenProvider;
 
     @Override
-    public Object createSSOPrincipal(UserPrincipal userPrincipal) {
+    public OctopusSSOUser createSSOPrincipal(UserPrincipal userPrincipal) {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
         ssoUser.setLocalId(userPrincipal.getId().toString());
         String externalId = userPrincipal.getExternalId();

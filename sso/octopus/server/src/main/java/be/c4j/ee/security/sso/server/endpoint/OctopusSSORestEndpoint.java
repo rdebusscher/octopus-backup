@@ -20,6 +20,7 @@ import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.rest.AuthenticationInfo;
+import be.c4j.ee.security.sso.server.OctopusSSOPrincipalProvider;
 import be.c4j.ee.security.sso.server.rest.RestAuthenticationHandler;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -54,6 +55,9 @@ public class OctopusSSORestEndpoint {
 
     @Inject
     private SSOTokenStore tokenStore;
+
+    @Inject
+    private OctopusSSOPrincipalProvider ssoPrincipalProvider;
 
     @Inject
     private ActiveSessionRegistry activeSessionRegistry;
@@ -105,9 +109,7 @@ public class OctopusSSORestEndpoint {
             UserPrincipal userPrincipal = authenticationHandler.validate(authenticationInfo);
 
             if (userPrincipal != null) {
-                // FIXME !!
-                //OctopusSSOUser user = userPrincipal.getUserInfo(OctopusSSOUser.USER_INFO_KEY);
-                OctopusSSOUser user = null;
+                OctopusSSOUser user = ssoPrincipalProvider.createSSOPrincipal(userPrincipal);
                 tokenStore.keepToken(user);
 
                 activeSessionRegistry.startSession(userPrincipal.getId().toString(), userPrincipal);
