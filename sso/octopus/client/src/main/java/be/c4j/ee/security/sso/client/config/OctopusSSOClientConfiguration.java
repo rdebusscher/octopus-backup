@@ -32,6 +32,8 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     private SSODataEncryptionHandler encryptionHandler;
 
+    private String loginPage;
+
     @PostConstruct
     public void init() {
         // Optional
@@ -40,18 +42,22 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     @Override
     public String getLoginPage() {
-        String prefix = "";
-        String application = getSSOApplication() + getSSOApplicationSuffix();
-        String url = getSSOServer() + "/octopus/sso/authenticate";
-        if (encryptionHandler != null) {
-            prefix = "{" + url.length() + "}";
-            String apiKey = getSSOApiKey();
-            application = encryptionHandler.encryptData(application, apiKey);
-            if (encryptionHandler.requiresApiKey()) {
-                application = application + "&apiKey=" + apiKey;
+        if (loginPage == null) {
+            String prefix = "";
+            String application = getSSOApplication() + getSSOApplicationSuffix();
+            String url = getSSOServer() + "/octopus/sso/authenticate";
+            if (encryptionHandler != null) {
+                prefix = "{" + url.length() + "}";
+                String apiKey = getSSOApiKey();
+                application = encryptionHandler.encryptData(application, apiKey);
+                if (encryptionHandler.requiresApiKey()) {
+                    application = application + "&apiKey=" + apiKey;
+                }
             }
+            loginPage = prefix + url + "?application=" + application;
+
         }
-        return prefix + url + "?application=" + application;
+        return loginPage;
     }
 
     @ConfigEntry
