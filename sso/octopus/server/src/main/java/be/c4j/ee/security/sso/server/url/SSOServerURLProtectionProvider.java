@@ -36,6 +36,8 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
         // For the rest endpoints retrieving user info / permissions
         result.put("/data/octopus/sso/permissions/*", "anon");
         result.put("/data/octopus/**", "ssoFilter, user");
+        //URL to logout from the SSO
+        result.put("/octopus/sso/logout", "ssoFilter");
         //URL Which triggers Login
         result.put("/octopus/**", "ssoAuthFilter");
 

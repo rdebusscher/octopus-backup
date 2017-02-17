@@ -64,8 +64,6 @@ public class OctopusSSORestEndpoint {
 
     private boolean active;
 
-    // FIXME Add these URLs automatically to the securedURL to that the user doesn't need to add them.
-
     @PostConstruct
     public void init() {
         prepareSSORestEndpoint = BeanProvider.getContextualReference(PrepareSSORestEndpoint.class, true);
