@@ -70,7 +70,6 @@ public class LoginBean {
     }
 
     public void logout() throws IOException {
-        logoutHandler.preLogoutAction();
         SecurityUtils.getSubject().logout();
         ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
         externalContext.redirect(logoutHandler.getLogoutPage(externalContext));

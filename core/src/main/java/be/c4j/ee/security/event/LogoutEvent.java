@@ -28,4 +28,14 @@ public class LogoutEvent {
     public UserPrincipal getPrincipal() {
         return principal;
     }
+
+    /**
+     * Does the same as getPrincipal() but here for uniformity.
+     * Removing getPrincipal() would cause a breaking change.
+     *
+     * @return
+     */
+    public UserPrincipal getUserPrincipal() {
+        return principal;
+    }
 }

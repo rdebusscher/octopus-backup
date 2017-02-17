@@ -18,25 +18,23 @@ package be.c4j.ee.security.logout.keycloak;
 import be.c4j.ee.security.credentials.authentication.keycloak.KeycloakAuthenticator;
 import be.c4j.ee.security.credentials.authentication.keycloak.KeycloakUser;
 import be.c4j.ee.security.credentials.authentication.keycloak.config.KeycloakConfiguration;
-import be.c4j.ee.security.logout.LogoutHandler;
+import be.c4j.ee.security.event.LogoutEvent;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.keycloak.adapters.KeycloakDeployment;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Specializes;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 /**
  *
  */
-@Specializes
-public class KeycloakLogoutHandler extends LogoutHandler {
+@ApplicationScoped
+public class KeycloakLogoutHandler {
 
     @Inject
     private KeycloakConfiguration keycloakConfiguration;
-
-    @Inject
-    private UserPrincipal userPrincipal;
 
     private KeycloakAuthenticator authenticator;
 
@@ -46,8 +44,8 @@ public class KeycloakLogoutHandler extends LogoutHandler {
         authenticator = new KeycloakAuthenticator(oidcDeployment);
     }
 
-    @Override
-    public void preLogoutAction() {
+    public void preLogoutAction(@Observes LogoutEvent logoutEvent) {
+        UserPrincipal userPrincipal = logoutEvent.getPrincipal();
         if (keycloakConfiguration.getKeycloakSingleLogout()) {
 
             //userprincipal == null !!

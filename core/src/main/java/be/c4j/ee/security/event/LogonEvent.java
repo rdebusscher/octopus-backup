@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.event;
 
+import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 
@@ -23,9 +24,9 @@ public class LogonEvent {
     private AuthenticationToken token;
     private AuthenticationInfo info;
 
-    public LogonEvent(AuthenticationToken someToken, AuthenticationInfo someInfo) {
-        token = someToken;
-        info = someInfo;
+    public LogonEvent(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo) {
+        token = authenticationToken;
+        info = authenticationInfo;
     }
 
     public AuthenticationToken getToken() {
@@ -35,5 +36,10 @@ public class LogonEvent {
     public AuthenticationInfo getInfo() {
         return info;
     }
+
+    public UserPrincipal getUserPrincipal() {
+        return (UserPrincipal) info.getPrincipals().getPrimaryPrincipal();
+    }
+
 
 }
