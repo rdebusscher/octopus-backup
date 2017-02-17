@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.sso.client.callback;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
@@ -24,6 +26,8 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -45,9 +49,13 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/SSOCallback")
 public class SSOCallbackServlet extends HttpServlet {
 
+    private Logger logger = LoggerFactory.getLogger(SSOCallbackServlet.class);
 
     @Inject
     private OctopusSSOClientConfiguration config;
+
+    @Inject
+    private OctopusConfig octopusConfig;
 
     private SSODataEncryptionHandler encryptionHandler;
 
@@ -63,6 +71,7 @@ public class SSOCallbackServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
         String realToken = retrieveToken(httpServletRequest);
+        showDebugInfo(realToken);
 
         WebTarget target = client.target(config.getSSOServer() + "/" + config.getSSOEndpointRoot() + "/octopus/sso/user");
 
@@ -72,26 +81,39 @@ public class SSOCallbackServlet extends HttpServlet {
                 .get();
 
         String json = response.readEntity(String.class);
-        OctopusSSOUser user = OctopusSSOUser.fromJSON(json);
+        if (response.getStatus() == 200) { // FIXME
 
-        response.close();
 
-        user.setToken(realToken);
+            OctopusSSOUser user = OctopusSSOUser.fromJSON(json);
 
-        try {
-            SecurityUtils.getSubject().login(user);
+            response.close();
 
-            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
+            user.setToken(realToken);
+
             try {
-                httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : httpServletRequest.getContextPath());
-            } catch (IOException e) {
-                // OWASP A6 : Sensitive Data Exposure
-                throw new OctopusUnexpectedException(e);
+                SecurityUtils.getSubject().login(user);
 
+                SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
+                try {
+                    httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : httpServletRequest.getContextPath());
+                } catch (IOException e) {
+                    // OWASP A6 : Sensitive Data Exposure
+                    throw new OctopusUnexpectedException(e);
+
+                }
+
+            } catch (UnauthorizedException e) {
+                handleException(httpServletRequest, httpServletResponse, e, user);
             }
+        } else {
+            logger.warn(String.format("Retrieving SSO User info failed with status %s and body %s", String.valueOf(response.getStatus()), json));
+        }
+    }
 
-        } catch (UnauthorizedException e) {
-            handleException(httpServletRequest, httpServletResponse, e, user);
+    private void showDebugInfo(String token) {
+
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("Call SSO Server for User info (token = %s)", token));
         }
     }
 

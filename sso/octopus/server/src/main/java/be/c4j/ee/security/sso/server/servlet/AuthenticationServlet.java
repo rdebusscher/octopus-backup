@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.sso.server.servlet;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
@@ -23,6 +25,8 @@ import be.c4j.ee.security.sso.server.SSOProducerBean;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -39,6 +43,8 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/authenticate")
 public class AuthenticationServlet extends HttpServlet {
 
+    private Logger logger = LoggerFactory.getLogger(AuthenticationServlet.class);
+
     @Inject
     private SSOServerConfiguration ssoServerConfiguration;
 
@@ -52,6 +58,9 @@ public class AuthenticationServlet extends HttpServlet {
 
     @Inject
     private SSOTokenStore tokenStore;
+
+    @Inject
+    private OctopusConfig octopusConfig;
 
     @Override
     public void init() throws ServletException {
@@ -77,6 +86,7 @@ public class AuthenticationServlet extends HttpServlet {
         try {
             attachCookie(resp, ssoUser.getToken());
 
+            showDebugInfo(ssoUser);
             resp.sendRedirect(callback);
 
             req.getSession().invalidate();  // Don't keep the session on the SSO server
@@ -86,6 +96,13 @@ public class AuthenticationServlet extends HttpServlet {
 
         }
     }
+
+    private void showDebugInfo(OctopusSSOUser user) {
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("User %s is authenticated and cookie written with token %s", user.getFullName(), user.getToken()));
+        }
+    }
+
 
     private void attachCookie(HttpServletResponse resp, String token) {
         Cookie cookie = new Cookie(ssoServerConfiguration.getSSOCookieName(), token);

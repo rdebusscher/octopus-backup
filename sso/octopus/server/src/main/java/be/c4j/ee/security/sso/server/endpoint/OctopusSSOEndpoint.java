@@ -15,11 +15,15 @@
  */
 package be.c4j.ee.security.sso.server.endpoint;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.rest.RestUserInfoProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.RequiresUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
@@ -41,8 +45,13 @@ import java.util.Map;
 @Singleton
 public class OctopusSSOEndpoint {
 
+    private Logger logger = LoggerFactory.getLogger(OctopusSSOEndpoint.class);
+
     @Inject
     private OctopusSSOUser ssoUser;
+
+    @Inject
+    private OctopusConfig octopusConfig;
 
     @Inject
     private SSOPermissionProvider ssoPermissionProvider;
@@ -60,6 +69,7 @@ public class OctopusSSOEndpoint {
     @RequiresUser
     public String getUserInfo() {
 
+        showDebugInfo(ssoUser);
         Map<String, String> info = new HashMap<String, String>(ssoUser.getUserInfo());
         info.remove("token"); // FIXME Create constant
         if (userInfoProvider != null) {
@@ -68,6 +78,14 @@ public class OctopusSSOEndpoint {
 
         return ssoUser.toJSON(info);
     }
+
+    private void showDebugInfo(OctopusSSOUser user) {
+
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("Returning user info for  %s (token = %s)", user.getFullName(), user.getToken()));
+        }
+    }
+
 
     @Path("/user/permissions/{applicationName}")
     @GET

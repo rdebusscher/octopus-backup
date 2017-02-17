@@ -38,6 +38,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -106,11 +107,6 @@ public class OctopusRealm extends AuthorizingRealm {
             ThreadContext.put(IN_AUTHENTICATION_FLAG, new InAuthentication());
             try {
                 authenticationInfo = securityDataProvider.getAuthenticationInfo(token);
-                // TODO Document this action
-                if (authenticationInfo != null) {
-                    UserPrincipal user = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
-                    user.addUserInfo("token", token);  // TODO Create constants!!
-                }
 
                 verifyHashEncoding(authenticationInfo);
             } finally {
@@ -119,6 +115,16 @@ public class OctopusRealm extends AuthorizingRealm {
             }
 
         }
+
+        // TODO Document this action
+        if (authenticationInfo != null) {
+            UserPrincipal user = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
+            if (user.getInfo().containsKey("token")) {
+                user.addUserInfo("upstreamToken", (Serializable) user.getUserInfo("token"));
+            }
+            user.addUserInfo("token", token);  // TODO Create constants!!
+        }
+
         return authenticationInfo;
     }
 

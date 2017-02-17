@@ -25,4 +25,6 @@ public interface SSOTokenStore {
     void keepToken(OctopusSSOUser octopusSSOUser);
 
     OctopusSSOUser getUser(String realToken);
+
+    void removeUser(OctopusSSOUser octopusSSOUser);
 }

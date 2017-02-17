@@ -15,11 +15,16 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
+import be.c4j.test.util.BeanManagerFake;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -28,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -39,6 +45,7 @@ import static org.mockito.Mockito.when;
 public class SSOAuthenticatingFilterTest {
 
     private static final String REAL_TOKEN = "realToken";
+
     @Mock
     private HttpServletRequest httpServletRequestMock;
 
@@ -51,8 +58,29 @@ public class SSOAuthenticatingFilterTest {
     @Mock
     private SSOTokenStore tokenStore;
 
+    @Mock
+    private OctopusConfig octopusConfigMock;
+
     @InjectMocks
     private SSOAuthenticatingFilter ssoAuthenticatingFilter;
+
+
+    private BeanManagerFake beanManagerFake;
+
+    @Before
+    public void setup() {
+        beanManagerFake = new BeanManagerFake();
+
+        beanManagerFake.registerBean(octopusConfigMock, OctopusConfig.class);
+        beanManagerFake.endRegistration();
+
+        when(octopusConfigMock.showDebugFor()).thenReturn(new ArrayList<Debug>());
+    }
+
+    @After
+    public void tearDown() {
+        beanManagerFake.deregistration();
+    }
 
     @Test
     public void createToken_missingAuthenticationHeader() throws Exception {

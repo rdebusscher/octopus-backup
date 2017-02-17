@@ -32,12 +32,10 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
     public Map<String, String> getURLEntriesToAdd() {
         Map<String, String> result = new LinkedHashMap<String, String>();  // Keep order of insertion
         // For the rest authentication
-        result.put("/data/octopus/rest/user", "anon");
+        result.put("/data/octopus/rest/user", "noSessionCreation, anon");
         // For the rest endpoints retrieving user info / permissions
-        result.put("/data/octopus/sso/permissions/*", "anon");
-        result.put("/data/octopus/**", "ssoFilter, user");
-        //URL to logout from the SSO
-        result.put("/octopus/sso/logout", "ssoFilter");
+        result.put("/data/octopus/sso/permissions/*", "noSessionCreation, anon");
+        result.put("/data/octopus/**", "noSessionCreation, ssoFilter, user");
         //URL Which triggers Login
         result.put("/octopus/**", "ssoAuthFilter");
 

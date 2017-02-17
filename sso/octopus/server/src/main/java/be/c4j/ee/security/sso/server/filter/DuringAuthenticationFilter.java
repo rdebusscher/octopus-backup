@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
@@ -25,6 +27,8 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.filter.authc.UserFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -41,6 +45,10 @@ public class DuringAuthenticationFilter extends UserFilter {
     private SSODataEncryptionHandler encryptionHandler;
 
     private OctopusUserFilter octopusUserFilter;
+
+    private OctopusConfig octopusConfig;
+
+    private Logger logger;
 
     @Override
     public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
@@ -115,17 +123,36 @@ public class DuringAuthenticationFilter extends UserFilter {
         boolean result = false;
         SSOTokenStore tokenStore = BeanProvider.getContextualReference(SSOTokenStore.class);
 
-        OctopusSSOUser user = tokenStore.getUser(getSSOTokenCookie(request));
+        String realToken = getSSOTokenCookie(request);
+        OctopusSSOUser user = tokenStore.getUser(realToken);
+
+        if (user != null && !realToken.equals(user.getToken())) {
+            logger.warn("Token used as key in tokenStore returned a SSOUser with a different Token ");
+        }
+
         if (user != null) {
             try {
                 SecurityUtils.getSubject().login(user);
                 result = true;
+
+                showDebugInfo(user);
             } catch (AuthenticationException e) {
 
             }
 
         }
         return result;
+    }
+
+    private void showDebugInfo(OctopusSSOUser user) {
+        if (octopusConfig == null) {
+            octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
+            logger = LoggerFactory.getLogger(DuringAuthenticationFilter.class);
+        }
+
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("User %s is authenticated from SSO Cookie %s", user.getFullName(), user.getToken()));
+        }
     }
 
     private String getSSOTokenCookie(ServletRequest request) {

@@ -60,6 +60,13 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
         return loginPage;
     }
 
+    @Override
+    public String getLogoutPage() {
+
+        return getSSOServer() + "/octopus/sso/logout";
+    }
+
+
     @ConfigEntry
     public String getSSOServer() {
         return ConfigResolver.getPropertyValue("SSO.server", "");

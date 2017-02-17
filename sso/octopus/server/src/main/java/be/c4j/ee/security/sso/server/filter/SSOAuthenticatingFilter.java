@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
@@ -41,16 +43,19 @@ import java.io.IOException;
  */
 public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Initializable {
 
+    private Logger logger = LoggerFactory.getLogger(SSOAuthenticatingFilter.class);
+
     private SSODataEncryptionHandler encryptionHandler;
 
     private SSOTokenStore tokenStore;
 
-    private Logger logger = LoggerFactory.getLogger(SSOAuthenticatingFilter.class);
+    private OctopusConfig octopusConfig;
 
     @Override
     public void init() throws ShiroException {
         encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
         tokenStore = BeanProvider.getContextualReference(SSOTokenStore.class);
+        octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
     }
 
     @Override
@@ -100,10 +105,26 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             realToken = token;
         }
         OctopusSSOUser user = tokenStore.getUser(realToken);
+        if (user != null && !realToken.equals(user.getToken())) {
+            logger.warn("Token used as key in tokenStore returned a SSOUser with a different Token ");
+        }
         if (user == null) {
             logger.info("No user information found for token " + realToken);
+        } else {
+            showDebugInfo(user);
         }
         return user;
+    }
+
+    private void showDebugInfo(OctopusSSOUser user) {
+        if (octopusConfig == null) {
+            octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
+            logger = LoggerFactory.getLogger(SSOAuthenticatingFilter.class);
+        }
+
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("User %s is authenticated from Authorization Header (token = %s)", user.getFullName(), user.getToken()));
+        }
     }
 
     @Override

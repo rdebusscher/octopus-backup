@@ -38,4 +38,9 @@ public class MemoryTokenStore implements SSOTokenStore {
     public OctopusSSOUser getUser(String token) {
         return tokens.get(token);
     }
+
+    @Override
+    public void removeUser(OctopusSSOUser octopusSSOUser) {
+        tokens.remove(octopusSSOUser.getToken());
+    }
 }
