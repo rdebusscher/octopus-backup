@@ -16,7 +16,6 @@
 package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.OctopusPermissionResolver;
 import be.c4j.ee.security.salt.HashEncoding;
@@ -31,7 +30,6 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.CredentialsException;
 import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.codec.Hex;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -53,6 +51,7 @@ public class OctopusRealm extends AuthorizingRealm {
     private OctopusConfig config;
 
     private List<OctopusDefinedAuthenticationInfo> octopusDefinedAuthenticationInfoList;
+    private List<OctopusDefinedAuthorizationInfo> octopusDefinedAuthorizationInfoList;
 
     private TwoStepConfig twoStepConfig;
 
@@ -67,6 +66,7 @@ public class OctopusRealm extends AuthorizingRealm {
         codecUtil = BeanProvider.getContextualReference(CodecUtil.class);
 
         octopusDefinedAuthenticationInfoList = BeanProvider.getContextualReferences(OctopusDefinedAuthenticationInfo.class, false);
+        octopusDefinedAuthorizationInfoList = BeanProvider.getContextualReferences(OctopusDefinedAuthorizationInfo.class, false);
 
         setCachingEnabled(true);
         setAuthenticationTokenClass(AuthenticationToken.class);
@@ -76,19 +76,25 @@ public class OctopusRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         ThreadContext.put(IN_AUTHORIZATION_FLAG, new InAuthorization());
-        AuthorizationInfo authorizationInfo;
+
+        AuthorizationInfo authorizationInfo = null;
         try {
+
+            Iterator<OctopusDefinedAuthorizationInfo> iterator = octopusDefinedAuthorizationInfoList.iterator();
             Object primaryPrincipal = principals.getPrimaryPrincipal();
-            if (OctopusSecurityContext.isSystemAccount(primaryPrincipal)) {
-                // No permissions or roles, use @SystemAccount
-                authorizationInfo = new SimpleAuthorizationInfo();
-            } else {
+            while (authorizationInfo == null && iterator.hasNext()) {
+                authorizationInfo = iterator.next().getAuthorizationInfo(primaryPrincipal);
+            }
+
+            if (authorizationInfo == null) {
+
                 authorizationInfo = securityDataProvider.getAuthorizationInfo(principals);
             }
         } finally {
 
             ThreadContext.remove(IN_AUTHORIZATION_FLAG);
         }
+
         return authorizationInfo;
     }
 

@@ -87,8 +87,4 @@ public class OctopusSecurityContext implements Serializable {
         }
     }
 
-    public static boolean isSystemAccount(Object principal) {
-        return principal instanceof SystemAccountPrincipal;
-    }
-
 }

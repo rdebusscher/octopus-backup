@@ -29,16 +29,16 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-    <artifactId>jwt</artifactId>
+    <artifactId>jwt-user-client</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
-    <name>JWT signed tokens as authentication</name>
+    <name>Creates the JWT token with all the Authentication and Authorization info</name>
 
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-            <version>6.0</version>
+            <version>7.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -48,6 +48,20 @@
             <artifactId>octopus-jsf-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20070829</version>
+        </dependency>
+        <!-- FIXME
+        This is available in nimbus-jose-jwt, check if we can use it
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>com.nimbusds</groupId>

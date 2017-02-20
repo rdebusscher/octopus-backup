@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * SecurityCheck for the annotation defined by OctopusConfig.getNamedPermissionCheckClass()
+ * SecurityCheck for the annotation @OctopusPermissions which takes String permission (named, wildcard or short version)
  */
 @ApplicationScoped
 public class SecurityCheckOctopusPermission implements SecurityCheck {
@@ -92,6 +92,9 @@ public class SecurityCheckOctopusPermission implements SecurityCheck {
             } else {
                 permission = permissionCache.get(permissionString);
                 if (permission == null) {
+                    if (!permissionString.contains(":")) {
+                        permissionString += ":*:*";
+                    }
                     permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(permissionString), permissionString);
                     permissionCache.put(permissionString, permission);
                 }

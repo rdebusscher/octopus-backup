@@ -20,6 +20,7 @@ import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
+import be.c4j.ee.security.role.SimpleNamedRole;
 import be.c4j.ee.security.util.CDIUtil;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
@@ -92,6 +93,13 @@ public class AuthorizationInfoBuilder {
         while (iter.hasNext()) {
             NamedRole namedRole = iter.next();
             addRole(namedRole);
+        }
+        return this;
+    }
+
+    public AuthorizationInfoBuilder addRolesByName(Collection<String> rolesNames) {
+        for (String roleName : rolesNames) {
+            addRole(new SimpleNamedRole(roleName));
         }
         return this;
     }

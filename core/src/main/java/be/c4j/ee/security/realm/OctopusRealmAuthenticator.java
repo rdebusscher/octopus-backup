@@ -16,23 +16,34 @@
 package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.event.OctopusAuthenticationListener;
+import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.token.PrincipalAuthorizationInfoAvailibility;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationListener;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.realm.Realm;
 
 public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
 
     private boolean listenerConfigured = false;
 
+    private boolean authorizationInfoRequired = false;
+
     @Override
     protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken) throws AuthenticationException {
         if (!listenerConfigured) {
             configureListeners();
+            checkAuthorizationInfoMarkers();
         }
         return super.doAuthenticate(authenticationToken);
+    }
+
+    private void checkAuthorizationInfoMarkers() {
+        authorizationInfoRequired = !BeanProvider.getContextualReferences(PrincipalAuthorizationInfoAvailibility.class, true).isEmpty();
     }
 
     private void configureListeners() {
@@ -41,4 +52,22 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
 
         listenerConfigured = true;
     }
+
+    @Override
+    protected AuthenticationInfo doSingleRealmAuthentication(Realm realm, AuthenticationToken token) {
+        AuthenticationInfo authenticationInfo = super.doSingleRealmAuthentication(realm, token);
+        // At this point the user is authenticated, otherwise there was already an exception thrown.
+
+        if (authorizationInfoRequired && realm instanceof OctopusRealm) {
+
+            OctopusRealm octopusRealm = (OctopusRealm) realm;
+            AuthorizationInfo authorizationInfo = octopusRealm.doGetAuthorizationInfo(authenticationInfo.getPrincipals());
+
+            UserPrincipal userPrincipal = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
+            userPrincipal.addUserInfo("authorizationInfo", authorizationInfo);
+        }
+
+        return authenticationInfo;
+    }
+
 }

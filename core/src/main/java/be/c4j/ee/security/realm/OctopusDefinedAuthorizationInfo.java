@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.access;
+package be.c4j.ee.security.realm;
 
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.subject.Subject;
+import org.apache.shiro.authz.AuthorizationInfo;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 13/02/17.
+ * Allows a module to convert a Token into AuthorizationInfo instance.
  */
 
-public interface AfterSuccessfulLoginHandler {
+public interface OctopusDefinedAuthorizationInfo {
 
-    void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject);
+    AuthorizationInfo getAuthorizationInfo(Object primaryPrincipal);
 }

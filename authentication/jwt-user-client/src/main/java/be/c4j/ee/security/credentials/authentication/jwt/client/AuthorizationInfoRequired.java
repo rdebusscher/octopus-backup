@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.access;
+package be.c4j.ee.security.credentials.authentication.jwt.client;
 
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.subject.Subject;
+import be.c4j.ee.security.token.PrincipalAuthorizationInfoAvailibility;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 13/02/17.
+ *
  */
+@ApplicationScoped
+public class AuthorizationInfoRequired implements PrincipalAuthorizationInfoAvailibility {
 
-public interface AfterSuccessfulLoginHandler {
-
-    void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject);
+    //Just a marker, see interface cass javadoc.
 }

@@ -41,7 +41,7 @@ public class RestUserFilter extends UserFilter {
             try {
                 ((HttpServletResponse) response).setStatus(401);
                 response.getOutputStream().println(unauthorized.getMessage());
-                existing = null;
+                exception = null;
             } catch (Exception e) {
                 exception = e;
             }

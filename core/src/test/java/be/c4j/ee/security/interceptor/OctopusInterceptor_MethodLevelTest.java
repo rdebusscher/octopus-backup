@@ -195,6 +195,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         octopusRealm.setCachingEnabled(false);
         ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context));
 
+        ReflectionUtil.setFieldValue(octopusRealm, "octopusDefinedAuthorizationInfoList", new ArrayList());
+
         finishCDISetup();
 
         try {

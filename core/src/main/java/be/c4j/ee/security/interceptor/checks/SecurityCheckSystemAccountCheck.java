@@ -15,7 +15,6 @@
  */
 package be.c4j.ee.security.interceptor.checks;
 
-import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.systemaccount.SystemAccount;
@@ -47,7 +46,7 @@ public class SecurityCheckSystemAccountCheck implements SecurityCheck {
         List<String> identifiers = Arrays.asList(systemAccount.value());
 
         Object principal = subject.getPrincipal();
-        if (OctopusSecurityContext.isSystemAccount(principal)) {
+        if (principal instanceof SystemAccountPrincipal) {
 
             if (subject.isAuthenticated()) {
                 SystemAccountPrincipal systemAccountPrincipal = (SystemAccountPrincipal) principal;

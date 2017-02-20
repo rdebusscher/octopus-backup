@@ -17,9 +17,12 @@ package be.c4j.ee.security.systemaccount;
 
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.OctopusDefinedAuthenticationInfo;
+import be.c4j.ee.security.realm.OctopusDefinedAuthorizationInfo;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -27,7 +30,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
-public class AuthenticationInfoForSystemAccount implements OctopusDefinedAuthenticationInfo {
+public class InfoForSystemAccount implements OctopusDefinedAuthenticationInfo, OctopusDefinedAuthorizationInfo {
 
     @Override
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
@@ -37,5 +40,13 @@ public class AuthenticationInfoForSystemAccount implements OctopusDefinedAuthent
             authenticationInfo = new SimpleAuthenticationInfo(token.getPrincipal(), "", AuthenticationInfoBuilder.DEFAULT_REALM);
         }
         return authenticationInfo;
+    }
+
+    @Override
+    public AuthorizationInfo getAuthorizationInfo(Object primaryPrincipal) {
+        if (primaryPrincipal instanceof SystemAccountPrincipal) {
+            return new SimpleAuthorizationInfo();
+        }
+        return null;
     }
 }

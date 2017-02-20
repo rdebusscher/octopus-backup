@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.access;
-
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.subject.Subject;
+package be.c4j.ee.security.role;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 13/02/17.
+ *
  */
 
-public interface AfterSuccessfulLoginHandler {
+public class SimpleNamedRole implements NamedRole {
 
-    void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject);
+
+    // TODO Correct usage with RoleLookuo and RoleMappingToPermission
+    private String name;
+
+    public SimpleNamedRole(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String name() {
+        return name;
+    }
 }

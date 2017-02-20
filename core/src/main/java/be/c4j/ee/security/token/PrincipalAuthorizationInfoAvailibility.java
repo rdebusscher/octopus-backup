@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.access;
-
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.subject.Subject;
+package be.c4j.ee.security.token;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 13/02/17.
+ * Marker interface to determine of the AuthorizationInfo needs to be placed within the UserPrincipal Object.
+ * See also OctopusRealmAuthenticator.
  */
 
-public interface AfterSuccessfulLoginHandler {
-
-    void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject);
+public interface PrincipalAuthorizationInfoAvailibility {
 }

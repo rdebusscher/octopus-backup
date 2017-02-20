@@ -174,6 +174,8 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
         octopusRealm.setCachingEnabled(false);
         ReflectionUtil.injectDependencies(octopusRealm, new TestSecurityDataProvider(context));
 
+        ReflectionUtil.setFieldValue(octopusRealm, "octopusDefinedAuthorizationInfoList", new ArrayList());
+
         finishCDISetup();
 
         try {

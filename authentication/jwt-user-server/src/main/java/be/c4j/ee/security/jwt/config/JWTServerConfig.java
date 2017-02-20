@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.access;
+package be.c4j.ee.security.jwt.config;
 
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.subject.Subject;
+import be.c4j.ee.security.config.AbstractOctopusConfig;
+import be.rubus.web.jerry.config.logging.ConfigEntry;
+import be.rubus.web.jerry.config.logging.ModuleConfig;
+import org.apache.deltaspike.core.api.config.ConfigResolver;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 13/02/17.
+ *
  */
+@ApplicationScoped
+public class JWTServerConfig extends AbstractOctopusConfig implements ModuleConfig {
 
-public interface AfterSuccessfulLoginHandler {
+    @ConfigEntry(noLogging = true)
+    public String getMACTokenSecret() {
+        return ConfigResolver.getPropertyValue("jwt.token.secret");
+    }
 
-    void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject);
 }
