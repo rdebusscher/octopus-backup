@@ -41,6 +41,7 @@ import java.util.Date;
 
 /**
  * Contains the generic code for the Authc Filters using OAuth2 (Google, Github, LinkedIn).
+ * TODO Verify if BasicHttpAuthenticationFilter is the correct class and AuthenticatingFilter is not the preferred one.
  */
 public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationFilter implements Initializable {
 

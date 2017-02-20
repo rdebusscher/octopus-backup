@@ -19,7 +19,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 /**
- *
+ * FIXME, Use the Octopus Server module
  */
 @ApplicationPath("/OAuth2")
 public class OAuth2RestApplication extends Application {

@@ -38,7 +38,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
 /**
- *
+ * FIXME Remove and use Octopus-sso-client (together wth server module)
  */
 @WebServlet(urlPatterns = "/octopusSSOCallback")
 public class SSOCallbackServlet extends HttpServlet {

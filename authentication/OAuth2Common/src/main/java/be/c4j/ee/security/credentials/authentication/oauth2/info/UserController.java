@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * FIXME, Use the Octopus Server module
  */
 @Path("/user")
 @Singleton
