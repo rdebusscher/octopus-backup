@@ -16,7 +16,6 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.scribejava.core.model.Token;
 
 import javax.security.auth.Subject;
@@ -28,7 +27,8 @@ import java.util.Map;
 /**
  *
  */
-@JsonIgnoreProperties(value = {"token", "userInfo", "principal", "credentials"}, ignoreUnknown = true)
+//@JsonIgnoreProperties(value = {"token", "userInfo", "principal", "credentials"}, ignoreUnknown = true)
+// This was placed here because of the Serialization of the OAuth2USer from UserController to SSOCallbackServlet (Old sso-client)
 public class OAuth2User implements ValidatedAuthenticationToken, Principal {
 
     public static final String LOCAL_ID = "LOCAL_ID";

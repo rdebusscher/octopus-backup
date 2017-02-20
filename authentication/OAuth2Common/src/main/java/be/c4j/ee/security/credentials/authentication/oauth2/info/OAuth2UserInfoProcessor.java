@@ -16,8 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import org.json.JSONException;
-import org.json.JSONObject;
+import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -32,16 +31,26 @@ public abstract class OAuth2UserInfoProcessor {
     @Inject
     protected Logger logger;
 
-    protected void processJSON(OAuth2User oAuth2User, JSONObject jsonObject, List<String> excludeKeys) throws JSONException {
-        Iterator keys = jsonObject.keys();
+    protected void processJSON(OAuth2User oAuth2User, JSONObject jsonObject, List<String> excludeKeys) {
+        Iterator<String> keys = jsonObject.keySet().iterator();
         String key;
         while (keys.hasNext()) {
-            key = (String) keys.next();
+            key = keys.next();
             if (!excludeKeys.contains(key)) {
-                oAuth2User.addUserInfo(key, jsonObject.getString(key));
+                oAuth2User.addUserInfo(key, jsonObject.get(key).toString());
             }
         }
     }
 
+    protected String getString(JSONObject jsonObject, String key) {
+        return jsonObject.get(key).toString();
+    }
 
+    protected String optString(JSONObject jsonObject, String key) {
+        if (jsonObject.containsKey(key)) {
+            return getString(jsonObject, key);
+        } else {
+            return null;
+        }
+    }
 }

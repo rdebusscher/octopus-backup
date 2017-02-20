@@ -17,10 +17,10 @@ package be.c4j.ee.security.credentials.authentication.oauth2.json;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2UserInfoProcessor;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.shiro.authz.UnauthenticatedException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Arrays;
@@ -37,18 +37,20 @@ public class LinkedinJSONProcessor extends OAuth2UserInfoProcessor {
     public OAuth2User extractLinkedinUser(String json) {
         OAuth2User oAuth2User = null;
         try {
-            JSONObject jsonObject = new JSONObject(new JSONTokener(json));
+            JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
-            if (!jsonObject.has("error")) {
+            JSONObject jsonObject = (JSONObject) parser.parse(json);
+
+            if (!jsonObject.containsKey("error")) {
                 oAuth2User = new OAuth2User();
-                oAuth2User.setId(jsonObject.getString("id"));
-                oAuth2User.setEmail(jsonObject.getString("emailAddress"));
+                oAuth2User.setId(getString(jsonObject, "id"));
+                oAuth2User.setEmail(getString(jsonObject, "emailAddress"));
 
-                oAuth2User.setFullName(jsonObject.optString("lastName") + " " + jsonObject.optString("firstName"));
+                oAuth2User.setFullName(optString(jsonObject, "lastName") + " " + optString(jsonObject, "firstName"));
 
-                oAuth2User.setLink(jsonObject.optString("publicProfileUrl"));
+                oAuth2User.setLink(optString(jsonObject, "publicProfileUrl"));
 
-                oAuth2User.setPicture(jsonObject.optString("pictureUrl"));
+                oAuth2User.setPicture(optString(jsonObject, "pictureUrl"));
 
                 processJSON(oAuth2User, jsonObject, KEYS);
 
@@ -57,7 +59,7 @@ public class LinkedinJSONProcessor extends OAuth2UserInfoProcessor {
                 throw new UnauthenticatedException(json);
             }
 
-        } catch (JSONException e) {
+        } catch (ParseException e) {
             logger.warn(e.getMessage(), e);
         }
         return oAuth2User;

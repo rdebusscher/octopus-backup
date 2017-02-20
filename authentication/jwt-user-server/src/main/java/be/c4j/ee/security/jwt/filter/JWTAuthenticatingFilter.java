@@ -23,15 +23,15 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -105,34 +105,38 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
                 String jsonData = claimsSet.getSubject();
 
-                JSONObject jsonObject = new JSONObject(jsonData);
+                JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
-                user = new JWTUser(jsonObject.getString("name"), jsonObject.getString("id"));
-                user.setUserName(jsonObject.optString("userName"));
+                JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
 
-                JSONArray roles = jsonObject.getJSONArray("roles");
+                user = new JWTUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
+                user.setUserName(optString(jsonObject, "userName"));
+
+                JSONArray roles = getJSONArray(jsonObject, "roles");
                 user.setRoles(convertToList(roles));
 
-                JSONArray permissions = jsonObject.getJSONArray("permissions");
+                JSONArray permissions = getJSONArray(jsonObject, "permissions");
                 user.setPermissions(convertToList(permissions));
 
             }
         } catch (ParseException e) {
+            // FIXME
             e.printStackTrace();
         } catch (JOSEException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (net.minidev.json.parser.ParseException e) {
             e.printStackTrace();
         }
 
         return user;
     }
 
-    private List<String> convertToList(JSONArray array) throws JSONException {
+    private List<String> convertToList(JSONArray array) {
+        // TODO Can this now be optimized?
         List<String> result = new ArrayList<String>();
-        int length = array.length();
+        int length = array.size();
         for (int i = 0; i < length; i++) {
-            result.add(array.getString(i));
+            result.add(array.get(i).toString());
         }
         return result;
     }
@@ -167,4 +171,21 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         }
         super.cleanup(request, response, exception);
     }
+
+    protected String getString(JSONObject jsonObject, String key) {
+        return jsonObject.get(key).toString();
+    }
+
+    protected String optString(JSONObject jsonObject, String key) {
+        if (jsonObject.containsKey(key)) {
+            return getString(jsonObject, key);
+        } else {
+            return null;
+        }
+    }
+
+    protected JSONArray getJSONArray(JSONObject jsonObject, String key) {
+        return (JSONArray) jsonObject.get(key);
+    }
+
 }

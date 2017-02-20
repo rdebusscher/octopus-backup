@@ -16,8 +16,9 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import org.json.JSONException;
-import org.json.JSONObject;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,11 +43,15 @@ public class OAuth2UserInfoProcessorTest {
     }
 
     @Test
-    public void testProcessJSON() throws JSONException {
+    public void testProcessJSON() throws ParseException {
 
         OAuth2User user = new OAuth2User();
         List<String> keys = Collections.singletonList("key2");
-        JSONObject json = new JSONObject("{ \"key1\" : \"value1\", \"key2\" : \"value2\", \"key3\" : \"value3\" }");
+
+        JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+
+        JSONObject json = (JSONObject) parser.parse("{ \"key1\" : \"value1\", \"key2\" : \"value2\", \"key3\" : \"value3\" }");
+
         processor.processJSON(user, json, keys);
 
         Map<Serializable, Serializable> userInfo = user.getUserInfo();

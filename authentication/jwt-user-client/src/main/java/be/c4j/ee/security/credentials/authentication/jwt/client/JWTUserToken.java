@@ -22,12 +22,11 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.WildcardPermission;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -96,46 +95,41 @@ public class JWTUserToken {
 
     private String definePayload() {
         JSONObject result = new JSONObject();
-        try {
-            result.put("id", userPrincipal.getId());
-            result.put("externalId", userPrincipal.getExternalId());
-            result.put("userName", userPrincipal.getUserName());
-            result.put("name", userPrincipal.getName());
+        result.put("id", userPrincipal.getId());
+        result.put("externalId", userPrincipal.getExternalId());
+        result.put("userName", userPrincipal.getUserName());
+        result.put("name", userPrincipal.getName());
 
-            AuthorizationInfo info = userPrincipal.getUserInfo("authorizationInfo");
+        AuthorizationInfo info = userPrincipal.getUserInfo("authorizationInfo");
 
-            JSONArray rolesArray = new JSONArray();
-            if (info.getRoles() != null) {
-                for (String role : info.getRoles()) {
-                    rolesArray.put(role);
-                }
+        JSONArray rolesArray = new JSONArray();
+        if (info.getRoles() != null) {
+            for (String role : info.getRoles()) {
+                rolesArray.add(role);
             }
-            result.put("roles", rolesArray);
-
-            JSONArray permissionArray = new JSONArray();
-            if (info.getStringPermissions() != null) {
-                for (String permission : info.getStringPermissions()) {
-                    permissionArray.put(permission);
-                }
-            }
-
-            if (info.getObjectPermissions() != null) {
-                for (Permission permission : info.getObjectPermissions()) {
-                    if (permission instanceof WildcardPermission) {
-                        // FIXME Is this OK, check if we can other permissions and how we can handle them here.
-                        WildcardPermission wildcardPermission = (WildcardPermission) permission;
-                        permissionArray.put(wildcardPermission.toString());
-                    }
-                }
-            }
-
-            result.put("permissions", permissionArray);
-
-
-        } catch (JSONException e) {
-            throw new OctopusUnexpectedException(e);
         }
-        return result.toString();
+        result.put("roles", rolesArray);
+
+        JSONArray permissionArray = new JSONArray();
+        if (info.getStringPermissions() != null) {
+            for (String permission : info.getStringPermissions()) {
+                permissionArray.add(permission);
+            }
+        }
+
+        if (info.getObjectPermissions() != null) {
+            for (Permission permission : info.getObjectPermissions()) {
+                if (permission instanceof WildcardPermission) {
+                    // FIXME Is this OK, check if we can other permissions and how we can handle them here.
+                    WildcardPermission wildcardPermission = (WildcardPermission) permission;
+                    permissionArray.add(wildcardPermission.toString());
+                }
+            }
+        }
+
+        result.put("permissions", permissionArray);
+
+        return result.toJSONString();
     }
 
 

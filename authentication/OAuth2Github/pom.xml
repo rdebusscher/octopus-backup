@@ -64,18 +64,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20070829</version>
-        </dependency>
-        <!-- FIXME
-        This is available in nimbus-jose-jwt, check if we can use it
-        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>1.3.1</version>
         </dependency>
-        -->
 
 
     </dependencies>

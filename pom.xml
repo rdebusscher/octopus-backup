@@ -84,6 +84,7 @@
         <myfaces.version>2.0.2</myfaces.version>
         <jerry.version>0.4.0</jerry.version>
 
+        <nimbus-jose-jwt.version>4.34.1</nimbus-jose-jwt.version>
         <slf4j.version>1.7.7</slf4j.version>
 
     </properties>

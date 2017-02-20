@@ -17,10 +17,10 @@ package be.c4j.ee.security.credentials.authentication.oauth2.google.json;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2UserInfoProcessor;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.shiro.authz.UnauthenticatedException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Arrays;
@@ -37,22 +37,24 @@ public class GoogleJSONProcessor extends OAuth2UserInfoProcessor {
     public OAuth2User extractGoogleUser(String json) {
         OAuth2User oAuth2User = null;
         try {
-            JSONObject jsonObject = new JSONObject(new JSONTokener(json));
+            JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
-            if (!jsonObject.has("error")) {
+            JSONObject jsonObject = (JSONObject) parser.parse(json);
+
+            if (!jsonObject.containsKey("error")) {
                 oAuth2User = new OAuth2User();
-                oAuth2User.setId(jsonObject.getString("sub"));
-                oAuth2User.setEmail(jsonObject.getString("email"));
+                oAuth2User.setId(getString(jsonObject, "sub"));
+                oAuth2User.setEmail(getString(jsonObject, "email"));
 
-                oAuth2User.setVerifiedEmail(jsonObject.optBoolean("verified_email"));
-                oAuth2User.setLastName(jsonObject.optString("family_name"));
-                oAuth2User.setFirstName(jsonObject.optString("given_name"));
-                oAuth2User.setFullName(jsonObject.optString("name"));
-                oAuth2User.setDomain(jsonObject.optString("hd"));
-                oAuth2User.setLink(jsonObject.optString("link"));
-                oAuth2User.setPicture(jsonObject.optString("picture"));
-                oAuth2User.setGender(jsonObject.optString("gender"));
-                oAuth2User.setLocale(jsonObject.optString("locale"));
+                oAuth2User.setVerifiedEmail(optBoolean(jsonObject, "verified_email"));
+                oAuth2User.setLastName(optString(jsonObject, "family_name"));
+                oAuth2User.setFirstName(optString(jsonObject, "given_name"));
+                oAuth2User.setFullName(optString(jsonObject, "name"));
+                oAuth2User.setDomain(optString(jsonObject, "hd"));
+                oAuth2User.setLink(optString(jsonObject, "link"));
+                oAuth2User.setPicture(optString(jsonObject, "picture"));
+                oAuth2User.setGender(optString(jsonObject, "gender"));
+                oAuth2User.setLocale(optString(jsonObject, "locale"));
 
                 processJSON(oAuth2User, jsonObject, KEYS);
             } else {
@@ -60,10 +62,19 @@ public class GoogleJSONProcessor extends OAuth2UserInfoProcessor {
                 throw new UnauthenticatedException(json);
             }
 
-        } catch (JSONException e) {
+        } catch (ParseException e) {
             logger.warn(e.getMessage(), e);
         }
         return oAuth2User;
+    }
+
+    private boolean optBoolean(JSONObject jsonObject, String key) {
+        String value = optString(jsonObject, key);
+        if (value != null) {
+            return Boolean.valueOf(value);
+        } else {
+            return false;
+        }
     }
 
 }
