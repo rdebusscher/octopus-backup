@@ -78,11 +78,21 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
             onSuccessfulLogin(token, info, loggedIn);
 
         } else {
-            UserPrincipal userPrincipal = (UserPrincipal) info.getPrincipals().getPrimaryPrincipal();
+            Object principal = info.getPrincipals().getPrimaryPrincipal();
+            if (principal instanceof UserPrincipal) {
 
-            if (userPrincipal.needsTwoStepAuthentication()) {
-                loggedIn = createTwoStepSubject(token, info, subject);
+                UserPrincipal userPrincipal = (UserPrincipal) principal;
 
+                // TODO Review this, Can it be solved differently?
+                if (userPrincipal.needsTwoStepAuthentication()) {
+                    loggedIn = createTwoStepSubject(token, info, subject);
+
+                } else {
+                    loggedIn = createSubject(token, info, subject);
+
+                    onSuccessfulLogin(token, info, loggedIn);
+
+                }
             } else {
                 loggedIn = createSubject(token, info, subject);
 
@@ -109,24 +119,28 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
 
         UserPrincipal userPrincipal = getUserPrincipal(principals);
 
-        // FIXME the different realm names isn't solved yet :)
-        if (principals instanceof MutablePrincipalCollection && ssoPrincipalProvider != null) {
-            ((MutablePrincipalCollection) principals).add(ssoPrincipalProvider.createSSOPrincipal(userPrincipal), DEFAULT_REALM);
-        }
-
         Subject result;
-        if (userPrincipal != null && userPrincipal.needsTwoStepAuthentication()) {
-
-            result = twoStepSubjectFactory.createSubject(context);
-        } else {
-
+        if (userPrincipal == null) {
             result = getSubjectFactory().createSubject(context);
+        } else {
+            // FIXME the different realm names isn't solved yet :)
+            if (principals instanceof MutablePrincipalCollection && ssoPrincipalProvider != null) {
+                ((MutablePrincipalCollection) principals).add(ssoPrincipalProvider.createSSOPrincipal(userPrincipal), DEFAULT_REALM);
+            }
+
+            if (userPrincipal != null && userPrincipal.needsTwoStepAuthentication()) {
+
+                result = twoStepSubjectFactory.createSubject(context);
+            } else {
+
+                result = getSubjectFactory().createSubject(context);
+            }
         }
         return result;
     }
 
     private UserPrincipal getUserPrincipal(PrincipalCollection principals) {
-        return principals == null ? null : (UserPrincipal) principals.getPrimaryPrincipal();
+        return principals == null || !(principals.getPrimaryPrincipal() instanceof UserPrincipal) ? null : (UserPrincipal) principals.getPrimaryPrincipal();
     }
 
     private PrincipalCollection getPrincipalCollection(SubjectContext context) {

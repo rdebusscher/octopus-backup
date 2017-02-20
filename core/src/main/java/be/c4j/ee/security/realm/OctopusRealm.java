@@ -124,11 +124,14 @@ public class OctopusRealm extends AuthorizingRealm {
 
         // TODO Document this action
         if (authenticationInfo != null) {
-            UserPrincipal user = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
-            if (user.getInfo().containsKey("token")) {
-                user.addUserInfo("upstreamToken", (Serializable) user.getUserInfo("token"));
+            Object principal = authenticationInfo.getPrincipals().getPrimaryPrincipal();
+            if (principal instanceof UserPrincipal) {
+                UserPrincipal user = (UserPrincipal) principal;
+                if (user.getInfo().containsKey("token")) {
+                    user.addUserInfo("upstreamToken", (Serializable) user.getUserInfo("token"));
+                }
+                user.addUserInfo("token", token);  // TODO Create constants!!
             }
-            user.addUserInfo("token", token);  // TODO Create constants!!
         }
 
         return authenticationInfo;
@@ -193,10 +196,13 @@ public class OctopusRealm extends AuthorizingRealm {
         if (info instanceof TwoStepAuthenticationInfo) {
             return;
         }
-        UserPrincipal userPrincipal = (UserPrincipal) info.getPrincipals().getPrimaryPrincipal();
-        if (twoStepConfig.getAlwaysTwoStepAuthentication() != null) {
-            if (twoStepConfig.getAlwaysTwoStepAuthentication()) {
-                userPrincipal.setNeedsTwoStepAuthentication(true);
+        Object principal = info.getPrincipals().getPrimaryPrincipal();
+        if (principal instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) principal;
+            if (twoStepConfig.getAlwaysTwoStepAuthentication() != null) {
+                if (twoStepConfig.getAlwaysTwoStepAuthentication()) {
+                    userPrincipal.setNeedsTwoStepAuthentication(true);
+                }
             }
         }
     }
