@@ -16,12 +16,11 @@
 package be.c4j.ee.security.sso.client.config;
 
 import be.c4j.ee.security.config.OctopusJSFConfig;
-import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.sso.SSOFlow;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Specializes;
 
 /**
@@ -30,31 +29,17 @@ import javax.enterprise.inject.Specializes;
 @Specializes
 public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
-    private SSODataEncryptionHandler encryptionHandler;
-
     private String loginPage;
+    private String logoutPage;
 
-    @PostConstruct
-    public void init() {
-        // Optional
-        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
-    }
 
     @Override
     public String getLoginPage() {
         if (loginPage == null) {
-            String prefix = "";
-            String application = getSSOApplication() + getSSOApplicationSuffix();
+
             String url = getSSOServer() + "/octopus/sso/authenticate";
-            if (encryptionHandler != null) {
-                prefix = "{" + url.length() + "}";
-                String apiKey = getSSOApiKey();
-                application = encryptionHandler.encryptData(application, apiKey);
-                if (encryptionHandler.requiresApiKey()) {
-                    application = application + "&apiKey=" + apiKey;
-                }
-            }
-            loginPage = prefix + url + "?application=" + application;
+
+            loginPage = url + "?client_id=" + getSSOClientId() + "&response_type=" + getSSOType().getResponseType();
 
         }
         return loginPage;
@@ -62,8 +47,11 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     @Override
     public String getLogoutPage() {
+        if (logoutPage == null) {
 
-        return getSSOServer() + "/octopus/sso/logout";
+            logoutPage = getSSOServer() + "/octopus/sso/logout?client_id=" + getSSOClientId();
+        }
+        return logoutPage;
     }
 
 
@@ -90,6 +78,33 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry
     public String getSSOEndpointRoot() {
         return ConfigResolver.getPropertyValue("SSO.endpoint.root", "data");
+    }
+
+    @ConfigEntry
+    public String getSSOClientId() {
+        String ssoClientId = defineConfigValue("SSO.clientId");
+        if (ssoClientId.trim().isEmpty()) {
+            throw new OctopusConfigurationException("Value for {SSO.application}SSO.clientId parameter is empty");
+        }
+        return ssoClientId;
+    }
+
+    @ConfigEntry
+    public SSOFlow getSSOType() {
+        SSOFlow ssoFlow = SSOFlow.defineFlow(ConfigResolver.getPropertyValue("SSO.flow", ""));
+        if (ssoFlow == null) {
+            throw new OctopusConfigurationException("Value for SSO.flow parameter is invalid. Must be 'token' or 'code'");
+        }
+        return ssoFlow;
+    }
+
+    private String defineConfigValue(String configParameter) {
+        String configKeyPrefix = getSSOApplication() + getSSOApplicationSuffix();
+        String result = ConfigResolver.getPropertyValue(configKeyPrefix + '.' + configParameter, "");
+        if (result.trim().isEmpty()) {
+            result = ConfigResolver.getPropertyValue(configParameter, "");
+        }
+        return result;
     }
 
     @ConfigEntry

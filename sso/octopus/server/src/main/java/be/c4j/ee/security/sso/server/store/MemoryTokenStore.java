@@ -27,20 +27,30 @@ import java.util.Map;
 @ApplicationScoped
 public class MemoryTokenStore implements SSOTokenStore {
 
-    private Map<String, OctopusSSOUser> tokens = new HashMap<String, OctopusSSOUser>();
+    private Map<String, OctopusSSOUser> byAccessCode = new HashMap<String, OctopusSSOUser>();
+    private Map<String, TokenStoreInfo> byCookieCode = new HashMap<String, TokenStoreInfo>();
+
 
     @Override
-    public void keepToken(OctopusSSOUser octopusSSOUser) {
-        tokens.put(octopusSSOUser.getToken(), octopusSSOUser);
+    public void keepToken(TokenStoreInfo tokenStoreInfo) {
+        OctopusSSOUser octopusSSOUser = tokenStoreInfo.getOctopusSSOUser();
+        byAccessCode.put(octopusSSOUser.getToken(), octopusSSOUser);
+        byCookieCode.put(tokenStoreInfo.getCookieToken(), tokenStoreInfo);
     }
 
     @Override
-    public OctopusSSOUser getUser(String token) {
-        return tokens.get(token);
+    public OctopusSSOUser getUserByAccessCode(String token) {
+        return byAccessCode.get(token);
+
+    }
+
+    @Override
+    public TokenStoreInfo getUserByCookieToken(String cookieToken) {
+        return byCookieCode.get(cookieToken);
     }
 
     @Override
     public void removeUser(OctopusSSOUser octopusSSOUser) {
-        tokens.remove(octopusSSOUser.getToken());
+        byAccessCode.remove(octopusSSOUser.getToken());
     }
 }

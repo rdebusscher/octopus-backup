@@ -19,10 +19,12 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
@@ -49,6 +51,7 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/SSOCallback")
 public class SSOCallbackServlet extends HttpServlet {
 
+    private static final String OAUTH2_STATE = "state";
     private Logger logger = LoggerFactory.getLogger(SSOCallbackServlet.class);
 
     @Inject
@@ -70,6 +73,9 @@ public class SSOCallbackServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+
+        checkState(httpServletRequest);
+
         String realToken = retrieveToken(httpServletRequest);
         showDebugInfo(realToken);
 
@@ -110,6 +116,18 @@ public class SSOCallbackServlet extends HttpServlet {
         }
     }
 
+    private void checkState(HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession(true);
+        Object expectedState = session.getAttribute(OAUTH2_STATE);
+        String state = httpServletRequest.getParameter(OAUTH2_STATE);
+
+        session.removeAttribute(OAUTH2_STATE);
+        if (!expectedState.equals(state)) {
+            logger.warn("Received request with incorrect 'state' value");
+            throw new AuthorizationException("Failed to validate the request");
+        }
+    }
+
     private void showDebugInfo(String token) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
@@ -143,13 +161,24 @@ public class SSOCallbackServlet extends HttpServlet {
     }
 
     private String retrieveToken(HttpServletRequest req) {
-        String token = req.getParameter("token");
-        String realToken;
-        if (encryptionHandler != null) {
+        SSOFlow ssoType = config.getSSOType();
+
+        String token = "";
+        switch (ssoType) {
+
+            case IMPLICIT:
+                token = req.getParameter("access_token");
+                break;
+            case AUTHORIZATION_CODE:
+                token = req.getParameter("code");
+                break;
+        }
+
+        String realToken = token;
+        if (ssoType == SSOFlow.IMPLICIT && encryptionHandler != null) {
 
             realToken = encryptionHandler.decryptData(token, null);
-        } else {
-            realToken = token;
+
         }
         return realToken;
     }

@@ -20,5 +20,5 @@ package be.c4j.ee.security.sso.server;
  */
 public interface ApplicationCallback {
 
-    String determineCallback(String application);
+    String determineCallback(String clientId);
 }

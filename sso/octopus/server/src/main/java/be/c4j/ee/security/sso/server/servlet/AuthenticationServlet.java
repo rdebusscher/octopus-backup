@@ -19,11 +19,13 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.ApplicationCallback;
 import be.c4j.ee.security.sso.server.SSOProducerBean;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  *
@@ -69,32 +72,62 @@ public class AuthenticationServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // We can't inject the OctopusSSOUSer because we then get a Proxy which is stored.
         // Bad things will happen ....
         OctopusSSOUser ssoUser = ssoProducerBean.getOctopusSSOUser();
-        tokenStore.keepToken(ssoUser);
 
-        String apiKey = req.getParameter("apiKey");
-        String application = req.getParameter("application");
-        if (encryptionHandler != null) {
-            application = encryptionHandler.decryptData(req.getParameter("application"), apiKey);
-        }
-        String callback = applicationCallback.determineCallback(application) + "/octopus/sso/SSOCallback";
-        String token = createToken(ssoUser, apiKey);
-        callback += "?token=" + token;
+        TokenStoreInfo tokenInfo = defineTokenStoreInfo(ssoUser, request);
+        tokenStore.keepToken(tokenInfo);
+
+        String apiKey = request.getParameter("apiKey");
+        String clientId = request.getParameter("client_id");
+        String responseType = request.getParameter("response_type");
+        String state = request.getParameter("state");
+
+        // clientId is never encrypted
+        String callback = applicationCallback.determineCallback(clientId) + "/octopus/sso/SSOCallback";
+
+        SSOFlow ssoFlow = SSOFlow.defineFlow(responseType);
+
+        String code = createCode(ssoUser, apiKey, ssoFlow);
+        // Code can optionally be wrapped in JWT (only when implicit and encryption handler is available)
+
+        callback += determineParametersCallback(ssoFlow, code, state);
+
         try {
-            attachCookie(resp, ssoUser.getToken());
+            attachCookie(response, tokenInfo.getCookieToken());
 
             showDebugInfo(ssoUser);
-            resp.sendRedirect(callback);
+            response.sendRedirect(callback);
 
-            req.getSession().invalidate();  // Don't keep the session on the SSO server
+            request.getSession().invalidate();  // Don't keep the session on the SSO server
         } catch (IOException e) {
             // OWASP A6 : Sensitive Data Exposure
             throw new OctopusUnexpectedException(e);
 
         }
+    }
+
+    private TokenStoreInfo defineTokenStoreInfo(OctopusSSOUser ssoUser, HttpServletRequest request) {
+        String remoteHost = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        return new TokenStoreInfo(ssoUser, UUID.randomUUID().toString(), userAgent, remoteHost);
+    }
+
+    private String determineParametersCallback(SSOFlow ssoFlow, String code, String state) {
+        StringBuilder result = new StringBuilder();
+        switch (ssoFlow) {
+
+            case IMPLICIT:
+                result.append("?access_token=").append(code);
+                break;
+            case AUTHORIZATION_CODE:
+                result.append("?code=").append(code);
+                break;
+        }
+        result.append("&state=").append(state);
+        return result.toString();
     }
 
     private void showDebugInfo(OctopusSSOUser user) {
@@ -114,11 +147,16 @@ public class AuthenticationServlet extends HttpServlet {
         resp.addCookie(cookie);
     }
 
-    private String createToken(OctopusSSOUser ssoUser, String apiKey) {
+    private String createCode(OctopusSSOUser ssoUser, String apiKey, SSOFlow ssoFlow) {
         String result;
         String token = ssoUser.getToken();
-        if (encryptionHandler != null) {
-            result = encryptionHandler.encryptData(token, apiKey);
+        if (ssoFlow == SSOFlow.IMPLICIT) {
+            // Only in IMPLICIT mode we can have an encrypted Token
+            if (encryptionHandler != null) {
+                result = encryptionHandler.encryptData(token, apiKey);
+            } else {
+                result = token;
+            }
         } else {
             result = token;
         }

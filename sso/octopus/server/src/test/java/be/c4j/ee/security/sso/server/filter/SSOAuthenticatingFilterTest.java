@@ -162,7 +162,7 @@ public class SSOAuthenticatingFilterTest {
         when(ssoDataEncryptionHandlerMock.validate(null, "token")).thenReturn(true);
         when(ssoDataEncryptionHandlerMock.decryptData("token", null)).thenReturn(REAL_TOKEN);
         OctopusSSOUser user = new OctopusSSOUser();
-        when(tokenStore.getUser(REAL_TOKEN)).thenReturn(user);
+        when(tokenStore.getUserByAccessCode(REAL_TOKEN)).thenReturn(user);
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 

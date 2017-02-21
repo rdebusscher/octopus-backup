@@ -22,9 +22,11 @@ import be.c4j.ee.security.sso.OctopusSSOUser;
  */
 public interface SSOTokenStore {
 
-    void keepToken(OctopusSSOUser octopusSSOUser);
+    void keepToken(TokenStoreInfo tokenStoreInfo);
 
-    OctopusSSOUser getUser(String realToken);
+    OctopusSSOUser getUserByAccessCode(String realToken);
+
+    TokenStoreInfo getUserByCookieToken(String cookieToken);
 
     void removeUser(OctopusSSOUser octopusSSOUser);
 }

@@ -15,34 +15,62 @@
  */
 package be.c4j.ee.security.sso.client;
 
-import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.ee.security.PasswordGenerator;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
-import be.rubus.web.jerry.config.DynamicConfigValueHelper;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 /**
  *
  */
 public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializable {
 
-    private DynamicConfigValueHelper valueHelper;
-    private OctopusJSFConfig configuration;
+    private ThreadLocal<String> stateValue;
+
+    private PasswordGenerator passwordGenerator;
 
     @Override
     public void init() throws ShiroException {
-        valueHelper = BeanProvider.getContextualReference(DynamicConfigValueHelper.class);
-        configuration = BeanProvider.getContextualReference(OctopusJSFConfig.class);
+        passwordGenerator = BeanProvider.getContextualReference(PasswordGenerator.class);
+        stateValue = new ThreadLocal<String>();
     }
 
     @Override
     public String getLoginUrl() {
         String loginURL = super.getLoginUrl();
-        if (valueHelper.isDynamicValue(loginURL)) {
-            loginURL = valueHelper.getCompleteConfigValue(configuration.getLoginPage());
-        }
-        return loginURL;
+
+        String state = stateValue.get();
+
+        return loginURL + "&state=" + state;
     }
 
+    @Override
+    public void prepareLoginURL(ServletRequest request, ServletResponse response) {
+        // FIXME when we integrate Shiro, update the getLoginURL with parameters so that we can have access to the request
+        String state = passwordGenerator.generate(16);
+
+        stateValue.set(state);
+
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+
+        HttpSession session = httpServletRequest.getSession(true);
+        session.setAttribute("state", state);
+
+    }
+
+    @Override
+    protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
+        super.cleanup(request, response, existing);
+
+        stateValue.remove();  // To be on the safe side that the ThreadLocal is cleanup properly.
+        // TODO When shiro integrated we probably don't need this anymore as wd don't use the ThreadLocal anymore.
+    }
 }

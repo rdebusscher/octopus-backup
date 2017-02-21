@@ -93,23 +93,25 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     }
 
     private OctopusSSOUser createOctopusToken(HttpServletRequest request, String apiKey, String token) {
-        String realToken;
+        String accessToken;
+
+        // FIXME How can we know now that te Access_code is from Implicit or AuthorizationCode??
         if (encryptionHandler != null) {
             if (encryptionHandler.validate(apiKey, token)) {
-                realToken = encryptionHandler.decryptData(token, apiKey);
+                accessToken = encryptionHandler.decryptData(token, apiKey);
             } else {
                 logger.info("JWT Token is not valid " + token);
                 return null;
             }
         } else {
-            realToken = token;
+            accessToken = token;
         }
-        OctopusSSOUser user = tokenStore.getUser(realToken);
-        if (user != null && !realToken.equals(user.getToken())) {
+        OctopusSSOUser user = tokenStore.getUserByAccessCode(accessToken);
+        if (user != null && !accessToken.equals(user.getToken())) {
             logger.warn("Token used as key in tokenStore returned a SSOUser with a different Token ");
         }
         if (user == null) {
-            logger.info("No user information found for token " + realToken);
+            logger.info("No user information found for token " + accessToken);
         } else {
             showDebugInfo(user);
         }

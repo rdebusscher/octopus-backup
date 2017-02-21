@@ -19,10 +19,12 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.ApplicationCallback;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -48,7 +50,7 @@ public class DuringAuthenticationFilter extends UserFilter {
 
     private OctopusConfig octopusConfig;
 
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger(DuringAuthenticationFilter.class);
 
     @Override
     public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
@@ -58,36 +60,30 @@ public class DuringAuthenticationFilter extends UserFilter {
         }
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String application = httpServletRequest.getParameter("application");
+        String clientId = httpServletRequest.getParameter("client_id");
+        String responseType = httpServletRequest.getParameter("response_type");
 
-        String realApplication = application;
         boolean result = true;
 
-        if (application == null || application.trim().isEmpty()) {
-            // Application query parameter is required
+        if (clientId == null || clientId.trim().isEmpty()) {
+            // client query parameter is required
             result = false;
         }
 
-        if (result && encryptionHandler != null) {
-            // If we have encryptionHandler, the application must be checked by encryptionHandler
-            String apiKey = null;
-            if (encryptionHandler.requiresApiKey()) {
-                // If encryptionHandler needs apiKey, then get the value
-                apiKey = httpServletRequest.getParameter("x-api-key");
-            }
-            // Validate
-            result = encryptionHandler.validate(apiKey, application);
-
-            if (result) {
-                // Decrypt the value
-                realApplication = encryptionHandler.decryptData(application, apiKey);
+        if (responseType != null && responseType.trim().length() > 1) {
+            // If response_type is specified, it need to be a valid value.
+            // But logout for example doesn't need to parameter.
+            SSOFlow ssoFlow = SSOFlow.defineFlow(responseType);
+            if (ssoFlow == null) {
+                // response_type query parameter is required and needs to be a valid value
+                result = false;
             }
         }
 
         // Check to see if the application is configured
         if (result) {
             ApplicationCallback applicationCallback = BeanProvider.getContextualReference(ApplicationCallback.class);
-            String callback = applicationCallback.determineCallback(realApplication);
+            String callback = applicationCallback.determineCallback(clientId);
             if (callback == null || callback.isEmpty()) {
                 result = false;
             }
@@ -119,27 +115,44 @@ public class DuringAuthenticationFilter extends UserFilter {
         return result;
     }
 
-    private boolean tryAuthenticationFromCookie(HttpServletRequest request, HttpServletResponse resp) {
-        boolean result = false;
+    private boolean tryAuthenticationFromCookie(HttpServletRequest request, HttpServletResponse response) {
+        boolean result;
         SSOTokenStore tokenStore = BeanProvider.getContextualReference(SSOTokenStore.class);
 
         String realToken = getSSOTokenCookie(request);
-        OctopusSSOUser user = tokenStore.getUser(realToken);
+        TokenStoreInfo cookieInfo = tokenStore.getUserByCookieToken(realToken);
 
-        if (user != null && !realToken.equals(user.getToken())) {
-            logger.warn("Token used as key in tokenStore returned a SSOUser with a different Token ");
-        }
+        result = verifyCookieInformation(cookieInfo, request);
 
-        if (user != null) {
-            try {
-                SecurityUtils.getSubject().login(user);
-                result = true;
+        if (result) {
+            OctopusSSOUser user = cookieInfo.getOctopusSSOUser();
 
-                showDebugInfo(user);
-            } catch (AuthenticationException e) {
+            if (user != null) {
+                try {
+                    SecurityUtils.getSubject().login(user);
+                    result = true;
+
+                    showDebugInfo(user);
+                } catch (AuthenticationException e) {
+
+                }
 
             }
+        }
+        return result;
+    }
 
+    private boolean verifyCookieInformation(TokenStoreInfo cookieInfo, HttpServletRequest request) {
+        boolean result = cookieInfo != null;
+        if (result) {
+            String remoteHost = request.getRemoteAddr();
+
+            result = remoteHost.equals(cookieInfo.getRemoteHost());
+        }
+        if (result) {
+            String userAgent = request.getHeader("User-Agent");
+
+            result = userAgent.equals(cookieInfo.getUserAgent());
         }
         return result;
     }
@@ -181,6 +194,7 @@ public class DuringAuthenticationFilter extends UserFilter {
         return octopusUserFilter.getLoginUrl();
     }
 
+    // TODO Probably not need, setter is for the definition with shiro.ini
     public OctopusUserFilter getUserFilter() {
         return octopusUserFilter;
     }
