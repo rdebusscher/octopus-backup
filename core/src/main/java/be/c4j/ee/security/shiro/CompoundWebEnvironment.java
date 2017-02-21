@@ -130,6 +130,8 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void configureCache(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("cacheManager", config.getCacheManager());
+        mainSection.put("appRealm.cacheManager", "$cacheManager");
+        mainSection.put("securityManager.cacheManager", "$cacheManager");
     }
 
     private void addPluginConfiguration(Ini ini) {
