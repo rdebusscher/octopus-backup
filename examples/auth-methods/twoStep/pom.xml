@@ -87,6 +87,7 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- FIXME Check if we can remove it (but should be ok) -->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
