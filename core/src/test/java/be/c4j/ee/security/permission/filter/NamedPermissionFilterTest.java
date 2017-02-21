@@ -87,7 +87,7 @@ public class NamedPermissionFilterTest {
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(NamedDomainPermission.class);
 
         Permission permission = permissionArgumentCaptor.getValue();
-        assertThat(permission.toString()).isEqualTo("[permission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:1:*");
     }
 
     @Test
@@ -108,7 +108,7 @@ public class NamedPermissionFilterTest {
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(NamedDomainPermission.class);
 
         Permission permission = permissionArgumentCaptor.getValue();
-        assertThat(permission.toString()).isEqualTo("[permission]:[3]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:3:*");
 
     }
 
@@ -131,10 +131,10 @@ public class NamedPermissionFilterTest {
         List<Permission> allValues = permissionArgumentCaptor.getAllValues();
         assertThat(allValues).hasSize(2);
         Permission permission = allValues.get(0);
-        assertThat(permission.toString()).isEqualTo("[permission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:1:*");
 
         permission = allValues.get(1);
-        assertThat(permission.toString()).isEqualTo("[permission]:[2]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:2:*");
     }
 
     @Test
@@ -150,7 +150,7 @@ public class NamedPermissionFilterTest {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 Permission permission = (Permission) invocation.getArguments()[0];
-                return "[permission]:[1]:[*]".equals(permission.toString());
+                return "permission:1:*".equals(permission.toString());
             }
         });
 
@@ -163,10 +163,10 @@ public class NamedPermissionFilterTest {
         List<Permission> allValues = permissionArgumentCaptor.getAllValues();
         assertThat(allValues).hasSize(2);
         NamedDomainPermission permission = (NamedDomainPermission) allValues.get(0);
-        assertThat(permission.toString()).isEqualTo("[permission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:1:*");
 
         permission = (NamedDomainPermission) allValues.get(1);
-        assertThat(permission.toString()).isEqualTo("[permission]:[2]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:2:*");
     }
 
     @Test
@@ -186,7 +186,7 @@ public class NamedPermissionFilterTest {
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(NamedDomainPermission.class);
 
         Permission permission = permissionArgumentCaptor.getValue();
-        assertThat(permission.toString()).isEqualTo("[spermission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("spermission:1:*");
     }
 
     @Test
@@ -207,7 +207,7 @@ public class NamedPermissionFilterTest {
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(NamedDomainPermission.class);
 
         Permission permission = permissionArgumentCaptor.getValue();
-        assertThat(permission.toString()).isEqualTo("[spermission]:[3]:[*]");
+        assertThat(permission.toString()).isEqualTo("spermission:3:*");
 
     }
 
@@ -230,10 +230,10 @@ public class NamedPermissionFilterTest {
         List<Permission> allValues = permissionArgumentCaptor.getAllValues();
         assertThat(allValues).hasSize(2);
         Permission permission = allValues.get(0);
-        assertThat(permission.toString()).isEqualTo("[spermission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("spermission:1:*");
 
         permission = allValues.get(1);
-        assertThat(permission.toString()).isEqualTo("[spermission]:[2]:[*]");
+        assertThat(permission.toString()).isEqualTo("spermission:2:*");
     }
 
     @Test
@@ -249,7 +249,7 @@ public class NamedPermissionFilterTest {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 Permission permission = (Permission) invocation.getArguments()[0];
-                return "[spermission]:[1]:[*]".equals(permission.toString());
+                return "spermission:1:*".equals(permission.toString());
             }
         });
 
@@ -262,10 +262,10 @@ public class NamedPermissionFilterTest {
         List<Permission> allValues = permissionArgumentCaptor.getAllValues();
         assertThat(allValues).hasSize(2);
         NamedDomainPermission permission = (NamedDomainPermission) allValues.get(0);
-        assertThat(permission.toString()).isEqualTo("[spermission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("spermission:1:*");
 
         permission = (NamedDomainPermission) allValues.get(1);
-        assertThat(permission.toString()).isEqualTo("[spermission]:[2]:[*]");
+        assertThat(permission.toString()).isEqualTo("spermission:2:*");
     }
 
     @Test
@@ -283,7 +283,7 @@ public class NamedPermissionFilterTest {
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(WildcardPermission.class);
 
         Permission permission = permissionArgumentCaptor.getValue();
-        assertThat(permission.toString()).isEqualTo("[junit]:[permission]:[1]");
+        assertThat(permission.toString()).isEqualTo("junit:permission:1");
     }
 
     @Test
@@ -301,7 +301,7 @@ public class NamedPermissionFilterTest {
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(WildcardPermission.class);
 
         Permission permission = permissionArgumentCaptor.getValue();
-        assertThat(permission.toString()).isEqualTo("[junit]:[*]:[*]");
+        assertThat(permission.toString()).isEqualTo("junit:*:*");
     }
 
 }

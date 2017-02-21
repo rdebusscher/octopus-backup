@@ -67,7 +67,7 @@ public class OctopusPermissionResolverTest {
         Permission permission = permissionResolver.resolvePermission("Demo");
         assertThat(permission).isInstanceOf(WildcardPermission.class);
         WildcardPermission wildcardPermission = (WildcardPermission) permission;
-        assertThat(wildcardPermission.toString()).isEqualTo("[demo]:[*]:[*]");
+        assertThat(wildcardPermission.toString()).isEqualTo("demo:*:*");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class OctopusPermissionResolverTest {
         Permission permission = permissionResolver.resolvePermission("oTheR:reAD:sOme");
         assertThat(permission).isInstanceOf(WildcardPermission.class);
         WildcardPermission wildcardPermission = (WildcardPermission) permission;
-        assertThat(wildcardPermission.toString()).isEqualTo("[other]:[read]:[some]");
+        assertThat(wildcardPermission.toString()).isEqualTo("other:read:some");
     }
 
     @Test

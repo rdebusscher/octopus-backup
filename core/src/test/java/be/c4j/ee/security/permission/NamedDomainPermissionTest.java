@@ -64,6 +64,6 @@ public class NamedDomainPermissionTest {
     @Test
     public void testBypassBugithinSetTargets() {
         NamedDomainPermission permission = new NamedDomainPermission("PERMISSION1", "Permission:1:*");
-        assertThat(permission.toString()).isEqualTo("[permission]:[1]:[*]");
+        assertThat(permission.toString()).isEqualTo("permission:1:*");
     }
 }
