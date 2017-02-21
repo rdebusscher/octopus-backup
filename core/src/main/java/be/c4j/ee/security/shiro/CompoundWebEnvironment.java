@@ -20,6 +20,7 @@ import be.c4j.ee.security.config.ConfigurationPluginHelper;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.filter.GlobalFilterConfiguration;
+import be.c4j.ee.security.log.InfoVersionLogging;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.salt.OctopusHashedCredentialsMatcher;
@@ -91,6 +92,9 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         if (config.showDebugFor().contains(Debug.INI)) {
             logIniContents(ini);
         }
+
+        InfoVersionLogging versionLogging = BeanProvider.getContextualReference(InfoVersionLogging.class);
+        versionLogging.showVersionInfo();
 
         super.setIni(ini);
     }

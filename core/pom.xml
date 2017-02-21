@@ -108,6 +108,12 @@
                     <excludes>
                         <exclude>**/*Test.class</exclude>
                     </excludes>
+                    <archive>
+                        <manifestEntries>
+                            <Release-Version>${project.parent.version}</Release-Version>
+                            <buildTime>${maven.build.timestamp}</buildTime>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
