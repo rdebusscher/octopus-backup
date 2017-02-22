@@ -247,6 +247,8 @@
                                 <exclude>**/NOTICE</exclude>
                                 <exclude>**/asciidoctor.css</exclude>
                                 <exclude>**/QRCode.js</exclude>
+                                <exclude>**/HOTPProvider.java</exclude>
+                                <exclude>**/Base32.java</exclude>
                             </excludes>
                             <mapping>
                                 <java>SLASHSTAR_STYLE</java>
