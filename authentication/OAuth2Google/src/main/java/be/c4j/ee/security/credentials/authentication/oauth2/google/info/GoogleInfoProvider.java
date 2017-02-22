@@ -20,15 +20,18 @@ import be.c4j.ee.security.credentials.authentication.oauth2.google.GoogleProvide
 import be.c4j.ee.security.credentials.authentication.oauth2.google.json.GoogleJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.google.provider.GoogleOAuth2ServiceProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Token;
 import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.oauth.OAuthService;
+import com.github.scribejava.core.oauth.OAuth20Service;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -45,17 +48,26 @@ public class GoogleInfoProvider implements OAuth2InfoProvider {
 
 
     @Override
-    public OAuth2User retrieveUserInfo(Token token, HttpServletRequest req) {
+    public OAuth2User retrieveUserInfo(OAuth2AccessToken token, HttpServletRequest req) {
 
         // No state here so token can be null.
-        OAuthService authService = googleOAuth2ServiceProducer.createOAuthService(req, null);
-        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v3/userinfo", authService);
+        OAuth20Service authService = googleOAuth2ServiceProducer.createOAuthService(req, null);
+        OAuthRequest request = new OAuthRequest(Verb.GET, "https://www.googleapis.com/oauth2/v3/userinfo");
 
-        authService.signRequest(token, oReq);
-        Response oResp = oReq.send();
-        OAuth2User googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
-        if (googleUser != null) {
-            googleUser.setToken(token);
+        authService.signRequest(token, request);
+        OAuth2User googleUser;
+        try {
+            Response oResp = authService.execute(request);
+            googleUser = jsonProcessor.extractGoogleUser(oResp.getBody());
+            if (googleUser != null) {
+                googleUser.setToken(token);
+            }
+        } catch (InterruptedException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (ExecutionException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (IOException e) {
+            throw new OctopusUnexpectedException(e);
         }
 
         // Offline -> revoke token? https://accounts.google.com/o/oauth2/revoke?token={token}

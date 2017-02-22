@@ -20,15 +20,18 @@ import be.c4j.ee.security.credentials.authentication.oauth2.github.GithubProvide
 import be.c4j.ee.security.credentials.authentication.oauth2.github.json.GithubJSONProcessor;
 import be.c4j.ee.security.credentials.authentication.oauth2.github.provider.GithubOAuth2ServiceProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Token;
 import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.oauth.OAuthService;
+import com.github.scribejava.core.oauth.OAuth20Service;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -44,17 +47,26 @@ public class GithubInfoProvider implements OAuth2InfoProvider {
     private GithubJSONProcessor jsonProcessor;
 
     @Override
-    public OAuth2User retrieveUserInfo(Token token, HttpServletRequest req) {
+    public OAuth2User retrieveUserInfo(OAuth2AccessToken token, HttpServletRequest req) {
 
         // No state here so token can be null.
-        OAuthService authService = githubOAuth2ServiceProducer.createOAuthService(req, null);
-        OAuthRequest oReq = new OAuthRequest(Verb.GET, "https://api.github.com/user", authService);
+        OAuth20Service authService = githubOAuth2ServiceProducer.createOAuthService(req, null);
+        OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
 
-        authService.signRequest(token, oReq);
-        Response oResp = oReq.send();
-        OAuth2User oAuth2User = jsonProcessor.extractGithubUser(oResp.getBody());
-        if (oAuth2User != null) {
-            oAuth2User.setToken(token);
+        authService.signRequest(token, request);
+        OAuth2User oAuth2User = null;
+        try {
+            Response oResp = authService.execute(request);
+            oAuth2User = jsonProcessor.extractGithubUser(oResp.getBody());
+            if (oAuth2User != null) {
+                oAuth2User.setToken(token);
+            }
+        } catch (InterruptedException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (ExecutionException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (IOException e) {
+            throw new OctopusUnexpectedException(e);
         }
 
         return oAuth2User;

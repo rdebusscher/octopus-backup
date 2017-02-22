@@ -19,7 +19,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaDa
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeUserInfo;
 import be.c4j.ee.security.model.UserPrincipal;
-import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
@@ -105,7 +105,7 @@ public class UserController {
             }
         }
         if (infoProvider != null) {
-            Token authToken = new Token(token, "", "Octopus");
+            OAuth2AccessToken authToken = new OAuth2AccessToken(token);
 
             result = infoProvider.retrieveUserInfo(authToken, req);
             if (result != null) {

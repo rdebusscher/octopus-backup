@@ -18,7 +18,7 @@ package be.c4j.ee.security.sso.servlet;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.client.SSOClientConfiguration;
-import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -75,7 +75,7 @@ public class SSOCallbackServlet extends HttpServlet {
                 .get(OAuth2User.class);
 
         try {
-            oAuth2User.setToken(new Token(oAuth2Token, ""));
+            oAuth2User.setToken(new OAuth2AccessToken(oAuth2Token, ""));
             SecurityUtils.getSubject().login(oAuth2User);
 
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);

@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Token;
 
 import javax.security.auth.Subject;
@@ -63,7 +64,7 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
 
     private Map<String, String> info = new HashMap<String, String>();
 
-    private Token token;
+    private OAuth2AccessToken token;
 
     private String applicationName;
 
@@ -175,7 +176,7 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
         return token;
     }
 
-    public void setToken(Token token) {
+    public void setToken(OAuth2AccessToken token) {
         this.token = token;
     }
 

@@ -20,7 +20,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.application.Applicat
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.c4j.ee.security.token.IncorrectDataToken;
-import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.ShiroException;
@@ -94,13 +94,13 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
             oauth2User = getOAuth2User(request, authToken);
 
             if (oauth2User != null) {
-                oauth2User.setToken(new Token(authToken, ""));
+                oauth2User.setToken(new OAuth2AccessToken(authToken));
                 setCachedOAuth2User(authToken, oauth2User);
             }
         }
 
         if (oauth2User == null) {
-            // FIXME Check of this stratus setting is required.
+            // FIXME Check Iof this status setting is required.
             ((HttpServletResponse) response).setStatus(401);
             return new IncorrectDataToken("Unable to create the Authentication token based on the request info");
         }
@@ -125,7 +125,7 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
     }
 
     private OAuth2User getOAuth2User(ServletRequest request, String authToken) {
-        Token token = new Token(authToken, "");
+        OAuth2AccessToken token = new OAuth2AccessToken(authToken);
 
         return getInfoProvider().retrieveUserInfo(token, WebUtils.toHttp(request));
     }

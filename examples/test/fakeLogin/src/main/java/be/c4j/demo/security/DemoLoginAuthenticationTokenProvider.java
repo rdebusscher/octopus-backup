@@ -17,7 +17,7 @@ package be.c4j.demo.security;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
-import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import org.apache.shiro.authc.AuthenticationToken;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -52,7 +52,7 @@ public class DemoLoginAuthenticationTokenProvider implements LoginAuthentication
         result.setId("Fake");
         result.setDomain("c4j.be");
         result.setEmail("rudy.debusscher@c4j.be");
-        result.setToken(new Token("Fake", ""));
+        result.setToken(new OAuth2AccessToken("Fake", ""));
         return result;
     }
 
@@ -66,7 +66,7 @@ public class DemoLoginAuthenticationTokenProvider implements LoginAuthentication
         result.setId("Fake");
         result.setDomain("acme.org");
         result.setEmail("test.account@acme.org");
-        result.setToken(new Token("Fake", ""));
+        result.setToken(new OAuth2AccessToken("Fake", ""));
         return result;
     }
 }

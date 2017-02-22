@@ -16,7 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,5 +25,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface OAuth2InfoProvider {
 
-    OAuth2User retrieveUserInfo(Token token, HttpServletRequest req);
+    OAuth2User retrieveUserInfo(OAuth2AccessToken token, HttpServletRequest req);
 }

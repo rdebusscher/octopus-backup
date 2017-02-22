@@ -41,7 +41,8 @@ public class InfoBean {
     }
 
     public String getInfoValue(String key) {
-        return userPrincipal.getUserInfo(key);
+        Object info = userPrincipal.getUserInfo(key);
+        return info == null ? "" : info.toString();
     }
 
     public List<Serializable> getKeys() {

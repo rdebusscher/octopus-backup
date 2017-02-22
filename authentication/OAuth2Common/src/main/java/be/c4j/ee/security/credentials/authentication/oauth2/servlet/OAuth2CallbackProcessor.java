@@ -20,10 +20,10 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2SessionAttribu
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.rubus.web.jerry.provider.BeanProvider;
 import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.model.Token;
-import com.github.scribejava.core.model.Verifier;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -78,7 +79,14 @@ public abstract class OAuth2CallbackProcessor {
         //Get the all important authorization code
         String code = request.getParameter(getAccessTokenParameterName());
         //Construct the access token
-        Token token = service.getAccessToken(new Verifier(code));
+        OAuth2AccessToken token;
+        try {
+            token = service.getAccessToken(code);
+        } catch (InterruptedException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (ExecutionException e) {
+            throw new OctopusUnexpectedException(e);
+        }
 
         OAuth2User oAuth2User = infoProvider.retrieveUserInfo(token, request);
 
@@ -96,7 +104,7 @@ public abstract class OAuth2CallbackProcessor {
         try {
             SecurityUtils.getSubject().login(oAuth2User);
             if (callbackURL != null) {
-                response.sendRedirect(callbackURL + "?token=" + token.getToken());
+                response.sendRedirect(callbackURL + "?token=" + token.getAccessToken());
 
             } else {
                 SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
