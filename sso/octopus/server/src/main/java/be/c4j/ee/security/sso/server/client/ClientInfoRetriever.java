@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.sso.server;
+package be.c4j.ee.security.sso.server.client;
 
 /**
  *
  */
-public interface ApplicationCallback {
+public interface ClientInfoRetriever {
 
-    String determineCallback(String clientId);
+    ClientInfo retrieveInfo(String clientId);
 }

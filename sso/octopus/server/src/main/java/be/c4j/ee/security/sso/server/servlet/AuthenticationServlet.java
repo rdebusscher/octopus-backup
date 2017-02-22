@@ -21,8 +21,8 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
-import be.c4j.ee.security.sso.server.ApplicationCallback;
 import be.c4j.ee.security.sso.server.SSOProducerBean;
+import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
@@ -57,7 +57,7 @@ public class AuthenticationServlet extends HttpServlet {
     private SSODataEncryptionHandler encryptionHandler;
 
     @Inject
-    private ApplicationCallback applicationCallback;
+    private ClientInfoRetriever clientInfoRetriever;
 
     @Inject
     private SSOTokenStore tokenStore;
@@ -86,7 +86,7 @@ public class AuthenticationServlet extends HttpServlet {
         String state = request.getParameter("state");
 
         // clientId is never encrypted
-        String callback = applicationCallback.determineCallback(clientId) + "/octopus/sso/SSOCallback";
+        String callback = clientInfoRetriever.retrieveInfo(clientId).getCallbackURL() + "/octopus/sso/SSOCallback";
 
         SSOFlow ssoFlow = SSOFlow.defineFlow(responseType);
 

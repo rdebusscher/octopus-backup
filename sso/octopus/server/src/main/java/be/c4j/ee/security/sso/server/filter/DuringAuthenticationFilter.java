@@ -21,7 +21,8 @@ import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
-import be.c4j.ee.security.sso.server.ApplicationCallback;
+import be.c4j.ee.security.sso.server.client.ClientInfo;
+import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
@@ -82,9 +83,9 @@ public class DuringAuthenticationFilter extends UserFilter {
 
         // Check to see if the application is configured
         if (result) {
-            ApplicationCallback applicationCallback = BeanProvider.getContextualReference(ApplicationCallback.class);
-            String callback = applicationCallback.determineCallback(clientId);
-            if (callback == null || callback.isEmpty()) {
+            ClientInfoRetriever clientInfoRetriever = BeanProvider.getContextualReference(ClientInfoRetriever.class);
+            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientId);
+            if (clientInfo == null || clientInfo.getCallbackURL() == null || clientInfo.getCallbackURL().isEmpty()) {
                 result = false;
             }
         }
