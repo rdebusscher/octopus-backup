@@ -22,6 +22,7 @@ import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -40,7 +41,8 @@ public class OctopusAuditFilter extends PathMatchingFilter {
             }
             String remoteAddress = servletRequest.getRemoteAddr();
 
-            BeanManagerProvider.getInstance().getBeanManager().fireEvent(new OctopusAuditEvent(requestURI, principal, remoteAddress));
+            String userAgent = ((HttpServletRequest)request).getHeader("User-Agent");
+            BeanManagerProvider.getInstance().getBeanManager().fireEvent(new OctopusAuditEvent(requestURI, principal, remoteAddress, userAgent));
         }
 
 

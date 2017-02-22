@@ -23,11 +23,13 @@ public class OctopusAuditEvent {
     private String requestURI;
     private Object principal;
     private String remoteAddress;
+    private String userAgent;
 
-    public OctopusAuditEvent(String requestURI, Object principal, String remoteAddress) {
+    public OctopusAuditEvent(String requestURI, Object principal, String remoteAddress, String userAgent) {
         this.requestURI = requestURI;
         this.principal = principal;
         this.remoteAddress = remoteAddress;
+        this.userAgent = userAgent;
     }
 
     public String getRequestURI() {
@@ -40,5 +42,9 @@ public class OctopusAuditEvent {
 
     public String getRemoteAddress() {
         return remoteAddress;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
     }
 }
