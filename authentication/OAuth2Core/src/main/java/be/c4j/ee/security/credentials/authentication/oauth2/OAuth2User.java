@@ -200,12 +200,15 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
         Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
         // TODO Make some constants out of these
         result.put("email", email);
+        result.put("firstName", firstName);
+        result.put("lastName", lastName);
         result.put("picture", picture);
         result.put("gender", gender);
         result.put("domain", domain);
         result.put("locale", locale);
         if (token != null) {
-            result.put("token", token.getToken());
+            result.put("token", token.getAccessToken());
+            result.put("OAuth2token", token);
         }
         result.putAll(userInfo);
 
@@ -214,7 +217,7 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GoogleUser{");
+        final StringBuilder sb = new StringBuilder("OAuth2User{");
         sb.append("id='").append(id).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
         sb.append(", fullName='").append(fullName).append('\'');
