@@ -196,8 +196,8 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
         this.info = info;
     }
 
-    public Map<Serializable, Serializable> getUserInfo() {
-        Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
+    public Map<String, Serializable> getUserInfo() {
+        Map<String, Serializable> result = new HashMap<String, Serializable>();
         // TODO Make some constants out of these
         result.put("email", email);
         result.put("firstName", firstName);

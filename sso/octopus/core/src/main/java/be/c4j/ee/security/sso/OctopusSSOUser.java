@@ -47,7 +47,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     private String email;
 
-    private Map<String, String> userInfo = new HashMap<String, String>();
+    private Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
 
     public String getId() {
         return id;
@@ -117,9 +117,9 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         userInfo.put(key, value);
     }
 
-    public void addUserInfo(Map<Serializable, Serializable> info) {
-        for (Map.Entry<Serializable, Serializable> entry : info.entrySet()) {
-            userInfo.put(entry.getKey().toString(), entry.getValue().toString());
+    public void addUserInfo(Map<String, Serializable> info) {
+        for (Map.Entry<String, Serializable> entry : info.entrySet()) {
+            userInfo.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -127,7 +127,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         return id != null;
     }
 
-    public Map<String, String> getUserInfo() {
+    public Map<String, Serializable> getUserInfo() {
         return userInfo;
     }
 
@@ -166,11 +166,11 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         return token;
     }
 
-    public String getUserInfo(String key) {
-        return userInfo.get(key);
+    public <T extends Serializable> T getUserInfo(String key) {
+        return (T) userInfo.get(key);
     }
 
-    public String toJSON(Map<String, String> info) {
+    public String toJSON(Map<String, Serializable> info) {
         JSONObject result = new JSONObject();
         try {
             result.put("id", id);
@@ -182,7 +182,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
             result.put("fullName", fullName);
             result.put("email", email);
 
-            for (Map.Entry<String, String> infoEntry : info.entrySet()) {
+            for (Map.Entry<String, Serializable> infoEntry : info.entrySet()) {
                 result.put(infoEntry.getKey(), infoEntry.getValue());
             }
 
@@ -194,13 +194,13 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
     }
 
     public static OctopusSSOUser fromJSON(String json) {
-        OctopusSSOUser result = null;
+        OctopusSSOUser result;
         try {
             JSONObject jsonObject = new JSONObject(json);
             result = new OctopusSSOUser();
             result.setId(jsonObject.getString("id"));
             result.setLocalId(jsonObject.getString("localId"));
-            result.setUserName(jsonObject.getString("userName"));
+            result.setUserName(jsonObject.optString("userName"));  // username is optional like for example with OAuth2
 
             result.setLastName(jsonObject.optString("lastName"));
             result.setFirstName(jsonObject.optString("firstName"));

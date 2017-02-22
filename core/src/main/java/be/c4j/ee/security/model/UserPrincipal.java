@@ -40,7 +40,7 @@ public class UserPrincipal implements Principal, Serializable {
     private boolean systemAccount = false;
     private Boolean needsTwoStepAuthentication;
 
-    private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
+    private Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
 
     // Weld needs this to make a proxy
     public UserPrincipal() {
@@ -92,19 +92,19 @@ public class UserPrincipal implements Principal, Serializable {
         return userName;
     }
 
-    public void addUserInfo(Serializable key, Serializable value) {
+    public void addUserInfo(String key, Serializable value) {
         userInfo.put(key, value);
     }
 
-    public void addUserInfo(Map<? extends Serializable, ? extends Serializable> values) {
+    public void addUserInfo(Map<String, ? extends Serializable> values) {
         userInfo.putAll(values);
     }
 
-    public <T> T getUserInfo(Serializable key) {
+    public <T> T getUserInfo(String key) {
         return (T) userInfo.get(key);
     }
 
-    public Map<Serializable, Serializable> getInfo() {
+    public Map<String, Serializable> getInfo() {
         return userInfo;
     }
 

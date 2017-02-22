@@ -77,12 +77,12 @@ public class EmployeeInfoVoter extends AbstractGenericVoter {
         Long parameter = methodParameterCheckUtil.getAssignableParameter(invocationContext, Long.class);
         boolean allowed = false;
 
-        if (userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID).equals(parameter)) {
+        if (userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID.name()).equals(parameter)) {
             allowed = true;
         }
 
         if (!allowed) {
-            if (userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID).equals(employeeService.getManagerIdOfEmployee(parameter))) {
+            if (userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID.name()).equals(employeeService.getManagerIdOfEmployee(parameter))) {
                 allowed = true;
             }
         }

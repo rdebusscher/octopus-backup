@@ -54,7 +54,7 @@ public class DepartmentSalaryOverviewVoter extends AbstractGenericVoter {
                 DepartmentWithSalaryTotal department = methodParameterCheckUtil.getAssignableParameter(invocationContext, DepartmentWithSalaryTotal.class);
 
 
-                if (department.getId().equals(userPrincipal.getUserInfo(UserInfo.DEPARTMENT_ID))) {
+                if (department.getId().equals(userPrincipal.getUserInfo(UserInfo.DEPARTMENT_ID.name()))) {
                     allowed = true;
                 }
             }

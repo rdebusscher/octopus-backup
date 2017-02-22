@@ -67,7 +67,7 @@ public class EmployeeSalaryUpdateVoter extends AbstractGenericVoter {
     }
 
     private boolean checkSalaryUpdateAllowed(Long employeeId) {
-        return !userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID).equals(employeeId) && employeeId != null;
+        return !userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID.name()).equals(employeeId) && employeeId != null;
     }
 
     private Long asLong(String value) {

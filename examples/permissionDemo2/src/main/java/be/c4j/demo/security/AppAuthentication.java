@@ -58,14 +58,14 @@ public class AppAuthentication implements SecurityDataProvider {
             authenticationInfoBuilder.userName(usernamePasswordToken.getUsername());
             authenticationInfoBuilder.password(principal.getPassword());
 
-            authenticationInfoBuilder.addUserInfo(UserInfo.EMPLOYEE_ID, principal.getEmployee().getId());
+            authenticationInfoBuilder.addUserInfo(UserInfo.EMPLOYEE_ID.name(), principal.getEmployee().getId());
             if (principal.getEmployee().getDepartment() != null) {
 
-                authenticationInfoBuilder.addUserInfo(UserInfo.DEPARTMENT_ID, principal.getEmployee().getDepartment().getId());
+                authenticationInfoBuilder.addUserInfo(UserInfo.DEPARTMENT_ID.name(), principal.getEmployee().getDepartment().getId());
             }
 
             if (principal.getEmployee().getManager() != null) {
-                authenticationInfoBuilder.addUserInfo(UserInfo.MANAGER_EMPLOYEE_ID, principal.getEmployee().getManager().getId());
+                authenticationInfoBuilder.addUserInfo(UserInfo.MANAGER_EMPLOYEE_ID.name(), principal.getEmployee().getManager().getId());
             }
 
 

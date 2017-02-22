@@ -42,7 +42,7 @@ public class AuthenticationInfoBuilder {
     private Object password;
     private String realmName = DEFAULT_REALM;
     private ByteSource salt;
-    private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
+    private Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
     private boolean externalPasswordCheck = false;
     private Boolean needs2StepAuthentication;
 
@@ -95,12 +95,12 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
-    public AuthenticationInfoBuilder addUserInfo(Serializable key, Serializable value) {
+    public AuthenticationInfoBuilder addUserInfo(String key, Serializable value) {
         userInfo.put(key, value);
         return this;
     }
 
-    public AuthenticationInfoBuilder addUserInfo(Map<? extends Serializable, ? extends Serializable> values) {
+    public AuthenticationInfoBuilder addUserInfo(Map<String, ? extends Serializable> values) {
         userInfo.putAll(values);
         return this;
     }

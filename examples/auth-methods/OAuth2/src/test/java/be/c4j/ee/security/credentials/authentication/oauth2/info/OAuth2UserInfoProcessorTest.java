@@ -54,7 +54,7 @@ public class OAuth2UserInfoProcessorTest {
 
         processor.processJSON(user, json, keys);
 
-        Map<Serializable, Serializable> userInfo = user.getUserInfo();
+        Map<String, Serializable> userInfo = user.getUserInfo();
         assertThat(userInfo).hasSize(9);  // There are 7 other keys which are added by default
 
         assertThat(userInfo).containsEntry("key1", "value1");

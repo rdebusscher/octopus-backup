@@ -34,7 +34,7 @@ public class ExternalPasswordAuthenticationInfo extends SimpleAuthenticationInfo
         this.principals = new SimplePrincipalCollection(principal, realmName);
     }
 
-    public void addUserInfo(Serializable key, Serializable value) {
+    public void addUserInfo(String key, Serializable value) {
         Object primaryPrincipal = getPrincipals().getPrimaryPrincipal();
         if (primaryPrincipal instanceof UserPrincipal) {
             ((UserPrincipal) primaryPrincipal).addUserInfo(key, value);

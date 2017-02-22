@@ -52,10 +52,10 @@ public class EmployeeSalaryViewVoter extends AbstractGenericVoter {
             Employee parameter = methodParameterCheckUtil.getAssignableParameter(invocationContext, Employee.class);
             boolean result = permissionSalaryAll.verifyPermission();
             if (!result) {
-                result = userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID).equals(parameter.getId());
+                result = userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID.name()).equals(parameter.getId());
             }
             if (!result && parameter.getManager() != null) {
-                result = userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID).equals(parameter.getManager().getId());
+                result = userPrincipal.getUserInfo(UserInfo.EMPLOYEE_ID.name()).equals(parameter.getManager().getId());
             }
 
             if (!result) {

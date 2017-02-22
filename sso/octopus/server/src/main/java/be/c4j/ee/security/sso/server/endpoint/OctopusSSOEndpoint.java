@@ -34,6 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class OctopusSSOEndpoint {
     public String getUserInfo() {
 
         showDebugInfo(ssoUser);
-        Map<String, String> info = new HashMap<String, String>(ssoUser.getUserInfo());
+        Map<String, Serializable> info = new HashMap<String, Serializable>(ssoUser.getUserInfo());
         info.remove("token"); // FIXME Create constant
         if (userInfoProvider != null) {
             info.putAll(userInfoProvider.defineInfo(ssoUser));

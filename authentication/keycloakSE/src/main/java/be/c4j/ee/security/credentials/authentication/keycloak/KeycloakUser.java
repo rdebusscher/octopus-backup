@@ -146,8 +146,8 @@ public class KeycloakUser implements AuthenticationToken, Principal {
         this.clientSession = clientSession;
     }
 
-    public Map<Serializable, Serializable> getUserInfo() {
-        Map<Serializable, Serializable> result = new HashMap<Serializable, Serializable>();
+    public Map<String, Serializable> getUserInfo() {
+        Map<String, Serializable> result = new HashMap<String, Serializable>();
         // TODO Make some constants out of these
         result.put("email", email);
         result.put("picture", picture);
