@@ -36,7 +36,6 @@
 
     <modules>
         <module>octopus</module>
-        <module>client</module> <!-- Oauth2 Client, check correct structure and usage-->
 
     </modules>
 

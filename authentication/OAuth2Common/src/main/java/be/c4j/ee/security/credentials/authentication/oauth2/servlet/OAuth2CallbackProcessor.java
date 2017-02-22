@@ -95,6 +95,7 @@ public abstract class OAuth2CallbackProcessor {
             throw new OAuthException("Failed to retrieve information from the OAuth2 Authentication token");
         }
 
+        // FIXME Review next lines
         oAuth2User.setApplicationName(applicationName);
         customCallbackProvider = BeanProvider.getContextualReference(CustomCallbackProvider.class, true);
         String callbackURL = null;
