@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.sso.client;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookup;
@@ -22,6 +24,7 @@ import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
+import be.c4j.ee.security.sso.client.debug.DebugClientResponseFilter;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.realm.SSOAuthenticationInfoBuilder;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -29,6 +32,7 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -49,7 +53,13 @@ import java.util.Map;
 public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
     @Inject
+    private Logger logger;
+
+    @Inject
     private OctopusSSOClientConfiguration config;
+
+    @Inject
+    private OctopusConfig octopusConfig;
 
     private SSODataEncryptionHandler encryptionHandler;
 
@@ -60,6 +70,11 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
         client = ClientBuilder.newClient();
         encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
+
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_REST)) {
+            client.register(DebugClientResponseFilter.class);
+        }
+
     }
 
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
@@ -79,6 +94,10 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         OctopusSSOUser ssoUser = userPrincipal.getUserInfo("token");
         String realToken = ssoUser.getToken();
 
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("Retrieving authorization info for user %s from Octopus SSO Server", ssoUser.getFullName()));
+        }
+
         WebTarget target = client.target(config.getSSOServer() + "/" + config.getSSOEndpointRoot() + "/octopus/sso/user/permissions/" + config.getSSOApplication());
 
         Response response = target.request()
@@ -86,12 +105,17 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
 
-        Map<String, String> data = response.readEntity(Map.class);
-
-        List<NamedDomainPermission> permissions = toNamedDomainPermissions(data);
-
         AuthorizationInfoBuilder infoBuilder = new AuthorizationInfoBuilder();
-        infoBuilder.addPermissions(permissions);
+
+        if (response.getStatus() == 200) {
+            Map<String, String> data = response.readEntity(Map.class);
+
+            List<NamedDomainPermission> permissions = toNamedDomainPermissions(data);
+
+            infoBuilder.addPermissions(permissions);
+        }
+
+        response.close();
 
         return infoBuilder.build();
     }
@@ -110,17 +134,26 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
     @Produces
     public StringPermissionLookup createLookup() {
 
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("Retrieving all permissions for application %s", config.getSSOApplication()));
+        }
+
         WebTarget target = client.target(config.getSSOServer() + "/" + config.getSSOEndpointRoot() + "/octopus/sso/permissions/" + config.getSSOApplication());
 
         Response response = target.request()
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
 
-        Map<String, String> data = response.readEntity(Map.class);
+        if (response.getStatus() == 200) {
+            Map<String, String> data = response.readEntity(Map.class);
 
-        List<NamedDomainPermission> permissions = toNamedDomainPermissions(data);
-
-        return new StringPermissionLookup(permissions);
+            List<NamedDomainPermission> permissions = toNamedDomainPermissions(data);
+            return new StringPermissionLookup(permissions);
+        } else {
+            String message = response.readEntity(String.class);
+            System.out.println(message); // FIXME
+        }
+        return null;
 
     }
 
