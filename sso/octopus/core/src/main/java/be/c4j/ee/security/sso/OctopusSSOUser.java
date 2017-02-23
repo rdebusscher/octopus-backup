@@ -142,6 +142,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         final StringBuilder sb = new StringBuilder("OctopusSSOUser{");
         sb.append("id='").append(id).append('\'');
         sb.append(", localId='").append(localId).append('\'');
+        sb.append(", token='").append(token).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
         sb.append(", fullName='").append(fullName).append('\'');
         sb.append(", email='").append(email).append('\'');
@@ -271,5 +272,30 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OctopusSSOUser)) {
+            return false;
+        }
+
+        OctopusSSOUser ssoUser = (OctopusSSOUser) o;
+
+        // Important, we need to use the getters as o can be a proxy and sso.userName returns null!!
+        if (userName != null ? !userName.equals(ssoUser.getUserName()) : ssoUser.getUserName() != null) {
+            return false;
+        }
+        return id != null ? id.equals(ssoUser.getId()) : ssoUser.getId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
+        return result;
     }
 }

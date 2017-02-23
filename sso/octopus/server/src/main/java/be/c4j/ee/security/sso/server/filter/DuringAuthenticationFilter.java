@@ -15,27 +15,19 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
-import be.c4j.ee.security.config.Debug;
-import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
-import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
-import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
-import be.c4j.ee.security.sso.server.store.SSOTokenStore;
-import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
+import be.c4j.ee.security.sso.server.cookie.SSOHelper;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.UserFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -43,15 +35,18 @@ import java.io.IOException;
 /**
  *
  */
-public class DuringAuthenticationFilter extends UserFilter {
+public class DuringAuthenticationFilter extends UserFilter implements Initializable {
 
     private SSODataEncryptionHandler encryptionHandler;
 
     private OctopusUserFilter octopusUserFilter;
 
-    private OctopusConfig octopusConfig;
+    private SSOHelper ssoHelper;
 
-    private Logger logger = LoggerFactory.getLogger(DuringAuthenticationFilter.class);
+    @Override
+    public void init() throws ShiroException {
+        ssoHelper = BeanProvider.getContextualReference(SSOHelper.class);
+    }
 
     @Override
     public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
@@ -94,6 +89,8 @@ public class DuringAuthenticationFilter extends UserFilter {
         if (!result) {
             showErrorMessage((HttpServletResponse) response);
         } else {
+            ssoHelper.markAsSSOLogin(httpServletRequest, clientId);
+
             // Here we do the default login, including a redirect to login if needed or authenticate from cookie.
             result = super.onPreHandle(request, response, mappedValue);
         }
@@ -105,83 +102,6 @@ public class DuringAuthenticationFilter extends UserFilter {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         response.setContentType("text/plain");
         response.getWriter().write("Missing some required parameter(s) or configuration. Is Octopus SSO Client and Server correctly configured?");
-    }
-
-    @Override
-    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        boolean result = super.isAccessAllowed(request, response, mappedValue);
-        if (!result) {
-            result = tryAuthenticationFromCookie((HttpServletRequest) request, (HttpServletResponse) response);
-        }
-        return result;
-    }
-
-    private boolean tryAuthenticationFromCookie(HttpServletRequest request, HttpServletResponse response) {
-        boolean result;
-        SSOTokenStore tokenStore = BeanProvider.getContextualReference(SSOTokenStore.class);
-
-        String realToken = getSSOTokenCookie(request);
-        TokenStoreInfo cookieInfo = tokenStore.getUserByCookieToken(realToken);
-
-        result = verifyCookieInformation(cookieInfo, request);
-
-        if (result) {
-            OctopusSSOUser user = cookieInfo.getOctopusSSOUser();
-
-            if (user != null) {
-                try {
-                    SecurityUtils.getSubject().login(user);
-                    result = true;
-
-                    showDebugInfo(user);
-                } catch (AuthenticationException e) {
-
-                }
-
-            }
-        }
-        return result;
-    }
-
-    private boolean verifyCookieInformation(TokenStoreInfo cookieInfo, HttpServletRequest request) {
-        boolean result = cookieInfo != null;
-        if (result) {
-            String remoteHost = request.getRemoteAddr();
-
-            result = remoteHost.equals(cookieInfo.getRemoteHost());
-        }
-        if (result) {
-            String userAgent = request.getHeader("User-Agent");
-
-            result = userAgent.equals(cookieInfo.getUserAgent());
-        }
-        return result;
-    }
-
-    private void showDebugInfo(OctopusSSOUser user) {
-        if (octopusConfig == null) {
-            octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
-            logger = LoggerFactory.getLogger(DuringAuthenticationFilter.class);
-        }
-
-        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated from SSO Cookie %s", user.getFullName(), user.getToken()));
-        }
-    }
-
-    private String getSSOTokenCookie(ServletRequest request) {
-        String result = null;
-
-        SSOServerConfiguration ssoServerConfiguration = BeanProvider.getContextualReference(SSOServerConfiguration.class);
-        String cookieName = ssoServerConfiguration.getSSOCookieName();
-        HttpServletRequest servletRequest = (HttpServletRequest) request;
-        Cookie[] cookies = servletRequest.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookieName.equals(cookie.getName())) {
-                result = cookie.getValue();
-            }
-        }
-        return result;
     }
 
     @Override

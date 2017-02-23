@@ -26,14 +26,16 @@ public class TokenStoreInfo {
 
     private OctopusSSOUser octopusSSOUser;
 
+    private String clientId;
     private String cookieToken;
 
     private String userAgent;
 
     private String remoteHost;
 
-    public TokenStoreInfo(OctopusSSOUser octopusSSOUser, String cookieToken, String userAgent, String remoteHost) {
+    public TokenStoreInfo(OctopusSSOUser octopusSSOUser, String clientId, String cookieToken, String userAgent, String remoteHost) {
         this.octopusSSOUser = octopusSSOUser;
+        this.clientId = clientId;
         this.cookieToken = cookieToken;
         this.userAgent = userAgent;
         this.remoteHost = remoteHost;
@@ -41,6 +43,10 @@ public class TokenStoreInfo {
 
     public OctopusSSOUser getOctopusSSOUser() {
         return octopusSSOUser;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 
     public String getCookieToken() {
@@ -53,5 +59,16 @@ public class TokenStoreInfo {
 
     public String getRemoteHost() {
         return remoteHost;
+    }
+
+    @Override
+    public String toString() {
+        return "TokenStoreInfo{" +
+                "octopusSSOUser=" + octopusSSOUser +
+                ", clientId='" + clientId + '\'' +
+                ", cookieToken='" + cookieToken + '\'' +
+                ", userAgent='" + userAgent + '\'' +
+                ", remoteHost='" + remoteHost + '\'' +
+                '}';
     }
 }

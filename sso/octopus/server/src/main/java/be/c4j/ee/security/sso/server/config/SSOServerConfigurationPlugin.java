@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.server.config;
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.config.PluginOrder;
+import be.c4j.ee.security.sso.server.SSOCookieRememberMeManager;
 import be.c4j.ee.security.sso.server.filter.DuringAuthenticationFilter;
 import be.c4j.ee.security.sso.server.filter.SSOAuthenticatingFilter;
 import org.apache.shiro.config.Ini;
@@ -45,6 +46,10 @@ public class SSOServerConfigurationPlugin implements ConfigurationPlugin {
 
         // We need a reference to the User filter. That one knows the correct loginURL (for example CAS is calculated at runtime)
         mainSection.put("ssoAuthFilter.userFilter", "$user");
+
+
+        mainSection.put("ssoRememberMe", SSOCookieRememberMeManager.class.getName());
+        mainSection.put("securityManager.rememberMeManager", "$ssoRememberMe");
 
     }
 }

@@ -53,7 +53,14 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
         ssoUser.setLastName(userPrincipal.getLastName());
         ssoUser.setEmail(userPrincipal.getEmail());
         ssoUser.setUserName(userPrincipal.getUserName());
-        ssoUser.setToken(ssoTokenProvider.getTokenPrefix() + UUID.randomUUID().toString());
+
+        // TODO Would we retrieve the complete object from the userInfo ?
+        Object token = userPrincipal.getUserInfo("token");
+        if (!(token instanceof OctopusSSOUser)) {
+            ssoUser.setToken(ssoTokenProvider.getTokenPrefix() + UUID.randomUUID().toString());
+        } else {
+            ssoUser.setToken(((OctopusSSOUser) token).getToken());
+        }
 
         ssoUser.addUserInfo(userPrincipal.getInfo());
         return ssoUser;

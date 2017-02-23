@@ -61,8 +61,10 @@ public class OctopusAuthenticationListener implements AuthenticationListener {
 
     @Override
     public void onLogout(PrincipalCollection principals) {
-        LogoutEvent event = new LogoutEvent((UserPrincipal) principals.getPrimaryPrincipal());
-        logoutEvent.fire(event);
+        if (principals.getPrimaryPrincipal() instanceof UserPrincipal) {
+            LogoutEvent event = new LogoutEvent((UserPrincipal) principals.getPrimaryPrincipal());
+            logoutEvent.fire(event);
+        }
     }
 
 

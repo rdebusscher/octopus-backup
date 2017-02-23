@@ -52,5 +52,10 @@ public class MemoryTokenStore implements SSOTokenStore {
     @Override
     public void removeUser(OctopusSSOUser octopusSSOUser) {
         byAccessCode.remove(octopusSSOUser.getToken());
+        for (Map.Entry<String, TokenStoreInfo> entry : byCookieCode.entrySet()) {
+            if (entry.getValue().getOctopusSSOUser().equals(octopusSSOUser)) {
+                byCookieCode.remove(entry.getKey());
+            }
+        }
     }
 }

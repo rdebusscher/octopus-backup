@@ -60,9 +60,6 @@ public class AuthenticationServlet extends HttpServlet {
     private ClientInfoRetriever clientInfoRetriever;
 
     @Inject
-    private SSOTokenStore tokenStore;
-
-    @Inject
     private OctopusConfig octopusConfig;
 
     @Override
@@ -76,9 +73,6 @@ public class AuthenticationServlet extends HttpServlet {
         // We can't inject the OctopusSSOUSer because we then get a Proxy which is stored.
         // Bad things will happen ....
         OctopusSSOUser ssoUser = ssoProducerBean.getOctopusSSOUser();
-
-        TokenStoreInfo tokenInfo = defineTokenStoreInfo(ssoUser, request);
-        tokenStore.keepToken(tokenInfo);
 
         String apiKey = request.getParameter("apiKey");
         String clientId = request.getParameter("client_id");
@@ -96,7 +90,6 @@ public class AuthenticationServlet extends HttpServlet {
         callback += determineParametersCallback(ssoFlow, code, state);
 
         try {
-            attachCookie(response, tokenInfo.getCookieToken());
 
             showDebugInfo(ssoUser);
             response.sendRedirect(callback);
@@ -107,12 +100,6 @@ public class AuthenticationServlet extends HttpServlet {
             throw new OctopusUnexpectedException(e);
 
         }
-    }
-
-    private TokenStoreInfo defineTokenStoreInfo(OctopusSSOUser ssoUser, HttpServletRequest request) {
-        String remoteHost = request.getRemoteAddr();
-        String userAgent = request.getHeader("User-Agent");
-        return new TokenStoreInfo(ssoUser, UUID.randomUUID().toString(), userAgent, remoteHost);
     }
 
     private String determineParametersCallback(SSOFlow ssoFlow, String code, String state) {
@@ -132,19 +119,8 @@ public class AuthenticationServlet extends HttpServlet {
 
     private void showDebugInfo(OctopusSSOUser user) {
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated and cookie written with token %s", user.getFullName(), user.getToken()));
+            logger.info(String.format("User %s is authenticated and cookie written if needed.", user.getFullName()));
         }
-    }
-
-
-    private void attachCookie(HttpServletResponse resp, String token) {
-        Cookie cookie = new Cookie(ssoServerConfiguration.getSSOCookieName(), token);
-        cookie.setComment("Octopus SSO token");
-
-        cookie.setHttpOnly(true);
-        cookie.setSecure(Boolean.valueOf(ssoServerConfiguration.getSSOCookieSecure()));
-        cookie.setMaxAge(ssoServerConfiguration.getSSOCookieTimeToLive() * 60 * 60); // Hours -> Seconds
-        resp.addCookie(cookie);
     }
 
     private String createCode(OctopusSSOUser ssoUser, String apiKey, SSOFlow ssoFlow) {

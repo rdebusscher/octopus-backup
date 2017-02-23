@@ -21,7 +21,10 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
+import be.c4j.ee.security.sso.client.debug.DebugClientResponseFilter;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
+import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationException;
@@ -62,13 +65,26 @@ public class SSOCallbackServlet extends HttpServlet {
 
     private SSODataEncryptionHandler encryptionHandler;
 
+    private PrincipalUserInfoJSONProvider userInfoJSONProvider;
+
     private Client client;
 
     @Override
     public void init() throws ServletException {
 
         client = ClientBuilder.newClient();
+
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_REST)) {
+            client.register(DebugClientResponseFilter.class);
+        }
+
         encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
+
+        userInfoJSONProvider = BeanProvider.getContextualReference(PrincipalUserInfoJSONProvider.class, true);
+        if (userInfoJSONProvider == null) {
+            userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
+        }
+
     }
 
     @Override
@@ -87,12 +103,9 @@ public class SSOCallbackServlet extends HttpServlet {
                 .get();
 
         String json = response.readEntity(String.class);
-        if (response.getStatus() == 200) { // FIXME
+        if (response.getStatus() == 200) {
 
-
-            OctopusSSOUser user = OctopusSSOUser.fromJSON(json);
-
-            response.close();
+            OctopusSSOUser user = OctopusSSOUser.fromJSON(json, userInfoJSONProvider);
 
             user.setToken(realToken);
 
@@ -114,6 +127,9 @@ public class SSOCallbackServlet extends HttpServlet {
         } else {
             logger.warn(String.format("Retrieving SSO User info failed with status %s and body %s", String.valueOf(response.getStatus()), json));
         }
+
+        response.close();
+
     }
 
     private void checkState(HttpServletRequest httpServletRequest) {

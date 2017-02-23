@@ -18,7 +18,6 @@ package be.c4j.ee.security.sso.server.servlet;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.OctopusJSFConfig;
-import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
@@ -45,7 +44,7 @@ public class LogoutServlet extends HttpServlet {
     private Logger logger = LoggerFactory.getLogger(LogoutServlet.class);
 
     @Inject
-    private UserPrincipal userPrincipal;
+    private OctopusSSOUser octopusSSOUser;
 
     @Inject
     private SSOServerConfiguration ssoServerConfiguration;
@@ -61,9 +60,7 @@ public class LogoutServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        OctopusSSOUser ssoUser = userPrincipal.getUserInfo("token");
-        tokenStore.removeUser(ssoUser);
-        deleteCookie(resp);
+        tokenStore.removeUser(octopusSSOUser);
 
         resp.sendRedirect(getLogoutURL(req));
 
@@ -71,7 +68,7 @@ public class LogoutServlet extends HttpServlet {
 
         req.getSession().invalidate();
 
-        showDebugInfo(ssoUser);
+        showDebugInfo(octopusSSOUser);
 
     }
 
@@ -96,16 +93,5 @@ public class LogoutServlet extends HttpServlet {
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
             logger.info(String.format("User %s is logged out (token = %s)", user.getFullName(), user.getToken()));
         }
-    }
-
-    private void deleteCookie(HttpServletResponse resp) {
-        Cookie cookie = new Cookie(ssoServerConfiguration.getSSOCookieName(), ""); // Cleared
-        cookie.setComment("Octopus SSO token");
-
-        cookie.setHttpOnly(true);
-        cookie.setSecure(Boolean.valueOf(ssoServerConfiguration.getSSOCookieSecure()));
-        cookie.setMaxAge(0); // 0 -> delete
-        resp.addCookie(cookie);
-
     }
 }
