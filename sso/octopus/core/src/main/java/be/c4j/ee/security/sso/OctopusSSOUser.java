@@ -34,7 +34,8 @@ import java.util.Map;
  */
 public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
-    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", "localId", "userName", "lastName", "firstName", "fullName", "email");
+    public static final String LOCAL_ID = "localId";
+    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", LOCAL_ID, "userName", "lastName", "firstName", "fullName", "email");
 
     private String id;
     private String localId;

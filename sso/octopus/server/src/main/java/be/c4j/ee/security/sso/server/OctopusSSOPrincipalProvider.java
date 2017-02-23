@@ -22,6 +22,7 @@ import be.c4j.ee.security.sso.server.token.SSOTokenProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -36,7 +37,12 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
     @Override
     public OctopusSSOUser createSSOPrincipal(UserPrincipal userPrincipal) {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
-        ssoUser.setLocalId(userPrincipal.getId().toString());
+
+        Serializable localId = userPrincipal.getInfo().get(OctopusSSOUser.LOCAL_ID);
+        if (localId == null) {
+            localId = userPrincipal.getId();
+        }
+        ssoUser.setLocalId(localId.toString());
         String externalId = userPrincipal.getExternalId();
         if (externalId == null) {
             externalId = userPrincipal.getId().toString();
