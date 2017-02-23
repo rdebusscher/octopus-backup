@@ -17,9 +17,9 @@ package be.c4j.ee.security.sso;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 import javax.security.auth.Subject;
 import java.io.Serializable;
@@ -173,22 +173,17 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     public String toJSON(Map<String, Serializable> info) {
         JSONObject result = new JSONObject();
-        try {
-            result.put("id", id);
-            result.put("localId", localId);
-            result.put("userName", userName);
+        result.put("id", id);
+        result.put("localId", localId);
+        result.put("userName", userName);
 
-            result.put("lastName", lastName);
-            result.put("firstName", firstName);
-            result.put("fullName", fullName);
-            result.put("email", email);
+        result.put("lastName", lastName);
+        result.put("firstName", firstName);
+        result.put("fullName", fullName);
+        result.put("email", email);
 
-            for (Map.Entry<String, Serializable> infoEntry : info.entrySet()) {
-                result.put(infoEntry.getKey(), infoEntry.getValue());
-            }
-
-        } catch (JSONException e) {
-            throw new OctopusUnexpectedException(e);
+        for (Map.Entry<String, Serializable> infoEntry : info.entrySet()) {
+            result.put(infoEntry.getKey(), infoEntry.getValue());
         }
 
         return result.toString();
@@ -197,29 +192,46 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
     public static OctopusSSOUser fromJSON(String json) {
         OctopusSSOUser result;
         try {
-            JSONObject jsonObject = new JSONObject(json);
+
+            JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+
+            JSONObject jsonObject = (JSONObject) parser.parse(json);
+
             result = new OctopusSSOUser();
-            result.setId(jsonObject.getString("id"));
-            result.setLocalId(jsonObject.getString("localId"));
-            result.setUserName(jsonObject.optString("userName"));  // username is optional like for example with OAuth2
+            result.setId(getString(jsonObject, "id"));
+            result.setLocalId(getString(jsonObject, "localId"));
+            result.setUserName(optString(jsonObject, "userName"));  // username is optional like for example with OAuth2
 
-            result.setLastName(jsonObject.optString("lastName"));
-            result.setFirstName(jsonObject.optString("firstName"));
-            result.setFullName(jsonObject.optString("fullName"));
-            result.setEmail(jsonObject.optString("email"));
+            result.setLastName(optString(jsonObject, "lastName"));
+            result.setFirstName(optString(jsonObject, "firstName"));
+            result.setFullName(optString(jsonObject, "fullName"));
+            result.setEmail(optString(jsonObject, "email"));
 
 
-            JSONArray names = jsonObject.names();
-            String keyName;
-            for (int i = 0; i < names.length(); i++) {
-                keyName = names.get(i).toString();
+            for (String keyName : jsonObject.keySet()) {
+
                 if (!DEFAULT_PROPERTY_NAMES.contains(keyName)) {
-                    result.addUserInfo(keyName, jsonObject.getString(keyName));
+                    result.addUserInfo(keyName, getString(jsonObject, keyName));
                 }
             }
-        } catch (JSONException e) {
+
+
+        } catch (ParseException e) {
             throw new OctopusUnexpectedException(e);
         }
         return result;
+    }
+
+
+    private static String getString(JSONObject jsonObject, String key) {
+        return jsonObject.get(key).toString();
+    }
+
+    private static String optString(JSONObject jsonObject, String key) {
+        if (jsonObject.containsKey(key)) {
+            return getString(jsonObject, key);
+        } else {
+            return null;
+        }
     }
 }
