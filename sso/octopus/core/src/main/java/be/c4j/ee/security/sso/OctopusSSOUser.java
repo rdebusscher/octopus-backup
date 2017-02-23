@@ -17,7 +17,10 @@ package be.c4j.ee.security.sso;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
+import be.c4j.ee.security.sso.rest.reflect.Property;
 import net.minidev.json.JSONObject;
+import net.minidev.json.JSONStyle;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
@@ -28,6 +31,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 
 /**
  *
@@ -114,7 +119,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         this.firstName = firstName;
     }
 
-    public void addUserInfo(String key, String value) {
+    public void addUserInfo(String key, Serializable value) {
         userInfo.put(key, value);
     }
 
@@ -171,7 +176,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         return (T) userInfo.get(key);
     }
 
-    public String toJSON(Map<String, Serializable> info) {
+    public String toJSON(Map<String, Serializable> info, PrincipalUserInfoJSONProvider jsonProvider) {
         JSONObject result = new JSONObject();
         result.put("id", id);
         result.put("localId", localId);
@@ -183,13 +188,18 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         result.put("email", email);
 
         for (Map.Entry<String, Serializable> infoEntry : info.entrySet()) {
-            result.put(infoEntry.getKey(), infoEntry.getValue());
+            Serializable value = infoEntry.getValue();
+            if (Property.isBasicPropertyType(value)) {
+                result.put(infoEntry.getKey(), value);
+            } else {
+                result.put(infoEntry.getKey(), value.getClass().getName() + "@" + jsonProvider.writeValue(value));
+            }
         }
 
-        return result.toString();
+        return result.toJSONString(new JSONStyle(FLAG_IGNORE_NULL));
     }
 
-    public static OctopusSSOUser fromJSON(String json) {
+    public static OctopusSSOUser fromJSON(String json, PrincipalUserInfoJSONProvider jsonProvider) {
         OctopusSSOUser result;
         try {
 
@@ -208,10 +218,26 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
             result.setEmail(optString(jsonObject, "email"));
 
 
+            Object value;
             for (String keyName : jsonObject.keySet()) {
 
                 if (!DEFAULT_PROPERTY_NAMES.contains(keyName)) {
-                    result.addUserInfo(keyName, getString(jsonObject, keyName));
+                    String keyValue = getString(jsonObject, keyName);
+                    if (keyValue.contains("@")) {
+
+                        Class<?> aClass = tryToDefineClass(keyValue);
+                        if (aClass != null) {
+                            int markerPos = keyValue.indexOf("@");
+                            value = jsonProvider.readValue(keyValue.substring(markerPos + 1), aClass);
+                        } else {
+                            value = keyValue; // We don't have the class, we keep the string representation for convenience.
+                        }
+
+                    } else {
+                        value = keyValue;
+                    }
+                    // We always know that it is serializable because we started from a map which contains only serializables.
+                    result.addUserInfo(keyName, (Serializable) value);
                 }
             }
 
@@ -219,6 +245,18 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         } catch (ParseException e) {
             throw new OctopusUnexpectedException(e);
         }
+        return result;
+    }
+
+    private static Class<?> tryToDefineClass(String keyValue) {
+        Class<?> result = null;
+        String[] parts = keyValue.split("@", 2);
+        try {
+            result = Class.forName(parts[0]);
+        } catch (ClassNotFoundException e) {
+            // Nothing to do here, we don't have that class on the classpath
+        }
+
         return result;
     }
 

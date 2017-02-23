@@ -249,6 +249,7 @@
                                 <exclude>**/QRCode.js</exclude>
                                 <exclude>**/HOTPProvider.java</exclude>
                                 <exclude>**/Base32.java</exclude>
+                                <exclude>**/reflect/**</exclude>
                             </excludes>
                             <mapping>
                                 <java>SLASHSTAR_STYLE</java>

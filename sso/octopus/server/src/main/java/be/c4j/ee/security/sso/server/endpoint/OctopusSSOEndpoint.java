@@ -19,6 +19,8 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
+import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.server.rest.RestUserInfoProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.RequiresUser;
@@ -59,9 +61,16 @@ public class OctopusSSOEndpoint {
 
     private RestUserInfoProvider userInfoProvider;
 
+    private PrincipalUserInfoJSONProvider userInfoJSONProvider;
+
     @PostConstruct
     public void init() {
         userInfoProvider = BeanProvider.getContextualReference(RestUserInfoProvider.class, true);
+
+        userInfoJSONProvider = BeanProvider.getContextualReference(PrincipalUserInfoJSONProvider.class, true);
+        if (userInfoJSONProvider == null) {
+            userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
+        }
     }
 
     @Path("/user")
@@ -73,11 +82,12 @@ public class OctopusSSOEndpoint {
         showDebugInfo(ssoUser);
         Map<String, Serializable> info = new HashMap<String, Serializable>(ssoUser.getUserInfo());
         info.remove("token"); // FIXME Create constant
+        info.remove("upstreamToken"); // FIXME Create constant
         if (userInfoProvider != null) {
             info.putAll(userInfoProvider.defineInfo(ssoUser));
         }
 
-        return ssoUser.toJSON(info);
+        return ssoUser.toJSON(info, userInfoJSONProvider);
     }
 
     private void showDebugInfo(OctopusSSOUser user) {
