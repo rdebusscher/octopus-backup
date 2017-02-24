@@ -28,11 +28,9 @@ import java.util.Map;
 /**
  *
  */
-//@JsonIgnoreProperties(value = {"token", "userInfo", "principal", "credentials"}, ignoreUnknown = true)
-// This was placed here because of the Serialization of the OAuth2USer from UserController to SSOCallbackServlet (Old sso-client)
 public class OAuth2User implements ValidatedAuthenticationToken, Principal {
 
-    public static final String LOCAL_ID = "LOCAL_ID";
+    public static final String LOCAL_ID = "localId";
 
     public static final String OAUTH2_USER_INFO = "oAuth2UserInfo";
 
@@ -66,7 +64,7 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
 
     private OAuth2AccessToken token;
 
-    private String applicationName;
+    private String applicationName;  // FIXME required?
 
     public String getId() {
         return id;

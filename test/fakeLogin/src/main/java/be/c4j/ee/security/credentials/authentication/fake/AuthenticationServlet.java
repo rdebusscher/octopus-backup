@@ -20,8 +20,8 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
-import be.rubus.web.jerry.provider.BeanProvider;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -64,7 +64,7 @@ public class AuthenticationServlet extends HttpServlet {
             throw new AccessDeniedException(null);
         }
 
-        LoginAuthenticationTokenProvider loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class, true);
+        LoginAuthenticationTokenProvider loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class);
         String loginData = request.getParameter("loginData");
 
         AuthenticationToken token = loginAuthenticationTokenProvider.determineAuthenticationToken(loginData);

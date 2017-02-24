@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * FIXME Not fully used I guess. Verify!!
  */
 @ApplicationScoped
 public class ActiveSessionRegistry {

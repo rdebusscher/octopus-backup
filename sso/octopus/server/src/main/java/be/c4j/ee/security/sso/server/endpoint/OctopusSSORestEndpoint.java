@@ -37,7 +37,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- *
+ * FIXME Review usecase for this. Probably just remove it as returns the same info be.c4j.ee.security.sso.server.endpoint.OctopusSSOEndpoint#getUserInfo()
  */
 @Path("/octopus/rest")
 @Singleton
@@ -109,7 +109,7 @@ public class OctopusSSORestEndpoint {
 
             if (userPrincipal != null) {
                 OctopusSSOUser user = ssoPrincipalProvider.createSSOPrincipal(userPrincipal);
-                tokenStore.keepToken(new TokenStoreInfo(user, null, null, null));
+                tokenStore.keepToken(new TokenStoreInfo(user, null,  null,null, null));
 
                 activeSessionRegistry.startSession(userPrincipal.getId().toString(), userPrincipal);
 

@@ -20,7 +20,8 @@ import be.c4j.ee.security.sso.OctopusSSOUser;
 import java.util.Map;
 
 /**
- *
+ * FIXME Review usecase. I think it makes more sense on the Client part.
+ * We have added all the info through the AuthenticationInfoBuilder.
  */
 public interface RestUserInfoProvider {
 

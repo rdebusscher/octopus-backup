@@ -39,6 +39,7 @@ public class SSOAuthenticationInfoBuilder {
 
 
         UserPrincipal principal = new UserPrincipal(octopusSSOUser.getId(), octopusSSOUser.getUserName(), octopusSSOUser.getName());
+        principal.addUserInfo("email", octopusSSOUser.getEmail());  // Make sure the email is within the userInfo
         principal.addUserInfo(octopusSSOUser.getUserInfo());
         authenticationInfo = new SimpleAuthenticationInfo(principal, null, DEFAULT_REALM);
 
