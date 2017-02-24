@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.client.callback;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.session.SessionUtil;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
@@ -62,6 +63,9 @@ public class SSOCallbackServlet extends HttpServlet {
 
     @Inject
     private OctopusConfig octopusConfig;
+
+    @Inject
+    private SessionUtil sessionUtil;
 
     private SSODataEncryptionHandler encryptionHandler;
 
@@ -110,6 +114,9 @@ public class SSOCallbackServlet extends HttpServlet {
             user.setToken(realToken);
 
             try {
+
+                sessionUtil.invalidateCurrentSession(httpServletRequest);
+
                 SecurityUtils.getSubject().login(user);
 
                 SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);

@@ -21,6 +21,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.session.SessionUtil;
 import be.rubus.web.jerry.provider.BeanProvider;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -48,6 +49,9 @@ public abstract class OAuth2CallbackProcessor {
 
     @Inject
     private OctopusJSFConfig octopusConfig;
+
+    @Inject
+    private SessionUtil sessionUtil;
 
     @Inject
     private OAuth2SessionAttributes oAuth2SessionAttributes;
@@ -103,6 +107,9 @@ public abstract class OAuth2CallbackProcessor {
             callbackURL = customCallbackProvider.determineApplicationCallbackURL(applicationName);
         }
         try {
+
+            sessionUtil.invalidateCurrentSession(request);
+
             SecurityUtils.getSubject().login(oAuth2User);
             if (callbackURL != null) {
                 response.sendRedirect(callbackURL + "?token=" + token.getAccessToken());

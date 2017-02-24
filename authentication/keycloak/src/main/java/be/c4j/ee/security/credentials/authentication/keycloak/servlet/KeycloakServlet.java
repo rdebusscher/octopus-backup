@@ -19,6 +19,7 @@ import be.c4j.ee.security.authentication.ActiveSessionRegistry;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.keycloak.config.KeycloakConfiguration;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.session.SessionUtil;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.adapters.AdapterUtils;
 import org.keycloak.adapters.KeycloakDeployment;
@@ -43,13 +44,16 @@ public class KeycloakServlet extends HttpServlet {
     private Logger logger;
 
     @Inject
+    private OctopusJSFConfig octopusConfig;
+
+    @Inject
     private KeycloakConfiguration keycloakConfiguration;
 
     @Inject
     private ActiveSessionRegistry activeSessionRegistry;
 
     @Inject
-    private OctopusJSFConfig octopusConfig;
+    private SessionUtil sessionUtil;
 
     private KeycloakDeployment oidcDeployment;
 
@@ -61,7 +65,7 @@ public class KeycloakServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        OIDCAdapter adapter = new OIDCAdapter(oidcDeployment, request, response, octopusConfig, keycloakConfiguration, activeSessionRegistry);
+        OIDCAdapter adapter = new OIDCAdapter(oidcDeployment, request, response, octopusConfig, keycloakConfiguration, activeSessionRegistry, sessionUtil);
         String code = adapter.getCode();
         if (code == null) {
 

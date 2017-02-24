@@ -3,6 +3,7 @@
 . String based Permissions.
 . Octopus SSO (Server and client modules)
 . TwoStep authentication with support for SMS (Twilio) and TOTP.
+. Protection for Session fixation and hijacking.
 . Programmatic define permissions for URLs
 . Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
 

@@ -74,7 +74,11 @@ public class AuthenticationServlet extends HttpServlet {
         }
 
         try {
+
+            // Here we do not need to invalidate the current session as it is only for development purposes.
+
             SecurityUtils.getSubject().login(token);
+
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
             try {
                 response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());

@@ -17,6 +17,7 @@ package be.c4j.ee.security.context;
 
 import be.c4j.ee.security.exception.SystemAccountActivationException;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.session.SessionUtil;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import be.c4j.ee.security.twostep.TwoStepProvider;
@@ -29,6 +30,7 @@ import org.apache.shiro.web.util.WebUtils;
 
 import javax.enterprise.context.Dependent;
 import javax.faces.context.ExternalContext;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,8 +41,12 @@ import java.io.Serializable;
 @Dependent
 public class OctopusSecurityContext implements Serializable {
 
+    @Inject
+    private SessionUtil sessionUtil;
+
     private Subject subject;
 
+    /* Support for Asynchronous calls*/
     public void prepareForAsyncUsage() {
         subject = SecurityUtils.getSubject();
     }
@@ -56,6 +62,7 @@ public class OctopusSecurityContext implements Serializable {
         return result;
     }
 
+    /*  Support for System accounts */
     public void activateSystemAccount(String systemAccountIdentifier) {
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
@@ -69,7 +76,14 @@ public class OctopusSecurityContext implements Serializable {
 
     }
 
+    public static boolean isSystemAccount(Object principal) {
+        return principal instanceof SystemAccountPrincipal;
+    }
+
+    /* Regular method useable in all JSF cases */
     public void loginWithRedirect(HttpServletRequest request, ExternalContext externalContext, AuthenticationToken token, String rootUrl) throws IOException {
+
+        sessionUtil.invalidateCurrentSession(request);
 
         SecurityUtils.getSubject().login(token);
 
@@ -85,10 +99,6 @@ public class OctopusSecurityContext implements Serializable {
 
             externalContext.redirect(request.getContextPath() + "/secondStep.xhtml");  // FIXME Parameter
         }
-    }
-
-    public static boolean isSystemAccount(Object principal) {
-        return principal instanceof SystemAccountPrincipal;
     }
 
 }

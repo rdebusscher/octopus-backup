@@ -119,6 +119,14 @@ default : *org.apache.shiro.cache.MemoryConstrainedCacheManager*
 
 The class responsible for holding/managing the cache of the authentication and authorization data.  The developer can supply a custom implementation of +org.apache.shiro.cache.AbstractCacheManager+ when the cache needs different logic.
 
+==== session.invalidate.login
+
+default : *true*
+
+Defines if the session available during login (username - password, OAuth2, KeyCloak, CAS, ... but not the authenticating filters mostly used for JAX-RS endpoints) needs to be invalidated.
+
+This means that the user gets a new session id after login. HTTPSession attributes are copied to the new session.
+
 ==== OAuth2.clientId (OAuth2 only)
 
 default : *(none)*

@@ -21,6 +21,7 @@ import be.c4j.ee.security.credentials.authentication.keycloak.AccessTokenHandler
 import be.c4j.ee.security.credentials.authentication.keycloak.KeycloakUser;
 import be.c4j.ee.security.credentials.authentication.keycloak.OIDCAuthenticationException;
 import be.c4j.ee.security.credentials.authentication.keycloak.config.KeycloakConfiguration;
+import be.c4j.ee.security.session.SessionUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -56,15 +57,17 @@ public class OIDCAdapter {
 
     private OctopusJSFConfig octopusConfig;
     private KeycloakConfiguration keycloakConfiguration;
+    private SessionUtil sessionUtil;
 
     private ActiveSessionRegistry activeSessionRegistry;
 
-    public OIDCAdapter(KeycloakDeployment deployment, HttpServletRequest request, HttpServletResponse response, OctopusJSFConfig octopusConfig, KeycloakConfiguration keycloakConfiguration, ActiveSessionRegistry activeSessionRegistry) {
+    public OIDCAdapter(KeycloakDeployment deployment, HttpServletRequest request, HttpServletResponse response, OctopusJSFConfig octopusConfig, KeycloakConfiguration keycloakConfiguration, ActiveSessionRegistry activeSessionRegistry, SessionUtil sessionUtil) {
         this.deployment = deployment;
         this.request = request;
         this.response = response;
         this.octopusConfig = octopusConfig;
         this.keycloakConfiguration = keycloakConfiguration;
+        this.sessionUtil = sessionUtil;
         logger = LoggerFactory.getLogger(OIDCAdapter.class);
 
         this.activeSessionRegistry = activeSessionRegistry;
@@ -190,6 +193,9 @@ public class OIDCAdapter {
         }
 
         try {
+
+            sessionUtil.invalidateCurrentSession(request);
+
             SecurityUtils.getSubject().login(user);
 
             activeSessionRegistry.startSession(user.getClientSession(), SecurityUtils.getSubject().getPrincipal());

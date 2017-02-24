@@ -97,6 +97,10 @@ include::oracleUser.adi[]
 
 include::fakeLogin.adi[]
 
+== Additional Security measures (OWASP based)
+
+include::security.adi[]
+
 == Other features
 
 include::others.adi[]

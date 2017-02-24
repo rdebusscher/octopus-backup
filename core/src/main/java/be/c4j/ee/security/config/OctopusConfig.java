@@ -117,6 +117,11 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     }
 
     @ConfigEntry
+    public boolean getIsSessionInvalidatedAtLogin() {
+        return Boolean.valueOf(ConfigResolver.getPropertyValue("session.invalidate.login", "true"));
+    }
+
+    @ConfigEntry
     public List<Debug> showDebugFor() {
         if (debugValues == null) {
             // TODO Do we need to make this thread-safe?
