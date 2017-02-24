@@ -27,7 +27,10 @@ http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd"
         <!-- configuration of Shiro -->
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
     </listener>
-
+    <listener>
+        <!-- keeping track of logged on users and their session, mainly for SSO -->
+        <listener-class>be.c4j.ee.security.session.OctopusSessionListener</listener-class>
+    </listener>
 
     <context-param>
         <param-name>shiroEnvironmentClass</param-name>
