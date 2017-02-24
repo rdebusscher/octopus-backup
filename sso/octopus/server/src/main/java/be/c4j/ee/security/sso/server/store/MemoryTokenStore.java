@@ -18,8 +18,7 @@ package be.c4j.ee.security.sso.server.store;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -57,5 +56,37 @@ public class MemoryTokenStore implements SSOTokenStore {
                 byCookieCode.remove(entry.getKey());
             }
         }
+    }
+
+    @Override
+    public void addLoginFromClient(OctopusSSOUser ssoUser, String clientId) {
+        TokenStoreInfo storeInfo = findStoreInfo(ssoUser);
+        if (storeInfo != null) {
+            // TODO We should always find an entry
+            storeInfo.addClientId(clientId);
+        }
+    }
+
+    private TokenStoreInfo findStoreInfo(OctopusSSOUser ssoUser) {
+        TokenStoreInfo result = null;
+        Iterator<Map.Entry<String, TokenStoreInfo>> iterator = byCookieCode.entrySet().iterator();
+        while (result == null && iterator.hasNext()) {
+            Map.Entry<String, TokenStoreInfo> entry = iterator.next();
+            if (entry.getValue().getOctopusSSOUser().equals(ssoUser)) {
+                result = entry.getValue();
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Set<String> getLoggedInClients(OctopusSSOUser octopusSSOUser) {
+        Set<String> result = new HashSet<String>();
+        TokenStoreInfo storeInfo = findStoreInfo(octopusSSOUser);
+        if (storeInfo != null) {
+            // TODO We should always find an entry
+            result = storeInfo.getClientIds();
+        }
+        return result;
     }
 }

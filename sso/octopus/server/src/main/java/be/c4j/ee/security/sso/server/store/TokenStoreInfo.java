@@ -17,6 +17,9 @@ package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  */
@@ -26,16 +29,16 @@ public class TokenStoreInfo {
 
     private OctopusSSOUser octopusSSOUser;
 
-    private String clientId;
+    private Set<String> clientIds;
     private String cookieToken;
 
     private String userAgent;
-
     private String remoteHost;
 
     public TokenStoreInfo(OctopusSSOUser octopusSSOUser, String clientId, String cookieToken, String userAgent, String remoteHost) {
         this.octopusSSOUser = octopusSSOUser;
-        this.clientId = clientId;
+        clientIds = new HashSet<String>();
+        clientIds.add(clientId);
         this.cookieToken = cookieToken;
         this.userAgent = userAgent;
         this.remoteHost = remoteHost;
@@ -45,8 +48,12 @@ public class TokenStoreInfo {
         return octopusSSOUser;
     }
 
-    public String getClientId() {
-        return clientId;
+    public Set<String> getClientIds() {
+        return clientIds;
+    }
+
+    public void addClientId(String clientId) {
+        clientIds.add(clientId);
     }
 
     public String getCookieToken() {
@@ -65,10 +72,22 @@ public class TokenStoreInfo {
     public String toString() {
         return "TokenStoreInfo{" +
                 "octopusSSOUser=" + octopusSSOUser +
-                ", clientId='" + clientId + '\'' +
+                ", clientIds=" + clientIdsLogValue() +
                 ", cookieToken='" + cookieToken + '\'' +
                 ", userAgent='" + userAgent + '\'' +
                 ", remoteHost='" + remoteHost + '\'' +
                 '}';
+    }
+
+    private String clientIdsLogValue() {
+
+        StringBuilder result = new StringBuilder();
+        for (String clientId : clientIds) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(clientId);
+        }
+        return result.toString();
     }
 }

@@ -19,6 +19,8 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.server.client.ClientInfo;
+import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.shiro.SecurityUtils;
@@ -28,11 +30,13 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Set;
 
 /**
  *
@@ -58,18 +62,56 @@ public class LogoutServlet extends HttpServlet {
     @Inject
     private SSOTokenStore tokenStore;
 
+    @Inject
+    private ClientInfoRetriever clientInfoRetriever;
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
+        String clientId = request.getParameter("client_id");
+
+        doSingleLogout(clientId);
+
         tokenStore.removeUser(octopusSSOUser);
 
-        resp.sendRedirect(getLogoutURL(req));
+        resp.sendRedirect(getLogoutURL(request));
 
-        SecurityUtils.getSubject().logout();  // Will this trigger things we don't want ??
+        SecurityUtils.getSubject().logout();
 
-        req.getSession().invalidate();
+        request.getSession().invalidate();  // TODO Verify if we need this. logout has done this already?
 
         showDebugInfo(octopusSSOUser);
 
+    }
+
+    private void doSingleLogout(String clientId) {
+        Set<String> loggedInClients = tokenStore.getLoggedInClients(octopusSSOUser);
+        loggedInClients.remove(clientId); // Do not send logout request for the application who requested the logout :)
+
+        for (String loggedInClient : loggedInClients) {
+            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(loggedInClient);
+            // FIXME usie clientInfo.isOctopusClient
+            // FIXME Use encryptionHandler in some cases!
+            String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + octopusSSOUser.getToken();
+            sendLogoutRequestToClient(url);
+        }
+    }
+
+    private void sendLogoutRequestToClient(String url) {
+        try {
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            // optional default is GET
+            con.setRequestMethod("GET");
+
+            //add request header
+            //con.setRequestProperty("User-Agent", USER_AGENT);
+
+            int responseCode = con.getResponseCode();
+        } catch (IOException e) {
+            // FIXME
+            e.printStackTrace();
+        }
     }
 
     private String getLogoutURL(HttpServletRequest request) {

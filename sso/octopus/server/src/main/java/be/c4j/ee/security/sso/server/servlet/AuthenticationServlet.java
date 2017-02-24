@@ -25,7 +25,6 @@ import be.c4j.ee.security.sso.server.SSOProducerBean;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
-import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +32,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  *
@@ -53,6 +50,9 @@ public class AuthenticationServlet extends HttpServlet {
 
     @Inject
     private SSOProducerBean ssoProducerBean;
+
+    @Inject
+    private SSOTokenStore tokenStore;
 
     private SSODataEncryptionHandler encryptionHandler;
 
@@ -79,6 +79,8 @@ public class AuthenticationServlet extends HttpServlet {
         String responseType = request.getParameter("response_type");
         String state = request.getParameter("state");
 
+        tokenStore.addLoginFromClient(ssoUser, clientId);
+
         // clientId is never encrypted
         String callback = clientInfoRetriever.retrieveInfo(clientId).getCallbackURL() + "/octopus/sso/SSOCallback";
 
@@ -95,6 +97,7 @@ public class AuthenticationServlet extends HttpServlet {
             response.sendRedirect(callback);
 
             request.getSession().invalidate();  // Don't keep the session on the SSO server
+            //SecurityUtils.getSubject().logout();// Do not use logout of subject, it wil remove the cookie which we need !
         } catch (IOException e) {
             // OWASP A6 : Sensitive Data Exposure
             throw new OctopusUnexpectedException(e);

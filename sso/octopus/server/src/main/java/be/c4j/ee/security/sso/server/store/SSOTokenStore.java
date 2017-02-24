@@ -17,6 +17,8 @@ package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
 
+import java.util.Set;
+
 /**
  *
  */
@@ -29,4 +31,8 @@ public interface SSOTokenStore {
     TokenStoreInfo getUserByCookieToken(String cookieToken);
 
     void removeUser(OctopusSSOUser octopusSSOUser);
+
+    void addLoginFromClient(OctopusSSOUser ssoUser, String clientId);
+
+    Set<String> getLoggedInClients(OctopusSSOUser octopusSSOUser);
 }
