@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.twostep.totp.view;
 
-import be.c4j.ee.security.context.OctopusSecurityContext;
+import be.c4j.ee.security.OctopusJSFSecurityContext;
 import be.c4j.ee.security.twostep.totp.token.TOTPToken;
 
 import javax.enterprise.context.RequestScoped;
@@ -34,7 +34,7 @@ import java.io.IOException;
 public class TOTPBean {
 
     @Inject
-    private OctopusSecurityContext securityContext;
+    private OctopusJSFSecurityContext securityContext;
 
     private String totpValue;
 

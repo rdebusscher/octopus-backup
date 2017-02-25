@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.view.model;
 
+import be.c4j.ee.security.OctopusJSFSecurityContext;
 import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.logout.LogoutHandler;
 import be.c4j.ee.security.messages.FacesMessages;
@@ -40,10 +41,7 @@ public class LoginBean {
     private boolean remember;
 
     @Inject
-    private OctopusSecurityContext securityContext;
-
-    @Inject
-    private LogoutHandler logoutHandler;
+    private OctopusJSFSecurityContext securityContext;
 
     @Inject
     private FacesMessages facesMessages;
@@ -69,10 +67,8 @@ public class LoginBean {
         return externalContext.getRequestContextPath();
     }
 
-    public void logout() throws IOException {
-        SecurityUtils.getSubject().logout();
-        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-        externalContext.redirect(logoutHandler.getLogoutPage(externalContext));
+    public void logout() {
+        securityContext.logout();
     }
 
     public String getUsername() {

@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.twostep.twilio.view;
 
-import be.c4j.ee.security.context.OctopusSecurityContext;
+import be.c4j.ee.security.OctopusJSFSecurityContext;
 import be.c4j.ee.security.twostep.twilio.token.OTPToken;
 
 import javax.enterprise.context.RequestScoped;
@@ -34,7 +34,7 @@ import java.io.IOException;
 public class TwilioBean {
 
     @Inject
-    private OctopusSecurityContext securityContext;
+    private OctopusJSFSecurityContext securityContext;
 
     private String otpValue;
 
