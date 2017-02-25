@@ -17,13 +17,16 @@ package be.c4j.ee.security.session;
 
 import be.c4j.ee.security.event.LogonEvent;
 import be.c4j.ee.security.event.LogoutEvent;
+import be.c4j.ee.security.event.SessionTimeoutEvent;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.util.WebUtils;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -36,6 +39,9 @@ import java.util.Map;
 public class ApplicationUsageController {
 
     private Map<String, ApplicationUsageInfo> applicationUsage = new HashMap<String, ApplicationUsageInfo>();
+
+    @Inject
+    private Event<SessionTimeoutEvent> sessionTimeoutEvent;
 
     public void onApplicationUsageEvent(@Observes ApplicationUsageEvent event) {
         switch (event.getUserAction()) {
@@ -52,6 +58,12 @@ public class ApplicationUsageController {
                 applicationUsage.get(event.getSessionId()).clearAuthenticationInfo();
                 break;
             case SESSION_END:
+                ApplicationUsageInfo usageInfo = applicationUsage.get(event.getSessionId());
+                if (usageInfo.isAuthenticated()) {
+                    // When the user explicitly logs out himself, the LOGOUT step is done first and we have here thus anonymous user
+                    // So this means there was a HTTPSession timeout
+                    sessionTimeoutEvent.fire(new SessionTimeoutEvent(usageInfo.getUserPrincipal()));
+                }
                 applicationUsage.remove(event.getSessionId());
                 break;
             default:

@@ -1,0 +1,69 @@
+There are various CDI events thrown by octopus.
+
+These events can be captured using methods with an @Observes parameter like this one
+
+[source,java]
+----
+    public void onLogin(@Observes LogonEvent logonEvent) {
+
+        System.out.println(String.format("Log in of %s at %s", logonEvent.getUserPrincipal().getName(), new Date()));
+    }
+----
+
+
+=== LogonEvent
+
+Thrown when a successful authentication took place. It can be used for
+
+* Initialize some data when user has logged on
+* Keep track of logins for the users
+* etc
+
+
+The data available in the event are
+
+* AuthenticationToken: Authentication information of the user like username and password but this can also be some OAuth2 user information.
+* AuthenticationInfo: Information created by the +be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()+ method.
+
+This event is generated when the +CredentialMatcher+(s) have decided that the user has access to the application but before the Apache Shiro +Subject+ is updated with the new information.
+
+=== LogoutEvent
+
+Thrown when the user explicitly logs out of the application. Not thrown when there is a session time out.
+
+The data available in the event are
+
+* UserPrincipal: The principal created during the authentication step with all the information (including user info map) of the logged on user.
+
+This event is generated just before the principal info is removed from the Apache Shiro +Subject+ and the HTTPSession is invalidated.
+
+=== LogonFailureEvent
+
+Thrown when an invalid combination of username and password is given. This can be due to a wrong password or by a non existing username and thus the +be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()+ method returned null.
+
+This can be used to count the number of invalid attempts for example to block an account.
+
+The data available in the event are
+
+* AuthenticationToken: Authentication information of the user like username and password but this can also be some OAuth2 user information.
+
+The event is generated after the +CredentialMatcher+(s) indicate that there is a password mismatch or that there is no +AuthenticationInfo+ is provided.
+
+There is no distinction between the fact that the user doesn't exist (SecurityDataProvider.getAuthenticationInfo() returns null) or an invalid password is supplied.
+
+=== SessionTimeoutEvent
+
+Thrown when the HTTPSession expires but a user (Principal) is sill logged on. This event isn't thown when the session contain an anonymous principal.
+
+It can be used to have always the logon - logoff information for a user (Principal). The different between an automatic logoff and user logoff can be made by the distinction LogoutEvent or SessionTimeoutEvent.
+
+The data available in the event are
+
+* UserPrincipal: The principal created during the authentication step with all the information (including user info map) of the logged on user.
+
+=== ApplicationUsageEvent (Internal)
+
+This is a CDI event used internally by Octopus to keep track of new session, logon, logoff and session expiration.
+
+Please see the section ??? about the ApplicationUsageController to use the information on a more high level.
+

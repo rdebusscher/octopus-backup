@@ -48,6 +48,10 @@ include::url.adi[]
 
 include::exceptions.adi[]
 
+== Events
+
+include::events.adi[]
+
 == Configuration
 
 include::configuration.adi[]
