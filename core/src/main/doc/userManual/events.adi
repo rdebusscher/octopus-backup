@@ -1,4 +1,4 @@
-There are various CDI events thrown by octopus.
+There are various CDI events thrown by Octopus.
 
 These events can be captured using methods with an @Observes parameter like this one
 
@@ -10,6 +10,8 @@ These events can be captured using methods with an @Observes parameter like this
     }
 ----
 
+They are always generated, also when there is no Observer method defined. This is standard CDI behavior.
+The audit event must be activated.
 
 === LogonEvent
 
@@ -29,7 +31,7 @@ This event is generated when the +CredentialMatcher+(s) have decided that the us
 
 === LogoutEvent
 
-Thrown when the user explicitly logs out of the application. Not thrown when there is a session time out.
+Thrown when the user explicitly logs out of the application. Not thrown when there is a session timeout.
 
 The data available in the event are
 
@@ -39,7 +41,7 @@ This event is generated just before the principal info is removed from the Apach
 
 === LogonFailureEvent
 
-Thrown when an invalid combination of username and password is given. This can be due to a wrong password or by a non existing username and thus the +be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()+ method returned null.
+Thrown when an invalid combination of username and password is given. This can be due to a wrong password or by a nonexisting username and thus the +be.c4j.ee.security.realm.SecurityDataProvider.getAuthenticationInfo()+ method returned null.
 
 This can be used to count the number of invalid attempts for example to block an account.
 
@@ -53,17 +55,23 @@ There is no distinction between the fact that the user doesn't exist (SecurityDa
 
 === SessionTimeoutEvent
 
-Thrown when the HTTPSession expires but a user (Principal) is sill logged on. This event isn't thown when the session contain an anonymous principal.
+Thrown when the HTTPSession expires but a user (Principal) is sill logged on. This event isn't thrown when the session contains an anonymous principal.
 
-It can be used to have always the logon - logoff information for a user (Principal). The different between an automatic logoff and user logoff can be made by the distinction LogoutEvent or SessionTimeoutEvent.
+It can be used to have always the log on - log off information for a user (Principal). The different between an automatic logoff and user logoff can be made by the distinction LogoutEvent or SessionTimeoutEvent.
 
 The data available in the event are
 
 * UserPrincipal: The principal created during the authentication step with all the information (including user info map) of the logged on user.
 
+=== OctopusAuditEvent
+
+Thrown whenever an URL is requested which is under the control of Octopus/Apache Shiro. It contains information about the user, requested URL and caller information like IP Address and User-Agent information.
+
+This event is only activated when the configuration parameter **globalAuditActive** is set to _true_.
+
 === ApplicationUsageEvent (Internal)
 
-This is a CDI event used internally by Octopus to keep track of new session, logon, logoff and session expiration.
+This is a CDI event used internally by Octopus to keep track of new session, log on, log off and session expiration.
 
-Please see the section ??? about the ApplicationUsageController to use the information on a more high level.
+Please see the section ??? about the ApplicationUsageController to use the information on a high level.
 

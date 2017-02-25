@@ -13,6 +13,7 @@ Breaking changes
 . removed LogoutHandler.preLogoutAction use CDI eventing instead ( @Observes LogoutEvent)
 . Removed artefact be.c4j.ee.security.octopus:octopus-sso-client. You should use the new SSO server and Client modules.
 . UserInfo keys are now Strings an d no longer Serializable. (AuthenticationInfoBuilder en UserPrincipal.userInfo for example)
+. Method OctopusSecurityContext.loginWithRedirect is moved to new OctopusJSFSecurityContext class.
 
 === 0.9.6.4
 
