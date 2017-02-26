@@ -16,7 +16,7 @@ The securedURLs.ini file contains the permissions required to access some URLs. 
 
 The entries can also be defined in a programmatic way. A CDI bean implementing +be.c4j.ee.security.url.ProgrammaticURLProtectionProvider+ will be used to define additional entries.
 
-The key of the Map return value must contain the URL pattern, the value are the filters.
+The key value of the Map must contain the URL pattern, the value is the filter.
 
 These entries will be placed after the values defined in the file (order is important)
 
@@ -48,7 +48,7 @@ Defines the annotations which can be used on method and class level to define th
 
 default : *classpath:shiro_extra.ini*
 
-Define the file where we can customize shiro directly. This file will be merged with the config of octopus. Multiple files can be specified by separating them by a ,.
+Define the file where we can customize Shiro directly. This file will be merged with the config of octopus. Multiple files can be specified by separating them by a ,.
 
 ==== globalAuditActive
 
@@ -60,14 +60,16 @@ When true, each server request will result in a CDI event with payload OctopusAu
 
 default : *(none)*
 
-Defines the type of debug information which needs to be logged. Theese are the supported values (multiple values can be specified with , separation)
-INI : Log the dynamically generated shiro ini file.
+Defines the type of debug information which needs to be logged. These are the supported values (multiple values can be specified with comma (,) separation)
+*INI*: Log the dynamically generated Shiro ini file.
+*SSO_FLOW*: Prints out the basic steps within the SSO flow between Client and Server.
+*SSO_REST*: Prints out the contents of the Rest calls between the SSO Client and SSO Server.
 
 ==== aliasNameLoginBean (JSF Only)
 
 default : *(none)*
 
-The CDI managed bean which can be used to login and logout the user is called *loginBean*. With this configuration option you can give it an additional name so that you can use this configured value in the JSF pages instead of *loginBean*.
+The CDI managed bean which can be used to login and logout the user is called *loginBean*. With this configuration option, you can give it an additional name so that you can use this configured value in the JSF pages instead of *loginBean*.
 
 ==== loginPage (JSF Only)
 
@@ -79,7 +81,7 @@ The JSF page which will be called when the user access a security restricted pag
 
 default : */*
 
-URL used as redirect after the local session is logged out. When the value starts with a '/' the URL is relative to the root, otherwise it should a full address.
+URL used as redirect after the local session is logged out. When the value starts with a '/' the URL is relative to the root, otherwise, it should a full address.
 
 ==== unauthorizedExceptionPage (JSF Only)
 
@@ -125,7 +127,7 @@ Defines how the hashed passwords are encoded (HEX or BASE64) before they are com
 
 default : *org.apache.shiro.cache.MemoryConstrainedCacheManager*
 
-The class responsible for holding/managing the cache of the authentication and authorization data.  The developer can supply a custom implementation of +org.apache.shiro.cache.AbstractCacheManager+ when the cache needs different logic.
+The class responsible for holding/managing the cache of the authentication and authorization data.  The developer can supply a custom implementation of +org.apache.shiro.cache.AbstractCacheManager+ when the cache needs different logic or storage location.
 
 ==== session.invalidate.login
 
@@ -181,7 +183,7 @@ When multiple Social Login providers are configured, hint the user to a specific
 
 default : *true*
 
-Is Single logout active? When true, the keycloak server is called to end the SSO session for the user. In turn Keycloak sill contact all applications which are using the SSO session to terminate their specific session.
+Is Single logout active? When true, the Keycloak server is called to end the SSO session for the user. In turn, Keycloak will contact all applications which are using the SSO session to terminate their specific session.
 
 ==== SSO.server (Octopus SSO, CAS, SAML, Keycloak)
 
@@ -199,7 +201,7 @@ The name of the cookie contain the SSO token (allows an authentication without e
 
 default : *10h*
 
-The time the SSO cookie is active. By default it is 10 hours. Valid time units are h -> Hours, d -> Days and m -> Months (=30 days)
+The time the SSO cookie is active. By default, it is 10 hours. Valid time units are h -> Hours, d -> Days and m -> Months (=30 days)
 
 ==== SSO.cookie.secure (Octopus SSO Server)
 
@@ -223,7 +225,7 @@ Is Single logout active? When true, after local logout the browser is redirected
 
 default : *email*
 
-The name of the cas attribute containing the email address.
+The name of the CAS attribute containing the email address.
 
 ==== jwk.file (JWT only)
 
@@ -245,16 +247,16 @@ Properties file where the system accounts are defined for each api-key.
 
 default : *true*
 
-When using offline login authentication instead of OAuth2, is this only allowed on localhost.
+When using offline login authentication instead of OAuth2, is this only allowed on localhost?
 
 ==== SSO.application (Octopus SSO only)
 
 default : *(none)*
 
-Future usage when Octopus SSO is fully operational.
+Future usage when Octopus SSO is fully operational. ??? Document this config property.
 
 ==== SSO.application.suffix (Octopus SSO only)
 
 default : *(none)*
 
-Future usage when Octopus SSO is fully operational.
+Future usage when Octopus SSO is fully operational. ??? Document this config property.

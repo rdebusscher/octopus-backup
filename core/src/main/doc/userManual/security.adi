@@ -1,6 +1,6 @@
 === Session fixation
 
-A possible way to fight against a session fixation attack, is that the session is changed during the authentication of the end user.
+A possible way to fight against a session fixation attack is that the session is changed during the authentication of the end user.
 
 Therefore, by default, the HTTPSession which is active during login (When using username - password, OAuth2, KeyCloak, CAS, ...) is invalidated and a new one is created.
 
