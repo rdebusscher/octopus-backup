@@ -91,9 +91,17 @@ The JSF page which is called when the user access a security restricted page and
 
 default : *true*
 
-When user is redirect to the login screen because he is not authenticated yet, the original URL is stored.  So it can be used to redirect to if the user has supplied valid credentials.  However, with JSF applications, posting to an arbitrary page results in exceptions as the state of the previous pages is missing.
+When the user is redirected to the login screen because he is not authenticated yet, the original URL is stored.  So it can be used to redirect to if the user has supplied valid credentials.  However, with JSF applications, posting to an arbitrary page, results in exceptions as the state of the previous pages is missing.
 
-With this property you can disable the redirect to an URL which uses POST as HTTP method.  A redirect to the welcome page of your application will be used instead.
+With this property, you can disable the redirect to an URL which uses POST as HTTP method.  A redirect to the welcome page of your application will be used instead.
+
+==== session.hijacking.level (JSF Only)
+
+default : *ON*
+
+Determines the Session Hijack Protection level. It uses the IP Address and User-Agent header information and checks if the sessionId could be 'stolen'.
+
+The default level _ON_, checks both properties, _PARTIAL_ only the User-Agent header value and _OFF_ disables the protection.
 
 ==== hashAlgorithmName
 

@@ -25,6 +25,8 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class OctopusJSFConfig extends AbstractOctopusConfig implements ModuleConfig {
 
+    private SessionHijackingLevel sessionHijackingLevel;
+
     protected OctopusJSFConfig() {
     }
 
@@ -56,6 +58,16 @@ public class OctopusJSFConfig extends AbstractOctopusConfig implements ModuleCon
     @ConfigEntry
     public String getPostIsAllowedSavedRequest() {
         return ConfigResolver.getPropertyValue("allowPostAsSavedRequest", "true");
+    }
+
+    @ConfigEntry
+    public SessionHijackingLevel getSessionHijackingLevel() {
+        if (sessionHijackingLevel == null) {
+            String value = ConfigResolver.getPropertyValue("session.hijacking.level", "ON");
+
+            sessionHijackingLevel = SessionHijackingLevel.valueOf(value);
+        }
+        return sessionHijackingLevel;
     }
 
 }

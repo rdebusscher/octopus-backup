@@ -115,6 +115,15 @@ public class ApplicationUsageController {
         }
     }
 
+    public ApplicationUsageInfo getInfo(HttpServletRequest httpRequest) {
+        ApplicationUsageInfo result = null;
+        if (WebUtils._isSessionCreationEnabled(httpRequest)) {
+            String sessionId = httpRequest.getSession().getId();
+            result = applicationUsage.get(sessionId);
+        }
+        return result;
+    }
+
     // Since we don't use Java 8, yet :)
     public interface UserSessionFinder {
         boolean isCorrectPrincipal(UserPrincipal userPrincipal);
