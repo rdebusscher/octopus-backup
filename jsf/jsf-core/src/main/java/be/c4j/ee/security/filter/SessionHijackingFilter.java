@@ -23,6 +23,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.servlet.AdviceFilter;
+import org.apache.shiro.web.util.WebUtils;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -51,6 +52,11 @@ public class SessionHijackingFilter extends AdviceFilter implements Initializabl
         boolean result = true;
         if (jsfConfig.getSessionHijackingLevel() != SessionHijackingLevel.OFF) {
             HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+
+            if (!WebUtils._isSessionCreationEnabled(httpServletRequest)) {
+                // probably we are using REST Endpoints also available within the app and since we don't have any session, we can't Hijack it :)
+                return true;
+            }
 
             ApplicationUsageInfo info = applicationUsageController.getInfo(httpServletRequest);
 

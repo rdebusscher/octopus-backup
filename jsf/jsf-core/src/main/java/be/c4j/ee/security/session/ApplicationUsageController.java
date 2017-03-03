@@ -75,7 +75,7 @@ public class ApplicationUsageController {
         String remoteHost = null;
         String userAgent = null;
         if (ThreadContext.getSecurityManager() != null) {
-            // If the Cookie Manager authenticate a user The SubjectDAO want to store it in the Sesion
+            // If the Cookie Manager authenticate a user The SubjectDAO want to store it in the Session
             // And no Subject/Security manager is available at that time.
             // TODO We need then some kind of Event later on to transfer the info from TokenStore to here.
             // Make specialized version for SSO?
