@@ -16,6 +16,7 @@
 package be.c4j.ee.security.filter;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import org.apache.shiro.subject.support.DefaultSubjectContext;
 import org.apache.shiro.web.servlet.AdviceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -32,18 +34,33 @@ public class ExceptionFilter extends AdviceFilter {
 
     @Override
     protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
-        if (existing != null) {
+        Exception exception = existing;
+        if (exception != null) {
             Throwable unexpectedException = getUnexpectedException(existing);
-            if (unexpectedException != null) {
-                OctopusUnexpectedException unexpected = (OctopusUnexpectedException) unexpectedException;
-                Logger logger = LoggerFactory.getLogger(ExceptionFilter.class);
-                logger.error(unexpected.getCause().getMessage(), unexpected.getCause());
+
+            Logger logger = LoggerFactory.getLogger(ExceptionFilter.class);
+            logger.error(exception.getCause().getMessage(), exception.getCause());
+
+            Boolean sessionCreationEnabled = (Boolean) request.getAttribute(DefaultSubjectContext.SESSION_CREATION_ENABLED);
+
+            if (sessionCreationEnabled != null && !sessionCreationEnabled) {
+                // We assume we are in a REST/JAX_RS call and thus return JSON
+                HttpServletResponse servletResponse = (HttpServletResponse) response;
+                servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+                String code = unexpectedException == null ? "OCT-001" : "OCT-002";
+                ErrorInfo info = new ErrorInfo(code, exception.getMessage());
+
+                servletResponse.getWriter().print(info.toJSON());
+
+                exception = null;
+            } else {
                 // Since we are in a finally block, this exception takes over and thus erasing all information we have about stacktraces
                 // OWASP A6
                 throw new OctopusUnexpectedException("Something went wrong");
             }
         }
-        super.cleanup(request, response, existing);
+        super.cleanup(request, response, exception);
     }
 
     private Throwable getUnexpectedException(Throwable exception) {
