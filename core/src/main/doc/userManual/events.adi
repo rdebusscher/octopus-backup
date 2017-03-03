@@ -29,6 +29,20 @@ The data available in the event are
 
 This event is generated when the +CredentialMatcher+(s) have decided that the user has access to the application but before the Apache Shiro +Subject+ is updated with the new information.
 
+=== RememberMeLogonEvent
+
+Thrown when a successful authentication based on the Cookie information (Remember me functionality) took place.
+
+The use cases are identical to the one described in the LogonEvent section because they are more or less the same.
+
+The data which is available in the event is
+
+* Subject : The Subject created based on the remember me data.
+
+The events is thrown quit early in the authentication flow. So at that point the Subject is not yet available on the thread local and also the SecurityManager is not available yet (as it is thrown during the creation of this manager)
+
+TODO This functionality is only properly tested with the Octopus SSO module, not the default remember me from Shiro
+
 === LogoutEvent
 
 Thrown when the user explicitly logs out of the application. Not thrown when there is a session timeout.

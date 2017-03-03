@@ -17,6 +17,7 @@ package be.c4j.ee.security.session;
 
 import be.c4j.ee.security.event.LogonEvent;
 import be.c4j.ee.security.event.LogoutEvent;
+import be.c4j.ee.security.event.RememberMeLogonEvent;
 import be.c4j.ee.security.event.SessionTimeoutEvent;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.SecurityUtils;
@@ -54,6 +55,19 @@ public class ApplicationUsageController {
                 applicationUsageInfo.setAuthenticationToken(event.getAuthenticationToken());
                 applicationUsageInfo.setUserPrincipal(event.getUserPrincipal());
                 break;
+            case REMEMBER_ME_LOGON:
+                HttpSession session = event.getHttpServletRequest().getSession();
+                String sessionId = session.getId();
+
+                String remoteHost = event.getHttpServletRequest().getRemoteAddr();
+                String userAgent = event.getHttpServletRequest().getHeader("User-Agent");
+
+                // OK, not ideal but we overwrite now the existing information we have.
+                // Mainly because the session was created at a time where we don't have access to the ServletRequest (without using some ThreadLocal hacks)
+
+                applicationUsage.put(sessionId, new ApplicationUsageInfo(session, remoteHost, userAgent));
+
+                break;
             case LOGOUT:
                 applicationUsage.get(event.getSessionId()).clearAuthenticationInfo();
                 break;
@@ -77,8 +91,7 @@ public class ApplicationUsageController {
         if (ThreadContext.getSecurityManager() != null) {
             // If the Cookie Manager authenticate a user The SubjectDAO want to store it in the Session
             // And no Subject/Security manager is available at that time.
-            // TODO We need then some kind of Event later on to transfer the info from TokenStore to here.
-            // Make specialized version for SSO?
+            // TODO Verify the next 2 comments; There is the OctopusSecurityManager.save() adjustment.
             // What if we use cookie for regular apps (non SSO)?
             // Need the info for the upcoming Session Hijack protection.
             HttpServletRequest httpRequest = WebUtils.getHttpRequest(SecurityUtils.getSubject());
@@ -94,6 +107,14 @@ public class ApplicationUsageController {
         // There are also use cases where we have a login() from a REST call with noSessionCreation :)
         if (WebUtils._isSessionCreationEnabled(httpRequest)) {
             onApplicationUsageEvent(new ApplicationUsageEvent(httpRequest.getSession().getId(), logonEvent.getUserPrincipal(), logonEvent.getToken()));
+        }
+    }
+
+    public void onLoginFromRememberMe(@Observes RememberMeLogonEvent event) {
+        HttpServletRequest httpRequest = WebUtils.getHttpRequest(event.getSubject());
+        // There are also use cases where we have a login() from a REST call with noSessionCreation :)
+        if (WebUtils._isSessionCreationEnabled(httpRequest)) {
+            onApplicationUsageEvent(new ApplicationUsageEvent(httpRequest));
         }
     }
 

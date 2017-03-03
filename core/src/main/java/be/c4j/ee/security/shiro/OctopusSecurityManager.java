@@ -16,9 +16,11 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.access.AfterSuccessfulLoginHandler;
+import be.c4j.ee.security.event.RememberMeLogonEvent;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -159,6 +161,18 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
             handler.onSuccessfulLogin(token, info, subject);
         }
         super.onSuccessfulLogin(token, info, subject); // FIXME Convert the rememberMe to AfterSuccessfulLoginHandler
+
+    }
+
+    @Override
+    protected void save(Subject subject) {
+        super.save(subject);
+        if (subject.isRemembered()) {
+            // Ok, now the DAO has stored the Subject in the Session and thus HttpSession is created.
+            // We now can sent an event (required for example for the ApplicationUsage) that there is a RememberedLogon.
+
+            BeanManagerProvider.getInstance().getBeanManager().fireEvent(new RememberMeLogonEvent(subject));
+        }
 
     }
 }

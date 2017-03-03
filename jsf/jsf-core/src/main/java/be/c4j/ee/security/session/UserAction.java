@@ -21,5 +21,5 @@ package be.c4j.ee.security.session;
 
 public enum UserAction {
 
-    FIRST_ACCESS, LOGON, LOGOUT, SESSION_END
+    FIRST_ACCESS, LOGON, LOGOUT, SESSION_END, REMEMBER_ME_LOGON
 }

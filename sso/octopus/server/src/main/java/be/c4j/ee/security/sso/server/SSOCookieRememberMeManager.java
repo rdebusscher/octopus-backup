@@ -144,7 +144,7 @@ public class SSOCookieRememberMeManager extends CookieRememberMeManager implemen
                 if (getCipherService() != null) {
                     cookieToken = new String(getCipherService().decrypt(bytes, getDecryptionCipherKey()).getBytes());
                 } else {
-                    cookieToken =  new String(bytes);
+                    cookieToken = new String(bytes);
                 }
 
                 OctopusSSOUser ssoUser = retrieveUserFromCookieToken(cookieToken, httpRequest);

@@ -18,6 +18,7 @@ package be.c4j.ee.security.session;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationToken;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -31,6 +32,7 @@ public class ApplicationUsageEvent {
     private UserAction userAction;
     private UserPrincipal userPrincipal;
     private AuthenticationToken authenticationToken;
+    private HttpServletRequest httpServletRequest;
 
     public ApplicationUsageEvent(HttpSession session, UserAction userAction) {
         this.session = session;
@@ -51,6 +53,11 @@ public class ApplicationUsageEvent {
         userAction = UserAction.LOGOUT;
     }
 
+    public ApplicationUsageEvent(HttpServletRequest httpServletRequest) {
+        this.httpServletRequest = httpServletRequest;
+        userAction = UserAction.REMEMBER_ME_LOGON;
+    }
+
     public String getSessionId() {
         return sessionId;
     }
@@ -69,5 +76,9 @@ public class ApplicationUsageEvent {
 
     public AuthenticationToken getAuthenticationToken() {
         return authenticationToken;
+    }
+
+    public HttpServletRequest getHttpServletRequest() {
+        return httpServletRequest;
     }
 }
