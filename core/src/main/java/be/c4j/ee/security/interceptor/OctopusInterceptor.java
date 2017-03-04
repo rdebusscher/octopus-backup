@@ -18,24 +18,15 @@ package be.c4j.ee.security.interceptor;
 import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
-import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
-import be.c4j.ee.security.interceptor.checks.AnnotationCheckFactory;
-import be.c4j.ee.security.interceptor.checks.SecurityCheckInfo;
-import be.c4j.ee.security.realm.OctopusPermissions;
-import be.c4j.ee.security.realm.OnlyDuringAuthentication;
-import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
-import be.c4j.ee.security.realm.OnlyDuringAuthorization;
-import be.c4j.ee.security.systemaccount.SystemAccount;
+import be.c4j.ee.security.octopus.AnnotationAuthorizationChecker;
+import be.c4j.ee.security.util.AnnotationUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.*;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 
-import javax.annotation.security.PermitAll;
 import javax.ejb.Asynchronous;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
@@ -44,7 +35,6 @@ import javax.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.Set;
 
 @Interceptor
@@ -60,7 +50,7 @@ public class OctopusInterceptor implements Serializable {
     private SecurityViolationInfoProducer infoProducer;
 
     @Inject
-    private AnnotationCheckFactory annotationCheckFactory;
+    private AnnotationAuthorizationChecker annotationAuthorizationChecker;
 
     //@PostConstruct With Weld 2.X, there seems to be an issue
     public void init(InvocationContext context) {
@@ -68,7 +58,7 @@ public class OctopusInterceptor implements Serializable {
             // WLS12C doesn't inject into interceptors
             config = BeanProvider.getContextualReference(OctopusConfig.class);
             infoProducer = BeanProvider.getContextualReference(SecurityViolationInfoProducer.class);
-            annotationCheckFactory = BeanProvider.getContextualReference(AnnotationCheckFactory.class);
+            annotationAuthorizationChecker = BeanProvider.getContextualReference(AnnotationAuthorizationChecker.class);
         }
     }
 
@@ -83,64 +73,20 @@ public class OctopusInterceptor implements Serializable {
 
         AccessDecisionVoterContext accessContext = new CustomAccessDecissionVoterContext(context);
 
-        AnnotationInfo info = getAllAnnotations(classType, method);
+        AnnotationInfo info = AnnotationUtil.getAllAnnotations(config, classType, method);
 
-        boolean accessAllowed = false;
-        OctopusUnauthorizedException exception = null;
         // We need to check at 2 levels, method and then if not present at class level
         Set<Annotation> annotations = info.getMethodAnnotations();
-        if (!annotations.isEmpty()) {
-            if (hasAnnotation(annotations, PermitAll.class)) {
-                accessAllowed = true;
-            } else {
-                Subject subject = SecurityUtils.getSubject();
-                Iterator<Annotation> annotationIterator = annotations.iterator();
 
-                while (!accessAllowed && annotationIterator.hasNext()) {
-                    Annotation annotation = annotationIterator.next();
-                    SecurityCheckInfo checkInfo = annotationCheckFactory.getCheck(annotation).performCheck(subject, accessContext, annotation);
-                    if (checkInfo.isAccessAllowed()) {
-                        accessAllowed = true;
-                    }
-                    if (checkInfo.getException() != null) {
-                        exception = checkInfo.getException();
-                    }
-
-                }
-            }
-            if (!accessAllowed && exception != null) {
-                throw exception;
-            }
-        }
+        // This method can throw already a OctopusUnauthorizedException
+        boolean accessAllowed = annotationAuthorizationChecker.checkAccess(annotations, accessContext);
 
         if (!accessAllowed) {
             // OK, at method level we didn't find any annotations.
             annotations = info.getClassAnnotations();
 
-            if (!annotations.isEmpty()) {
-                if (hasAnnotation(annotations, PermitAll.class)) {
-                    accessAllowed = true;
-                } else {
-                    Subject subject = SecurityUtils.getSubject();
-
-                    Iterator<Annotation> annotationIterator = annotations.iterator();
-
-                    while (!accessAllowed && annotationIterator.hasNext()) {
-                        Annotation annotation = annotationIterator.next();
-                        SecurityCheckInfo checkInfo = annotationCheckFactory.getCheck(annotation).performCheck(subject, accessContext, annotation);
-                        if (checkInfo.isAccessAllowed()) {
-                            accessAllowed = true;
-                        }
-                        if (checkInfo.getException() != null) {
-                            exception = checkInfo.getException();
-                        }
-
-                    }
-                }
-                if (!accessAllowed && exception != null) {
-                    throw exception;
-                }
-            }
+            // This method can throw already a OctopusUnauthorizedException
+            accessAllowed = annotationAuthorizationChecker.checkAccess(annotations, accessContext);
 
         }
         if (!accessAllowed) {
@@ -163,70 +109,4 @@ public class OctopusInterceptor implements Serializable {
         }
     }
 
-    private AnnotationInfo getAllAnnotations(Class<?> someClassType, Method someMethod) {
-        AnnotationInfo result = new AnnotationInfo();
-
-        result.addMethodAnnotation(someMethod.getAnnotation(PermitAll.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(RequiresAuthentication.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(RequiresGuest.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(RequiresUser.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(RequiresRoles.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(RequiresPermissions.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(OctopusPermissions.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(CustomVoterCheck.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(SystemAccount.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthorization.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthentication.class));
-        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthenticationEvent.class));
-        if (config.getNamedPermissionCheckClass() != null) {
-            result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
-        }
-        if (config.getNamedRoleCheckClass() != null) {
-            result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
-        }
-        result.addClassAnnotation(getAnnotation(someClassType, PermitAll.class));
-        result.addClassAnnotation(getAnnotation(someClassType, RequiresAuthentication.class));
-        result.addClassAnnotation(getAnnotation(someClassType, RequiresGuest.class));
-        result.addClassAnnotation(getAnnotation(someClassType, RequiresUser.class));
-        result.addClassAnnotation(getAnnotation(someClassType, RequiresRoles.class));
-        result.addClassAnnotation(getAnnotation(someClassType, RequiresPermissions.class));
-        result.addClassAnnotation(getAnnotation(someClassType, CustomVoterCheck.class));
-        result.addClassAnnotation(getAnnotation(someClassType, SystemAccount.class));
-        if (config.getNamedPermissionCheckClass() != null) {
-            result.addClassAnnotation(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
-        }
-        if (config.getNamedRoleCheckClass() != null) {
-            result.addClassAnnotation(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
-        }
-
-        return result;
-    }
-
-    private static <A extends Annotation> boolean hasAnnotation(Set<?> annotations, Class<A> someAnnotation) {
-        return getAnnotation(annotations, someAnnotation) != null;
-    }
-
-    private static <A extends Annotation> A getAnnotation(Class<?> someClass, Class<A> someAnnotation) {
-        A result = null;
-        if (someClass.isAnnotationPresent(someAnnotation)) {
-            result = someClass.getAnnotation(someAnnotation);
-        } else {
-            if (someClass != Object.class) {
-                result = getAnnotation(someClass.getSuperclass(), someAnnotation);
-            }
-        }
-        return result;
-    }
-
-    private static <A extends Annotation> A getAnnotation(Set<?> annotations, Class<A> someAnnotation) {
-        Object result = null;
-        Iterator<?> iter = annotations.iterator();
-        while (iter.hasNext() && result == null) {
-            Object item = iter.next();
-            if (someAnnotation.isAssignableFrom(item.getClass())) {
-                result = item;
-            }
-        }
-        return (A) result;
-    }
 }

@@ -16,13 +16,25 @@
 package be.c4j.ee.security.util;
 
 import be.c4j.ee.security.Combined;
+import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.interceptor.AnnotationInfo;
 import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.realm.OctopusPermissions;
+import be.c4j.ee.security.realm.OnlyDuringAuthentication;
+import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
+import be.c4j.ee.security.realm.OnlyDuringAuthorization;
 import be.c4j.ee.security.role.NamedRole;
+import be.c4j.ee.security.systemaccount.SystemAccount;
+import org.apache.shiro.authz.annotation.*;
 
+import javax.annotation.security.PermitAll;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.Set;
 
 public final class AnnotationUtil {
 
@@ -98,4 +110,74 @@ public final class AnnotationUtil {
         }
         return Combined.findFor(value);
     }
+
+    /* Retrieve the supported annotation enforcing authorization for the method */
+    public static AnnotationInfo getAllAnnotations(OctopusConfig config, Class<?> someClassType, Method someMethod) {
+        AnnotationInfo result = new AnnotationInfo();
+
+        result.addMethodAnnotation(someMethod.getAnnotation(PermitAll.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresAuthentication.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresGuest.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresUser.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresRoles.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(RequiresPermissions.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OctopusPermissions.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(CustomVoterCheck.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(SystemAccount.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthorization.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthentication.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthenticationEvent.class));
+        if (config.getNamedPermissionCheckClass() != null) {
+            result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedPermissionCheckClass()));
+        }
+        if (config.getNamedRoleCheckClass() != null) {
+            result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
+        }
+        result.addClassAnnotation(getAnnotation(someClassType, PermitAll.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresAuthentication.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresGuest.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresUser.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresRoles.class));
+        result.addClassAnnotation(getAnnotation(someClassType, RequiresPermissions.class));
+        result.addClassAnnotation(getAnnotation(someClassType, CustomVoterCheck.class));
+        result.addClassAnnotation(getAnnotation(someClassType, SystemAccount.class));
+        if (config.getNamedPermissionCheckClass() != null) {
+            result.addClassAnnotation(getAnnotation(someClassType, config.getNamedPermissionCheckClass()));
+        }
+        if (config.getNamedRoleCheckClass() != null) {
+            result.addClassAnnotation(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
+        }
+
+        return result;
+    }
+
+    private static <A extends Annotation> A getAnnotation(Class<?> someClass, Class<A> someAnnotation) {
+        A result = null;
+        if (someClass.isAnnotationPresent(someAnnotation)) {
+            result = someClass.getAnnotation(someAnnotation);
+        } else {
+            if (someClass != Object.class) {
+                result = getAnnotation(someClass.getSuperclass(), someAnnotation);
+            }
+        }
+        return result;
+    }
+
+    public static <A extends Annotation> boolean hasAnnotation(Set<?> annotations, Class<A> someAnnotation) {
+        return getAnnotation(annotations, someAnnotation) != null;
+    }
+
+    // TODO Review Was private and now made public but I guess it can be used elsewhere.
+    public static <A extends Annotation> A getAnnotation(Set<?> annotations, Class<A> someAnnotation) {
+        Object result = null;
+        Iterator<?> iter = annotations.iterator();
+        while (iter.hasNext() && result == null) {
+            Object item = iter.next();
+            if (someAnnotation.isAssignableFrom(item.getClass())) {
+                result = item;
+            }
+        }
+        return (A) result;
+    }
+
 }

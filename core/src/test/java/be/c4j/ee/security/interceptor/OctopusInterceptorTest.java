@@ -24,6 +24,7 @@ import be.c4j.ee.security.interceptor.checks.*;
 import be.c4j.ee.security.interceptor.testclasses.TestCustomVoter;
 import be.c4j.ee.security.interceptor.testclasses.TestPermissionCheck;
 import be.c4j.ee.security.interceptor.testclasses.TestRoleCheck;
+import be.c4j.ee.security.octopus.AnnotationAuthorizationChecker;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
@@ -265,9 +266,15 @@ public class OctopusInterceptorTest {
     protected void finishCDISetup() throws IllegalAccessException {
         beanManagerFake.endRegistration();
 
+        AnnotationAuthorizationChecker authorizationChecker = new AnnotationAuthorizationChecker();
+
         AnnotationCheckFactory checkFactory = new AnnotationCheckFactory();
         checkFactory.init();
-        ReflectionUtil.injectDependencies(octopusInterceptor, checkFactory);
+
+        ReflectionUtil.injectDependencies(authorizationChecker, checkFactory);
+
+
+        ReflectionUtil.injectDependencies(octopusInterceptor, authorizationChecker);
     }
 
     protected NamedDomainPermission getNamedDomainPermission(String permissionName) {
