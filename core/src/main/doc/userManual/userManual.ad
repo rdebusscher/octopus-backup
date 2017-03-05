@@ -101,6 +101,10 @@ include::oracleUser.adi[]
 
 include::fakeLogin.adi[]
 
+== JWT Modules
+
+include::jwtModule.adi[]
+
 == Additional Security measures (OWASP based)
 
 include::security.adi[]

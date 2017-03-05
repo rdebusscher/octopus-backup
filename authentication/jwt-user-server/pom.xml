@@ -43,16 +43,17 @@
         </dependency>
 
         <dependency>
-
-            <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>octopus-jsf-core</artifactId>
+            <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+            <artifactId>jwt-user-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-            <version>${nimbus-jose-jwt.version}</version>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

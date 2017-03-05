@@ -42,6 +42,8 @@ public class InfoForJWTUser implements OctopusDefinedAuthenticationInfo, Octopus
             infoBuilder.name(jwtUser.getName());
             infoBuilder.userName(jwtUser.getUserName());
             infoBuilder.principalId(jwtUser.getId());
+            infoBuilder.addUserInfo(UserPrincipal.EXTERNAL_ID, jwtUser.getExternalId());
+            infoBuilder.addUserInfo(jwtUser.getUserInfo());
             authenticationInfo = infoBuilder.build();
         }
         return authenticationInfo;

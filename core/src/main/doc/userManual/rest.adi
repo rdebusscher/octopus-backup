@@ -1,5 +1,229 @@
 [[REST-section]]
-For securing JAX-RS or REST endpoints, we need to add the following dependencies to the project.
+
+For securing REST (JAX-RS) endpoints there are 3 scenarios. Each of them need a specific setup which will be explained in this section.
+
+1. Server and client are both created with Octopus (Java EE 7 only !!)
+2. Server is created with Octopus, client *users* will identify itself with some token (OAuth2, KeyCloack, CAS, ...)
+3. Server is created with Octopus but client and other processes.
+
+=== Client and Server Octopus based
+
+This will be used frequently in the Self Contained Systems approach where we have different applications which work togheter.
+
+If we make all these applications with the help of Octopus, we are able to transfer the _Principal_ information from one application to another.
+
+As already mentioned above, this scenario is only possible with Java EE 7 as it is based on JAX-RS 2.0 for the communication.
+
+==== Server application
+
+This is the application which contains the JAX-RS endpoints and thus will receive the requests from the client.
+
+The _Principal_ information will be transferred by means of a JWT token.  One can decide the level of security which is placed on this token. 
+
+You can define that signing is enough, meaning that the payload can be made visible but tampering will be detected.
+
+Complete encryption (using JWE) is also possible using AES, Elliptic Curve (EC) or RSA algorithms.
+
+Add following dependency to the pom file (amongst the other dependencies)
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>jwt-user-server</artifactId>
+        <version>${octopus.version}</version>
+    </dependency>
+----
+
+It will also add some required third party dependencies like 
+*nimbus-jose-jwt* for the JWT handling and also Octopus core.
+
+The JAX-RS configuration is something which is left to the developer so that he has the complete control of how the JAX-RS endpoints are exposed and the features they have.
+
+So add at a minimum following class to your _server_ application.
+
+[source,java]
+----
+@ApplicationPath("/data")
+public class RestApplication extends Application {
+
+}
+
+----
+
+Another important part of the configuration is the definition of the filters. One of these filters (_jwtFilter_) will do the automatic authentication based on the header information.
+
+So within your _securedURLs.ini- file (or by means of the programmatic option) define for example the following rules.
+
+----
+data/** = noSessionCreation, jwtFilter
+----
+
+And the last part of the configuration is within the _octopusConfig.properties_ file. There we need to specify how the JWT we will receive will be processed.
+
+**Signing only, no encryption**
+
+----
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of such a secret.
+
+**Encryption with AES**
+
+[source,java]
+----
+jwt.algorithms=AES
+jwt.aes.secret= ...
+
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of the AES secret key.
+
+**Encryption with EC**
+
+[source,java]
+----
+jwt.algorithms=EC
+jwk.file=
+
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of the jwk file with EC private key.
+
+**Encryption with RSA**
+
+[source,java]
+----
+jwt.algorithms=RSA
+jwk.file=
+
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of the jwk file with RSA private key.
+
+TODO
+Also describe the scenarios for +x-api-key+ and +JWTClaimsHandler+
+
+This module also has a *ContainerRequestFilter* which makes it possible to use the regular annotations (like @RequiresUser,  @OctopusPermissions, @CustomVoterCheck, etc ..) to be used on the methods.
+
+So this is an example of such a JAX-RS controller.
+
+[source,java]
+----
+@Path("/hello")
+@javax.inject.Singleton
+public class HelloController {
+
+    @Inject
+    private UserPrincipal userPrincipal;
+
+    @Path("/user")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @OctopusPermissions("demo")
+    public Data getUserData() {
+        Data data = new Data();
+        data.setUserName(userPrincipal.getUserName());
+        return data;
+    }
+
+    public static class Data {
+        private String userName;
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+    }
+
+}
+----
+
+==== Client Application
+
+The client part will be used in the application which will call the JAX-RS endpoint.
+
+Code is available to make a call to the endpoint with the required headers so that _Principal_ inforation of the user who makes the call is transferred correctly to the server part.
+
+Add following dependency to the pom file (amongst the other dependencies)
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>jwt-user-client</artifactId>
+        <version>${octopus.version}</version>
+    </dependency>
+----
+
+To make a call to the JAX-RS endpoint, wit the transfer of the _Principal_ information within the header, inject the following class *be.c4j.ee.security.credentials.authentication.jwt.client.rest.OctopusJWTRestClient*
+
+The following method will call then the URL endpoint.
+
+----
+data = octopusJWTRestClient.get("http://localhost:8080/ex5_rest/data/hello/user", Data.class);
+----
+
+the _get_ method for example only needs 2 parameters (there exists overloaded versions which takes the _apiKey_ and _JWTClaimsProvider_ see ??? for the usage scenarios), the URL of the endpoint and the class containing the payload.
+
+The way how the JWT containing the _Principal_ information is send, is determined on some configuration parameters.
+
+**Signing only, no encryption**
+
+----
+jwt.algorithms=HS256
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of such a secret. The supported algorithms for signing are *HS256*, *HS384* and *HS512*.
+
+**Encryption with AES**
+
+[source,java]
+----
+jwt.algorithms=HS256 AES
+jwt.aes.secret= ...
+
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of the AES secret key.
+
+**Encryption with EC**
+
+[source,java]
+----
+jwt.algorithms=HS256 EC
+jwk.file=
+
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of the jwk file with EC public key.
+
+**Encryption with RSA**
+
+[source,java]
+----
+jwt.algorithms=HS256 RSA
+jwk.file=
+
+jwt.hmac.secret= ...
+----
+
+See ??? for the generation of the jwk file with RSA public key.
+
+
+=== Server Octopus based with end users
+
+For securing this type of JAX-RS endpoints, we need to add the following dependencies to the project.
 
 The first one is just to translate an unauthorized exception to return a 401 response with the error message in the body.
 
@@ -35,5 +259,5 @@ _GoogleAuthcFilter_ : The authentication filter which defines how the header inf
 
 _userRest_ : Translates an unauthorized exception into an HTTP response with status 401.
 
-
+=== Server Octopus based with process to process communication
 

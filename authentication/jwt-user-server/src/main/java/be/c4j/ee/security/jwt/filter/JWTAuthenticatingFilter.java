@@ -15,9 +15,16 @@
  */
 package be.c4j.ee.security.jwt.filter;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.filter.ErrorInfo;
+import be.c4j.ee.security.jwt.JWTClaimsHandler;
 import be.c4j.ee.security.jwt.JWTUser;
-import be.c4j.ee.security.jwt.config.JWTServerConfig;
-import be.c4j.ee.security.token.IncorrectDataToken;
+import be.c4j.ee.security.jwt.config.JWTOperation;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
+import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -38,9 +45,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,18 +58,29 @@ import java.util.List;
 
 public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Initializable {
 
-    private JWTServerConfig jwtServerConfig;
+    private JWTUserConfig jwtServerConfig;
+
+    private JWTClaimsHandler jwtClaimsHandler;
+
+    private JWTOperation jwtOperation;
 
     private JWSVerifier verifier;
 
+    private DecryptionHandlerFactory decryptionHandlerFactory;
+
     @Override
     public void init() throws ShiroException {
-        jwtServerConfig = BeanProvider.getContextualReference(JWTServerConfig.class);
+        jwtServerConfig = BeanProvider.getContextualReference(JWTUserConfig.class);
+        decryptionHandlerFactory = BeanProvider.getContextualReference(DecryptionHandlerFactory.class);
+
+        jwtOperation = jwtServerConfig.getJWTOperation();
+
+        jwtClaimsHandler = BeanProvider.getContextualReference(JWTClaimsHandler.class, true);
+
         try {
-            verifier = new MACVerifier(jwtServerConfig.getMACTokenSecret());
+            verifier = new MACVerifier(jwtServerConfig.getHMACTokenSecret());
         } catch (JOSEException e) {
-            // FIXME
-            e.printStackTrace();
+            throw new OctopusConfigurationException(e.getMessage());
         }
     }
 
@@ -70,23 +90,27 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         String apiKey = httpServletRequest.getHeader("x-api-key");
         String token = httpServletRequest.getHeader("Authorization");
 
-        return createOctopusUser(httpServletRequest, apiKey, token);
+        return createToken(httpServletRequest, apiKey, token);
 
     }
 
-    private AuthenticationToken createOctopusUser(HttpServletRequest request, String apiKey, String token) {
+    private AuthenticationToken createToken(HttpServletRequest request, String apiKey, String token) {
+
+        if (token == null) {
+            throw new AuthenticationException("Authorization header value incorrect");
+        }
 
         String[] parts = token.split(" ");
         if (parts.length != 2) {
-            return new IncorrectDataToken("Authorization header value incorrect");
+            throw new AuthenticationException("Authorization header value incorrect");
         }
         if (!"Bearer".equals(parts[0])) {
-            return new IncorrectDataToken("Authorization header value must start with Bearer");
+            throw new AuthenticationException("Authorization header value must start with Bearer");
         }
 
         JWTUser octopusToken = createOctopusToken(request, apiKey, parts[1]);
         if (octopusToken == null) {
-            return new IncorrectDataToken("Authentication failed");
+            throw new AuthenticationException("Authentication failed");
         }
         return octopusToken;
     }
@@ -97,46 +121,94 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
         try {
             // Parse token
-            SignedJWT signedJWT = SignedJWT.parse(token);
+            SignedJWT signedJWT;
+            if (jwtOperation == JWTOperation.JWT) {
+                signedJWT = SignedJWT.parse(token);
+            } else {
+                signedJWT = decryptToken(apiKey, token);
+            }
+
 
             if (signedJWT.verify(verifier)) {
 
                 JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
-                String jsonData = claimsSet.getSubject();
+                if (!verifyClaims(claimsSet)) {
+                    throw new AuthenticationException("Invalid token");
+                }
 
-                JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-
-                JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
+                JSONObject jsonObject = getOctopusUserJSONData(claimsSet);
 
                 user = new JWTUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
                 user.setUserName(optString(jsonObject, "userName"));
+                user.setExternalId(optString(jsonObject, "externalId"));
 
-                JSONArray roles = getJSONArray(jsonObject, "roles");
-                user.setRoles(convertToList(roles));
+                assignPermissionsAndRoles(user, jsonObject);
 
-                JSONArray permissions = getJSONArray(jsonObject, "permissions");
-                user.setPermissions(convertToList(permissions));
+                if (jwtClaimsHandler != null) {
 
+                    user.addUserInfo(jwtClaimsHandler.defineAdditionalUserInfo(user));
+                }
             }
         } catch (ParseException e) {
-            // FIXME
-            e.printStackTrace();
+            // TODO Should we log here what kind of issue. Of course don't reply to the end user with the exact issue.
+            throw new AuthenticationException("Invalid Authorization Header");
         } catch (JOSEException e) {
-            e.printStackTrace();
+            throw new AuthenticationException("Invalid Authorization Header");
         } catch (net.minidev.json.parser.ParseException e) {
-            e.printStackTrace();
+            throw new AuthenticationException("Invalid Authorization Header");
         }
 
         return user;
     }
 
+    private SignedJWT decryptToken(String apiKey, String token) {
+        SignedJWT result;
+        try {
+
+            DecryptionHandler handler = decryptionHandlerFactory.getDecryptionHandler(jwtServerConfig.getJWEAlgorithm());
+
+            result = handler.doDecryption(apiKey, token);
+
+        } catch (JOSEException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (ParseException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+
+        return result;
+    }
+
+    private void assignPermissionsAndRoles(JWTUser user, JSONObject jsonObject) {
+        JSONArray roles = getJSONArray(jsonObject, "roles");
+        user.setRoles(convertToList(roles));
+
+        JSONArray permissions = getJSONArray(jsonObject, "permissions");
+        user.setPermissions(convertToList(permissions));
+    }
+
+    private JSONObject getOctopusUserJSONData(JWTClaimsSet claimsSet) throws net.minidev.json.parser.ParseException {
+        String jsonData = claimsSet.getSubject();
+
+        JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+
+        return (JSONObject) parser.parse(jsonData);
+    }
+
+    private boolean verifyClaims(JWTClaimsSet claimsSet) {
+        Date expirationTime = claimsSet.getExpirationTime();
+        boolean result = expirationTime != null && expirationTime.after(new Date());
+
+        if (result && jwtClaimsHandler != null) {
+            result = jwtClaimsHandler.claimsAreValid(claimsSet);
+        }
+        return result;
+    }
+
     private List<String> convertToList(JSONArray array) {
-        // TODO Can this now be optimized?
         List<String> result = new ArrayList<String>();
-        int length = array.size();
-        for (int i = 0; i < length; i++) {
-            result.add(array.get(i).toString());
+        for (Object anArray : array) {
+            result.add(anArray.toString());
         }
         return result;
     }
@@ -149,7 +221,6 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
             return executeLogin(request, response);
         } else {
             throw new AuthenticationException();
-            //return false;
         }
     }
 
@@ -163,13 +234,40 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         Exception exception = existing;
         if (exception instanceof AuthenticationException) {
             try {
-                ((HttpServletResponse) response).setStatus(401);
+                ErrorInfo errorInfo = new ErrorInfo("OCT-JWT-USER-001", exception.getMessage());
+                sendErrorInfo((HttpServletResponse) response, errorInfo);
                 exception = null;
             } catch (Exception e) {
                 exception = e;
             }
         }
+
+        OctopusUnauthorizedException unauthorizedException = findOctopusUnauthorizedException(exception);
+        if (unauthorizedException != null) {
+            ErrorInfo errorInfo = new ErrorInfo("OCT-JWT-USER-011", unauthorizedException.getMessage());
+            sendErrorInfo((HttpServletResponse) response, errorInfo);
+            exception = null;
+
+        }
         super.cleanup(request, response, exception);
+    }
+
+    private void sendErrorInfo(HttpServletResponse httpServletResponse, ErrorInfo errorInfo) throws IOException {
+        httpServletResponse.setStatus(401);
+        httpServletResponse.setContentType(MediaType.APPLICATION_JSON);
+        httpServletResponse.getWriter().append(errorInfo.toJSON());
+    }
+
+    private OctopusUnauthorizedException findOctopusUnauthorizedException(Throwable throwable) {
+        OctopusUnauthorizedException result = null;
+        if (throwable instanceof OctopusUnauthorizedException) {
+            result = (OctopusUnauthorizedException) throwable;
+        } else {
+            if (throwable != null && throwable.getCause() != null) {
+                return findOctopusUnauthorizedException(throwable.getCause());
+            }
+        }
+        return result;
     }
 
     protected String getString(JSONObject jsonObject, String key) {

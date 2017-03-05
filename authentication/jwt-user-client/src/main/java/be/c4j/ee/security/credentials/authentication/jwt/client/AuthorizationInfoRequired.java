@@ -25,5 +25,5 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class AuthorizationInfoRequired implements PrincipalAuthorizationInfoAvailibility {
 
-    //Just a marker, see interface cass javadoc.
+    //Just a marker, see interface class javadoc.
 }

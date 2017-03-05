@@ -43,6 +43,7 @@
         <module>OAuth2Linkedin</module>
         <module>cas</module>
         <module>jwt</module>
+        <module>jwt-user-common</module>
         <module>jwt-user-client</module>
         <module>jwt-user-server</module>
         <module>keycloakSE</module>

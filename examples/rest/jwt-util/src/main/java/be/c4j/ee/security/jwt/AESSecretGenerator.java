@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.jwt.config;
+package be.c4j.ee.security.jwt;
 
-import be.c4j.ee.security.config.AbstractOctopusConfig;
-import be.rubus.web.jerry.config.logging.ConfigEntry;
-import be.rubus.web.jerry.config.logging.ModuleConfig;
-import org.apache.deltaspike.core.api.config.ConfigResolver;
+import com.nimbusds.jose.util.Base64;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.NoSuchAlgorithmException;
 
 /**
  *
  */
-@ApplicationScoped
-public class JWTServerConfig extends AbstractOctopusConfig implements ModuleConfig {
 
-    @ConfigEntry(noLogging = true)
-    public String getMACTokenSecret() {
-        return ConfigResolver.getPropertyValue("jwt.token.secret");
+public class AESSecretGenerator {
+
+
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        SecretKey secretKey = keyGen.generateKey();
+
+        System.out.println(Base64.encode(secretKey.getEncoded()));
     }
 
 }

@@ -137,6 +137,50 @@ Defines if the session available during login (username - password, OAuth2, KeyC
 
 This means that the user gets a new session id after login. HTTPSession attributes are copied to the new session.
 
+==== jwt.algorithms (JWT User Server and JWT User Client Only)
+
+default : *(none)*
+
+Requirements are different based on the module which uses the value.
+
+The parameter must contain a JWT Signature algorithm with the  JWT User Client module. The value is ignored in the server module.
+
+Valid values for the signature definition are HS256, HS384 and HS512.
+
+The parameter may contain a way of encryption of you also want to have the JWT with user information encrypted. It that case, definition must be done with the JWT User Server and JWT User Client module.
+
+Valid values are AES, EC and RSA.
+
+There are also other parameter required and encryption works only with the JCE installed.
+
+==== jwt.hmac.secret (JWT User Server and JWT User Client Only)
+
+default : *(none)*
+
+Required value. Used as a the secret for the HMAC calculation of the JWT signature algorithm.
+
+Based on the selected algorithm (see jwt.algorithms ) the length requirement can be different.
+
+==== jwt.aes.secret (JWT User Server and JWT User Client Only)
+
+default : *(none)*
+
+Required value when the _jwt_algorithms_ parameter contains the value *AES*. It will be used as the secret key for the AES encrryption and decryption.
+
+The value is Base64 decoded first.
+
+==== jwk.file (JWT User Server and JWT User Client Only)
+
+default : *(none)*
+
+Required value when the _jwt_algorithms_ parameter contains the value *EC* or *RSA*. It needs to indicate a JWK file location (relative and absolute path are allowed) containing the private or public part of the key for the encryption / decryption.
+
+==== jwt.token.timeToLive (JWT User Client only)
+
+default : *2*
+
+The number of seconds the generated JWT will be valid.
+
 ==== OAuth2.clientId (OAuth2 only)
 
 default : *(none)*

@@ -15,9 +15,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.config;
 
-import be.c4j.ee.security.config.AbstractOctopusConfig;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
-import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,12 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
-public class JWTClientConfig extends AbstractOctopusConfig implements ModuleConfig {
-
-    @ConfigEntry
-    public String getMACTokenSecret() {
-        return ConfigResolver.getPropertyValue("jwt.token.secret");
-    }
+public class JWTClientConfig extends JWTUserConfig {
 
     @ConfigEntry
     public int getJWTTimeToLive() {
