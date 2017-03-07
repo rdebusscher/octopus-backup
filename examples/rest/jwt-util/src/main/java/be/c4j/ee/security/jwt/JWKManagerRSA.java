@@ -34,7 +34,8 @@ public class JWKManagerRSA {
 
     public static void main(String[] args) {
         String xApiKey = UUID.randomUUID().toString();
-        JWK jwk = make(2048, KeyUse.SIGNATURE, new Algorithm("PS512"), xApiKey);
+        //JWK jwk = make(2048, KeyUse.SIGNATURE, new Algorithm("PS512"), xApiKey);
+        JWK jwk = make(2048, KeyUse.ENCRYPTION, new Algorithm("PS512"), xApiKey);
 
         System.out.println("x-api-key");
         System.out.println(xApiKey);

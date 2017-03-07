@@ -35,7 +35,8 @@ public class JWKManagerEC {
 
     public static void main(String[] args) {
         String xApiKey = UUID.randomUUID().toString();
-        JWK jwk = make(KeyUse.SIGNATURE, new Algorithm("ES512"), ECKey.Curve.P_521, xApiKey);
+        //JWK jwk = make(KeyUse.SIGNATURE, new Algorithm("ES512"), ECKey.Curve.P_521, xApiKey);
+        JWK jwk = make(KeyUse.ENCRYPTION, new Algorithm("ES512"), ECKey.Curve.P_521, xApiKey);
 
         System.out.println("x-api-key");
         System.out.println(xApiKey);
