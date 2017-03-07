@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.security.SecureRandom;
 import java.text.ParseException;
@@ -43,8 +43,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -104,7 +104,6 @@ public class JWTUserTokenTest {
     @Test(expected = OctopusConfigurationException.class)
     public void createJWTUserToken_secretTooShort() throws IllegalAccessException, ParseException {
 
-        when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
         when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(getHMACSecretShort());
 
         jwtUserToken.init();
@@ -171,7 +170,7 @@ public class JWTUserTokenTest {
         AuthorizationInfo info = builder.build();
 
         when(encryptionHandlerFactoryMock.getEncryptionHandler(JWEAlgorithm.AES)).thenReturn(encryptionHandlerMock);
-        when(encryptionHandlerMock.doEncryption(anyString(), any(SignedJWT.class))).thenReturn("The encrypted");
+        when(encryptionHandlerMock.doEncryption((String) isNull(), any(SignedJWT.class))).thenReturn("The encrypted");
         userPrincipal.addUserInfo("authorizationInfo", info);
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
@@ -205,7 +204,7 @@ public class JWTUserTokenTest {
         AuthorizationInfo info = builder.build();
 
         when(encryptionHandlerFactoryMock.getEncryptionHandler(JWEAlgorithm.AES)).thenReturn(encryptionHandlerMock);
-        when(encryptionHandlerMock.doEncryption(anyString(), any(SignedJWT.class))).thenThrow(new JOSEException("X"));
+        when(encryptionHandlerMock.doEncryption((String) isNull(), any(SignedJWT.class))).thenThrow(new JOSEException("X"));
         userPrincipal.addUserInfo("authorizationInfo", info);
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);

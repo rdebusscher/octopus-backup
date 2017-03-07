@@ -17,6 +17,7 @@ package be.c4j.test.util;
 
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -91,13 +92,14 @@ public class BeanManagerFake {
             }
         }
 
-        doAnswer(new Answer() {
+        Set<Bean<?>> beanSet = ArgumentMatchers.anySet();
+        when(beanManagerMock.resolve(beanSet)).thenAnswer(new Answer<Bean<?>>() {
             @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Set arg = (Set) invocationOnMock.getArguments()[0];
+            public Bean<?> answer(InvocationOnMock invocation) throws Throwable {
+                Set<Bean<?>> arg = (Set<Bean<?>>) invocation.getArguments()[0];
                 return arg.iterator().next();
             }
-        }).when(beanManagerMock).resolve(anySet());
+        });
 
         for (Map.Entry<String, Object> entry : registeredBeans.entrySet()) {
             Set<Bean<?>> beans = new HashSet<Bean<?>>();

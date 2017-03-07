@@ -133,6 +133,7 @@ public class OctopusInterceptorTest {
         // Define logic at subject level to see if subject has the required permission
         final NamedDomainPermission namedPermission = getNamedDomainPermission(permission);
 
+
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -147,7 +148,7 @@ public class OctopusInterceptorTest {
                 }
                 throw new IllegalArgumentException();
             }
-        }).when(subjectMock).checkPermission(any(Permission.class));
+        }).when(subjectMock).checkPermission((Permission) any());
 
 
         doAnswer(new Answer() {
@@ -168,7 +169,7 @@ public class OctopusInterceptorTest {
                 }
                 throw new IllegalArgumentException();
             }
-        }).when(subjectMock).checkPermissions(any(String[].class));
+        }).when(subjectMock).checkPermissions((String[]) any());
 
         // Define the Named permission check class
         when(octopusConfigMock.getNamedPermissionCheckClass()).thenAnswer(new Answer<Object>() {
