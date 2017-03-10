@@ -56,6 +56,15 @@
             <version>${nimbus-jose-jwt.version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -15,22 +15,17 @@
  */
 package be.c4j.ee.security.sso.server.config;
 
+import be.c4j.test.TestConfigSource;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.apache.deltaspike.core.spi.config.ConfigSource;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 13/02/17.
+ *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SSOServerConfigurationTest {
@@ -44,7 +39,7 @@ public class SSOServerConfigurationTest {
 
     @Test
     public void getSSOCookieTimeToLive_hours() {
-        defineConfigValue("8h");
+        TestConfigSource.defineConfigValue("8h");
 
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(8);
@@ -52,7 +47,7 @@ public class SSOServerConfigurationTest {
 
     @Test
     public void getSSOCookieTimeToLive_days() {
-        defineConfigValue("12d");
+        TestConfigSource.defineConfigValue("12d");
 
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(12 * 24);
@@ -60,17 +55,10 @@ public class SSOServerConfigurationTest {
 
     @Test
     public void getSSOCookieTimeToLive_months() {
-        defineConfigValue("1m");
+        TestConfigSource.defineConfigValue("1m");
 
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(24 * 30);
-    }
-
-    private void defineConfigValue(String configValue) {
-
-        List<ConfigSource> configSources = new ArrayList<ConfigSource>();
-        configSources.add(new TestConfigSource(configValue));
-        ConfigResolver.addConfigSources(configSources);
     }
 
     @Test
@@ -82,56 +70,23 @@ public class SSOServerConfigurationTest {
 
     @Test
     public void getSSOCookieTimeToLive_wrongValue() {
-        defineConfigValue("JUnit");
+        TestConfigSource.defineConfigValue("JUnit");
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(10); // Default Value
     }
 
     @Test
     public void getSSOCookieTimeToLive_Zero() {
-        defineConfigValue("0h");
+        TestConfigSource.defineConfigValue("0h");
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(10); // Default Value
     }
 
     @Test
     public void getSSOCookieTimeToLive_negative() {
-        defineConfigValue("-1D");
+        TestConfigSource.defineConfigValue("-1D");
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(10); // Default Value
     }
 
-    private class TestConfigSource implements ConfigSource {
-
-        private String configValue;
-
-        private TestConfigSource(String configValue) {
-            this.configValue = configValue;
-        }
-
-        @Override
-        public int getOrdinal() {
-            return 0;
-        }
-
-        @Override
-        public Map<String, String> getProperties() {
-            return null;
-        }
-
-        @Override
-        public String getPropertyValue(String key) {
-            return configValue;
-        }
-
-        @Override
-        public String getConfigName() {
-            return null;
-        }
-
-        @Override
-        public boolean isScannable() {
-            return false;
-        }
-    }
 }

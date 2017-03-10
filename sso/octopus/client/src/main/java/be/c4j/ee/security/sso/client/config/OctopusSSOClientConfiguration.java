@@ -76,6 +76,7 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     }
 
     @ConfigEntry
+    // FIXME Review the API key story :)
     public String getSSOApiKey() {
         return ConfigResolver.getPropertyValue("SSO.apiKey", "");
     }
@@ -96,12 +97,23 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     @ConfigEntry
     public SSOFlow getSSOType() {
-        SSOFlow ssoFlow = SSOFlow.defineFlow(ConfigResolver.getPropertyValue("SSO.flow", ""));
+        String ssoFlowParameter = defineConfigValue("SSO.flow");
+        SSOFlow ssoFlow = SSOFlow.defineFlow(ssoFlowParameter);
         if (ssoFlow == null) {
-            throw new OctopusConfigurationException("Value for SSO.flow parameter is invalid. Must be 'token' or 'code'");
+            throw new OctopusConfigurationException("Value for {SSO.application}SSO.flow parameter is invalid. Must be 'id-token' or 'code'");
         }
         return ssoFlow;
     }
+
+    @ConfigEntry
+    public String getSSOScopes() {
+        String result = defineConfigValue("SSO.scopes");
+        if (result == null) {
+            result = "";
+        }
+        return result;
+    }
+
 
     private String defineConfigValue(String configParameter) {
         String configKeyPrefix = getSSOApplication() + getSSOApplicationSuffix();

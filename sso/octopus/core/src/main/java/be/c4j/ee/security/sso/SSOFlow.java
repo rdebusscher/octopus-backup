@@ -20,7 +20,7 @@ package be.c4j.ee.security.sso;
  */
 
 public enum SSOFlow {
-    IMPLICIT("token"), AUTHORIZATION_CODE("code");
+    IMPLICIT("id-token"), AUTHORIZATION_CODE("code");
 
     private String responseType;
 

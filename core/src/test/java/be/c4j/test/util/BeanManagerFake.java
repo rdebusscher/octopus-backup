@@ -15,18 +15,22 @@
  */
 package be.c4j.test.util;
 
+import be.c4j.util.ReflectionUtil;
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.util.metadata.builder.AnnotatedTypeBuilder;
 import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.*;
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -48,7 +52,28 @@ public class BeanManagerFake {
 
         registeredObjects = new HashMap<Class<?>, List<InstanceAndQualifier>>();
         registeredBeans = new HashMap<String, Object>();
+
+        handleCreateAnnotatedTypeMethod();
+
+        when(beanManagerMock.createInjectionTarget(any(AnnotatedType.class))).thenAnswer(new Answer<InjectionTarget>() {
+            @Override
+            public InjectionTarget answer(InvocationOnMock invocation) throws Throwable {
+                return new FakeInjectionTarget((AnnotatedType) invocation.getArgument(0));
+            }
+        });
     }
+
+    private void handleCreateAnnotatedTypeMethod() {
+        when(beanManagerMock.createAnnotatedType(any(Class.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                AnnotatedTypeBuilder typeBuilder = new AnnotatedTypeBuilder();
+                typeBuilder.readFromType((Class) invocation.getArgument(0));
+                return typeBuilder.create();
+            }
+        });
+    }
+
 
     public void registerBean(Object instance, Class<?> typeToRegister) {
         registerBean(instance, typeToRegister, new AnyLiteral());
@@ -143,6 +168,63 @@ public class BeanManagerFake {
 
         public Annotation getQualifier() {
             return qualifier;
+        }
+    }
+
+
+    private class FakeInjectionTarget<T> implements InjectionTarget<T> {
+
+
+        private AnnotatedType<T> annotatedType;
+
+        public FakeInjectionTarget(AnnotatedType<T> annotatedType) {
+            this.annotatedType = annotatedType;
+        }
+
+        @Override
+        public void inject(T instance, CreationalContext<T> ctx) {
+            for (AnnotatedField<? super T> annotatedField : annotatedType.getFields()) {
+                if (annotatedField.isAnnotationPresent(Inject.class)) {
+                    List<InstanceAndQualifier> instanceAndQualifiers = registeredObjects.get(annotatedField.getBaseType());
+                    if (instanceAndQualifiers.size() != 1) {
+                        // Maybe it would be nice to have to also check on the qualifiers :)
+                        fail("Multiple candidates for injection into field " + annotatedField.getJavaMember().getName());
+                    }
+                    try {
+                        ReflectionUtil.setFieldValue(instance, annotatedField.getJavaMember().getName()
+                                , instanceAndQualifiers.get(0).getInstance());
+                    } catch (NoSuchFieldException e) {
+                        fail(e.getMessage());
+                    } catch (IllegalAccessException e) {
+                        fail(e.getMessage());
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void postConstruct(T instance) {
+
+        }
+
+        @Override
+        public void preDestroy(T instance) {
+
+        }
+
+        @Override
+        public T produce(CreationalContext<T> creationalContext) {
+            return null;
+        }
+
+        @Override
+        public void dispose(T instance) {
+
+        }
+
+        @Override
+        public Set<InjectionPoint> getInjectionPoints() {
+            return null;
         }
     }
 }

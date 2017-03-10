@@ -15,8 +15,10 @@
  */
 package be.c4j.ee.security.sso.client;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
+import be.c4j.ee.security.util.URLUtil;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -25,6 +27,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -41,65 +44,64 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
 
     private ThreadLocal<OpenIdVariableClientData> variableClientData;
 
+    private String loginURL;
+
+    @Inject
     private OctopusSSOClientConfiguration octopusSSOClientConfiguration;
+
+    @Inject
+    private URLUtil urlUtil;
 
     @Override
     public void init() throws ShiroException {
-        octopusSSOClientConfiguration = BeanProvider.getContextualReference(OctopusSSOClientConfiguration.class);
+        BeanProvider.injectFields(this);
+
         variableClientData = new ThreadLocal<OpenIdVariableClientData>();
     }
 
     @Override
     public String getLoginUrl() {
-        String loginURL = super.getLoginUrl();
+        // Since getLoginURL is called multiple times (isAccessAllowed) > optimize
+        if (this.loginURL == null) {
+            String loginURL = super.getLoginUrl();
 
-        OpenIdVariableClientData variableClientData = this.variableClientData.get();
+            OpenIdVariableClientData variableClientData = this.variableClientData.get();
 
-        AuthenticationRequest req = null;
-        try {
-            URI callback = new URI(variableClientData.getRootURL() + "/octopus/sso/SSOCallback");
-            ClientID clientId = new ClientID(octopusSSOClientConfiguration.getSSOClientId());
-            req = new AuthenticationRequest(
-                    new URI(loginURL),
-                    new ResponseType("code"),  // FIXME, config parameter
-                    Scope.parse("openid"),
-                    clientId,
-                    callback,
-                    variableClientData.getState(),
-                    variableClientData.getNonce());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            // FIXME
+            AuthenticationRequest req;
+            try {
+                URI callback = new URI(variableClientData.getRootURL() + "/octopus/sso/SSOCallback");
+                ClientID clientId = new ClientID(octopusSSOClientConfiguration.getSSOClientId());
+                req = new AuthenticationRequest(
+                        new URI(loginURL),
+                        new ResponseType(octopusSSOClientConfiguration.getSSOType().getResponseType()),
+                        Scope.parse("openid octopus " + octopusSSOClientConfiguration.getSSOScopes()),
+                        clientId,
+                        callback,
+                        variableClientData.getState(),
+                        variableClientData.getNonce());
+            } catch (URISyntaxException e) {
+                throw new OctopusUnexpectedException(e);
+            }
+
+            this.loginURL = loginURL + '?' + req.toHTTPRequest().getQuery();
         }
-
-        return loginURL + '?' + req.toHTTPRequest().getQuery();
-
+        return this.loginURL;
     }
 
     @Override
     public void prepareLoginURL(ServletRequest request, ServletResponse response) {
-        // FIXME when we integrate Shiro, update the getLoginURL with parameters so that we can have access to the request
+        if (loginURL == null) {
+            // TODO when we integrate Shiro, update the getLoginURL with parameters so that we can have access to the request
 
-        OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(determineRoot((HttpServletRequest) request));
-        this.variableClientData.set(variableClientData);
+            OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(urlUtil.determineRoot((HttpServletRequest) request));
+            this.variableClientData.set(variableClientData);
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
-        HttpSession session = httpServletRequest.getSession(true);
-        session.setAttribute(OpenIdVariableClientData.class.getName(), variableClientData);
-
+            HttpSession session = httpServletRequest.getSession(true);
+            session.setAttribute(OpenIdVariableClientData.class.getName(), variableClientData);
+        }
     }
-
-    protected String determineRoot(HttpServletRequest req) {
-        // FIXME Duplicate with OAuth2ServiceProducer
-        StringBuilder result = new StringBuilder();
-        result.append(req.getScheme()).append("://");
-        result.append(req.getServerName()).append(':');
-        result.append(req.getServerPort());
-        result.append(req.getContextPath());
-        return result.toString();
-    }
-
 
     @Override
     protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
