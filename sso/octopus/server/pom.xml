@@ -40,6 +40,13 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- TODO Why is this not included as transitive dependency -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>5.24</version>
+        </dependency>
+
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>octopus-core</artifactId>

@@ -22,6 +22,10 @@ import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.server.rest.RestUserInfoProvider;
+import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.RequiresUser;
 import org.slf4j.Logger;
@@ -36,7 +40,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +62,9 @@ public class OctopusSSOEndpoint {
     @Inject
     private SSOPermissionProvider ssoPermissionProvider;
 
+    @Inject
+    private SSOTokenStore tokenStore;
+
     private RestUserInfoProvider userInfoProvider;
 
     private PrincipalUserInfoJSONProvider userInfoJSONProvider;
@@ -79,21 +85,42 @@ public class OctopusSSOEndpoint {
     @RequiresUser
     public String getUserInfo() {
 
+        // FIXME take into consideration the scope values.
+        //When scope contains octopus -> always signed or encrypted. and not JSON by default !!!
         showDebugInfo(ssoUser);
-        Map<String, Serializable> info = new HashMap<String, Serializable>(ssoUser.getUserInfo());
+
+        //
+        IDTokenClaimsSet idTokenClaimsSet = tokenStore.getIdTokenByAccessCode(ssoUser.getBearerAccessToken().getValue());
+
+        JWTClaimsSet jwtClaimsSet = null;
+        try {
+            jwtClaimsSet = idTokenClaimsSet.toJWTClaimsSet();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            // FIXME
+        }
+
+
+        Map<String, Object> info = new HashMap<String, Object>(ssoUser.getUserInfo());
         info.remove("token"); // FIXME Create constant
         info.remove("upstreamToken"); // FIXME Create constant
+
         if (userInfoProvider != null) {
             info.putAll(userInfoProvider.defineInfo(ssoUser));
         }
 
+        for (Map.Entry<String, Object> entry : jwtClaimsSet.getClaims().entrySet()) {
+            info.put(entry.getKey(), entry.getValue());
+        }
+
         return ssoUser.toJSON(info, userInfoJSONProvider);
+
     }
 
     private void showDebugInfo(OctopusSSOUser user) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("Returning user info for  %s (token = %s)", user.getFullName(), user.getToken()));
+            logger.info(String.format("Returning user info for  %s (token = %s)", user.getFullName(), user.getAccessToken()));
         }
     }
 

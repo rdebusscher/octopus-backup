@@ -19,9 +19,9 @@
 package be.c4j.ee.security.sso.rest.reflect;
 
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -487,12 +487,12 @@ public final class Property implements AnnotatedElement {
 
 
     /**
-     * Added by as it is a convenience method for several places in the Octopus code.
+     * Added as it is a convenience method for several places in the Octopus code.
      *
      * @param value
      * @return
      */
-    public static boolean isBasicPropertyType(Serializable value) {
+    public static boolean isBasicPropertyType(Object value) {
         if (value == null) {
             return true;
         }
@@ -500,7 +500,7 @@ public final class Property implements AnnotatedElement {
     }
 
     /**
-     * Added by as it is a convenience method for several places in the Octopus code.
+     * Added as it is a convenience method for several places in the Octopus code.
      *
      * @param classType
      * @return
@@ -514,6 +514,13 @@ public final class Property implements AnnotatedElement {
             result = true;
         }
         if (classType.equals(Boolean.class) || classType.equals(boolean.class)) {
+            result = true;
+        }
+        if (classType.equals(Date.class)) {
+            result = true;
+        }
+
+        if (List.class.isAssignableFrom(classType)) {
             result = true;
         }
         return result;

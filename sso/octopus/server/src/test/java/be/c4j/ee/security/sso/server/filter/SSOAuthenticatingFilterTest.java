@@ -22,6 +22,7 @@ import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
 import be.c4j.test.util.BeanManagerFake;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.junit.After;
 import org.junit.Before;
@@ -162,6 +163,7 @@ public class SSOAuthenticatingFilterTest {
         when(ssoDataEncryptionHandlerMock.validate(null, "token")).thenReturn(true);
         when(ssoDataEncryptionHandlerMock.decryptData("token", null)).thenReturn(REAL_TOKEN);
         OctopusSSOUser user = new OctopusSSOUser();
+        user.setBearerAccessToken(new BearerAccessToken());
         when(tokenStore.getUserByAccessCode(REAL_TOKEN)).thenReturn(user);
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);

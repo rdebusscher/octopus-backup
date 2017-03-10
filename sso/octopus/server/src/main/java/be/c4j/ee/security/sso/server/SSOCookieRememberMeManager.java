@@ -20,7 +20,6 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.cookie.SSOHelper;
-import be.c4j.ee.security.sso.server.filter.DuringAuthenticationFilter;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.sso.server.store.TokenStoreInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -51,7 +50,7 @@ import static be.c4j.ee.security.realm.AuthenticationInfoBuilder.DEFAULT_REALM;
 
 public class SSOCookieRememberMeManager extends CookieRememberMeManager implements Initializable {
 
-    private Logger logger = LoggerFactory.getLogger(DuringAuthenticationFilter.class);
+    private Logger logger = LoggerFactory.getLogger(SSOCookieRememberMeManager.class);
 
     private OctopusConfig octopusConfig;
     private SSOServerConfiguration ssoServerConfiguration;
@@ -193,11 +192,10 @@ public class SSOCookieRememberMeManager extends CookieRememberMeManager implemen
     private void showDebugInfo(OctopusSSOUser user) {
         if (octopusConfig == null) {
             octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
-            logger = LoggerFactory.getLogger(DuringAuthenticationFilter.class);
         }
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated from SSO Cookie %s", user.getFullName(), user.getToken()));
+            logger.info(String.format("User %s is authenticated from SSO Cookie %s", user.getFullName(), user.getAccessToken()));
         }
     }
 

@@ -19,6 +19,7 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.reflect.Property;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
 import net.minidev.json.parser.JSONParser;
@@ -45,7 +46,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
     private String id;
     private String localId;
     private String userName;
-    private String token;
+    private BearerAccessToken bearerAccessToken;
 
     private String lastName;
     private String firstName;
@@ -53,7 +54,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     private String email;
 
-    private Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
+    private Map<String, Object> userInfo = new HashMap<String, Object>();
 
     public String getId() {
         return id;
@@ -79,12 +80,16 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         this.userName = userName;
     }
 
-    public String getToken() {
-        return token;
+    public BearerAccessToken getBearerAccessToken() {
+        return bearerAccessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setBearerAccessToken(BearerAccessToken bearerAccessToken) {
+        this.bearerAccessToken = bearerAccessToken;
+    }
+
+    public String getAccessToken() {
+        return bearerAccessToken.getValue();
     }
 
     public String getLastName() {
@@ -123,17 +128,15 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         userInfo.put(key, value);
     }
 
-    public void addUserInfo(Map<String, Serializable> info) {
-        for (Map.Entry<String, Serializable> entry : info.entrySet()) {
-            userInfo.put(entry.getKey(), entry.getValue());
-        }
+    public void addUserInfo(Map<String, Object> info) {
+        userInfo.putAll(info);
     }
 
     public boolean isLoggedOn() {
         return id != null;
     }
 
-    public Map<String, Serializable> getUserInfo() {
+    public Map<String, Object> getUserInfo() {
         return userInfo;
     }
 
@@ -142,7 +145,6 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         final StringBuilder sb = new StringBuilder("OctopusSSOUser{");
         sb.append("id='").append(id).append('\'');
         sb.append(", localId='").append(localId).append('\'');
-        sb.append(", token='").append(token).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
         sb.append(", fullName='").append(fullName).append('\'');
         sb.append(", email='").append(email).append('\'');
@@ -170,14 +172,14 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     @Override
     public Object getCredentials() {
-        return token;
+        return bearerAccessToken;
     }
 
-    public <T extends Serializable> T getUserInfo(String key) {
+    public <T> T getUserInfo(String key) {
         return (T) userInfo.get(key);
     }
 
-    public String toJSON(Map<String, Serializable> info, PrincipalUserInfoJSONProvider jsonProvider) {
+    public String toJSON(Map<String, Object> info, PrincipalUserInfoJSONProvider jsonProvider) {
         JSONObject result = new JSONObject();
         result.put("id", id);
         result.put("localId", localId);
@@ -188,8 +190,9 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         result.put("fullName", fullName);
         result.put("email", email);
 
-        for (Map.Entry<String, Serializable> infoEntry : info.entrySet()) {
-            Serializable value = infoEntry.getValue();
+        for (Map.Entry<String, Object> infoEntry : info.entrySet()) {
+
+            Object value = infoEntry.getValue();
             if (Property.isBasicPropertyType(value)) {
                 result.put(infoEntry.getKey(), value);
             } else {

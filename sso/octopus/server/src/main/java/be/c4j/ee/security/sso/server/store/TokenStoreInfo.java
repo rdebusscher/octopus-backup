@@ -17,7 +17,9 @@ package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -35,6 +37,8 @@ public class TokenStoreInfo {
     private String userAgent;
     private String remoteHost;
 
+    private List<OIDCStoreData> oidcStoreData;
+
     public TokenStoreInfo(OctopusSSOUser octopusSSOUser, String clientId, String cookieToken, String userAgent, String remoteHost) {
         this.octopusSSOUser = octopusSSOUser;
         clientIds = new HashSet<String>();
@@ -42,6 +46,8 @@ public class TokenStoreInfo {
         this.cookieToken = cookieToken;
         this.userAgent = userAgent;
         this.remoteHost = remoteHost;
+
+        oidcStoreData = new ArrayList<OIDCStoreData>();
     }
 
     public OctopusSSOUser getOctopusSSOUser() {
@@ -54,6 +60,15 @@ public class TokenStoreInfo {
 
     public void addClientId(String clientId) {
         clientIds.add(clientId);
+    }
+
+    public void addOIDCStoreData(OIDCStoreData oidcStoreData) {
+        this.oidcStoreData.add(oidcStoreData);
+    }
+
+    public OIDCStoreData getOIDCStoreData() {
+        return oidcStoreData.get(0);  // TODO Verify but there should always be 1 there.
+        // TODO Verify what happens if user logs out and afterwards a request comes in with the AccessCode
     }
 
     public String getCookieToken() {

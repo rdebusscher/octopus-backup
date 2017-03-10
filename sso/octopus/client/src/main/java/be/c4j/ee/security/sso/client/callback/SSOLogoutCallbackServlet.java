@@ -73,7 +73,7 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
                 Object token = userPrincipal.getUserInfo("token");
                 if (token instanceof OctopusSSOUser) {
                     OctopusSSOUser ssoUser = (OctopusSSOUser) token;
-                    result = ssoUser.getToken().equals(realToken);
+                    result = ssoUser.getAccessToken().equals(realToken);
                 }
                 return result;
             }

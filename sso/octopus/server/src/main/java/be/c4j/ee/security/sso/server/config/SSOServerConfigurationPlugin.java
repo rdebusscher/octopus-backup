@@ -19,7 +19,7 @@ import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.config.PluginOrder;
 import be.c4j.ee.security.sso.server.SSOCookieRememberMeManager;
-import be.c4j.ee.security.sso.server.filter.DuringAuthenticationFilter;
+import be.c4j.ee.security.sso.server.filter.OIDCEndpointFilter;
 import be.c4j.ee.security.sso.server.filter.SSOAuthenticatingFilter;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -40,12 +40,12 @@ public class SSOServerConfigurationPlugin implements ConfigurationPlugin {
     @Override
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
-        // TODO Confusing Names
+
         mainSection.put("ssoFilter", SSOAuthenticatingFilter.class.getName());
-        mainSection.put("ssoAuthFilter", DuringAuthenticationFilter.class.getName());
+        mainSection.put("oidcFilter", OIDCEndpointFilter.class.getName());
 
         // We need a reference to the User filter. That one knows the correct loginURL (for example CAS is calculated at runtime)
-        mainSection.put("ssoAuthFilter.userFilter", "$user");
+        mainSection.put("oidcFilter.userFilter", "$user");
 
 
         mainSection.put("ssoRememberMe", SSOCookieRememberMeManager.class.getName());

@@ -22,7 +22,6 @@ import be.c4j.ee.security.model.UserPrincipal;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,11 +31,11 @@ import java.util.Map;
 @ApplicationScoped
 public class ExternalInternalIdMapper {
 
-    private Map<String, Serializable> idMap;
+    private Map<String, Object> idMap;
 
     @PostConstruct
     public void init() {
-        idMap = new HashMap<String, Serializable>();
+        idMap = new HashMap<String, Object>();
     }
 
     public void onLogon(@Observes LogonEvent logonEvent) {
@@ -49,7 +48,7 @@ public class ExternalInternalIdMapper {
 
     public String getLocalId(String id) {
         String result = null;
-        Serializable value = idMap.get(id);
+        Object value = idMap.get(id);
         if (value != null) {
             result = value.toString();
         }

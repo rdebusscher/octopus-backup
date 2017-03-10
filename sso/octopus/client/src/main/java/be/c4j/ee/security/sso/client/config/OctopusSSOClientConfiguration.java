@@ -29,20 +29,26 @@ import javax.enterprise.inject.Specializes;
 @Specializes
 public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
-    private String loginPage;
     private String logoutPage;
 
 
     @Override
     public String getLoginPage() {
-        if (loginPage == null) {
 
-            String url = getSSOServer() + "/octopus/sso/authenticate";
+        return getSSOServer() + "/octopus/sso/authenticate";
 
-            loginPage = url + "?client_id=" + getSSOClientId() + "&response_type=" + getSSOType().getResponseType();
+    }
 
-        }
-        return loginPage;
+    public String getTokenEndpoint() {
+
+        return getSSOServer() + "/octopus/sso/token";
+
+    }
+
+    public String getUserInfoEndpoint() {
+
+        return getSSOServer() + "/data/octopus/sso/user";
+
     }
 
     @Override
@@ -53,7 +59,6 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
         }
         return logoutPage;
     }
-
 
     @ConfigEntry
     public String getSSOServer() {

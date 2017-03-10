@@ -92,7 +92,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
         UserPrincipal userPrincipal = (UserPrincipal) principals.getPrimaryPrincipal();
         OctopusSSOUser ssoUser = userPrincipal.getUserInfo("token");
-        String realToken = ssoUser.getToken();
+        String realToken = ssoUser.getAccessToken();
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
             logger.info(String.format("Retrieving authorization info for user %s from Octopus SSO Server", ssoUser.getFullName()));

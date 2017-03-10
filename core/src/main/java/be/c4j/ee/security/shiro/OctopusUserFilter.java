@@ -73,7 +73,7 @@ public class OctopusUserFilter extends UserFilter {
         } else {
             Subject subject = getSubject(request, response);
             // If principal is not null, then the user is known and should be allowed access.
-            return subject.getPrincipal() != null && subject.isAuthenticated();
+            return subject.getPrincipal() != null && (subject.isAuthenticated() || subject.isRemembered());
         }
     }
 

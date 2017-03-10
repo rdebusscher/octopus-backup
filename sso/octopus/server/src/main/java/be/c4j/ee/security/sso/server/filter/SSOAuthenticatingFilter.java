@@ -68,6 +68,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     }
 
     private AuthenticationToken createSSOUser(HttpServletRequest request, String apiKey, String token) {
+
         if (encryptionHandler != null && encryptionHandler.requiresApiKey() && apiKey == null) {
             // x-api-key header parameter is required.
             return new IncorrectDataToken("x-api-key header required");
@@ -106,8 +107,10 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         } else {
             accessToken = token;
         }
+
         OctopusSSOUser user = tokenStore.getUserByAccessCode(accessToken);
-        if (user != null && !accessToken.equals(user.getToken())) {
+
+        if (user != null && !accessToken.equals(user.getAccessToken())) {
             logger.warn("Token used as key in tokenStore returned a SSOUser with a different Token ");
         }
         if (user == null) {
@@ -125,7 +128,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         }
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated from Authorization Header (token = %s)", user.getFullName(), user.getToken()));
+            logger.info(String.format("User %s is authenticated from Authorization Header (token = %s)", user.getFullName(), user.getAccessToken()));
         }
     }
 

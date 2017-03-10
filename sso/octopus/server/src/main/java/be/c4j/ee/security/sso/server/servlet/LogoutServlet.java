@@ -91,7 +91,7 @@ public class LogoutServlet extends HttpServlet {
             ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(loggedInClient);
             // FIXME usie clientInfo.isOctopusClient
             // FIXME Use encryptionHandler in some cases!
-            String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + octopusSSOUser.getToken();
+            String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + octopusSSOUser.getAccessToken();
             sendLogoutRequestToClient(url);
         }
     }
@@ -133,7 +133,7 @@ public class LogoutServlet extends HttpServlet {
     private void showDebugInfo(OctopusSSOUser user) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is logged out (token = %s)", user.getFullName(), user.getToken()));
+            logger.info(String.format("User %s is logged out (token = %s)", user.getFullName(), user.getAccessToken()));
         }
     }
 }

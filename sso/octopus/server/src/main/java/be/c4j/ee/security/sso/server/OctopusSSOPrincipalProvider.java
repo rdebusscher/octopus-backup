@@ -18,12 +18,9 @@ package be.c4j.ee.security.sso.server;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
-import be.c4j.ee.security.sso.server.token.SSOTokenProvider;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.Serializable;
-import java.util.UUID;
 
 /**
  *
@@ -31,14 +28,11 @@ import java.util.UUID;
 @ApplicationScoped
 public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
 
-    @Inject
-    private SSOTokenProvider ssoTokenProvider;
-
     @Override
     public OctopusSSOUser createSSOPrincipal(UserPrincipal userPrincipal) {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
 
-        Serializable localId = userPrincipal.getInfo().get(OctopusSSOUser.LOCAL_ID);
+        Object localId = userPrincipal.getInfo().get(OctopusSSOUser.LOCAL_ID);
         if (localId == null) {
             localId = userPrincipal.getId();
         }
@@ -48,7 +42,11 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
             externalId = userPrincipal.getId().toString();
         }
         ssoUser.setId(externalId);
-        ssoUser.setFullName(userPrincipal.getFullName());
+        String name = userPrincipal.getFullName();
+        if (name == null) {
+            name = userPrincipal.getName();
+        }
+        ssoUser.setFullName(name);
         ssoUser.setFirstName(userPrincipal.getFirstName());
         ssoUser.setLastName(userPrincipal.getLastName());
         ssoUser.setEmail(userPrincipal.getEmail());
@@ -57,9 +55,9 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
         // TODO Would we retrieve the complete object from the userInfo ?
         Object token = userPrincipal.getUserInfo("token");
         if (!(token instanceof OctopusSSOUser)) {
-            ssoUser.setToken(ssoTokenProvider.getTokenPrefix() + UUID.randomUUID().toString());
+            ssoUser.setBearerAccessToken(new BearerAccessToken());  // FIXME Length from Config and scope from request!!
         } else {
-            ssoUser.setToken(((OctopusSSOUser) token).getToken());
+            ssoUser.setBearerAccessToken(((OctopusSSOUser) token).getBearerAccessToken());
         }
 
         ssoUser.addUserInfo(userPrincipal.getInfo());

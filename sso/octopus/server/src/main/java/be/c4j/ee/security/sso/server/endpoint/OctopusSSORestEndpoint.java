@@ -109,11 +109,11 @@ public class OctopusSSORestEndpoint {
 
             if (userPrincipal != null) {
                 OctopusSSOUser user = ssoPrincipalProvider.createSSOPrincipal(userPrincipal);
-                tokenStore.keepToken(new TokenStoreInfo(user, null,  null,null, null));
+                tokenStore.keepToken(new TokenStoreInfo(user, null, null, null, null));
 
                 activeSessionRegistry.startSession(userPrincipal.getId().toString(), userPrincipal);
 
-                result = encryptionHandler.encryptData(user.getToken(), apiKey);
+                result = encryptionHandler.encryptData(user.getAccessToken(), apiKey);
             }
         }
         if (result == null) {

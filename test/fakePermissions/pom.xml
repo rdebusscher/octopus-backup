@@ -38,8 +38,8 @@
 
 
         <dependency>
-            <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>octopus-sso-client</artifactId>
+            <groupId>be.c4j.ee.security.octopus.sso</groupId>
+            <artifactId>octopus-client</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

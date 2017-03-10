@@ -40,7 +40,7 @@ public class UserPrincipal implements Principal, Serializable {
     private boolean systemAccount = false;
     private Boolean needsTwoStepAuthentication;
 
-    private Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
+    private Map<String, Object> userInfo = new HashMap<String, Object>();
 
     // Weld needs this to make a proxy
     public UserPrincipal() {
@@ -96,7 +96,7 @@ public class UserPrincipal implements Principal, Serializable {
         userInfo.put(key, value);
     }
 
-    public void addUserInfo(Map<String, ? extends Serializable> values) {
+    public void addUserInfo(Map<String, Object> values) {
         userInfo.putAll(values);
     }
 
@@ -104,7 +104,7 @@ public class UserPrincipal implements Principal, Serializable {
         return (T) userInfo.get(key);
     }
 
-    public Map<String, Serializable> getInfo() {
+    public Map<String, Object> getInfo() {
         return userInfo;
     }
 
@@ -125,32 +125,32 @@ public class UserPrincipal implements Principal, Serializable {
     }
 
     public String getMobileNumber() {
-        Serializable value = userInfo.get(MOBILE_NUMBER);
+        Object value = userInfo.get(MOBILE_NUMBER);
         return value == null ? null : value.toString();
     }
 
     public String getFirstName() {
-        Serializable value = userInfo.get(FIRST_NAME);
+        Object value = userInfo.get(FIRST_NAME);
         return value == null ? null : value.toString();
     }
 
     public String getLastName() {
-        Serializable value = userInfo.get(LAST_NAME);
+        Object value = userInfo.get(LAST_NAME);
         return value == null ? null : value.toString();
     }
 
     public String getFullName() {
-        Serializable value = userInfo.get(FULL_NAME);
+        Object value = userInfo.get(FULL_NAME);
         return value == null ? null : value.toString();
     }
 
     public String getEmail() {
-        Serializable value = userInfo.get(EMAIL);
+        Object value = userInfo.get(EMAIL);
         return value == null ? null : value.toString();
     }
 
     public String getExternalId() {
-        Serializable value = userInfo.get(EXTERNAL_ID);
+        Object value = userInfo.get(EXTERNAL_ID);
         return value == null ? null : value.toString();
     }
 

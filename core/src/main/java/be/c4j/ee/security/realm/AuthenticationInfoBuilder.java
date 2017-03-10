@@ -42,7 +42,7 @@ public class AuthenticationInfoBuilder {
     private Object password;
     private String realmName = DEFAULT_REALM;
     private ByteSource salt;
-    private Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
+    private Map<String, Object> userInfo = new HashMap<String, Object>();
     private boolean externalPasswordCheck = false;
     private Boolean needs2StepAuthentication;
 

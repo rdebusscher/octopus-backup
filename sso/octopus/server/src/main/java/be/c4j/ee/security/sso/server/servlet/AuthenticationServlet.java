@@ -19,13 +19,27 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
-import be.c4j.ee.security.sso.SSOFlow;
-import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.OIDCErrorMessage;
 import be.c4j.ee.security.sso.server.SSOProducerBean;
+import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
+import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
+import com.nimbusds.oauth2.sdk.AbstractRequest;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.ResponseMode;
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.AuthenticationErrorResponse;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
+import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +50,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -54,8 +71,6 @@ public class AuthenticationServlet extends HttpServlet {
     @Inject
     private SSOTokenStore tokenStore;
 
-    private SSODataEncryptionHandler encryptionHandler;
-
     @Inject
     private ClientInfoRetriever clientInfoRetriever;
 
@@ -65,59 +80,103 @@ public class AuthenticationServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse response) throws ServletException, IOException {
         // We can't inject the OctopusSSOUSer because we then get a Proxy which is stored.
         // Bad things will happen ....
         OctopusSSOUser ssoUser = ssoProducerBean.getOctopusSSOUser();
 
-        String apiKey = request.getParameter("apiKey");
-        String clientId = request.getParameter("client_id");
-        String responseType = request.getParameter("response_type");
-        String state = request.getParameter("state");
+        AuthenticationRequest request = (AuthenticationRequest) httpServletRequest.getAttribute(AbstractRequest.class.getName());
 
-        tokenStore.addLoginFromClient(ssoUser, clientId);
+        AuthenticationErrorResponse errorResponse = null;
 
-        // clientId is never encrypted
-        String callback = clientInfoRetriever.retrieveInfo(clientId).getCallbackURL() + "/octopus/sso/SSOCallback";
+        // FIXME Move these checks to the OIDCFilter
+        String clientId = request.getClientID().getValue();
+        ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientId);
 
-        SSOFlow ssoFlow = SSOFlow.defineFlow(responseType);
+        if (clientInfo == null) {
+            errorResponse = defineError(request, OIDCErrorMessage.AUTHENTICATE_UNKNOWN_CLIENT_ID);
+        }
 
-        String code = createCode(ssoUser, apiKey, ssoFlow);
-        // Code can optionally be wrapped in JWT (only when implicit and encryption handler is available)
+        if (errorResponse == null) {
 
-        callback += determineParametersCallback(ssoFlow, code, state);
+            URI redirectURI = request.getRedirectionURI();
+            if (!clientInfo.getCallbackURL().equals(redirectURI.toString())
+                    && !((clientInfo.getCallbackURL() + "/octopus/sso/SSOCallback").equals(redirectURI.toString()))) {
+                errorResponse = defineError(request, OIDCErrorMessage.AUTHENTICATE_UNKNOWN_REDIRECT_URI);
+            }
+        }
+
+
+        AuthenticationSuccessResponse successResponse = null;
+        if (errorResponse == null) {
+            AuthorizationCode authorizationCode = null;
+            AccessToken accessToken = null;
+
+            IDTokenClaimsSet claimsSet = defineIDToken(httpServletRequest, ssoUser, request, clientId);
+
+            OIDCStoreData oidcStoreData = new OIDCStoreData();
+            oidcStoreData.setIdTokenClaimsSet(claimsSet);
+
+            if (request.getResponseType().impliesCodeFlow()) {
+                authorizationCode = new AuthorizationCode();
+                oidcStoreData.setAuthorizationCode(authorizationCode);  // FIXME length from config
+
+                // implicit -> onmiddelijk idToken
+                // code flow -> fist code, then exchanged to accessToken/idToken
+            } else {
+                accessToken = ssoUser.getBearerAccessToken();
+            }
+
+            tokenStore.addLoginFromClient(ssoUser, clientId, oidcStoreData);
+
+            State state = request.getState();
+
+            successResponse = new AuthenticationSuccessResponse(request.getRedirectionURI(), authorizationCode, null, accessToken, state, null, ResponseMode.QUERY);
+
+        }
 
         try {
+            if (errorResponse != null) {
+                errorResponse.toHTTPRequest().send();
+            } else {
+                String callback = successResponse.toURI().toString();
 
-            showDebugInfo(ssoUser);
-            response.sendRedirect(callback);
+                showDebugInfo(ssoUser);
+                response.sendRedirect(callback);
 
-            request.getSession().invalidate();  // Don't keep the session on the SSO server
-            //SecurityUtils.getSubject().logout();// Do not use logout of subject, it wil remove the cookie which we need !
+                //SecurityUtils.getSubject().logout();// Do not use logout of subject, it wil remove the cookie which we need !
+            }
         } catch (IOException e) {
             // OWASP A6 : Sensitive Data Exposure
             throw new OctopusUnexpectedException(e);
 
+        } finally {
+            httpServletRequest.getSession().invalidate();  // Don't keep the session on the SSO server
         }
     }
 
-    private String determineParametersCallback(SSOFlow ssoFlow, String code, String state) {
-        StringBuilder result = new StringBuilder();
-        switch (ssoFlow) {
+    private IDTokenClaimsSet defineIDToken(HttpServletRequest httpServletRequest, OctopusSSOUser ssoUser, AuthenticationRequest request, String clientId) {
+        Nonce nonce = request.getNonce();
 
-            case IMPLICIT:
-                result.append("?access_token=").append(code);
-                break;
-            case AUTHORIZATION_CODE:
-                result.append("?code=").append(code);
-                break;
-        }
-        result.append("&state=").append(state);
-        return result.toString();
+        Issuer iss = new Issuer(determineRoot(httpServletRequest));
+        Subject sub = new Subject(ssoUser.getName());
+        List<Audience> audList = new Audience(clientId).toSingleAudienceList();
+        Date exp = new Date();
+        Date iat = new Date(1000L);
+
+        IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(iss, sub, audList, exp, iat);
+
+        claimsSet.setNonce(nonce);
+        return claimsSet;
+    }
+
+    private AuthenticationErrorResponse defineError(AuthenticationRequest request, OIDCErrorMessage errorMessage) {
+        ErrorObject errorObject = new ErrorObject(errorMessage.getCode(), errorMessage.getMessage());
+        return new AuthenticationErrorResponse(request.getRedirectionURI(), errorObject, request.getState(), request.getResponseMode());
+
     }
 
     private void showDebugInfo(OctopusSSOUser user) {
@@ -126,20 +185,13 @@ public class AuthenticationServlet extends HttpServlet {
         }
     }
 
-    private String createCode(OctopusSSOUser ssoUser, String apiKey, SSOFlow ssoFlow) {
-        String result;
-        String token = ssoUser.getToken();
-        if (ssoFlow == SSOFlow.IMPLICIT) {
-            // Only in IMPLICIT mode we can have an encrypted Token
-            if (encryptionHandler != null) {
-                result = encryptionHandler.encryptData(token, apiKey);
-            } else {
-                result = token;
-            }
-        } else {
-            result = token;
-        }
-        return result;
-
+    protected String determineRoot(HttpServletRequest req) {
+        // FIXME Duplicate with OAuth2ServiceProducer
+        StringBuilder result = new StringBuilder();
+        result.append(req.getScheme()).append("://");
+        result.append(req.getServerName()).append(':');
+        result.append(req.getServerPort());
+        result.append(req.getContextPath());
+        return result.toString();
     }
 }

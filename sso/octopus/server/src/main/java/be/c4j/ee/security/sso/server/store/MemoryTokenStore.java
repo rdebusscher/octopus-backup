@@ -16,6 +16,8 @@
 package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.*;
@@ -26,21 +28,36 @@ import java.util.*;
 @ApplicationScoped
 public class MemoryTokenStore implements SSOTokenStore {
 
-    private Map<String, OctopusSSOUser> byAccessCode = new HashMap<String, OctopusSSOUser>();
+    private Map<String, TokenStoreInfo> byAccessCode = new HashMap<String, TokenStoreInfo>();
     private Map<String, TokenStoreInfo> byCookieCode = new HashMap<String, TokenStoreInfo>();
+    private Map<String, OIDCStoreData> byAuthorizationCode = new HashMap<String, OIDCStoreData>();
 
 
     @Override
     public void keepToken(TokenStoreInfo tokenStoreInfo) {
         OctopusSSOUser octopusSSOUser = tokenStoreInfo.getOctopusSSOUser();
-        byAccessCode.put(octopusSSOUser.getToken(), octopusSSOUser);
+        byAccessCode.put(octopusSSOUser.getAccessToken(), tokenStoreInfo);
         byCookieCode.put(tokenStoreInfo.getCookieToken(), tokenStoreInfo);
+
     }
 
     @Override
-    public OctopusSSOUser getUserByAccessCode(String token) {
-        return byAccessCode.get(token);
+    public OctopusSSOUser getUserByAccessCode(String accessCode) {
+        OctopusSSOUser result = null;
+        TokenStoreInfo tokenStoreInfo = byAccessCode.get(accessCode);
+        if (tokenStoreInfo != null) {
+            result = tokenStoreInfo.getOctopusSSOUser();
+        }
+        return result;
 
+    }
+
+    @Override
+    public IDTokenClaimsSet getIdTokenByAccessCode(String accessCode) {
+        TokenStoreInfo tokenStoreInfo = byAccessCode.get(accessCode);
+
+        // FIXME Gives null pointer when user has already logged out
+        return tokenStoreInfo.getOIDCStoreData().getIdTokenClaimsSet();
     }
 
     @Override
@@ -50,7 +67,7 @@ public class MemoryTokenStore implements SSOTokenStore {
 
     @Override
     public void removeUser(OctopusSSOUser octopusSSOUser) {
-        byAccessCode.remove(octopusSSOUser.getToken());
+        byAccessCode.remove(octopusSSOUser.getAccessToken());
         for (Map.Entry<String, TokenStoreInfo> entry : byCookieCode.entrySet()) {
             if (entry.getValue().getOctopusSSOUser().equals(octopusSSOUser)) {
                 byCookieCode.remove(entry.getKey());
@@ -59,11 +76,19 @@ public class MemoryTokenStore implements SSOTokenStore {
     }
 
     @Override
-    public void addLoginFromClient(OctopusSSOUser ssoUser, String clientId) {
+    public void addLoginFromClient(OctopusSSOUser ssoUser, String clientId, OIDCStoreData oidcStoreData) {
         TokenStoreInfo storeInfo = findStoreInfo(ssoUser);
         if (storeInfo != null) {
             // TODO We should always find an entry
             storeInfo.addClientId(clientId);
+            storeInfo.addOIDCStoreData(oidcStoreData);
+
+            oidcStoreData.setAccessCode(ssoUser.getBearerAccessToken());
+
+            AuthorizationCode authorizationCode = oidcStoreData.getAuthorizationCode();
+            if (authorizationCode != null) {
+                byAuthorizationCode.put(authorizationCode.getValue(), oidcStoreData);
+            }
         }
     }
 
@@ -77,6 +102,11 @@ public class MemoryTokenStore implements SSOTokenStore {
             }
         }
         return result;
+    }
+
+    @Override
+    public OIDCStoreData getOIDCDataByAuthorizationCode(AuthorizationCode authorizationCode) {
+        return byAuthorizationCode.get(authorizationCode.getValue());
     }
 
     @Override
