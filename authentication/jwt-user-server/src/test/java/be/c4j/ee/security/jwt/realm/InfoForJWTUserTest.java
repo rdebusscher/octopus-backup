@@ -17,12 +17,13 @@ package be.c4j.ee.security.jwt.realm;
 
 import be.c4j.ee.security.jwt.JWTUser;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.test.util.BeanManagerFake;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import sun.security.acl.PrincipalImpl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,9 +41,19 @@ public class InfoForJWTUserTest {
 
     private InfoForJWTUser infoForJWTUser;
 
+    private BeanManagerFake beanManagerFake;
+
     @Before
     public void setup() {
         infoForJWTUser = new InfoForJWTUser();
+
+        beanManagerFake = new BeanManagerFake();
+        beanManagerFake.endRegistration();
+    }
+
+    @After
+    public void tearDown() {
+        beanManagerFake.deregistration();
     }
 
     @Test
@@ -78,7 +89,7 @@ public class InfoForJWTUserTest {
     @Test
     public void getAuthorizationInfo_WrongPrincipal() {
 
-        AuthorizationInfo info = infoForJWTUser.getAuthorizationInfo(new PrincipalImpl("X"));
+        AuthorizationInfo info = infoForJWTUser.getAuthorizationInfo(new Object());
         assertThat(info).isNull();
     }
 

@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.role.filter;
 
+import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
@@ -36,21 +37,33 @@ public class NamedRoleFilter extends AuthorizationFilter {
             Exception {
         Subject subject = getSubject(request, response);
         String[] roles = (String[]) mappedValue;
-        checkLookup();
+
 
         boolean permitted = true;
         for (String role : roles) {
-            if (!subject.isPermitted(roleLookup.getRole(role))) {
+            if (!subject.isPermitted(getRolePermission(role))) {
                 permitted = false;
             }
         }
         return permitted;
     }
 
+    private NamedApplicationRole getRolePermission(String role) {
+        NamedApplicationRole result;
+        checkLookup();
+
+        if (roleLookup == null) {
+            // TODO Should we cache these instances somewhere? (memory improvement)
+            result = new NamedApplicationRole(role);
+        } else {
+            result = roleLookup.getRole(role);
+        }
+        return result;
+    }
+
     private void checkLookup() {
         // We can't do this in onFilterConfigSet as it is to soon.  Not available at that time
         if (roleLookup == null) {
-            // at this time, we need the lookup to be present, otherwise the rest of the isAccessAllowed() method doesn't make much sense.
             roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
         }
     }

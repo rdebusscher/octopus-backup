@@ -21,8 +21,6 @@ package be.c4j.ee.security.role;
 
 public class SimpleNamedRole implements NamedRole {
 
-
-    // TODO Correct usage with RoleLookuo and RoleMappingToPermission
     private String name;
 
     public SimpleNamedRole(String name) {

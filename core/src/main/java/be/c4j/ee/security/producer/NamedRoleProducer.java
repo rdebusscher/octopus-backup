@@ -17,7 +17,6 @@ package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
-import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
@@ -78,19 +77,21 @@ public class NamedRoleProducer {
         Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedRoleCheckClass());
         if (annotation == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for NamedApplicationRole needs an additional " + config.getNamedPermissionCheck() +
+                    "Injection points for NamedApplicationRole needs an additional " + config.getNamedRoleCheck() +
                             " annotation to determine the correct bean");
         }
         NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
         if (roles.length > 1) {
             throw new AmbiguousResolutionException("Only one named role can be specified.");
         }
+        NamedApplicationRole result;
 
         if (lookup == null) {
-            throw new OctopusConfigurationException("A @Producer needs to be defined for RoleLookup");
+            result = new NamedApplicationRole(roles[0].name());
+        } else {
+            result = lookup.getRole(roles[0].name());
         }
-
-        return lookup.getRole(roles[0].name());
+        return result;
 
     }
 

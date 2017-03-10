@@ -17,7 +17,9 @@ package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.test.util.BeanManagerFake;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,9 +36,20 @@ public class AuthorizationInfoBuilderTest {
 
     private AuthorizationInfoBuilder builder;
 
+    private BeanManagerFake beanManagerFake;
+
     @Before
     public void setup() {
+
+        beanManagerFake = new BeanManagerFake();
+        beanManagerFake.endRegistration();
+
         builder = new AuthorizationInfoBuilder();
+    }
+
+    @After
+    public void tearDown() {
+        beanManagerFake.deregistration();
     }
 
     @Test

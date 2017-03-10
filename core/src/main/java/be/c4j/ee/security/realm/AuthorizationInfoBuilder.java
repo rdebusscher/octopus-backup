@@ -18,13 +18,16 @@ package be.c4j.ee.security.realm;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.role.SimpleNamedRole;
 import be.c4j.ee.security.util.CDIUtil;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.authz.permission.RolePermissionResolver;
 
 import javax.enterprise.inject.Typed;
 import java.util.Collection;
@@ -39,9 +42,11 @@ import java.util.Set;
 public class AuthorizationInfoBuilder {
 
     private RoleLookup roleLookup;
+    private RolePermissionResolver rolePermissionResolver;
 
     public AuthorizationInfoBuilder() {
         roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
+        rolePermissionResolver = BeanProvider.getContextualReference(RolePermissionResolver.class, true);
     }
 
     private Set<Permission> permissionsAndRoles = new HashSet<Permission>();
@@ -79,12 +84,28 @@ public class AuthorizationInfoBuilder {
     }
 
     public AuthorizationInfoBuilder addRole(NamedRole namedRole) {
-        // FIXME Need to use RolePermissionResolver
-        if (roleLookup == null) {
-            throw new OctopusConfigurationException("A @Producer needs to be defined for RoleLookup");
+        if (roleLookup == null && rolePermissionResolver == null) {
+            throw new OctopusConfigurationException("A @Producer needs to be defined for RoleLookup or CDI bean implementing RolePermissionResolver");
         }
 
-        permissionsAndRoles.add(roleLookup.getRole(namedRole.name()));
+        boolean resolved = false;
+        if (rolePermissionResolver != null) {
+            Collection<Permission> permissions = rolePermissionResolver.resolvePermissionsInRole(namedRole.name());
+            if (permissions != null && !permissions.isEmpty()) {
+                permissionsAndRoles.addAll(permissions);
+                resolved = true;
+            }
+        }
+
+        if (!resolved) {
+            if (roleLookup == null) {
+                // No roleLookup specified, use the default logic.
+                permissionsAndRoles.add(new NamedApplicationRole(namedRole.name()));
+            } else {
+                permissionsAndRoles.add(roleLookup.getRole(namedRole.name()));
+            }
+        }
+
         return this;
     }
 

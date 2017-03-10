@@ -26,11 +26,14 @@ import be.c4j.ee.security.jwt.config.JWTSignature;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
+import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.codec.Base64;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -67,6 +70,20 @@ public class JWTUserTokenTest {
 
     @InjectMocks
     private JWTUserToken jwtUserToken;
+
+    private BeanManagerFake beanManagerFake;
+
+    @Before
+    public void setup() {
+
+        beanManagerFake = new BeanManagerFake();
+        beanManagerFake.endRegistration();
+    }
+
+    @After
+    public void tearDown() {
+        beanManagerFake.deregistration();
+    }
 
     @Test
     public void createJWTUserToken_happyCase() throws IllegalAccessException, ParseException {

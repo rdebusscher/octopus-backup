@@ -22,6 +22,7 @@ import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.role.GenericRoleVoter;
+import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
@@ -155,10 +156,12 @@ public class OctopusBaseExtension implements Extension {
             // The producer of this RoleLookup goes to the database and this isn't possible until we are completely ready.
             RoleLookup<? extends NamedRole> roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
             if (roleLookup == null) {
-                throw new OctopusConfigurationException("When using the named roles, please configure them with the RoleLookup.  See manual ??? TODO");
-            }
+                // TODO Should we cache these instances somewhere? (memory improvement)
+                result.setNamedRole(new NamedApplicationRole(namedRole.name()));
+            } else {
 
-            result.setNamedRole(roleLookup.getRole(namedRole.name()));
+                result.setNamedRole(roleLookup.getRole(namedRole.name()));
+            }
             return result;
         }
 
