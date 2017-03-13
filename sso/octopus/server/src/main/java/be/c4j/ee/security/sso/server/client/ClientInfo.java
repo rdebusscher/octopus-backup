@@ -15,21 +15,44 @@
  */
 package be.c4j.ee.security.sso.server.client;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  *
  */
 public class ClientInfo {
 
-
     private String callbackURL;
     private boolean octopusClient;
+    private String idtokenSecret;
 
     public String getCallbackURL() {
         return callbackURL;
     }
 
+    public String getActualCallbackURL() {
+        if (octopusClient) {
+            return callbackURL + "/octopus/sso/SSOCallback";
+        } else {
+            return callbackURL;
+        }
+    }
+
     public void setCallbackURL(String callbackURL) {
-        this.callbackURL = callbackURL;
+        URI uri;
+        try {
+            uri = new URI(callbackURL);
+        } catch (URISyntaxException e) {
+            // As we should have checked that it is a valid URL
+            throw new OctopusUnexpectedException(e);
+        }
+        this.callbackURL = uri.normalize().toString();
+        if (this.callbackURL.endsWith("/")) {
+            this.callbackURL = this.callbackURL.substring(0, this.callbackURL.length() - 1);
+        }
     }
 
     public boolean isOctopusClient() {
@@ -38,5 +61,13 @@ public class ClientInfo {
 
     public void setOctopusClient(boolean octopusClient) {
         this.octopusClient = octopusClient;
+    }
+
+    public String getIdtokenSecret() {
+        return idtokenSecret;
+    }
+
+    public void setIdtokenSecret(String idtokenSecret) {
+        this.idtokenSecret = idtokenSecret;
     }
 }

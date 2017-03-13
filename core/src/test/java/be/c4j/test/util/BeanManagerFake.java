@@ -186,6 +186,9 @@ public class BeanManagerFake {
             for (AnnotatedField<? super T> annotatedField : annotatedType.getFields()) {
                 if (annotatedField.isAnnotationPresent(Inject.class)) {
                     List<InstanceAndQualifier> instanceAndQualifiers = registeredObjects.get(annotatedField.getBaseType());
+                    if (instanceAndQualifiers == null) {
+                        fail("No candidates for injection into field " + annotatedField.getJavaMember().getName());
+                    }
                     if (instanceAndQualifiers.size() != 1) {
                         // Maybe it would be nice to have to also check on the qualifiers :)
                         fail("Multiple candidates for injection into field " + annotatedField.getJavaMember().getName());

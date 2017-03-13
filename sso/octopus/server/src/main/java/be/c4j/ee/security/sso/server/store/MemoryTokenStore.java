@@ -32,15 +32,6 @@ public class MemoryTokenStore implements SSOTokenStore {
     private Map<String, TokenStoreInfo> byCookieCode = new HashMap<String, TokenStoreInfo>();
     private Map<String, OIDCStoreData> byAuthorizationCode = new HashMap<String, OIDCStoreData>();
 
-
-    @Override
-    public void keepToken(TokenStoreInfo tokenStoreInfo) {
-        OctopusSSOUser octopusSSOUser = tokenStoreInfo.getOctopusSSOUser();
-        byAccessCode.put(octopusSSOUser.getAccessToken(), tokenStoreInfo);
-        byCookieCode.put(tokenStoreInfo.getCookieToken(), tokenStoreInfo);
-
-    }
-
     @Override
     public OctopusSSOUser getUserByAccessCode(String accessCode) {
         OctopusSSOUser result = null;
@@ -76,20 +67,27 @@ public class MemoryTokenStore implements SSOTokenStore {
     }
 
     @Override
-    public void addLoginFromClient(OctopusSSOUser ssoUser, String clientId, OIDCStoreData oidcStoreData) {
+    public void addLoginFromClient(OctopusSSOUser ssoUser, String cookieToken, String userAgent, String remoteHost, OIDCStoreData oidcStoreData) {
+
         TokenStoreInfo storeInfo = findStoreInfo(ssoUser);
-        if (storeInfo != null) {
-            // TODO We should always find an entry
-            storeInfo.addClientId(clientId);
-            storeInfo.addOIDCStoreData(oidcStoreData);
 
-            oidcStoreData.setAccessCode(ssoUser.getBearerAccessToken());
+        if (storeInfo == null) {
+            // First logon
+            storeInfo = new TokenStoreInfo(ssoUser, cookieToken, userAgent, remoteHost);
 
-            AuthorizationCode authorizationCode = oidcStoreData.getAuthorizationCode();
-            if (authorizationCode != null) {
-                byAuthorizationCode.put(authorizationCode.getValue(), oidcStoreData);
-            }
+            byAccessCode.put(ssoUser.getAccessToken(), storeInfo);
+            byCookieCode.put(cookieToken, storeInfo);
         }
+
+        storeInfo.addOIDCStoreData(oidcStoreData);
+
+        //oidcStoreData.setAccessCode(ssoUser.getBearerAccessToken());
+
+        AuthorizationCode authorizationCode = oidcStoreData.getAuthorizationCode();
+        if (authorizationCode != null) {
+            byAuthorizationCode.put(authorizationCode.getValue(), oidcStoreData);
+        }
+
     }
 
     private TokenStoreInfo findStoreInfo(OctopusSSOUser ssoUser) {

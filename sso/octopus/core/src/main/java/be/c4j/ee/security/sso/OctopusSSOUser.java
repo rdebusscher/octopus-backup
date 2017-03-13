@@ -47,6 +47,7 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
     private String localId;
     private String userName;
     private BearerAccessToken bearerAccessToken;
+    private String cookieToken;
 
     private String lastName;
     private String firstName;
@@ -90,6 +91,14 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     public String getAccessToken() {
         return bearerAccessToken.getValue();
+    }
+
+    public String getCookieToken() {
+        return cookieToken;
+    }
+
+    public void setCookieToken(String cookieToken) {
+        this.cookieToken = cookieToken;
     }
 
     public String getLastName() {

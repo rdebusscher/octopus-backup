@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.sso;
+package be.c4j.ee.security.util;
 
-import be.c4j.ee.security.model.UserPrincipal;
+import javax.enterprise.context.ApplicationScoped;
+import java.util.Date;
 
 /**
- * Creates the SSOPrincipal based from the UserPrincipal.
- * SSO Principal is used for some specific SSO features.
+ *
  */
+@ApplicationScoped
+public class TimeUtil {
 
-public interface SSOPrincipalProvider {
+    public Date addSecondsToDate(int seconds, Date beforeTime) {
 
-    Object createSSOPrincipal(UserPrincipal userPrincipal);
+        long curTimeInMs = beforeTime.getTime();
+        return new Date(curTimeInMs + (seconds * 1000));
+    }
+
 }

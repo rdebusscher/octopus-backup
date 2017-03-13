@@ -15,45 +15,59 @@
  */
 package be.c4j.ee.security.sso.server.filter;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.cookie.SSOHelper;
 import be.c4j.ee.security.sso.server.token.OIDCEndpointToken;
-import com.nimbusds.oauth2.sdk.AbstractRequest;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
+import com.nimbusds.openid.connect.sdk.AuthenticationErrorResponse;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.UserFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 
 /**
- *
+ * Filter for the Authenticate and token endpoint.
  */
 public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OIDCEndpointFilter.class);
+
     private OctopusUserFilter octopusUserFilter;
 
+    @Inject
     private SSOHelper ssoHelper;
+
+    @Inject
+    private ClientInfoRetriever clientInfoRetriever;
 
     @Override
     public void init() throws ShiroException {
-        ssoHelper = BeanProvider.getContextualReference(SSOHelper.class);
+        BeanProvider.injectFields(this);
     }
 
     @Override
@@ -63,19 +77,22 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
         String requestURI = httpServletRequest.getRequestURI();
 
-        System.out.println(requestURI);
-        boolean result = false;
+        ErrorInfo errorInfo = null;
+        EndpointType endpointType = null;
         if (requestURI.endsWith("authenticate")) {
-            result = checksForAuthenticateEndpoint(httpServletRequest);
+            errorInfo = checksForAuthenticateEndpoint(httpServletRequest);
+            endpointType = EndpointType.AUTHENTICATE;
         }
 
         if (requestURI.endsWith("token")) {
-            result = checksForTokenEndpoint(httpServletRequest);
+            errorInfo = checksForTokenEndpoint(httpServletRequest);
+            endpointType = EndpointType.TOKEN;
         }
 
-
-        if (!result) {
-            showErrorMessage((HttpServletResponse) response);
+        boolean result;
+        if (errorInfo != null) {
+            showErrorMessage((HttpServletResponse) response, endpointType, errorInfo);
+            result = false;
         } else {
 
             // Here we do the default login, including a redirect to login if needed or authenticate from cookie.
@@ -84,7 +101,40 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
         return result;
     }
 
-    private boolean checksForTokenEndpoint(HttpServletRequest httpServletRequest) {
+    private void showErrorMessage(HttpServletResponse response, EndpointType endpointType, ErrorInfo errorInfo) {
+
+
+        switch (endpointType) {
+
+            case AUTHENTICATE:
+                if (errorInfo.getRedirectURI() == null) {
+                    // We don't have a valid redirectURI, so we can only replay in the current response.
+                    try {
+                        response.getWriter().println(errorInfo.getErrorObject().getDescription());
+                    } catch (IOException e) {
+                        throw new OctopusUnexpectedException(e);
+                    }
+                } else {
+                    AuthenticationErrorResponse errorResponse = new AuthenticationErrorResponse(errorInfo.getRedirectURI(), errorInfo.getErrorObject(), errorInfo.getState(), ResponseMode.QUERY);
+
+                    try {
+                        response.sendRedirect(errorResponse.toHTTPResponse().getLocation().toString());
+                    } catch (IOException e) {
+                        throw new OctopusUnexpectedException(e);
+                    }
+                }
+                break;
+            case TOKEN:
+                TokenErrorResponse tokenErrorResponse = new TokenErrorResponse(errorInfo.getErrorObject());
+                System.out.println(tokenErrorResponse.toJSONObject()); // FIXME
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("EndpointType %s not supported", endpointType));
+        }
+
+    }
+
+    private ErrorInfo checksForTokenEndpoint(HttpServletRequest httpServletRequest) {
 
         boolean result = true;
 
@@ -98,9 +148,6 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
             String query = httpServletRequest.getReader().readLine();
 
-            System.out.println(query);
-
-            System.out.println(URLUtils.parseParameters(query));
             httpRequest.setQuery(query);
 
             tokenRequest = TokenRequest.parse(httpRequest);
@@ -130,61 +177,45 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
             // Disable the SessionHijacking filter on this request.
             httpServletRequest.setAttribute("sh" + ALREADY_FILTERED_SUFFIX, Boolean.TRUE);
         }
-        return result;
+        return null;
     }
 
-    private boolean checksForAuthenticateEndpoint(HttpServletRequest httpServletRequest) {
+    private ErrorInfo checksForAuthenticateEndpoint(HttpServletRequest httpServletRequest) {
         String query = httpServletRequest.getQueryString();
 
-        boolean result = true;
         // Decode the query string
-        AuthenticationRequest request = null;
+        AuthenticationRequest request;
         try {
             request = AuthenticationRequest.parse(query);
-            // TODO Catch exception?
         } catch (ParseException e) {
-            result = false;
-            e.printStackTrace();
+            LOGGER.info(e.getMessage());
+            Map<String, String> queryParameters = URLUtils.parseParameters(query);
+            return new ErrorInfo(queryParameters, e.getErrorObject());
         }
 
 
         String clientId = request.getClientID().getValue();
 
-        /*
-
-        if (responseType != null && responseType.trim().length() > 1) {
-            // If response_type is specified, it need to be a valid value.
-            // But logout for example doesn't need to parameter.
-            SSOFlow ssoFlow = SSOFlow.defineFlow(responseType);
-            if (ssoFlow == null) {
-                // response_type query parameter is required and needs to be a valid value
-                result = false;
-            }
-        }
-        */
-
         // Check to see if the application is configured
-        if (result) {
-            ClientInfoRetriever clientInfoRetriever = BeanProvider.getContextualReference(ClientInfoRetriever.class);
-            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientId);
-            if (clientInfo == null) {
-                result = false;
-            }
+        ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientId);
+        if (clientInfo == null) {
+            String msg = "Unknown \"client_id\" parameter value";
+            LOGGER.info(msg + " = " + clientId);
+            return new ErrorInfo(request, OAuth2Error.INVALID_CLIENT.appendDescription(": " + msg));
         }
 
-        if (result) {
-            ssoHelper.markAsSSOLogin(httpServletRequest, clientId);
-            httpServletRequest.setAttribute(AbstractRequest.class.getName(), request);
+
+        if (!request.getRedirectionURI().toString().equals(clientInfo.getActualCallbackURL())) {
+            String msg = "Unknown \"redirect_uri\" parameter value";
+            LOGGER.info(msg + " = " + clientId);
+            return new ErrorInfo(request, OAuth2Error.INVALID_CLIENT.appendDescription(": " + msg));
         }
 
-        return result;
-    }
 
-    private void showErrorMessage(HttpServletResponse response) throws IOException {
-        response.reset();
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.setContentType("text/plain");
-        response.getWriter().write("Missing some required parameter(s) or configuration. Is Octopus SSO Client and Server correctly configured?");
+        ssoHelper.markAsSSOLogin(httpServletRequest, clientId);
+        httpServletRequest.setAttribute(AbstractRequest.class.getName(), request);
+
+        return null;
     }
 
     @Override
@@ -205,5 +236,59 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
     public void setUserFilter(OctopusUserFilter userFilter) {
         this.octopusUserFilter = userFilter;
+    }
+
+    enum EndpointType {
+        AUTHENTICATE, TOKEN
+    }
+
+    private class ErrorInfo {
+
+        private URI redirectURI;
+        private State state;
+        private ErrorObject errorObject;
+
+        public ErrorInfo(Map<String, String> queryParameters, ErrorObject errorObject) {
+            state = State.parse(queryParameters.get("state"));
+            redirectURI = getRedirectURI(queryParameters);
+            this.errorObject = errorObject;
+        }
+
+        public ErrorInfo(AuthenticationRequest request, ErrorObject errorObject) {
+            state = request.getState();
+            redirectURI = request.getRedirectionURI();
+            this.errorObject = errorObject;
+        }
+
+        private URI getRedirectURI(Map<String, String> queryParameters) {
+            String paramValue = queryParameters.get("redirect_uri");
+
+            URI result = null;
+
+            if (StringUtils.isNotBlank(paramValue)) {
+
+                try {
+                    result = new URI(paramValue);
+
+                } catch (URISyntaxException e) {
+                    // It is possible that the RP send an invalid redirectURI
+                }
+            }
+
+            return result;
+
+        }
+
+        public URI getRedirectURI() {
+            return redirectURI;
+        }
+
+        public State getState() {
+            return state;
+        }
+
+        public ErrorObject getErrorObject() {
+            return errorObject;
+        }
     }
 }

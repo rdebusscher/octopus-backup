@@ -22,6 +22,7 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.util.TimeUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -56,6 +57,9 @@ public class JWTUserToken {
     @Inject
     private EncryptionHandlerFactory encryptionHandlerFactory;
 
+    @Inject
+    private TimeUtil timeUtil;
+
     private JWTOperation jwtOperation;
 
     private JWSSigner signer;
@@ -83,7 +87,7 @@ public class JWTUserToken {
         Date issueTime = new Date();
         claimSetBuilder.issueTime(issueTime);
 
-        claimSetBuilder.expirationTime(addSecondsToDate(jwtClientConfig.getJWTTimeToLive(), issueTime));
+        claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(jwtClientConfig.getJWTTimeToLive(), issueTime));
 
         if (claimsProvider != null) {
             Map<String, Object> claims = claimsProvider.defineAdditionalClaims(userPrincipal);
@@ -121,13 +125,6 @@ public class JWTUserToken {
             throw new OctopusUnexpectedException(e);
         }
         return result;
-    }
-
-
-    private static Date addSecondsToDate(int seconds, Date beforeTime) {
-
-        long curTimeInMs = beforeTime.getTime();
-        return new Date(curTimeInMs + (seconds * 1000));
     }
 
     private String definePayload() {

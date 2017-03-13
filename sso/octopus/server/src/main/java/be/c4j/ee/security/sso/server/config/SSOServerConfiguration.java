@@ -16,11 +16,11 @@
 package be.c4j.ee.security.sso.server.config;
 
 import be.c4j.ee.security.config.AbstractOctopusConfig;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Specializes;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,5 +80,22 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
     public String getSSOCookieSecure() {
         return ConfigResolver.getPropertyValue("SSO.cookie.secure", "true");
     }
+
+    @ConfigEntry
+    public int getOIDCTokenLength() {
+        String propertyValue = ConfigResolver.getPropertyValue("SSO.token.length", "32");
+        int result;
+        try {
+            result = Integer.valueOf(propertyValue);
+        } catch (NumberFormatException e) {
+            throw new OctopusConfigurationException("Configuration parameter value 'SSO.token.length' must be numeric and larger then 31");
+        }
+
+        if (result < 32) {
+            throw new OctopusConfigurationException("Configuration parameter value 'SSO.token.length' must be numeric and larger then 31");
+        }
+        return result;
+    }
+
 
 }

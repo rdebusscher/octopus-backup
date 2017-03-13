@@ -31,7 +31,6 @@ public class TokenStoreInfo {
 
     private OctopusSSOUser octopusSSOUser;
 
-    private Set<String> clientIds;
     private String cookieToken;
 
     private String userAgent;
@@ -39,10 +38,9 @@ public class TokenStoreInfo {
 
     private List<OIDCStoreData> oidcStoreData;
 
-    public TokenStoreInfo(OctopusSSOUser octopusSSOUser, String clientId, String cookieToken, String userAgent, String remoteHost) {
+    public TokenStoreInfo(OctopusSSOUser octopusSSOUser, String cookieToken, String userAgent, String remoteHost) {
         this.octopusSSOUser = octopusSSOUser;
-        clientIds = new HashSet<String>();
-        clientIds.add(clientId);
+
         this.cookieToken = cookieToken;
         this.userAgent = userAgent;
         this.remoteHost = remoteHost;
@@ -55,11 +53,12 @@ public class TokenStoreInfo {
     }
 
     public Set<String> getClientIds() {
-        return clientIds;
-    }
+        Set<String> result = new HashSet<String>();
 
-    public void addClientId(String clientId) {
-        clientIds.add(clientId);
+        for (OIDCStoreData oidcStoreDatum : oidcStoreData) {
+            result.add(oidcStoreDatum.getClientId().getValue());
+        }
+        return result;
     }
 
     public void addOIDCStoreData(OIDCStoreData oidcStoreData) {
@@ -97,7 +96,7 @@ public class TokenStoreInfo {
     private String clientIdsLogValue() {
 
         StringBuilder result = new StringBuilder();
-        for (String clientId : clientIds) {
+        for (String clientId : getClientIds()) {
             if (result.length() > 0) {
                 result.append(", ");
             }

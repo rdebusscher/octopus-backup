@@ -26,8 +26,6 @@ import java.util.Set;
  */
 public interface SSOTokenStore {
 
-    void keepToken(TokenStoreInfo tokenStoreInfo);
-
     OctopusSSOUser getUserByAccessCode(String accessCode);
 
     IDTokenClaimsSet getIdTokenByAccessCode(String accessCode);
@@ -38,7 +36,7 @@ public interface SSOTokenStore {
 
     void removeUser(OctopusSSOUser octopusSSOUser);
 
-    void addLoginFromClient(OctopusSSOUser ssoUser, String clientId, OIDCStoreData oidcStoreData);
+    void addLoginFromClient(OctopusSSOUser ssoUser, String cookieToken, String userAgent, String remoteHost, OIDCStoreData oidcStoreData);
 
     Set<String> getLoggedInClients(OctopusSSOUser octopusSSOUser);
 }

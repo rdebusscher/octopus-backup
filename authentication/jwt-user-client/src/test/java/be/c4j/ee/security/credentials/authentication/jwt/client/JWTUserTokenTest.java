@@ -26,6 +26,7 @@ import be.c4j.ee.security.jwt.config.JWTSignature;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
+import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
 import com.nimbusds.jose.JOSEException;
@@ -74,9 +75,12 @@ public class JWTUserTokenTest {
     private BeanManagerFake beanManagerFake;
 
     @Before
-    public void setup() {
+    public void setup() throws IllegalAccessException {
 
         beanManagerFake = new BeanManagerFake();
+
+        ReflectionUtil.injectDependencies(jwtUserToken, new TimeUtil());
+
         beanManagerFake.endRegistration();
     }
 

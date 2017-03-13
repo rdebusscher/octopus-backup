@@ -99,29 +99,20 @@ public class SSOCookieRememberMeManager extends CookieRememberMeManager implemen
         OctopusSSOUser ssoUser = accountPrincipals.oneByType(OctopusSSOUser.class);
         if (ssoUser != null) {
 
-            HttpServletRequest servletRequest = WebUtils.getHttpRequest(subject);
-            String clientId = ssoHelper.getSSOClientId(subject);
-
             // FIXME Don't create a new Cookie token when authenticated from the cookie
-            TokenStoreInfo tokenInfo = defineTokenStoreInfo(ssoUser, servletRequest, clientId);
-            tokenStore.keepToken(tokenInfo);
+            String cookieToken = UUID.randomUUID().toString();
+            ssoUser.setCookieToken(cookieToken);
 
             byte[] bytes;
             if (getCipherService() != null) {
-                bytes = getCipherService().encrypt(tokenInfo.getCookieToken().getBytes(), getDecryptionCipherKey()).getBytes();
+                bytes = getCipherService().encrypt(cookieToken.getBytes(), getDecryptionCipherKey()).getBytes();
             } else {
-                bytes = tokenInfo.getCookieToken().getBytes();
+                bytes = cookieToken.getBytes();
             }
 
             rememberSerializedIdentity(subject, bytes);
         }
 
-    }
-
-    private TokenStoreInfo defineTokenStoreInfo(OctopusSSOUser ssoUser, HttpServletRequest request, String clientId) {
-        String remoteHost = request.getRemoteAddr();
-        String userAgent = request.getHeader("User-Agent");
-        return new TokenStoreInfo(ssoUser, clientId, UUID.randomUUID().toString(), userAgent, remoteHost);
     }
 
     public PrincipalCollection getRememberedPrincipals(SubjectContext subjectContext) {

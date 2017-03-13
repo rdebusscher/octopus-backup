@@ -38,8 +38,10 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
         result.put("/data/octopus/**", "noSessionCreation, ssoFilter, user");
         // URL related to OpenId Connect
         result.put("/octopus/sso/logout", "userRequired");  // So we need a user (from cookie) to be able to logout
-        // TODO More specific URLs?
-        result.put("/octopus/**", "oidcFilter");
+
+        result.put("/octopus/sso/authenticate", "oidcFilter");
+        result.put("/octopus/sso/token", "oidcFilter");
+        result.put("/octopus/**", "none");
 
         return result;
     }

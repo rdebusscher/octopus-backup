@@ -18,7 +18,6 @@ package be.c4j.ee.security.sso.server;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -30,6 +29,13 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
 
     @Override
     public OctopusSSOUser createSSOPrincipal(UserPrincipal userPrincipal) {
+        Object token = userPrincipal.getUserInfo("token");
+        if (token instanceof OctopusSSOUser) {
+            // This is the case when we authenticate from SSOAuthenticatingFilter
+            // We can just take that value, no need to recreate the object from scratch.
+            return (OctopusSSOUser) token;
+        }
+
         OctopusSSOUser ssoUser = new OctopusSSOUser();
 
         Object localId = userPrincipal.getInfo().get(OctopusSSOUser.LOCAL_ID);
@@ -51,14 +57,6 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
         ssoUser.setLastName(userPrincipal.getLastName());
         ssoUser.setEmail(userPrincipal.getEmail());
         ssoUser.setUserName(userPrincipal.getUserName());
-
-        // TODO Would we retrieve the complete object from the userInfo ?
-        Object token = userPrincipal.getUserInfo("token");
-        if (!(token instanceof OctopusSSOUser)) {
-            ssoUser.setBearerAccessToken(new BearerAccessToken());  // FIXME Length from Config and scope from request!!
-        } else {
-            ssoUser.setBearerAccessToken(((OctopusSSOUser) token).getBearerAccessToken());
-        }
 
         ssoUser.addUserInfo(userPrincipal.getInfo());
         return ssoUser;
