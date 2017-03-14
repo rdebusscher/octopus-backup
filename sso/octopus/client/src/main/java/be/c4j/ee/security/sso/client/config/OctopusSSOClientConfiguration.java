@@ -95,6 +95,15 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
         return ssoClientId;
     }
 
+    @ConfigEntry(noLogging = true)
+    public String getSSOClientSecret() {
+        String ssoClientId = defineConfigValue("SSO.clientSecret");
+        if (getSSOType() == SSOFlow.AUTHORIZATION_CODE && ssoClientId.trim().isEmpty()) {
+            throw new OctopusConfigurationException("Value for {SSO.application}SSO.clientSecret parameter is empty");
+        }
+        return ssoClientId;
+    }
+
     @ConfigEntry
     public SSOFlow getSSOType() {
         String ssoFlowParameter = defineConfigValue("SSO.flow");

@@ -47,7 +47,7 @@ public class OctopusSSOClientConfigurationTest {
 
     @Test
     public void getSSOType_singleApp() {
-        TestConfigSource.defineConfigValue("id-token");
+        TestConfigSource.defineConfigValue("id_token");
         assertThat(configuration.getSSOType()).isEqualTo(SSOFlow.IMPLICIT);
     }
 
@@ -55,7 +55,7 @@ public class OctopusSSOClientConfigurationTest {
     public void getSSOType_multiApp() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.application", "app2");
-        parameters.put("app1.SSO.flow", "id-token");
+        parameters.put("app1.SSO.flow", "id_token");
         parameters.put("app2.SSO.flow", "code");
         TestConfigSource.defineConfigValue(parameters);
 
@@ -65,6 +65,47 @@ public class OctopusSSOClientConfigurationTest {
     @Test
     public void getSSOScopes() {
         assertThat(configuration.getSSOScopes()).isEqualTo("");
+    }
+
+
+    @Test
+    public void getSSOClientSecret() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.flow", "code");
+        parameters.put("SSO.clientSecret", "theSecret");
+        TestConfigSource.defineConfigValue(parameters);
+
+        assertThat(configuration.getSSOClientSecret()).isEqualTo("theSecret");
+    }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void getSSOClientSecret_Missing() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.flow", "code");
+        TestConfigSource.defineConfigValue(parameters);
+
+        configuration.getSSOClientSecret();
+    }
+
+    @Test
+    public void getSSOClientSecret_NotRequired() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.flow", "id_token");
+        TestConfigSource.defineConfigValue(parameters);
+
+        assertThat(configuration.getSSOClientSecret()).isEmpty();
+    }
+
+    @Test
+    public void getSSOClientSecret_multiApp() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.application", "app2");
+        parameters.put("app1.SSO.flow", "id_token");
+        parameters.put("app2.SSO.flow", "code");
+        parameters.put("app2.SSO.clientSecret", "theSecretAgain");
+        TestConfigSource.defineConfigValue(parameters);
+
+        assertThat(configuration.getSSOClientSecret()).isEqualTo("theSecretAgain");
     }
 
 }

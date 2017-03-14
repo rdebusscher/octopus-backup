@@ -117,6 +117,7 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
                 } else {
                     AuthenticationErrorResponse errorResponse = new AuthenticationErrorResponse(errorInfo.getRedirectURI(), errorInfo.getErrorObject(), errorInfo.getState(), ResponseMode.QUERY);
 
+                    // TODO Check OAuth2 spec 4.1.2.1 We should not always return the error as redirect.
                     try {
                         response.sendRedirect(errorResponse.toHTTPResponse().getLocation().toString());
                     } catch (IOException e) {
