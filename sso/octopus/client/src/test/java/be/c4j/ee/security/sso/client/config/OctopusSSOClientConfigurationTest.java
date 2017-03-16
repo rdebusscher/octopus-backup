@@ -18,10 +18,12 @@ package be.c4j.ee.security.sso.client.config;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.test.TestConfigSource;
+import com.nimbusds.jose.util.Base64;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.junit.After;
 import org.junit.Test;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,12 +72,13 @@ public class OctopusSSOClientConfigurationTest {
 
     @Test
     public void getSSOClientSecret() {
+        String secret = generateSecret(32);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.flow", "code");
-        parameters.put("SSO.clientSecret", "theSecret");
+        parameters.put("SSO.clientSecret", secret);
         TestConfigSource.defineConfigValue(parameters);
 
-        assertThat(configuration.getSSOClientSecret()).isEqualTo("theSecret");
+        assertThat(configuration.getSSOClientSecret()).isEqualTo(new Base64(secret).decode());
     }
 
     @Test(expected = OctopusConfigurationException.class)
@@ -93,19 +96,28 @@ public class OctopusSSOClientConfigurationTest {
         parameters.put("SSO.flow", "id_token");
         TestConfigSource.defineConfigValue(parameters);
 
-        assertThat(configuration.getSSOClientSecret()).isEmpty();
+        assertThat(configuration.getSSOClientSecret()).isNull();
     }
 
     @Test
     public void getSSOClientSecret_multiApp() {
+        String secret = generateSecret(32);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.application", "app2");
         parameters.put("app1.SSO.flow", "id_token");
         parameters.put("app2.SSO.flow", "code");
-        parameters.put("app2.SSO.clientSecret", "theSecretAgain");
+        parameters.put("app2.SSO.clientSecret", secret);
         TestConfigSource.defineConfigValue(parameters);
 
-        assertThat(configuration.getSSOClientSecret()).isEqualTo("theSecretAgain");
+        assertThat(configuration.getSSOClientSecret()).isEqualTo(new Base64(secret).decode());
+    }
+
+    private String generateSecret(int length) {
+        byte[] secret = new byte[length];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(secret);
+        return Base64.encode(secret).toString();
+
     }
 
 }

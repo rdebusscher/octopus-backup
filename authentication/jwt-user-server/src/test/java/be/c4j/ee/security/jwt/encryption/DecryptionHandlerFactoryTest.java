@@ -21,8 +21,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 05/03/17.
+ *
  */
 
 public class DecryptionHandlerFactoryTest {

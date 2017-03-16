@@ -19,6 +19,7 @@ import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
+import com.nimbusds.jose.util.Base64;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.inject.Specializes;
@@ -96,12 +97,20 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     }
 
     @ConfigEntry(noLogging = true)
-    public String getSSOClientSecret() {
-        String ssoClientId = defineConfigValue("SSO.clientSecret");
-        if (getSSOType() == SSOFlow.AUTHORIZATION_CODE && ssoClientId.trim().isEmpty()) {
+    public byte[] getSSOClientSecret() {
+        String ssoClientSecret = defineConfigValue("SSO.clientSecret");
+        if (getSSOType() == SSOFlow.AUTHORIZATION_CODE && ssoClientSecret.trim().isEmpty()) {
             throw new OctopusConfigurationException("Value for {SSO.application}SSO.clientSecret parameter is empty");
         }
-        return ssoClientId;
+        if (ssoClientSecret != null && !ssoClientSecret.trim().isEmpty()) {
+            byte[] result = new Base64(ssoClientSecret).decode();
+            if (result.length < 32) {
+                throw new OctopusConfigurationException("value for {SSO.application}SSO.clientSecret must be at least 32 byte (256 bit)");
+            }
+            return result;
+        } else {
+            return null;
+        }
     }
 
     @ConfigEntry

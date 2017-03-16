@@ -53,6 +53,13 @@ public final class ReflectionUtil {
 
     public static void setFieldValue(Object target, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
 
+        Field field = findInstanceField(target, fieldName);
+
+        field.setAccessible(true);
+        field.set(target, value);
+    }
+
+    private static Field findInstanceField(Object target, String fieldName) throws NoSuchFieldException {
         Class<?> targetClass = target.getClass();
         Field field = findField(targetClass, fieldName);
         while (field == null && !Object.class.equals(targetClass)) {
@@ -63,9 +70,7 @@ public final class ReflectionUtil {
         if (field == null) {
             throw new NoSuchFieldException("Field " + fieldName + " not found");
         }
-
-        field.setAccessible(true);
-        field.set(target, value);
+        return field;
     }
 
     private static Field findField(Class<?> targetClass, String fieldName) {
@@ -77,4 +82,13 @@ public final class ReflectionUtil {
         }
         return result;
     }
+
+    public static <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+
+        Field field = findInstanceField(target, fieldName);
+
+        field.setAccessible(true);
+        return (T) field.get(target);
+    }
+
 }

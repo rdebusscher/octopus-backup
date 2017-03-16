@@ -23,10 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 10/03/17.
+ *
  */
-
 public class TestConfigSource implements ConfigSource {
 
     private String configValue;

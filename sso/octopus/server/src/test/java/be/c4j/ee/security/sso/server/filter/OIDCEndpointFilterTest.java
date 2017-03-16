@@ -20,7 +20,17 @@ import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.cookie.SSOHelper;
 import be.c4j.test.util.BeanManagerFake;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.util.Base64;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretJWT;
+import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
@@ -28,17 +38,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -65,6 +80,9 @@ public class OIDCEndpointFilterTest {
     @Mock
     private PrintWriter printWriterMock;
 
+    @Mock
+    private OctopusClientCredentialsSelector clientCredentialsSelectorMock;
+
     @Captor
     private ArgumentCaptor<AuthenticationRequest> authenticationRequestCapture;
 
@@ -82,6 +100,7 @@ public class OIDCEndpointFilterTest {
         beanManagerFake = new BeanManagerFake();
         beanManagerFake.registerBean(clientInfoRetrieverMock, ClientInfoRetriever.class);
         beanManagerFake.registerBean(ssoHelperMock, SSOHelper.class);
+        beanManagerFake.registerBean(clientCredentialsSelectorMock, OctopusClientCredentialsSelector.class);
 
         beanManagerFake.endRegistration();
 
@@ -198,5 +217,126 @@ public class OIDCEndpointFilterTest {
         verifyNoMoreInteractions(ssoHelperMock);
     }
 
+    @Test
+    public void onPreHandle_token_happyCase() throws Exception {
+
+        StringBuffer url = new StringBuffer();
+        url.append("http://some.server/oidc/octopus/sso/token");
+        when(httpServletRequestMock.getRequestURL()).thenReturn(url);
+        when(httpServletRequestMock.getMethod()).thenReturn("POST");
+        when(httpServletRequestMock.getRequestURI()).thenReturn("/octopus/sso/token");
+
+        String secretString = generateSecret();
+
+        String jwtData = generateJWT("junit_client_id", secretString, new URI("http://some.server/oidc/octopus/sso/token"));
+        String body = jwtData + "&code=81np_6iMIkw52117lb_YF71seITMdzOGqmyC02se3jY&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback";
+
+        // Read the info from the client
+        BufferedReader readerMock = Mockito.mock(BufferedReader.class);
+        when(readerMock.readLine()).thenReturn(body);
+        when(httpServletRequestMock.getReader()).thenReturn(readerMock);
+
+        // To make the rest of the code happy
+        when(httpServletRequestMock.getContextPath()).thenReturn("/oidc");
+        ThreadContext.bind(subjectMock);
+        when(subjectMock.getPrincipal()).thenReturn(new Object());  // Anything will do as principal
+
+        // Client JWT validation
+        List<Secret> secrets = new ArrayList<Secret>();
+        secrets.add(new Secret(secretString));
+        when(clientCredentialsSelectorMock.selectClientSecrets(new ClientID("junit_client_id"), ClientAuthenticationMethod.CLIENT_SECRET_JWT, null)).thenReturn(secrets);
+
+        ClientInfo clientInfo = new ClientInfo();
+        clientInfo.setOctopusClient(true);
+        clientInfo.setCallbackURL("http://localhost:8080/sso-app2");
+        when(clientInfoRetrieverMock.retrieveInfo("junit_client_id")).thenReturn(clientInfo);
+
+        boolean data = endpointFilter.onPreHandle(httpServletRequestMock, null, null);
+        assertThat(data).isEqualTo(true);
+
+        verify(httpServletRequestMock, times(2)).setAttribute(anyString(), ArgumentMatchers.any());
+
+        // client_assertion=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vLWNsaWVudElkIiwiYXVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL3NlY3VyaXR5XC9vY3RvcHVzXC9zc29cL3Rva2VuIiwiaXNzIjoiZGVtby1jbGllbnRJZCIsImV4cCI6MTQ4OTQ5NzY5NywianRpIjoiOWJXQmRlU3pNdnhCbDJiTmpkc1lrN2NiN2VqU092ZDJWVnpqS2VETFNZcyJ9.2pPH6hqARMyRDpW7kn00qVgeN7y0UF0iDgNeyX-1gkshDJBCKmt7NcqgRPTLUh05VY7az0N98cRS608KzfJ2oQ&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer
+
+        // client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&code=81np_6iMIkw52117lb_YF71seITMdzOGqmyC02se3jY&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback&client_assertion=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vLWNsaWVudElkIiwiYXVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL3NlY3VyaXR5XC9vY3RvcHVzXC9zc29cL3Rva2VuIiwiaXNzIjoiZGVtby1jbGllbnRJZCIsImV4cCI6MTQ4OTQ5NzY5NywianRpIjoiOWJXQmRlU3pNdnhCbDJiTmpkc1lrN2NiN2VqU092ZDJWVnpqS2VETFNZcyJ9.2pPH6hqARMyRDpW7kn00qVgeN7y0UF0iDgNeyX-1gkshDJBCKmt7NcqgRPTLUh05VY7az0N98cRS608KzfJ2oQ
+    }
+
+    private String generateSecret() {
+        byte[] secret = new byte[32];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(secret);
+        return Base64.encode(secret).toString();
+    }
+
+    private String generateJWT(String ssoClientId, String ssoClientSecret, URI tokenEndPoint) {
+        HTTPRequest httpRequest = null;
+        try {
+            httpRequest = new HTTPRequest(HTTPRequest.Method.valueOf("POST"), new URL("http://some.server/oidc"));
+            ClientAuthentication clientAuth = new ClientSecretJWT(new ClientID(ssoClientId)
+                    , tokenEndPoint, JWSAlgorithm.HS256, new Secret(ssoClientSecret));
+
+            httpRequest.setContentType(CommonContentTypes.APPLICATION_URLENCODED);
+            clientAuth.applyTo(httpRequest);
+
+        } catch (JOSEException e) {
+            fail(e.getMessage());
+        } catch (MalformedURLException e) {
+            fail(e.getMessage());
+        }
+        return httpRequest.getQuery();
+    }
+
+
+    @Test
+    public void onPreHandle_token_NoClientAuth() throws Exception {
+
+        StringBuffer url = new StringBuffer();
+        url.append("http://some.server/oidc/octopus/sso/token");
+        when(httpServletRequestMock.getRequestURL()).thenReturn(url);
+        when(httpServletRequestMock.getMethod()).thenReturn("POST");
+        when(httpServletRequestMock.getRequestURI()).thenReturn("/octopus/sso/token");
+
+        BufferedReader readerMock = Mockito.mock(BufferedReader.class);
+        when(readerMock.readLine()).thenReturn("code=81np_6iMIkw52117lb_YF71seITMdzOGqmyC02se3jY&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback");
+        when(httpServletRequestMock.getReader()).thenReturn(readerMock);
+
+        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
+
+        boolean data = endpointFilter.onPreHandle(httpServletRequestMock, httpServletResponseMock, null);
+        assertThat(data).isEqualTo(false);
+
+        verify(httpServletResponseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(printWriterMock).println(stringCapture.capture());
+        assertThat(stringCapture.getValue()).isEqualTo("{\"error_description\":\"Invalid request: Missing required \\\"client_id\\\" parameter\",\"error\":\"invalid_request\"}");
+
+        verify(httpServletRequestMock, never()).setAttribute(anyString(), ArgumentMatchers.any());
+    }
+
+
+    @Test
+    public void onPreHandle_token_MissingAuthorizationCode() throws Exception {
+
+        StringBuffer url = new StringBuffer();
+        url.append("http://some.server/oidc/octopus/sso/token");
+        when(httpServletRequestMock.getRequestURL()).thenReturn(url);
+        when(httpServletRequestMock.getMethod()).thenReturn("POST");
+        when(httpServletRequestMock.getRequestURI()).thenReturn("/octopus/sso/token");
+
+        BufferedReader readerMock = Mockito.mock(BufferedReader.class);
+        when(readerMock.readLine()).thenReturn("client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback&client_assertion=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vLWNsaWVudElkIiwiYXVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL3NlY3VyaXR5XC9vY3RvcHVzXC9zc29cL3Rva2VuIiwiaXNzIjoiZGVtby1jbGllbnRJZCIsImV4cCI6MTQ4OTQ5NzY5NywianRpIjoiOWJXQmRlU3pNdnhCbDJiTmpkc1lrN2NiN2VqU092ZDJWVnpqS2VETFNZcyJ9.2pPH6hqARMyRDpW7kn00qVgeN7y0UF0iDgNeyX-1gkshDJBCKmt7NcqgRPTLUh05VY7az0N98cRS608KzfJ2oQ");
+        when(httpServletRequestMock.getReader()).thenReturn(readerMock);
+
+        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
+
+        boolean data = endpointFilter.onPreHandle(httpServletRequestMock, httpServletResponseMock, null);
+        assertThat(data).isEqualTo(false);
+
+        verify(httpServletResponseMock).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(printWriterMock).println(stringCapture.capture());
+        assertThat(stringCapture.getValue()).isEqualTo("{\"error_description\":\"Invalid request: Missing or empty \\\"code\\\" parameter\",\"error\":\"invalid_request\"}");
+
+        verify(httpServletRequestMock, never()).setAttribute(anyString(), ArgumentMatchers.any());
+
+    }
 
 }

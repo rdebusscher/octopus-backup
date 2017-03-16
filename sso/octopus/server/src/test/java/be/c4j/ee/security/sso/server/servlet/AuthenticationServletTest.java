@@ -209,7 +209,7 @@ public class AuthenticationServletTest {
 
         ClientInfo clientInfo = new ClientInfo();
         String idTokenSecret = "01234567890123456789012345678901234567890";
-        clientInfo.setIdtokenSecret(idTokenSecret);
+        clientInfo.setIdTokenSecret(idTokenSecret);
         when(clientInfoRetrieverMock.retrieveInfo("JUnit_client")).thenReturn(clientInfo);
 
         authenticationServlet.doGet(httpServletRequestMock, httpServletResponseMock);
@@ -272,7 +272,7 @@ public class AuthenticationServletTest {
 
         ClientInfo clientInfo = new ClientInfo();
         String idTokenSecret = "01234567890123456789012345678901234567890";
-        clientInfo.setIdtokenSecret(idTokenSecret);
+        clientInfo.setIdTokenSecret(idTokenSecret);
         when(clientInfoRetrieverMock.retrieveInfo("JUnit_client")).thenReturn(clientInfo);
 
         authenticationServlet.doGet(httpServletRequestMock, httpServletResponseMock);

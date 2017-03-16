@@ -129,7 +129,7 @@ public class AuthenticationServlet extends HttpServlet {
 
                 idToken = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet.toJWTClaimsSet());
 
-                idToken.sign(new MACSigner(clientInfo.getIdtokenSecret()));
+                idToken.sign(new MACSigner(clientInfo.getIdTokenSecret()));
             } catch (ParseException e) {
                 throw new OctopusUnexpectedException(e);
             } catch (KeyLengthException e) {

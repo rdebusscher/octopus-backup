@@ -66,6 +66,7 @@ public class TokenStoreInfo {
     }
 
     public OIDCStoreData getOIDCStoreData() {
+        // FIXME How are multiple clients for a user handled??
         return oidcStoreData.get(0);  // TODO Verify but there should always be 1 there.
         // TODO Verify what happens if user logs out and afterwards a request comes in with the AccessCode
     }

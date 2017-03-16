@@ -21,10 +21,14 @@ import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.cookie.SSOHelper;
 import be.c4j.ee.security.sso.server.token.OIDCEndpointToken;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.verifier.ClientAuthenticationVerifier;
+import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationErrorResponse;
@@ -48,7 +52,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Filter for the Authenticate and token endpoint.
@@ -64,6 +70,9 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
     @Inject
     private ClientInfoRetriever clientInfoRetriever;
+
+    @Inject
+    private OctopusClientCredentialsSelector selector;
 
     @Override
     public void init() throws ShiroException {
@@ -103,7 +112,6 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
     private void showErrorMessage(HttpServletResponse response, EndpointType endpointType, ErrorInfo errorInfo) {
 
-
         switch (endpointType) {
 
             case AUTHENTICATE:
@@ -126,8 +134,13 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
                 }
                 break;
             case TOKEN:
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 TokenErrorResponse tokenErrorResponse = new TokenErrorResponse(errorInfo.getErrorObject());
-                System.out.println(tokenErrorResponse.toJSONObject()); // FIXME
+                try {
+                    response.getWriter().println(tokenErrorResponse.toJSONObject().toJSONString());
+                } catch (IOException e) {
+                    throw new OctopusUnexpectedException(e);
+                }
                 break;
             default:
                 throw new IllegalArgumentException(String.format("EndpointType %s not supported", endpointType));
@@ -137,7 +150,7 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
     private ErrorInfo checksForTokenEndpoint(HttpServletRequest httpServletRequest) {
 
-        boolean result = true;
+        ErrorInfo result = null;
 
         TokenRequest tokenRequest = null;
         try {
@@ -155,30 +168,59 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
             ClientAuthentication clientAuthentication = tokenRequest.getClientAuthentication();
 
-            // FIXME Verification of clientAuthentication
-            OIDCEndpointToken endpointToken = new OIDCEndpointToken(clientAuthentication);
+            Set<Audience> expectedAudience = new HashSet<Audience>();
+            expectedAudience.add(new Audience(url.toExternalForm()));
 
+            ClientAuthenticationVerifier<Object> authenticationVerifier = new ClientAuthenticationVerifier<Object>(selector, expectedAudience);
 
-            SecurityUtils.getSubject().login(endpointToken);
+            try {
+                authenticationVerifier.verify(clientAuthentication, null, null);
+            } catch (InvalidClientException e) {
+                LOGGER.info(e.getMessage());
+                result = new ErrorInfo(e.getErrorObject());
+            } catch (JOSEException e) {
+                ErrorObject errorObject = new ErrorObject("OCT-SSO-SERVER-011", "invalid JWT");
+                result = new ErrorInfo(errorObject);
+            }
+
+            if (result == null) {
+                ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientAuthentication.getClientID().getValue());
+
+                // TODO clientInfo should never be null, is already checked by the clientAuthenticationVerifier.
+                if (!clientInfo.getActualCallbackURL().equals(httpRequest.getQueryParameters().get("redirect_uri"))) {
+                    // 3.1.3.2 Ensure that the redirect_uri parameter value is identical to the redirect_uri parameter value that was included in the initial Authorization Request
+                    result = new ErrorInfo(new ErrorObject("OCT-SSO-SERVER-012", "Invalid \"redirect_uri\" parameter: "));
+                } else {
+
+                    OIDCEndpointToken endpointToken = new OIDCEndpointToken(clientAuthentication);
+
+                    SecurityUtils.getSubject().login(endpointToken);
+
+                    // OK, we will check if
+                    // - Authorization Code is still valid.
+                    // - Authorization code is issued for the same ClientId
+                }
+            }
 
         } catch (MalformedURLException e) {
-            result = false;
-            e.printStackTrace();
-        } catch (ParseException e) {
-            result = false;
+            // new URL(httpServletRequest.getRequestURL().toString());
+            ErrorObject errorObject = new ErrorObject("OCT-SSO-SERVER-100", "invalid URL");
+            result = new ErrorInfo(errorObject);
 
-            e.printStackTrace();
+        } catch (ParseException e) {
+            // TokenRequest.parse(httpRequest);
+            result = new ErrorInfo(e.getErrorObject());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new OctopusUnexpectedException(e);
         }
 
-        if (result) {
+        if (result == null) {
             httpServletRequest.setAttribute(AbstractRequest.class.getName(), tokenRequest);
 
             // Disable the SessionHijacking filter on this request.
             httpServletRequest.setAttribute("sh" + ALREADY_FILTERED_SUFFIX, Boolean.TRUE);
         }
-        return null;
+        return result;
     }
 
     private ErrorInfo checksForAuthenticateEndpoint(HttpServletRequest httpServletRequest) {
@@ -258,6 +300,10 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
         public ErrorInfo(AuthenticationRequest request, ErrorObject errorObject) {
             state = request.getState();
             redirectURI = request.getRedirectionURI();
+            this.errorObject = errorObject;
+        }
+
+        public ErrorInfo(ErrorObject errorObject) {
             this.errorObject = errorObject;
         }
 

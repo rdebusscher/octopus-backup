@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.server.client;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import com.nimbusds.jose.util.Base64;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,7 +28,8 @@ public class ClientInfo {
 
     private String callbackURL;
     private boolean octopusClient;
-    private String idtokenSecret;
+    private String idTokenSecret;  // FIXME Convert to byte !!
+    private String clientSecret;  // For the ClientAuthentication of the TokenEndpoint (signing of the JWT)
 
     public String getCallbackURL() {
         return callbackURL;
@@ -63,11 +65,24 @@ public class ClientInfo {
         this.octopusClient = octopusClient;
     }
 
-    public String getIdtokenSecret() {
-        return idtokenSecret;
+    public String getIdTokenSecret() {
+        return idTokenSecret;
     }
 
-    public void setIdtokenSecret(String idtokenSecret) {
-        this.idtokenSecret = idtokenSecret;
+    public void setIdTokenSecret(String idTokenSecret) {
+        this.idTokenSecret = idTokenSecret;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public byte[] getClientSecretByte() {
+        return new Base64(clientSecret).decode();
+    }
+
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 }

@@ -25,6 +25,7 @@ import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import net.minidev.json.JSONObject;
@@ -76,8 +77,18 @@ public class TokenServlet extends HttpServlet {
         AuthorizationGrant grant = tokenRequest.getAuthorizationGrant();
 
         try {
+
             if (grant instanceof AuthorizationCodeGrant) {
-                tokenResponse = defineResponse((AuthorizationCodeGrant) grant);
+
+                AuthorizationCodeGrant codeGrant = (AuthorizationCodeGrant) grant;
+
+                OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAuthorizationCode(codeGrant.getAuthorizationCode(), tokenRequest.getClientAuthentication().getClientID());
+                if (oidcStoreData == null) {
+                    showErrorMessage(response, InvalidClientException.EXPIRED_SECRET);
+                    return;
+                }
+
+                tokenResponse = defineResponse(oidcStoreData);
 
             }
 
@@ -91,22 +102,25 @@ public class TokenServlet extends HttpServlet {
             // OWASP A6 : Sensitive Data Exposure
             throw new OctopusUnexpectedException(e);
         }
-        /*
-
-        /*
-        String query = request.getQueryString();
-        */
     }
 
-    private AccessTokenResponse defineResponse(AuthorizationCodeGrant codeGrant) throws ParseException {
-        AuthorizationCode authorizationCode = codeGrant.getAuthorizationCode();
+    private void showErrorMessage(HttpServletResponse response, InvalidClientException expiredSecret) {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        TokenErrorResponse tokenErrorResponse = new TokenErrorResponse(expiredSecret.getErrorObject());
+        try {
+            response.getWriter().println(tokenErrorResponse.toJSONObject().toJSONString());
+        } catch (IOException e) {
+            throw new OctopusUnexpectedException(e);
+        }
 
-        OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAuthorizationCode(authorizationCode);
+    }
+
+    private AccessTokenResponse defineResponse(OIDCStoreData oidcStoreData) throws ParseException {
 
         // FIXME Config
         PlainJWT plainJWT = new PlainJWT(oidcStoreData.getIdTokenClaimsSet().toJWTClaimsSet());
 
-        OIDCTokens token = new OIDCTokens(plainJWT, oidcStoreData.getAccessCode(), null); // FIXME refresh tokens
+        OIDCTokens token = new OIDCTokens(plainJWT, oidcStoreData.getAccessCode(), null); // TODO refresh tokens
         return new OIDCTokenResponse(token);
     }
 

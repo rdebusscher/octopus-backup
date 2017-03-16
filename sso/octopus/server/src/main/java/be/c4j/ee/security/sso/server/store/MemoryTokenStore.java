@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -81,8 +82,6 @@ public class MemoryTokenStore implements SSOTokenStore {
 
         storeInfo.addOIDCStoreData(oidcStoreData);
 
-        //oidcStoreData.setAccessCode(ssoUser.getBearerAccessToken());
-
         AuthorizationCode authorizationCode = oidcStoreData.getAuthorizationCode();
         if (authorizationCode != null) {
             byAuthorizationCode.put(authorizationCode.getValue(), oidcStoreData);
@@ -103,8 +102,15 @@ public class MemoryTokenStore implements SSOTokenStore {
     }
 
     @Override
-    public OIDCStoreData getOIDCDataByAuthorizationCode(AuthorizationCode authorizationCode) {
-        return byAuthorizationCode.get(authorizationCode.getValue());
+    public OIDCStoreData getOIDCDataByAuthorizationCode(AuthorizationCode authorizationCode, ClientID clientId) {
+        OIDCStoreData result = byAuthorizationCode.get(authorizationCode.getValue());
+        if (result != null && result.getClientId().equals(clientId)) {
+            // TODO Don't we have a time aspect on the authorization code?
+            byAuthorizationCode.remove(authorizationCode.getValue()); // Make sure that the authorizationCode is only used once.
+        } else {
+            result = null; // ClientId doesn't match,
+        }
+        return result;
     }
 
     @Override

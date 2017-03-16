@@ -23,12 +23,10 @@ import org.apache.shiro.authc.AuthenticationToken;
 import javax.enterprise.context.ApplicationScoped;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 10/03/17.
+ *
  */
 @ApplicationScoped
 public class InfoForOIDCEndpointToken implements OctopusDefinedAuthenticationInfo {
-
 
     @Override
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {

@@ -20,6 +20,7 @@ import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -42,7 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,16 +66,16 @@ public class SSOCallbackServletTest {
     private HttpSession httpSessionMock;
 
     @Mock
-    private PrintWriter printWriterMock;
-
-    @Mock
     private OctopusConfig octopusConfigMock;
 
     @Mock
     private OctopusSSOClientConfiguration clientConfigurationMock;
 
+    @Mock
+    private CallbackErrorHandler callbackErrorHandlerMock;
+
     @Captor
-    private ArgumentCaptor<String> stringArgumentCaptor;
+    private ArgumentCaptor<ErrorObject> errorObjectArgumentCaptor;
 
     @InjectMocks
     private SSOCallbackServlet callbackServlet;
@@ -96,14 +96,13 @@ public class SSOCallbackServletTest {
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
-        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
-
         when(httpServletRequestMock.getQueryString()).thenReturn("error_description=Invalid+request%3A+Missing+%22client_id%22+parameter&state=stateCode&error=invalid_request");
 
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
-        verify(printWriterMock).println(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo("invalid_request : Invalid request: Missing \"client_id\" parameter");
+        verify(callbackErrorHandlerMock).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+
+        assertThat(errorObjectArgumentCaptor.getValue().getDescription()).isEqualTo("Invalid request: Missing \"client_id\" parameter");
     }
 
     @Test
@@ -112,14 +111,14 @@ public class SSOCallbackServletTest {
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
-        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
-
         when(httpServletRequestMock.getQueryString()).thenReturn("blablabla=wrong");
 
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
-        verify(printWriterMock).println(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo("OCT-SSO-CLIENT-011 : Request has an invalid 'state' value");
+        verify(callbackErrorHandlerMock).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+
+        assertThat(errorObjectArgumentCaptor.getValue().getDescription()).isEqualTo("Request has an invalid 'state' value");
+        assertThat(errorObjectArgumentCaptor.getValue().getCode()).isEqualTo("OCT-SSO-CLIENT-011");
     }
 
 
@@ -129,12 +128,14 @@ public class SSOCallbackServletTest {
 
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(null);
 
-        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
+        //when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
 
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
-        verify(printWriterMock).println(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo("OCT-SSO-CLIENT-012 : Request did not originate from this session");
+        verify(callbackErrorHandlerMock).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+
+        assertThat(errorObjectArgumentCaptor.getValue().getDescription()).isEqualTo("Request did not originate from this session");
+        assertThat(errorObjectArgumentCaptor.getValue().getCode()).isEqualTo("OCT-SSO-CLIENT-012");
     }
 
 
@@ -144,13 +145,13 @@ public class SSOCallbackServletTest {
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
-        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
-
         when(httpServletRequestMock.getQueryString()).thenReturn("code=TheAuthenticationCode&state=stateValue");
 
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
-        verify(printWriterMock).println(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo("OCT-SSO-CLIENT-011 : Request has an invalid 'state' value");
+        verify(callbackErrorHandlerMock).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+
+        assertThat(errorObjectArgumentCaptor.getValue().getDescription()).isEqualTo("Request has an invalid 'state' value");
+        assertThat(errorObjectArgumentCaptor.getValue().getCode()).isEqualTo("OCT-SSO-CLIENT-011");
     }
 
 
@@ -159,8 +160,6 @@ public class SSOCallbackServletTest {
         when(httpServletRequestMock.getSession(true)).thenReturn(httpSessionMock);
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
-
-        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
 
         List<Audience> audience = new ArrayList<Audience>();
         IDTokenClaimsSet tokenClaimsSet = new IDTokenClaimsSet(new Issuer("Issuer"), new Subject("subject"), audience, new Date(), new Date());
@@ -171,8 +170,8 @@ public class SSOCallbackServletTest {
 
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
-        verify(printWriterMock).println(stringArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).isEqualTo("OCT-SSO-CLIENT-013 : Missing Authorization code");
+        verify(callbackErrorHandlerMock).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+        assertThat(errorObjectArgumentCaptor.getValue().getCode()).isEqualTo("OCT-SSO-CLIENT-013");
     }
 
     //@Test
@@ -182,14 +181,11 @@ public class SSOCallbackServletTest {
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
-        when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
-
-
         when(httpServletRequestMock.getQueryString()).thenReturn("code=TheAuthenticationCode&state=" + clientData.getState().getValue());
 
         when(clientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
         when(clientConfigurationMock.getSSOClientId()).thenReturn("JUnit_client");
-        when(clientConfigurationMock.getSSOClientSecret()).thenReturn("0123456789012345678901234567890");
+        when(clientConfigurationMock.getSSOClientSecret()).thenReturn("0123456789012345678901234567890".getBytes());
         when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
 
         /*
@@ -206,7 +202,9 @@ public class SSOCallbackServletTest {
                 .withContentType("application/json; charset=UTF-8");
 */
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
-        verify(printWriterMock, never()).println(stringArgumentCaptor.capture());
+
+        verify(callbackErrorHandlerMock, never()).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+
     }
 
 }
