@@ -19,11 +19,15 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.session.SessionUtil;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -33,6 +37,7 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.*;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -49,6 +54,9 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,6 +70,9 @@ public class SSOCallbackServlet extends HttpServlet {
 
     @Inject
     private CallbackErrorHandler callbackErrorHandler;
+
+    @Inject
+    private OctopusSSOUserConverter octopusSSOUserConverter;
 
     @Inject
     private OctopusSSOClientConfiguration config;
@@ -112,20 +123,75 @@ public class SSOCallbackServlet extends HttpServlet {
             }
 
             accessToken = exchangeForAccessCode.doExchange(httpServletResponse, variableClientData, authorizationCode);
+        }
+
+        if (config.getSSOType() == SSOFlow.IMPLICIT) {
+            // TODO Is this cast always safe ??
+            accessToken = (BearerAccessToken) successResponse.getAccessToken();
 
             if (accessToken == null) {
-                // There was some issue retrieving the accessToken;
-                return;
+                ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-014", "Missing Access code");
+                callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
             }
+        }
+
+        if (accessToken == null) {
+            // There was some issue retrieving the accessToken;
+            return;
         }
 
         try {
             UserInfoRequest infoRequest = new UserInfoRequest(new URI(config.getUserInfoEndpoint()), accessToken);
 
             HTTPResponse response = infoRequest.toHTTPRequest().send();
-            String json = response.getContent();
 
-            OctopusSSOUser user = OctopusSSOUser.fromJSON(json, userInfoJSONProvider);
+            UserInfoResponse userInfoResponse = UserInfoResponse.parse(response);
+
+            if (!userInfoResponse.indicatesSuccess()) {
+                UserInfoErrorResponse errorResponse = (UserInfoErrorResponse) userInfoResponse;
+                callbackErrorHandler.showErrorMessage(httpServletResponse, errorResponse.getErrorObject());
+                return;
+
+            }
+
+            UserInfoSuccessResponse successInfoResponse = (UserInfoSuccessResponse) userInfoResponse;
+
+            UserInfo userInfo;
+            if (successInfoResponse.getUserInfoJWT() != null) {
+                SignedJWT signedJWT = (SignedJWT) successInfoResponse.getUserInfoJWT();
+
+                // TODO Support for encryption
+                boolean valid = signedJWT.verify(new MACVerifier(config.getSSOIdTokenSecret()));  // TODO Configurable !!
+                if (!valid) {
+                    ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-015", "JWT Signature Validation failed");
+                    callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
+                    return;
+
+                }
+
+                userInfo = new UserInfo(signedJWT.getJWTClaimsSet());
+            } else {
+                userInfo = successInfoResponse.getUserInfo();
+            }
+
+            // We always use scope 'octopus' so JWT is always signed and according spec, we need iss, aud and added nonce ourself.
+            List<String> claimsWithIssue = validateUserInfo(userInfo, variableClientData);
+
+            if (!claimsWithIssue.isEmpty()) {
+                StringBuilder claimsWithError = new StringBuilder();
+                for (String claim : claimsWithIssue) {
+                    if (claimsWithError.length() > 0) {
+                        claimsWithError.append(", ");
+                    }
+                    claimsWithError.append(claim);
+                }
+                ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-016", "JWT claim Validation failed : " + claimsWithError.toString());
+                callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
+                return;
+
+            }
+
+            OctopusSSOUser user = octopusSSOUserConverter.fromUserInfo(userInfo, userInfoJSONProvider);
 
             user.setBearerAccessToken(accessToken);
             //user.setToken(code);
@@ -150,49 +216,39 @@ public class SSOCallbackServlet extends HttpServlet {
             }
 
         } catch (URISyntaxException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (ParseException e) {
             e.printStackTrace();
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        } catch (JOSEException e) {
+            throw new OctopusUnexpectedException(e);
         }
 
+    }
 
-                /*
-        WebTarget target = client.target(config.getSSOServer() + "/" + config.getSSOEndpointRoot() + "/octopus/sso/user");
+    private List<String> validateUserInfo(UserInfo userInfo, OpenIdVariableClientData variableClientData) {
+        List<String> result = new ArrayList<String>();
 
-        Response response = target.request()
-                .header("Authorization", "Bearer " + defineToken(code))
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
-
-        String json = response.readEntity(String.class);
-        if (response.getStatus() == 200) {
-
-            OctopusSSOUser user = OctopusSSOUser.fromJSON(json, userInfoJSONProvider);
-
-            user.setToken(code);
-
-            try {
-
-                sessionUtil.invalidateCurrentSession(httpServletRequest);
-
-                SecurityUtils.getSubject().login(user);
-
-                SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
-                try {
-                    httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : httpServletRequest.getContextPath());
-                } catch (IOException e) {
-                    // OWASP A6 : Sensitive Data Exposure
-                    throw new OctopusUnexpectedException(e);
-
-                }
-
-            } catch (UnauthorizedException e) {
-                handleException(httpServletRequest, httpServletResponse, e, user);
-            }
-        } else {
-            logger.warn(String.format("Retrieving SSO User info failed with status %s and body %s", String.valueOf(response.getStatus()), json));
+        if (!variableClientData.getNonce().equals(Nonce.parse(userInfo.getStringClaim("nonce")))) {
+            result.add("nonce");
         }
 
-        response.close();
-*/
+        if (!config.getSSOServer().equals(userInfo.getStringClaim("iss"))) {
+            result.add("iss");
+        }
+
+        if (userInfo.getDateClaim("exp").before(new Date())) {
+            result.add("exp");
+        }
+
+        if (!config.getSSOClientId().equals(userInfo.getStringClaim("aud"))) {
+            result.add("aud");
+        }
+
+        return result;
+
+
     }
 
     private AuthenticationResponse verifyRequestStructural(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, OpenIdVariableClientData variableClientData) {

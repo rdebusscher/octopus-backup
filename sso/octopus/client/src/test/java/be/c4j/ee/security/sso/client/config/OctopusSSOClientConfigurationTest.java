@@ -17,13 +17,14 @@ package be.c4j.ee.security.sso.client.config;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.sso.SSOFlow;
+import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.test.TestConfigSource;
 import com.nimbusds.jose.util.Base64;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,14 @@ public class OctopusSSOClientConfigurationTest {
 
     private OctopusSSOClientConfiguration configuration = new OctopusSSOClientConfiguration();
 
+    private SecretUtil secretUtil;
+
+    @Before
+    public void setup() {
+        secretUtil = new SecretUtil();
+        secretUtil.init();
+    }
+
     @After
     public void teardown() {
         ConfigResolver.freeConfigSources();
@@ -43,13 +52,13 @@ public class OctopusSSOClientConfigurationTest {
 
     @Test(expected = OctopusConfigurationException.class)
     public void getSSOType_unknown() {
-        TestConfigSource.defineConfigValue("token");
+        TestConfigSource.defineConfigValue("id_token");
         configuration.getSSOType();
     }
 
     @Test
     public void getSSOType_singleApp() {
-        TestConfigSource.defineConfigValue("id_token");
+        TestConfigSource.defineConfigValue("token");
         assertThat(configuration.getSSOType()).isEqualTo(SSOFlow.IMPLICIT);
     }
 
@@ -57,7 +66,7 @@ public class OctopusSSOClientConfigurationTest {
     public void getSSOType_multiApp() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.application", "app2");
-        parameters.put("app1.SSO.flow", "id_token");
+        parameters.put("app1.SSO.flow", "token");
         parameters.put("app2.SSO.flow", "code");
         TestConfigSource.defineConfigValue(parameters);
 
@@ -72,7 +81,7 @@ public class OctopusSSOClientConfigurationTest {
 
     @Test
     public void getSSOClientSecret() {
-        String secret = generateSecret(32);
+        String secret = secretUtil.generateSecretBase64(32);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.flow", "code");
         parameters.put("SSO.clientSecret", secret);
@@ -93,7 +102,7 @@ public class OctopusSSOClientConfigurationTest {
     @Test
     public void getSSOClientSecret_NotRequired() {
         Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("SSO.flow", "id_token");
+        parameters.put("SSO.flow", "token");
         TestConfigSource.defineConfigValue(parameters);
 
         assertThat(configuration.getSSOClientSecret()).isNull();
@@ -101,10 +110,10 @@ public class OctopusSSOClientConfigurationTest {
 
     @Test
     public void getSSOClientSecret_multiApp() {
-        String secret = generateSecret(32);
+        String secret = secretUtil.generateSecretBase64(32);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.application", "app2");
-        parameters.put("app1.SSO.flow", "id_token");
+        parameters.put("app1.SSO.flow", "token");
         parameters.put("app2.SSO.flow", "code");
         parameters.put("app2.SSO.clientSecret", secret);
         TestConfigSource.defineConfigValue(parameters);
@@ -112,12 +121,35 @@ public class OctopusSSOClientConfigurationTest {
         assertThat(configuration.getSSOClientSecret()).isEqualTo(new Base64(secret).decode());
     }
 
-    private String generateSecret(int length) {
-        byte[] secret = new byte[length];
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextBytes(secret);
-        return Base64.encode(secret).toString();
+    @Test
+    public void getSSOIdTokenSecret() {
+        String secret = secretUtil.generateSecretBase64(32);
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.idTokenSecret", secret);
+        TestConfigSource.defineConfigValue(parameters);
 
+        assertThat(configuration.getSSOIdTokenSecret()).isEqualTo(new Base64(secret).decode());
     }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void getSSOIdTokenSecret_Missing() {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.flow", "code");
+        TestConfigSource.defineConfigValue(parameters);
+
+        configuration.getSSOIdTokenSecret();
+    }
+
+    @Test
+    public void getSSOIdTokenSecret_multiApp() {
+        String secret = secretUtil.generateSecretBase64(32);
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("SSO.application", "app2");
+        parameters.put("app2.SSO.idTokenSecret", secret);
+        TestConfigSource.defineConfigValue(parameters);
+
+        assertThat(configuration.getSSOIdTokenSecret()).isEqualTo(new Base64(secret).decode());
+    }
+
 
 }

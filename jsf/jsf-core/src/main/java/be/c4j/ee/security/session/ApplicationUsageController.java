@@ -30,7 +30,9 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -127,12 +129,23 @@ public class ApplicationUsageController {
     }
 
     public void invalidateSession(UserSessionFinder userSessionFinder) {
+
+        // We can't use for loop nor iterator !!
+        // The HttpSession.invalidate() will trigger the event and removal of entries within applicationUsage
+        // And thus resulting in concurrent modification exceptions.
+        List<HttpSession> toBeInvalidated = new ArrayList<HttpSession>();
+
         for (Map.Entry<String, ApplicationUsageInfo> entry : applicationUsage.entrySet()) {
             if (entry.getValue().isAuthenticated()) {
                 if (userSessionFinder.isCorrectPrincipal(entry.getValue().getUserPrincipal())) {
-                    entry.getValue().getHttpSession().invalidate();
+                    toBeInvalidated.add(entry.getValue().getHttpSession());
                 }
             }
+        }
+
+        // and now it is safe to invalidate the sessions :)
+        for (HttpSession httpSession : toBeInvalidated) {
+            httpSession.invalidate();
         }
     }
 

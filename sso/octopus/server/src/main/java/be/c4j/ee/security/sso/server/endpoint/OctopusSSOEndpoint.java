@@ -17,15 +17,29 @@ package be.c4j.ee.security.sso.server.endpoint;
 
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
-import be.c4j.ee.security.sso.server.rest.RestUserInfoProvider;
+import be.c4j.ee.security.sso.server.client.ClientInfo;
+import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
+import be.c4j.ee.security.sso.server.config.UserEndpointEncoding;
+import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import be.c4j.ee.security.util.TimeUtil;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+import net.minidev.json.JSONObject;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.RequiresUser;
 import org.slf4j.Logger;
@@ -35,14 +49,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.*;
 
 /**
  *
@@ -65,14 +77,19 @@ public class OctopusSSOEndpoint {
     @Inject
     private SSOTokenStore tokenStore;
 
-    private RestUserInfoProvider userInfoProvider;
+    @Inject
+    private ClientInfoRetriever clientInfoRetriever;
+
+    @Inject
+    private OctopusSSOUserConverter octopusSSOUserConverter;
+
+    @Inject
+    private TimeUtil timeUtil;
 
     private PrincipalUserInfoJSONProvider userInfoJSONProvider;
 
     @PostConstruct
     public void init() {
-        userInfoProvider = BeanProvider.getContextualReference(RestUserInfoProvider.class, true);
-
         userInfoJSONProvider = BeanProvider.getContextualReference(PrincipalUserInfoJSONProvider.class, true);
         if (userInfoJSONProvider == null) {
             userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
@@ -80,47 +97,103 @@ public class OctopusSSOEndpoint {
     }
 
     @Path("/user")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @POST
     @RequiresUser
-    public String getUserInfo() {
+    public Response getUserInfoPost(@HeaderParam("Authorization") String authorizationHeader, @Context UriInfo uriDetails) {
+        return getUserInfo(authorizationHeader, uriDetails);
+    }
 
-        // FIXME take into consideration the scope values.
+    @Path("/user")
+    @GET
+    @RequiresUser
+    public Response getUserInfo(@HeaderParam("Authorization") String authorizationHeader, @Context UriInfo uriDetails) {
+
         //When scope contains octopus -> always signed or encrypted. and not JSON by default !!!
         showDebugInfo(ssoUser);
 
+        String accessToken = getAccessToken(authorizationHeader);
         //
-        IDTokenClaimsSet idTokenClaimsSet = tokenStore.getIdTokenByAccessCode(ssoUser.getBearerAccessToken().getValue());
 
-        JWTClaimsSet jwtClaimsSet = null;
+        OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAccessToken(accessToken);
+        IDTokenClaimsSet idTokenClaimsSet = oidcStoreData.getIdTokenClaimsSet();
+
+        JWTClaimsSet jwtClaimsSet;
         try {
             jwtClaimsSet = idTokenClaimsSet.toJWTClaimsSet();
         } catch (ParseException e) {
-            e.printStackTrace();
-            // FIXME
+            throw new OctopusUnexpectedException(e);
         }
 
+        UserEndpointEncoding endpointEncoding = UserEndpointEncoding.NONE;  // FIXME Config
 
-        Map<String, Object> info = new HashMap<String, Object>(ssoUser.getUserInfo());
-        info.remove("token"); // FIXME Create constant
-        info.remove("upstreamToken"); // FIXME Create constant
+        UserInfo userInfo = octopusSSOUserConverter.fromIdToken(jwtClaimsSet);
 
-        if (userInfoProvider != null) {
-            info.putAll(userInfoProvider.defineInfo(ssoUser));
+        if (oidcStoreData.getAccessToken().getScope().contains("octopus")) {
+
+            userInfo.putAll(octopusSSOUserConverter.asClaims(ssoUser, userInfoJSONProvider));
+
+            endpointEncoding = UserEndpointEncoding.JWS;
         }
 
-        for (Map.Entry<String, Object> entry : jwtClaimsSet.getClaims().entrySet()) {
-            info.put(entry.getKey(), entry.getValue());
+        Response.ResponseBuilder builder = Response.status(Response.Status.OK);
+
+        if (endpointEncoding == UserEndpointEncoding.NONE) {
+            builder.type(CommonContentTypes.APPLICATION_JSON.toString());
+            builder.entity(userInfo.toJSONObject().toJSONString());
         }
 
-        return ssoUser.toJSON(info, userInfoJSONProvider);
+        if (endpointEncoding == UserEndpointEncoding.JWS) {
+            buildResponsePayload(builder, uriDetails, oidcStoreData, userInfo);
+        }
 
+        return builder.build();
+
+    }
+
+    private void buildResponsePayload(Response.ResponseBuilder builder, UriInfo uriDetails, OIDCStoreData oidcStoreData, UserInfo userInfo) {
+        builder.type(CommonContentTypes.APPLICATION_JWT.toString());
+
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+
+        JWTClaimsSet.Builder claimSetBuilder = new JWTClaimsSet.Builder();
+
+        claimSetBuilder.issuer(uriDetails.getRequestUri().toASCIIString());
+        claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(2, new Date()));
+        // Spec defines that we need also aud, but this is already set from idTokenClaimSet
+
+        JSONObject jsonObject = userInfo.toJSONObject();
+        for (String key : jsonObject.keySet()) {
+            if ("aud".equals(key)) {
+                // due to octopusSSOUserConverter.fromIdToken(jwtClaimsSet); earlier, there was a conversion from jwtClaimsSet to JSonObject
+                // Which converted the Audience List to a single String.  If we don't put it in the correct type again, the new SignedJWT 3 statements further on
+                // Will fail on the audience and leave it out from the SignedJWT.
+                claimSetBuilder.claim(key, Arrays.asList(jsonObject.get(key)));
+            } else {
+                claimSetBuilder.claim(key, jsonObject.get(key));
+            }
+        }
+
+        SignedJWT signedJWT = new SignedJWT(header, claimSetBuilder.build());
+
+        // Apply the HMAC
+        ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(oidcStoreData.getClientId().getValue());
+        try {
+            signedJWT.sign(new MACSigner(clientInfo.getIdTokenSecretByte()));
+        } catch (JOSEException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+
+        builder.entity(signedJWT.serialize());
+    }
+
+    private String getAccessToken(String authorizationHeader) {
+        return authorizationHeader.split(" ")[1];
     }
 
     private void showDebugInfo(OctopusSSOUser user) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("Returning user info for  %s (token = %s)", user.getFullName(), user.getAccessToken()));
+            logger.info(String.format("Returning user info for  %s (cookie token = %s)", user.getFullName(), user.getCookieToken()));
         }
     }
 

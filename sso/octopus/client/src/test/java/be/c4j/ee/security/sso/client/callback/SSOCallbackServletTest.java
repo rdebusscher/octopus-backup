@@ -16,20 +16,36 @@
 package be.c4j.ee.security.sso.client.callback;
 
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.session.SessionUtil;
+import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
+import be.c4j.ee.security.util.SecretUtil;
+import be.c4j.ee.security.util.TimeUtil;
+import be.c4j.util.ReflectionUtil;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
-import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import net.jadler.Jadler;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
+import org.apache.shiro.web.util.SavedRequest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -47,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.apache.shiro.web.util.WebUtils.SAVED_REQUEST_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -69,20 +86,37 @@ public class SSOCallbackServletTest {
     private OctopusConfig octopusConfigMock;
 
     @Mock
+    private ExchangeForAccessCode exchangeForAccessCodeMock;
+
+    @Mock
     private OctopusSSOClientConfiguration clientConfigurationMock;
 
     @Mock
     private CallbackErrorHandler callbackErrorHandlerMock;
 
+    @Mock
+    private SessionUtil sessionUtilMock;
+
+    @Mock
+    private Subject subjectMock;
+
+    @Mock
+    private Session sessionMock;
+
     @Captor
     private ArgumentCaptor<ErrorObject> errorObjectArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<String> stringArgumentCaptor;
 
     @InjectMocks
     private SSOCallbackServlet callbackServlet;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IllegalAccessException {
         Jadler.initJadler();
+
+        ReflectionUtil.injectDependencies(callbackServlet, new OctopusSSOUserConverter());
     }
 
     @After
@@ -162,7 +196,8 @@ public class SSOCallbackServletTest {
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
         List<Audience> audience = new ArrayList<Audience>();
-        IDTokenClaimsSet tokenClaimsSet = new IDTokenClaimsSet(new Issuer("Issuer"), new Subject("subject"), audience, new Date(), new Date());
+        IDTokenClaimsSet tokenClaimsSet = new IDTokenClaimsSet(new Issuer("Issuer")
+                , new com.nimbusds.oauth2.sdk.id.Subject("subject"), audience, new Date(), new Date());
         String idToken = new PlainJWT(tokenClaimsSet.toJWTClaimsSet()).serialize();
         when(httpServletRequestMock.getQueryString()).thenReturn("id_token=" + idToken + "&state=" + clientData.getState().getValue());
 
@@ -174,37 +209,73 @@ public class SSOCallbackServletTest {
         assertThat(errorObjectArgumentCaptor.getValue().getCode()).isEqualTo("OCT-SSO-CLIENT-013");
     }
 
-    //@Test
-    @Ignore // FIXME
+    @Test
     public void doGet_ValidAuthenticationToken() throws ServletException, IOException {
         when(httpServletRequestMock.getSession(true)).thenReturn(httpSessionMock);
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
-        when(httpServletRequestMock.getQueryString()).thenReturn("code=TheAuthenticationCode&state=" + clientData.getState().getValue());
+        when(httpServletRequestMock.getQueryString()).thenReturn("code=TheAuthorizationCode&state=" + clientData.getState().getValue());
 
         when(clientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
         when(clientConfigurationMock.getSSOClientId()).thenReturn("JUnit_client");
-        when(clientConfigurationMock.getSSOClientSecret()).thenReturn("0123456789012345678901234567890".getBytes());
-        when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
 
-        /*
+        AuthorizationCode authorizationCode = new AuthorizationCode("TheAuthorizationCode");
+        when(exchangeForAccessCodeMock.doExchange(httpServletResponseMock, clientData, authorizationCode)).thenReturn(new BearerAccessToken("TheAccessToken"));
+
+        when(clientConfigurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
+
+        TimeUtil timeUtil = new TimeUtil();
+
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+        builder.subject("JUnit");
+        builder.issuer("http://localhost/oidc");
+        builder.audience("JUnit_client");
+        builder.claim("nonce", clientData.getNonce().getValue());
+        builder.expirationTime(timeUtil.addSecondsToDate(2, new Date()));
+
+        SecretUtil secretUtil = new SecretUtil();
+        secretUtil.init();
+        String secret = secretUtil.generateSecretBase64(32);
+
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+        SignedJWT signedJWT = new SignedJWT(header, builder.build());
+
+        try {
+            signedJWT.sign(new MACSigner(secret));
+        } catch (JOSEException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+
         Jadler.onRequest()
                 .havingMethodEqualTo("GET")
-                .havingPathEqualTo("/oidc")
-                .havingBody(isEmptyOrNullString())
-                .havingHeaderEqualTo("Accept", "application/json")
+                .havingPathEqualTo("/oidc/octopus/sso/user")
+                .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
                 .respond()
-                .withDelay(2, SECONDS)
-                .withStatus(200)
-                .withBody("{\\"account\\":{\\"id\\" : 1}}")
-                .withEncoding(Charset.forName("UTF-8"))
-                .withContentType("application/json; charset=UTF-8");
-*/
+                .withBody(signedJWT.serialize())
+                .withContentType("application/jwt");
+
+        when(clientConfigurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
+        when(clientConfigurationMock.getSSOServer()).thenReturn("http://localhost/oidc");
+
+        ThreadContext.bind(subjectMock);
+        when(subjectMock.getSession(false)).thenReturn(sessionMock);
+        when(subjectMock.getSession()).thenReturn(sessionMock);
+        when(httpServletRequestMock.getRequestURI()).thenReturn("http://host.to.saved.request/root");
+        SavedRequest savedRequest = new SavedRequest(httpServletRequestMock);
+        when(sessionMock.getAttribute(SAVED_REQUEST_KEY)).thenReturn(savedRequest);
+
         callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
+
+        verify(sessionUtilMock).invalidateCurrentSession(httpServletRequestMock);
+
+        verify(httpServletResponseMock).sendRedirect(stringArgumentCaptor.capture());
+        assertThat(stringArgumentCaptor.getValue()).startsWith("http://host.to.saved.request/root?code=TheAuthorizationCode&state=");
+        // The query part is added to requestURL because it was mocked earlier like that to have a correct behaviour for other parts (state is variable !)
 
         verify(callbackErrorHandlerMock, never()).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
 
     }
 
+    // FIXME The other scenarios.
 }

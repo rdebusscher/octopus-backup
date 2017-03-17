@@ -16,23 +16,41 @@
 package be.c4j.ee.security.util;
 
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.codec.Base64;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import java.util.Date;
+import java.security.SecureRandom;
 
 /**
  *
  */
 @ApplicationScoped
-public class TimeUtil {
+public class SecretUtil {
 
-    public Date addSecondsToDate(long seconds, Date beforeTime) {
+    private SecureRandom secureRandom;
 
-        long curTimeInMs = beforeTime.getTime();
-        return new Date(curTimeInMs + (seconds * 1000));
+    @PostConstruct
+    public void init() {
+        secureRandom = new SecureRandom();
     }
 
-    public static TimeUtil getInstance() {
-        return BeanProvider.getContextualReference(TimeUtil.class);
+    // FIXME Verify usages
+    public byte[] decodeSecretBase64(String secretBase64) {
+
+        return Base64.decode(secretBase64);
     }
+
+    public String generateSecretBase64(int byteLength) {
+        byte[] secret = new byte[byteLength];
+
+        secureRandom.nextBytes(secret);
+        return Base64.encodeToString(secret);
+    }
+
+
+    public static SecretUtil getInstance() {
+        return BeanProvider.getContextualReference(SecretUtil.class);
+    }
+
 }

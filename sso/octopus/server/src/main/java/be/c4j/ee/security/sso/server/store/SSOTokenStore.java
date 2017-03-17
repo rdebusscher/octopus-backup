@@ -18,9 +18,8 @@ package be.c4j.ee.security.sso.server.store;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  *
@@ -29,7 +28,7 @@ public interface SSOTokenStore {
 
     OctopusSSOUser getUserByAccessCode(String accessCode);
 
-    IDTokenClaimsSet getIdTokenByAccessCode(String accessCode);
+    OIDCStoreData getOIDCDataByAccessToken(String accessCode);
 
     OIDCStoreData getOIDCDataByAuthorizationCode(AuthorizationCode authorizationCode, ClientID clientId);
 
@@ -39,5 +38,5 @@ public interface SSOTokenStore {
 
     void addLoginFromClient(OctopusSSOUser ssoUser, String cookieToken, String userAgent, String remoteHost, OIDCStoreData oidcStoreData);
 
-    Set<String> getLoggedInClients(OctopusSSOUser octopusSSOUser);
+    List<OIDCStoreData> getLoggedInClients(OctopusSSOUser octopusSSOUser);
 }

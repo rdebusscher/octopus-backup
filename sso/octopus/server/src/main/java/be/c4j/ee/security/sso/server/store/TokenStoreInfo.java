@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,13 +63,34 @@ public class TokenStoreInfo {
     }
 
     public void addOIDCStoreData(OIDCStoreData oidcStoreData) {
+
+        OIDCStoreData existingData = findOIDCStoreData(oidcStoreData.getClientId());
+        this.oidcStoreData.remove(existingData);
         this.oidcStoreData.add(oidcStoreData);
     }
 
-    public OIDCStoreData getOIDCStoreData() {
-        // FIXME How are multiple clients for a user handled??
-        return oidcStoreData.get(0);  // TODO Verify but there should always be 1 there.
-        // TODO Verify what happens if user logs out and afterwards a request comes in with the AccessCode
+    private OIDCStoreData findOIDCStoreData(ClientID clientID) {
+        OIDCStoreData result = null;
+        for (OIDCStoreData oidcStoreDatum : oidcStoreData) {
+            if (clientID.equals(oidcStoreDatum.getClientId())) {
+                result = oidcStoreDatum;
+            }
+        }
+        return result;
+    }
+
+    public OIDCStoreData findOIDCStoreData(String accessCode) {
+        OIDCStoreData result = null;
+        for (OIDCStoreData oidcStoreDatum : oidcStoreData) {
+            if (accessCode.equals(oidcStoreDatum.getAccessToken().getValue())) {
+                result = oidcStoreDatum;
+            }
+        }
+        return result;
+    }
+
+    public List<OIDCStoreData> getOidcStoreData() {
+        return oidcStoreData;
     }
 
     public String getCookieToken() {

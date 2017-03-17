@@ -25,6 +25,7 @@ import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.ee.security.util.URLUtil;
+import be.c4j.test.util.BeanManagerFake;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
@@ -38,6 +39,8 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.apache.shiro.codec.Base64;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -58,7 +61,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -116,6 +119,22 @@ public class AuthenticationServletTest {
     @InjectMocks
     private AuthenticationServlet authenticationServlet;
 
+    private BeanManagerFake beanManagerFake;
+
+    @Before
+    public void setup() throws IllegalAccessException {
+        beanManagerFake = new BeanManagerFake();
+
+        beanManagerFake.registerBean(new TimeUtil(), TimeUtil.class);
+
+        beanManagerFake.endRegistration();
+    }
+
+    @After
+    public void tearDown() {
+        beanManagerFake.deregistration();
+    }
+
     @Test
     public void doGet_happyCase_CodeFlow() throws ServletException, IOException, ParseException, URISyntaxException {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
@@ -123,8 +142,9 @@ public class AuthenticationServletTest {
         ssoUser.setCookieToken("CookieTokenRememberMe");
         when(ssoProducerBeanMock.getOctopusSSOUser()).thenReturn(ssoUser);
 
-        when(timeUtilMock.addSecondsToDate(anyInt(), any(Date.class))).thenReturn(new Date());
+        when(timeUtilMock.addSecondsToDate(anyLong(), any(Date.class))).thenReturn(new Date());
         when(ssoServerConfiguration.getOIDCTokenLength()).thenReturn(48);
+        when(ssoServerConfiguration.getSSOAccessTokenTimeToLive()).thenReturn(3600);
 
         when(httpServletRequestMock.getAttribute(AbstractRequest.class.getName())).thenReturn(authenticationRequestMock);
         when(authenticationRequestMock.getResponseType()).thenReturn(ResponseType.parse("code"));
@@ -161,7 +181,7 @@ public class AuthenticationServletTest {
         assertThat(remoteHostArgumentCaptor.getValue()).isEqualTo("remoteAddressValue");
 
         assertThat(oidcStoreDataArgumentCaptor.getValue().getAuthorizationCode().getValue()).isEqualTo(authorizationCode);
-        assertThat(oidcStoreDataArgumentCaptor.getValue().getAccessCode()).isNotNull();
+        assertThat(oidcStoreDataArgumentCaptor.getValue().getAccessToken()).isNotNull();
         assertThat(oidcStoreDataArgumentCaptor.getValue().getScope().toStringList()).containsExactly("scope1", "scope2");
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
@@ -189,7 +209,7 @@ public class AuthenticationServletTest {
         ssoUser.setCookieToken("CookieTokenRememberMe");
         when(ssoProducerBeanMock.getOctopusSSOUser()).thenReturn(ssoUser);
 
-        when(timeUtilMock.addSecondsToDate(anyInt(), any(Date.class))).thenReturn(new Date());
+        when(timeUtilMock.addSecondsToDate(anyLong(), any(Date.class))).thenReturn(new Date());
         when(ssoServerConfiguration.getOIDCTokenLength()).thenReturn(48);
 
         when(httpServletRequestMock.getAttribute(AbstractRequest.class.getName())).thenReturn(authenticationRequestMock);
@@ -234,7 +254,7 @@ public class AuthenticationServletTest {
         assertThat(remoteHostArgumentCaptor.getValue()).isEqualTo("remoteAddressValue");
 
         assertThat(oidcStoreDataArgumentCaptor.getValue().getAuthorizationCode()).isNull();
-        assertThat(oidcStoreDataArgumentCaptor.getValue().getAccessCode()).isNotNull();
+        assertThat(oidcStoreDataArgumentCaptor.getValue().getAccessToken()).isNotNull();
         assertThat(oidcStoreDataArgumentCaptor.getValue().getScope().toStringList()).containsExactly("scope1", "scope2");
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
@@ -252,7 +272,7 @@ public class AuthenticationServletTest {
         ssoUser.setCookieToken("CookieTokenRememberMe");
         when(ssoProducerBeanMock.getOctopusSSOUser()).thenReturn(ssoUser);
 
-        when(timeUtilMock.addSecondsToDate(anyInt(), any(Date.class))).thenReturn(new Date());
+        when(timeUtilMock.addSecondsToDate(anyLong(), any(Date.class))).thenReturn(new Date());
         when(ssoServerConfiguration.getOIDCTokenLength()).thenReturn(48);
 
         when(httpServletRequestMock.getAttribute(AbstractRequest.class.getName())).thenReturn(authenticationRequestMock);
@@ -285,7 +305,7 @@ public class AuthenticationServletTest {
         String query = callbackURL.substring(callbackURL.indexOf('?') + 1);
         Map<String, String> parameters = URLUtils.parseParameters(query);
 
-        assertThat(parameters.keySet()).containsOnly("access_token", "id_token", "state", "token_type");
+        assertThat(parameters.keySet()).containsOnly("access_token", "id_token", "state", "token_type", "scope");
 
         assertThat(parameters.get("state")).isEqualTo("stateValue");
         assertThat(parameters.get("token_type")).isEqualTo("Bearer");
@@ -307,7 +327,7 @@ public class AuthenticationServletTest {
         assertThat(remoteHostArgumentCaptor.getValue()).isEqualTo("remoteAddressValue");
 
         assertThat(oidcStoreDataArgumentCaptor.getValue().getAuthorizationCode()).isNull();
-        assertThat(oidcStoreDataArgumentCaptor.getValue().getAccessCode().getValue()).isEqualTo(parameters.get("access_token"));
+        assertThat(oidcStoreDataArgumentCaptor.getValue().getAccessToken().getValue()).isEqualTo(parameters.get("access_token"));
         assertThat(oidcStoreDataArgumentCaptor.getValue().getScope().toStringList()).containsExactly("scope1", "scope2");
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 

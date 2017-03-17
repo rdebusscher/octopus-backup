@@ -16,10 +16,14 @@
 package be.c4j.ee.security.sso.server.store;
 
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.util.TimeUtil;
+import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -43,11 +47,27 @@ public class MemoryTokenStoreTest {
 
     private MemoryTokenStore memoryTokenStore = new MemoryTokenStore();
 
+    private BeanManagerFake beanManagerFake;
+
+    @Before
+    public void setup() throws IllegalAccessException {
+
+        beanManagerFake = new BeanManagerFake();
+
+        beanManagerFake.registerBean(new TimeUtil(), TimeUtil.class);
+
+        beanManagerFake.endRegistration();
+    }
+
+    @After
+    public void tearDown() {
+        beanManagerFake.deregistration();
+    }
+
     @Test
     public void addLoginFromClient_noAuthorization() throws NoSuchFieldException, IllegalAccessException {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
-        ssoUser.setBearerAccessToken(new BearerAccessToken(ACCESS_TOKEN));
-        OIDCStoreData oidcStoreData = new OIDCStoreData();
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN));
         oidcStoreData.setClientId(new ClientID(CLIENT_ID1));
         memoryTokenStore.addLoginFromClient(ssoUser, THE_COOKIE, BROWSER, LOCAL_HOST, oidcStoreData);
 
@@ -72,8 +92,7 @@ public class MemoryTokenStoreTest {
     @Test
     public void addLoginFromClient_Authorization() throws NoSuchFieldException, IllegalAccessException {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
-        ssoUser.setBearerAccessToken(new BearerAccessToken(ACCESS_TOKEN));
-        OIDCStoreData oidcStoreData = new OIDCStoreData();
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN));
         oidcStoreData.setClientId(new ClientID(CLIENT_ID1));
         oidcStoreData.setAuthorizationCode(new AuthorizationCode(AUTHORIZATION_CODE));
         memoryTokenStore.addLoginFromClient(ssoUser, THE_COOKIE, BROWSER, LOCAL_HOST, oidcStoreData);
@@ -108,6 +127,9 @@ public class MemoryTokenStoreTest {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
         TokenStoreInfo tokenStoreInfo = new TokenStoreInfo(ssoUser, THE_COOKIE, BROWSER, LOCAL_HOST);
 
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN, 10L, null));  // 10 Seconds to live
+        tokenStoreInfo.addOIDCStoreData(oidcStoreData);
+
         Map<String, TokenStoreInfo> byAccessCode = new HashMap<String, TokenStoreInfo>();
         byAccessCode.put(ACCESS_TOKEN, tokenStoreInfo);
         ReflectionUtil.setFieldValue(memoryTokenStore, "byAccessCode", byAccessCode);
@@ -116,10 +138,35 @@ public class MemoryTokenStoreTest {
         assertThat(user).isSameAs(ssoUser);
     }
 
+
+    @Test
+    public void getUserByAccessCode_expiredToken() throws NoSuchFieldException, IllegalAccessException, InterruptedException {
+        OctopusSSOUser ssoUser = new OctopusSSOUser();
+        TokenStoreInfo tokenStoreInfo = new TokenStoreInfo(ssoUser, THE_COOKIE, BROWSER, LOCAL_HOST);
+
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN, 2L, null));  // 2 Seconds to live
+        tokenStoreInfo.addOIDCStoreData(oidcStoreData);
+
+        Map<String, TokenStoreInfo> byAccessCode = new HashMap<String, TokenStoreInfo>();
+        byAccessCode.put(ACCESS_TOKEN, tokenStoreInfo);
+        ReflectionUtil.setFieldValue(memoryTokenStore, "byAccessCode", byAccessCode);
+
+        Thread.sleep(2500);  // By the end of this wait the token is expired
+
+        OctopusSSOUser user = memoryTokenStore.getUserByAccessCode(ACCESS_TOKEN);
+        assertThat(user).isNull();
+
+        assertThat(byAccessCode).isEmpty();  // Removed the token
+    }
+
     @Test
     public void getUserByAccessCode_NotFound() throws NoSuchFieldException, IllegalAccessException {
         OctopusSSOUser ssoUser = new OctopusSSOUser();
         TokenStoreInfo tokenStoreInfo = new TokenStoreInfo(ssoUser, THE_COOKIE, BROWSER, LOCAL_HOST);
+
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(10L, null));  // Random token
+        tokenStoreInfo.addOIDCStoreData(oidcStoreData);
+
 
         Map<String, TokenStoreInfo> byAccessCode = new HashMap<String, TokenStoreInfo>();
         byAccessCode.put(ACCESS_TOKEN, tokenStoreInfo);
@@ -131,7 +178,7 @@ public class MemoryTokenStoreTest {
 
     @Test
     public void getOIDCDataByAuthorizationCode() throws NoSuchFieldException, IllegalAccessException {
-        OIDCStoreData oidcStoreData = new OIDCStoreData();
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken());
         oidcStoreData.setClientId(new ClientID(CLIENT_ID1));
         oidcStoreData.setAuthorizationCode(new AuthorizationCode(AUTHORIZATION_CODE));
 
@@ -150,7 +197,7 @@ public class MemoryTokenStoreTest {
 
     @Test
     public void getOIDCDataByAuthorizationCode_wrongClientId() throws NoSuchFieldException, IllegalAccessException {
-        OIDCStoreData oidcStoreData = new OIDCStoreData();
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken());
         oidcStoreData.setClientId(new ClientID(CLIENT_ID1));
         oidcStoreData.setAuthorizationCode(new AuthorizationCode(AUTHORIZATION_CODE));
 
@@ -167,7 +214,7 @@ public class MemoryTokenStoreTest {
 
     @Test
     public void getOIDCDataByAuthorizationCode_NotFound() throws NoSuchFieldException, IllegalAccessException {
-        OIDCStoreData oidcStoreData = new OIDCStoreData();
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken());
         oidcStoreData.setClientId(new ClientID(CLIENT_ID1));
         oidcStoreData.setAuthorizationCode(new AuthorizationCode(AUTHORIZATION_CODE));
 

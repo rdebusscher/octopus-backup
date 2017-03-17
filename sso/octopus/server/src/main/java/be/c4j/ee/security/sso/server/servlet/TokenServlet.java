@@ -120,7 +120,7 @@ public class TokenServlet extends HttpServlet {
         // FIXME Config
         PlainJWT plainJWT = new PlainJWT(oidcStoreData.getIdTokenClaimsSet().toJWTClaimsSet());
 
-        OIDCTokens token = new OIDCTokens(plainJWT, oidcStoreData.getAccessCode(), null); // TODO refresh tokens
+        OIDCTokens token = new OIDCTokens(plainJWT, oidcStoreData.getAccessToken(), null); // TODO refresh tokens
         return new OIDCTokenResponse(token);
     }
 

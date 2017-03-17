@@ -13,25 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.sso.client;
-
-import be.c4j.ee.security.util.SecretUtil;
+package be.c4j.ee.security.sso.server.config;
 
 /**
  *
  */
 
-public class GenerateClientSecret {
-
-    public static void main(String[] args) {
-
-        SecretUtil secretUtil = new SecretUtil();
-        secretUtil.init();
-
-        System.out.println("HS256 : " + secretUtil.generateSecretBase64(32));
-        System.out.println("HS384 : " + secretUtil.generateSecretBase64(48));
-        System.out.println("HS512 : " + secretUtil.generateSecretBase64(64));
-
-    }
-
+public enum UserEndpointEncoding {
+    NONE, JWS, JWE
 }

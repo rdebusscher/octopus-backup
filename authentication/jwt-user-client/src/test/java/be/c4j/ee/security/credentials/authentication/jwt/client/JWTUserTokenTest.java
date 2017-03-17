@@ -26,6 +26,7 @@ import be.c4j.ee.security.jwt.config.JWTSignature;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
+import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
@@ -41,7 +42,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,6 +74,8 @@ public class JWTUserTokenTest {
 
     private BeanManagerFake beanManagerFake;
 
+    private SecretUtil secretUtil;
+
     @Before
     public void setup() throws IllegalAccessException {
 
@@ -82,6 +84,9 @@ public class JWTUserTokenTest {
         ReflectionUtil.injectDependencies(jwtUserToken, new TimeUtil());
 
         beanManagerFake.endRegistration();
+
+        secretUtil = new SecretUtil();
+        secretUtil.init();
     }
 
     @After
@@ -92,7 +97,7 @@ public class JWTUserTokenTest {
     @Test
     public void createJWTUserToken_happyCase() throws IllegalAccessException, ParseException {
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
         when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -125,7 +130,7 @@ public class JWTUserTokenTest {
     @Test(expected = OctopusConfigurationException.class)
     public void createJWTUserToken_secretTooShort() throws IllegalAccessException, ParseException {
 
-        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(getHMACSecretShort());
+        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secretUtil.generateSecretBase64(16));
 
         jwtUserToken.init();
     }
@@ -133,7 +138,7 @@ public class JWTUserTokenTest {
     @Test
     public void createJWTUserToken_happyCase_additionalClaims() throws IllegalAccessException, ParseException {
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
         when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -172,7 +177,7 @@ public class JWTUserTokenTest {
     @Test
     public void createJWTUserToken_happyCase_encryption() throws IllegalAccessException, JOSEException {
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
         when(jwtClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
@@ -206,7 +211,7 @@ public class JWTUserTokenTest {
     @Test(expected = OctopusUnexpectedException.class)
     public void createJWTUserToken_encryption_exception() throws IllegalAccessException, ParseException, JOSEException {
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
         when(jwtClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
@@ -234,19 +239,5 @@ public class JWTUserTokenTest {
 
     }
 
-
-    private String getHMACSecret() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] secure = new byte[32];
-        secureRandom.nextBytes(secure);
-        return Base64.encodeToString(secure);
-    }
-
-    private String getHMACSecretShort() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] secure = new byte[16];
-        secureRandom.nextBytes(secure);
-        return Base64.encodeToString(secure);
-    }
 
 }

@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 public class SSOServerConfiguration extends AbstractOctopusConfig {
 
     private final int cookieTimeToLive = 10;
+    private final int accessTokenTimeToLive = 3600;
 
     protected SSOServerConfiguration() {
     }
@@ -97,5 +98,40 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
         return result;
     }
 
+    /**
+     * Returns the value for the access token time to live in seconds
+     *
+     * @return
+     */
+    @ConfigEntry
+    public int getSSOAccessTokenTimeToLive() {
+        String timeToLive = ConfigResolver.getPropertyValue("SSO.access.token.timetolive", "1h");
+        Pattern pattern = Pattern.compile("^(\\d+)([hms])$");
+        Matcher matcher = pattern.matcher(timeToLive);
+
+        int result = 0;
+        if (matcher.matches()) {
+
+            if ("h".equalsIgnoreCase(matcher.group(2))) {
+                result = Integer.valueOf(matcher.group(1)) * 60 * 60;
+            }
+            if ("m".equalsIgnoreCase(matcher.group(2))) {
+                result = Integer.valueOf(matcher.group(1)) * 60;
+            }
+            if ("s".equalsIgnoreCase(matcher.group(2))) {
+                result = Integer.valueOf(matcher.group(1));
+            }
+
+            if (!(result > 0)) {
+                LOGGER.warn("Invalid configuration value for SSO.access.token.timetolive = " + timeToLive + ". Using default of 1h");
+                result = accessTokenTimeToLive;
+            }
+
+        } else {
+            LOGGER.warn("Invalid configuration value for SSO.access.token.timetolive = " + timeToLive + ". Using default of 10h");
+            result = accessTokenTimeToLive;
+        }
+        return result;
+    }
 
 }

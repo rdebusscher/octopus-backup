@@ -19,7 +19,6 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.util.URLUtil;
-import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
@@ -73,7 +72,7 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
                 ClientID clientId = new ClientID(octopusSSOClientConfiguration.getSSOClientId());
                 req = new AuthenticationRequest(
                         new URI(loginURL),
-                        new ResponseType(octopusSSOClientConfiguration.getSSOType().getResponseType()),
+                        octopusSSOClientConfiguration.getSSOType().getResponseType(),
                         Scope.parse("openid octopus " + octopusSSOClientConfiguration.getSSOScopes()),
                         clientId,
                         callback,

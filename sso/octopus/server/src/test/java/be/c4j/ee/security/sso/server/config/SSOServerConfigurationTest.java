@@ -84,9 +84,61 @@ public class SSOServerConfigurationTest {
 
     @Test
     public void getSSOCookieTimeToLive_negative() {
-        TestConfigSource.defineConfigValue("-1D");
+        TestConfigSource.defineConfigValue("-1h");
         int ssoCookieTimeToLive = configuration.getSSOCookieTimeToLive();
         assertThat(ssoCookieTimeToLive).isEqualTo(10); // Default Value
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_hours() {
+        TestConfigSource.defineConfigValue("8h");
+
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(8 * 60 * 60);
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_minutes() {
+        TestConfigSource.defineConfigValue("12m");
+
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(12 * 60);
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_seconds() {
+        TestConfigSource.defineConfigValue("1s");
+
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(1);
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_default() {
+
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(3600);
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_wrongValue() {
+        TestConfigSource.defineConfigValue("JUnit");
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(3600); // Default Value
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_Zero() {
+        TestConfigSource.defineConfigValue("0h");
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(3600); // Default Value
+    }
+
+    @Test
+    public void getSSOAccessTokenTimeToLive_negative() {
+        TestConfigSource.defineConfigValue("-1h");
+        int ssoCookieTimeToLive = configuration.getSSOAccessTokenTimeToLive();
+        assertThat(ssoCookieTimeToLive).isEqualTo(3600); // Default Value
     }
 
 }

@@ -15,11 +15,14 @@
  */
 package be.c4j.ee.security.sso.server.store;
 
+import be.c4j.ee.security.util.TimeUtil;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+
+import java.util.Date;
 
 /**
  *
@@ -31,8 +34,15 @@ public class OIDCStoreData {
     private Scope scope;
 
     private AuthorizationCode authorizationCode;
-    private BearerAccessToken accessCode;
+    private BearerAccessToken accessToken;
     private IDTokenClaimsSet idTokenClaimsSet;
+
+    private Date expiresOn;
+
+    public OIDCStoreData(BearerAccessToken accessToken) {
+        this.accessToken = accessToken;
+        expiresOn = TimeUtil.getInstance().addSecondsToDate(accessToken.getLifetime(), new Date());
+    }
 
     public ClientID getClientId() {
         return clientId;
@@ -58,12 +68,8 @@ public class OIDCStoreData {
         this.authorizationCode = authorizationCode;
     }
 
-    public BearerAccessToken getAccessCode() {
-        return accessCode;
-    }
-
-    public void setAccessCode(BearerAccessToken accessCode) {
-        this.accessCode = accessCode;
+    public BearerAccessToken getAccessToken() {
+        return accessToken;
     }
 
     public IDTokenClaimsSet getIdTokenClaimsSet() {
@@ -72,5 +78,28 @@ public class OIDCStoreData {
 
     public void setIdTokenClaimsSet(IDTokenClaimsSet idTokenClaimsSet) {
         this.idTokenClaimsSet = idTokenClaimsSet;
+    }
+
+    public Date getExpiresOn() {
+        return expiresOn;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OIDCStoreData)) {
+            return false;
+        }
+
+        OIDCStoreData that = (OIDCStoreData) o;
+
+        return clientId != null ? clientId.equals(that.clientId) : that.clientId == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return clientId != null ? clientId.hashCode() : 0;
     }
 }

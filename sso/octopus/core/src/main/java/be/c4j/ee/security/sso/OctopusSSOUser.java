@@ -15,25 +15,14 @@
  */
 package be.c4j.ee.security.sso;
 
-import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
-import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
-import be.c4j.ee.security.sso.rest.reflect.Property;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONStyle;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 
 import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 
 /**
  *
@@ -41,12 +30,11 @@ import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     public static final String LOCAL_ID = "localId";
-    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", LOCAL_ID, "userName", "lastName", "firstName", "fullName", "email");
 
     private String id;
     private String localId;
     private String userName;
-    private BearerAccessToken bearerAccessToken;
+    private BearerAccessToken bearerAccessToken;  // Client side only. For server side tokens are kep at OIDCStoreData
     private String cookieToken;
 
     private String lastName;
@@ -181,109 +169,11 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     @Override
     public Object getCredentials() {
-        return bearerAccessToken;
+        return cookieToken;
     }
 
     public <T> T getUserInfo(String key) {
         return (T) userInfo.get(key);
-    }
-
-    public String toJSON(Map<String, Object> info, PrincipalUserInfoJSONProvider jsonProvider) {
-        JSONObject result = new JSONObject();
-        result.put("id", id);
-        result.put("localId", localId);
-        result.put("userName", userName);
-
-        result.put("lastName", lastName);
-        result.put("firstName", firstName);
-        result.put("fullName", fullName);
-        result.put("email", email);
-
-        for (Map.Entry<String, Object> infoEntry : info.entrySet()) {
-
-            Object value = infoEntry.getValue();
-            if (Property.isBasicPropertyType(value)) {
-                result.put(infoEntry.getKey(), value);
-            } else {
-                result.put(infoEntry.getKey(), value.getClass().getName() + "@" + jsonProvider.writeValue(value));
-            }
-        }
-
-        return result.toJSONString(new JSONStyle(FLAG_IGNORE_NULL));
-    }
-
-    public static OctopusSSOUser fromJSON(String json, PrincipalUserInfoJSONProvider jsonProvider) {
-        OctopusSSOUser result;
-        try {
-
-            JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-
-            JSONObject jsonObject = (JSONObject) parser.parse(json);
-
-            result = new OctopusSSOUser();
-            result.setId(getString(jsonObject, "id"));
-            result.setLocalId(getString(jsonObject, "localId"));
-            result.setUserName(optString(jsonObject, "userName"));  // username is optional like for example with OAuth2
-
-            result.setLastName(optString(jsonObject, "lastName"));
-            result.setFirstName(optString(jsonObject, "firstName"));
-            result.setFullName(optString(jsonObject, "fullName"));
-            result.setEmail(optString(jsonObject, "email"));
-
-
-            Object value;
-            for (String keyName : jsonObject.keySet()) {
-
-                if (!DEFAULT_PROPERTY_NAMES.contains(keyName)) {
-                    String keyValue = getString(jsonObject, keyName);
-                    if (keyValue.contains("@")) {
-
-                        Class<?> aClass = tryToDefineClass(keyValue);
-                        if (aClass != null) {
-                            int markerPos = keyValue.indexOf("@");
-                            value = jsonProvider.readValue(keyValue.substring(markerPos + 1), aClass);
-                        } else {
-                            value = keyValue; // We don't have the class, we keep the string representation for convenience.
-                        }
-
-                    } else {
-                        value = keyValue;
-                    }
-                    // We always know that it is serializable because we started from a map which contains only serializables.
-                    result.addUserInfo(keyName, (Serializable) value);
-                }
-            }
-
-
-        } catch (ParseException e) {
-            throw new OctopusUnexpectedException(e);
-        }
-        return result;
-    }
-
-    private static Class<?> tryToDefineClass(String keyValue) {
-        Class<?> result = null;
-        String[] parts = keyValue.split("@", 2);
-        try {
-            result = Class.forName(parts[0]);
-        } catch (ClassNotFoundException e) {
-            // Nothing to do here, we don't have that class on the classpath
-        }
-
-        return result;
-    }
-
-
-    private static String getString(JSONObject jsonObject, String key) {
-        return jsonObject.get(key).toString();
-    }
-
-    private static String optString(JSONObject jsonObject, String key) {
-        if (jsonObject.containsKey(key)) {
-            return getString(jsonObject, key);
-        } else {
-            return null;
-        }
     }
 
     @Override

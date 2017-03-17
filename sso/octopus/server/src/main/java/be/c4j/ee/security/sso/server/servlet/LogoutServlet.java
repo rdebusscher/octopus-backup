@@ -22,6 +22,7 @@ import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
+import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
@@ -36,7 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -84,15 +86,22 @@ public class LogoutServlet extends HttpServlet {
     }
 
     private void doSingleLogout(String clientId) {
-        Set<String> loggedInClients = tokenStore.getLoggedInClients(octopusSSOUser);
-        loggedInClients.remove(clientId); // Do not send logout request for the application who requested the logout :)
+        List<OIDCStoreData> loggedInClients = tokenStore.getLoggedInClients(octopusSSOUser);
 
-        for (String loggedInClient : loggedInClients) {
-            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(loggedInClient);
-            // FIXME usie clientInfo.isOctopusClient
-            // FIXME Use encryptionHandler in some cases!
-            String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + octopusSSOUser.getAccessToken();
-            sendLogoutRequestToClient(url);
+        OIDCStoreData loggedInClient;
+        Iterator<OIDCStoreData> iterator = loggedInClients.iterator();
+        while (iterator.hasNext()) {
+            loggedInClient = iterator.next();
+            if (clientId.equals(loggedInClient.getClientId().getValue())) {
+                iterator.remove();
+            } else {
+
+                ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(loggedInClient.getClientId().getValue());
+                // FIXME use clientInfo.isOctopusClient
+                // FIXME Use encryptionHandler in some cases!
+                String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + loggedInClient.getAccessToken().getValue();
+                sendLogoutRequestToClient(url);
+            }
         }
     }
 
@@ -108,6 +117,7 @@ public class LogoutServlet extends HttpServlet {
             //con.setRequestProperty("User-Agent", USER_AGENT);
 
             int responseCode = con.getResponseCode();
+            // FIXME Log issues
         } catch (IOException e) {
             // FIXME
             e.printStackTrace();
@@ -133,7 +143,7 @@ public class LogoutServlet extends HttpServlet {
     private void showDebugInfo(OctopusSSOUser user) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is logged out (token = %s)", user.getFullName(), user.getAccessToken()));
+            logger.info(String.format("User %s is logged out (cookie token = %s)", user.getFullName(), user.getCookieToken()));
         }
     }
 }

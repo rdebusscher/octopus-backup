@@ -98,14 +98,12 @@ public class AuthenticationServlet extends HttpServlet {
 
         AuthenticationRequest request = (AuthenticationRequest) httpServletRequest.getAttribute(AbstractRequest.class.getName());
 
-        if (ssoUser.getBearerAccessToken() == null) {
-            ssoUser.setBearerAccessToken(new BearerAccessToken(ssoServerConfiguration.getOIDCTokenLength()));
-        }
-
         String clientId = request.getClientID().getValue();
         IDTokenClaimsSet claimsSet = defineIDToken(httpServletRequest, ssoUser, request, clientId);
 
-        OIDCStoreData oidcStoreData = new OIDCStoreData();
+
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(ssoServerConfiguration.getOIDCTokenLength()
+                , ssoServerConfiguration.getSSOAccessTokenTimeToLive(), request.getScope()));
 
         AuthorizationCode authorizationCode = null;
         AccessToken accessToken = null;
@@ -121,7 +119,7 @@ public class AuthenticationServlet extends HttpServlet {
         } else {
             if (request.getResponseType().contains("token")) {
                 // Set the variable so that the Access code is send in this response.
-                accessToken = ssoUser.getBearerAccessToken();
+                accessToken = oidcStoreData.getAccessToken();
             }
             try {
 
@@ -139,9 +137,6 @@ public class AuthenticationServlet extends HttpServlet {
                 throw new OctopusUnexpectedException(e);
             }
         }
-
-        // Access code must be set in all situations so that it is available later on.
-        oidcStoreData.setAccessCode(ssoUser.getBearerAccessToken());
 
         oidcStoreData.setIdTokenClaimsSet(claimsSet);
 
@@ -180,8 +175,10 @@ public class AuthenticationServlet extends HttpServlet {
         Issuer iss = new Issuer(urlUtil.determineRoot(httpServletRequest));
         Subject sub = new Subject(ssoUser.getName());
         List<Audience> audList = new Audience(clientId).toSingleAudienceList();
+
+
         Date iat = new Date();
-        Date exp = timeUtil.addSecondsToDate(60, iat); // TODO Verify how we handle expiration when multiple clients are using the server
+        Date exp = timeUtil.addSecondsToDate(ssoServerConfiguration.getSSOAccessTokenTimeToLive(), iat); // TODO Verify how we handle expiration when multiple clients are using the server
 
         IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(iss, sub, audList, exp, iat);
 

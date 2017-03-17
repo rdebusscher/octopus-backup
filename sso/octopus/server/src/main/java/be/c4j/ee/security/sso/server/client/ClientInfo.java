@@ -28,7 +28,7 @@ public class ClientInfo {
 
     private String callbackURL;
     private boolean octopusClient;
-    private String idTokenSecret;  // FIXME Convert to byte !!
+    private String idTokenSecret;  // For the idToken of the UserInfoEndpoint (signing of the JWT)
     private String clientSecret;  // For the ClientAuthentication of the TokenEndpoint (signing of the JWT)
 
     public String getCallbackURL() {
@@ -67,6 +67,10 @@ public class ClientInfo {
 
     public String getIdTokenSecret() {
         return idTokenSecret;
+    }
+
+    public byte[] getIdTokenSecretByte() {
+        return new Base64(idTokenSecret).decode();
     }
 
     public void setIdTokenSecret(String idTokenSecret) {

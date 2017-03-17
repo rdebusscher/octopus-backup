@@ -25,6 +25,7 @@ import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
+import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.util.ReflectionUtil;
 import com.nimbusds.jose.*;
@@ -36,7 +37,6 @@ import net.minidev.json.JSONObject;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.codec.Base64;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.security.SecureRandom;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -98,11 +97,17 @@ public class JWTAuthenticatingFilterTest {
 
     private BeanManagerFake beanManagerFake;
 
+    private SecretUtil secretUtil;
+
     @Before
     public void setup() {
         jwtAuthenticatingFilter = new JWTAuthenticatingFilter();
 
         beanManagerFake = new BeanManagerFake();
+
+        secretUtil = new SecretUtil();
+        secretUtil.init();
+
     }
 
     @After
@@ -145,7 +150,7 @@ public class JWTAuthenticatingFilterTest {
         beanManagerFake.endRegistration();
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
-        when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(getHMACSecretShort());
+        when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secretUtil.generateSecretBase64(16));
 
         jwtAuthenticatingFilter.init();
     }
@@ -158,7 +163,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -186,7 +191,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -209,7 +214,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -244,7 +249,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -275,7 +280,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -298,7 +303,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -329,7 +334,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
@@ -345,20 +350,6 @@ public class JWTAuthenticatingFilterTest {
 
         jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
-    }
-
-    private String getHMACSecret() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] secure = new byte[32];
-        secureRandom.nextBytes(secure);
-        return Base64.encodeToString(secure);
-    }
-
-    private String getHMACSecretShort() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] secure = new byte[16];
-        secureRandom.nextBytes(secure);
-        return Base64.encodeToString(secure);
     }
 
     private SignedJWT createSignedJWT(String secret) throws KeyLengthException {
@@ -417,7 +408,7 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.endRegistration();
 
-        String secret = getHMACSecret();
+        String secret = secretUtil.generateSecretBase64(32);
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);

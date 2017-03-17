@@ -69,6 +69,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
     private AuthenticationToken createSSOUser(HttpServletRequest request, String apiKey, String token) {
 
+        // FIXME the IncorrectDataToken does not result in a correct Error response
         if (encryptionHandler != null && encryptionHandler.requiresApiKey() && apiKey == null) {
             // x-api-key header parameter is required.
             return new IncorrectDataToken("x-api-key header required");
@@ -99,7 +100,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         OctopusSSOUser user = tokenStore.getUserByAccessCode(token);
 
         if (user != null) {
-            // We have found a USer for the token.
+            // We have found a User for the token.
             // So we can assume that the encryptionHandler isn't used (can be the case when using implicit flow)
             // TODO Verify the usecase of encryptionHandler
             accessToken = token;
@@ -115,9 +116,6 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             }
         }
 
-        if (user != null && !accessToken.equals(user.getAccessToken())) {
-            logger.warn("Token used as key in tokenStore returned a SSOUser with a different Token ");
-        }
         if (user == null) {
             logger.info("No user information found for token " + accessToken);
         } else {
@@ -133,7 +131,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         }
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated from Authorization Header (token = %s)", user.getFullName(), user.getAccessToken()));
+            logger.info(String.format("User %s is authenticated from Authorization Header (cookie token = %s)", user.getFullName(), user.getCookieToken()));
         }
     }
 

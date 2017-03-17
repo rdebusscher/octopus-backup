@@ -113,12 +113,27 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
         }
     }
 
+    @ConfigEntry(noLogging = true)
+    public byte[] getSSOIdTokenSecret() {
+        String tokenSecret = defineConfigValue("SSO.idTokenSecret");
+        if (tokenSecret.trim().isEmpty()) {
+            throw new OctopusConfigurationException("Value for {SSO.application}SSO.idTokenSecret parameter is empty");
+        }
+
+        byte[] result = new Base64(tokenSecret).decode();
+
+        if (result.length < 32) {
+            throw new OctopusConfigurationException("value for {SSO.application}SSO.idTokenSecret must be at least 32 byte (256 bit)");
+        }
+        return result;
+    }
+
     @ConfigEntry
     public SSOFlow getSSOType() {
         String ssoFlowParameter = defineConfigValue("SSO.flow");
         SSOFlow ssoFlow = SSOFlow.defineFlow(ssoFlowParameter);
         if (ssoFlow == null) {
-            throw new OctopusConfigurationException("Value for {SSO.application}SSO.flow parameter is invalid. Must be 'id-token' or 'code'");
+            throw new OctopusConfigurationException("Value for {SSO.application}SSO.flow parameter is invalid. Must be 'token' or 'code'");
         }
         return ssoFlow;
     }

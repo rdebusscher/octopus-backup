@@ -15,20 +15,34 @@
  */
 package be.c4j.ee.security.sso;
 
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.ResponseType;
+
 /**
  * This are the OAuth2 flows
  */
 
 public enum SSOFlow {
-    IMPLICIT("id_token"), AUTHORIZATION_CODE("code");
+    IMPLICIT("token"), AUTHORIZATION_CODE("code");
 
-    private String responseType;
+    private String responseTypeCode;
+    private ResponseType responseType;
 
-    SSOFlow(String responseType) {
-        this.responseType = responseType;
+    SSOFlow(String responseTypeCode) {
+        this.responseTypeCode = responseTypeCode;
+        try {
+            if ("token".equals(responseTypeCode)) {
+                responseType = ResponseType.parse("token id_token");
+            } else {
+                responseType = ResponseType.parse("code");
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public String getResponseType() {
+    public ResponseType getResponseType() {
         return responseType;
     }
 
@@ -38,7 +52,7 @@ public enum SSOFlow {
         }
         SSOFlow result = null;
         for (SSOFlow ssoFlow : SSOFlow.values()) {
-            if (responseType.equals(ssoFlow.responseType)) {
+            if (responseType.equals(ssoFlow.responseTypeCode)) {
                 result = ssoFlow;
             }
         }
