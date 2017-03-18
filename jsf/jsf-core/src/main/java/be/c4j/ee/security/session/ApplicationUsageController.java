@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.session;
 
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.event.LogonEvent;
 import be.c4j.ee.security.event.LogoutEvent;
 import be.c4j.ee.security.event.RememberMeLogonEvent;
@@ -41,6 +42,9 @@ import java.util.Map;
 @ApplicationScoped
 public class ApplicationUsageController {
 
+    @Inject
+    private OctopusJSFConfig octopusJSFConfig;
+
     private Map<String, ApplicationUsageInfo> applicationUsage = new HashMap<String, ApplicationUsageInfo>();
 
     @Inject
@@ -53,9 +57,14 @@ public class ApplicationUsageController {
                 applicationUsage.put(event.getSessionId(), newApplicationUsageInfo(event.getSession()));
                 break;
             case LOGON:
+                if (octopusJSFConfig.getSingleSession()) {
+                    logoutOtherSessions(event.getUserPrincipal());
+                }
+
                 ApplicationUsageInfo applicationUsageInfo = applicationUsage.get(event.getSessionId());
                 applicationUsageInfo.setAuthenticationToken(event.getAuthenticationToken());
                 applicationUsageInfo.setUserPrincipal(event.getUserPrincipal());
+
                 break;
             case REMEMBER_ME_LOGON:
                 HttpSession session = event.getHttpServletRequest().getSession();
@@ -85,6 +94,16 @@ public class ApplicationUsageController {
             default:
                 throw new IllegalArgumentException("UserAction " + event.getUserAction() + " not supported");
         }
+    }
+
+    private void logoutOtherSessions(final UserPrincipal userPrincipalFromNewLogin) {
+
+        invalidateSession(new UserSessionFinder() {
+            @Override
+            public boolean isCorrectPrincipal(UserPrincipal userPrincipal) {
+                return userPrincipal.equals(userPrincipalFromNewLogin);
+            }
+        });
     }
 
     private ApplicationUsageInfo newApplicationUsageInfo(HttpSession session) {

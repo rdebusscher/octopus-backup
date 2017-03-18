@@ -70,4 +70,12 @@ public class OctopusJSFConfig extends AbstractOctopusConfig implements ModuleCon
         return sessionHijackingLevel;
     }
 
+    @ConfigEntry
+    public boolean getSingleSession() {
+
+        String value = ConfigResolver.getPropertyValue("session.single", "true");
+        return Boolean.valueOf(value);
+
+    }
+
 }

@@ -105,6 +105,12 @@ Determines the Session Hijack Protection level. It uses the IP Address and User-
 
 The default level _ON_, checks both properties, _PARTIAL_ only the User-Agent header value and _OFF_ disables the protection.
 
+==== session.single (JSF Only)
+
+default : *true*
+
+When active, only one session for a user is allowed (based on the principalId defined in the AuthenticationInfoBuilder). When the user logs on, the other session is automatically logged out.
+
 ==== hashAlgorithmName
 
 default : *(none)*
