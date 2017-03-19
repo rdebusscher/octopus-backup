@@ -60,7 +60,7 @@ public class OctopusBaseExtension implements Extension {
 
             for (Object permission : constants) {
                 namedPermission = (NamedPermission) permission;
-                beanName = nameFactory.generatePermissionBeanNameForExtension(namedPermission.name());
+                beanName = nameFactory.generateBeanNameForExtension(namedPermission.name(), config.getPermissionVoterSuffix());
 
                 Bean<GenericPermissionVoter> bean = new BeanBuilder<GenericPermissionVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericPermissionVoter.class)
@@ -91,7 +91,7 @@ public class OctopusBaseExtension implements Extension {
 
             for (Object permission : constants) {
                 namedRole = (NamedRole) permission;
-                beanName = nameFactory.generateRoleBeanName(namedRole.name());
+                beanName = nameFactory.generateBeanNameForExtension(namedRole.name(), config.getRoleVoterSuffix());
 
                 Bean<GenericRoleVoter> bean = new BeanBuilder<GenericRoleVoter>(beanManager)
                         .passivationCapable(false).beanClass(GenericRoleVoter.class)

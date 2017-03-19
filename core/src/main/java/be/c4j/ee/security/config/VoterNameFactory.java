@@ -17,36 +17,36 @@ package be.c4j.ee.security.config;
 
 import be.c4j.ee.security.permission.PermissionLookup;
 import be.c4j.ee.security.util.CDIUtil;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class VoterNameFactory {
 
-    private static final String PERMISSION_VOTER = "PermissionVoter";
-
     private boolean initialized = false;
     private PermissionLookup permissionLookup;
+    private OctopusConfig octopusConfig;
 
     public String generatePermissionBeanName(String permissionNames) {
         checkDependencies();
-        return generateName(permissionNames, PERMISSION_VOTER);
+        return generateName(permissionNames, octopusConfig.getPermissionVoterSuffix());
     }
 
     /**
      * This version can be used from within the extension and doesn't trigger the BeanManager (which isn't possible during execution of the extension.
-     * This special version assumes that only one permission name is passed (so no , in parameter value)
+     * This special version assumes that only one permission name (or role name) is passed (so no , in parameter value)
      * This method assumes that a PermissionLookup will be available, which is ok since we have defined a NamedPermissionClass within configuration which makes a PermissionLookup required.
-     * FIXME Verify the assumption of PermissionLookup
+     * (on other words : Method is called from extension and only when we have NamedPermissionClass, we are calling this method. And NamedPermissionClass requires  PermissionLookup)
      *
-     * @param permissionName
+     * @param name
      * @return
      */
-    public String generatePermissionBeanNameForExtension(String permissionName) {
+    public String generateBeanNameForExtension(String name, String voterSuffix) {
         StringBuilder result = new StringBuilder();
-        String voterName = transformName(permissionName.trim());
+        String voterName = transformName(name.trim());
         result.append(voterName);
-        result.append(PERMISSION_VOTER);
+        result.append(voterSuffix);
         return result.toString();
     }
 
@@ -55,6 +55,9 @@ public class VoterNameFactory {
         if (!initialized) {
             // Find the optional permissionLookup
             permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
+
+            octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
+
             initialized = true;
         }
     }
@@ -87,8 +90,7 @@ public class VoterNameFactory {
     }
 
     public String generateRoleBeanName(String roleName) {
-        return generateName(roleName, "RoleVoter");
-
+        return generateName(roleName, octopusConfig.getRoleVoterSuffix());
     }
 
     private String transformName(String roleName) {

@@ -144,6 +144,16 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
         return debugValues;
     }
 
+    @ConfigEntry
+    public String getPermissionVoterSuffix() {
+        return ConfigResolver.getPropertyValue("voter.suffix.permission", "PermissionVoter");
+    }
+
+    @ConfigEntry
+    public String getRoleVoterSuffix() {
+        return ConfigResolver.getPropertyValue("voter.suffix.role", "RoleVoter");
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null && getNamedPermissionCheck().length() != 0) {
 

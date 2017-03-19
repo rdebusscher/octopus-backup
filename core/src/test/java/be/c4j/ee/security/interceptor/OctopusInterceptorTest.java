@@ -187,8 +187,13 @@ public class OctopusInterceptorTest {
             }
         });
 
+        when(octopusConfigMock.getPermissionVoterSuffix()).thenReturn("PermissionVoter");
+        when(octopusConfigMock.getRoleVoterSuffix()).thenReturn("RoleVoter");
+
         // startup mock system for manual/programmatic CDI retrieval
         beanManagerFake = new BeanManagerFake();
+
+        beanManagerFake.registerBean(octopusConfigMock, OctopusConfig.class);
 
         // SecurityViolationInfoProducer mock instance assigned to CDI and playback
         beanManagerFake.registerBean(infoProducerMock, SecurityViolationInfoProducer.class);
