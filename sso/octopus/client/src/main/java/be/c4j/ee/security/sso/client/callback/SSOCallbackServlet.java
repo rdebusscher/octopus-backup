@@ -218,9 +218,12 @@ public class SSOCallbackServlet extends HttpServlet {
         } catch (URISyntaxException e) {
             throw new OctopusUnexpectedException(e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-017", "User Info endpoint response validation failure : " + e.getMessage());
+            callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
+
         } catch (java.text.ParseException e) {
-            e.printStackTrace();
+            ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-018", "User Info endpoint response JWT validation failure : " + e.getMessage());
+            callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
         } catch (JOSEException e) {
             throw new OctopusUnexpectedException(e);
         }

@@ -37,7 +37,7 @@ public enum SSOFlow {
                 responseType = ResponseType.parse("code");
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            // Should never happen as it is developer written code
         }
 
     }

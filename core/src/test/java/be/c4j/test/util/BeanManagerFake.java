@@ -19,6 +19,7 @@ import be.c4j.util.ReflectionUtil;
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.util.metadata.builder.AnnotatedTypeBuilder;
+import org.junit.Assert;
 import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -144,9 +145,11 @@ public class BeanManagerFake {
             field.setAccessible(true);
             field.set(null, null); // set null to the static field (instance == null)
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            Assert.fail(e.getMessage());
+            //Should never happen
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            Assert.fail(e.getMessage());
+            //Should never happen
         }
 
         reset(beanManagerMock);

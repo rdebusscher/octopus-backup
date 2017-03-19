@@ -18,9 +18,12 @@ package be.c4j.ee.security.credentials.authentication.fake;
 import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeOAuth2Authentication;
 import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeUserCheck;
 import be.c4j.ee.security.credentials.authentication.oauth2.servlet.OAuth2CallbackServlet;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.servlet.*;
 import java.io.IOException;
 
@@ -29,6 +32,9 @@ import java.io.IOException;
  */
 @ApplicationScoped
 public class OctopusFakeOAuth2Authentication implements FakeOAuth2Authentication {
+
+    @Inject
+    private Logger logger;
 
     public boolean forwardForTokenCreation(ServletContext servletContext, ServletRequest request, ServletResponse response, String userParameter) {
 
@@ -45,11 +51,11 @@ public class OctopusFakeOAuth2Authentication implements FakeOAuth2Authentication
             try {
                 dispatcher.forward(request, response);
             } catch (ServletException e) {
-                // FIXME
-                e.printStackTrace();
+                logger.warn(e.getMessage());
+                throw new OctopusUnexpectedException(e.getMessage());
             } catch (IOException e) {
-                // FIXME
-                e.printStackTrace();
+                logger.warn(e.getMessage());
+                throw new OctopusUnexpectedException(e.getMessage());
             }
         }
         return result;

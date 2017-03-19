@@ -119,8 +119,7 @@ public class LogoutServlet extends HttpServlet {
             int responseCode = con.getResponseCode();
             // FIXME Log issues
         } catch (IOException e) {
-            // FIXME
-            e.printStackTrace();
+            logger.warn(String.format("Sending logout request to %s failed with %s", url, e.getMessage()));
         }
     }
 

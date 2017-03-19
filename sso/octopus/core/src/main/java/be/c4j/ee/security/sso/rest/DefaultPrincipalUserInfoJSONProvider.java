@@ -15,15 +15,17 @@
  */
 package be.c4j.ee.security.sso.rest;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.rest.reflect.Bean;
 import be.c4j.ee.security.sso.rest.reflect.Property;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.inject.Vetoed;
-import java.io.Serializable;
 
 import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 
@@ -33,6 +35,7 @@ import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 @Vetoed
 public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJSONProvider {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(DefaultPrincipalUserInfoJSONProvider.class);
 
     @Override
     public String writeValue(Object data) {
@@ -45,12 +48,10 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
         for (Property declaredProperty : declaredProperties) {
             name = declaredProperty.getName();
             value = bean.getProperty(name).get(data);
-            if (value instanceof Serializable) {
-                if (Property.isBasicPropertyType((Serializable) value)) {
-                    result.put(name, value);
-                } else {
-                    result.put(name, writeValue(value));  // Recursive call
-                }
+            if (Property.isBasicPropertyType(value)) {
+                result.put(name, value);
+            } else {
+                result.put(name, writeValue(value));  // Recursive call
             }
         }
         return result.toJSONString(new JSONStyle(FLAG_IGNORE_NULL));
@@ -59,7 +60,7 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
     @Override
     public <T> T readValue(String json, Class<T> classType) {
         Bean<T> bean = Bean.forClass(classType);
-        T result = null;
+        T result;
         try {
             result = classType.newInstance();
 
@@ -87,14 +88,14 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
                 }
             }
         } catch (InstantiationException e) {
-            // FIXME
-            e.printStackTrace();
+            LOGGER.warn(e.getMessage());
+            throw new OctopusUnexpectedException(e.getMessage());
         } catch (IllegalAccessException e) {
-            // FIXME
-            e.printStackTrace();
+            LOGGER.warn(e.getMessage());
+            throw new OctopusUnexpectedException(e.getMessage());
         } catch (ParseException e) {
-            // FIXME
-            e.printStackTrace();
+            LOGGER.warn(e.getMessage());
+            throw new OctopusUnexpectedException(e.getMessage());
         }
         return result;
     }
