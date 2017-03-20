@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.token;
 
+import be.c4j.ee.security.octopus.ProcessAuthenticationToken;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -24,7 +25,7 @@ import org.apache.shiro.authc.AuthenticationToken;
  *
  */
 
-public class OIDCEndpointToken implements ValidatedAuthenticationToken, AuthenticationToken {
+public class OIDCEndpointToken implements ValidatedAuthenticationToken, ProcessAuthenticationToken, AuthenticationToken {
 
 
     private ClientAuthentication clientAuthentication;
