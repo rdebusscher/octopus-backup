@@ -32,6 +32,9 @@ import java.util.UUID;
  */
 public class JWKManagerRSA {
 
+    private JWKManagerRSA() {
+    }
+
     public static void main(String[] args) {
         String xApiKey = UUID.randomUUID().toString();
         //JWK jwk = make(2048, KeyUse.SIGNATURE, new Algorithm("PS512"), xApiKey);

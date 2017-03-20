@@ -18,11 +18,13 @@ package be.c4j.ee.security.sso.client;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.Nonce;
 
+import java.io.Serializable;
+
 /**
  *
  */
 
-public class OpenIdVariableClientData {
+public class OpenIdVariableClientData implements Serializable {
 
     private State state;
     private Nonce nonce;

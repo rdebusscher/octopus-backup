@@ -34,7 +34,7 @@ public class DebugClientResponseFilter implements ClientResponseFilter {
 
     private Logger logger = LoggerFactory.getLogger(DebugClientResponseFilter.class);
 
-    private final int maxEntitySize = 1024 * 8;
+    private static final int MAX_ENTITY_SIZE = 1024 * 8;
 
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
@@ -49,11 +49,11 @@ public class DebugClientResponseFilter implements ClientResponseFilter {
         if (!stream.markSupported()) {
             logStream = new BufferedInputStream(stream);
         }
-        logStream.mark(maxEntitySize + 1);
-        final byte[] entity = new byte[maxEntitySize + 1];
+        logStream.mark(MAX_ENTITY_SIZE + 1);
+        final byte[] entity = new byte[MAX_ENTITY_SIZE + 1];
         final int entitySize = logStream.read(entity);
-        responseBody.append(new String(entity, 0, Math.min(entitySize, maxEntitySize), Charset.defaultCharset()));
-        if (entitySize > maxEntitySize) {
+        responseBody.append(new String(entity, 0, Math.min(entitySize, MAX_ENTITY_SIZE), Charset.defaultCharset()));
+        if (entitySize > MAX_ENTITY_SIZE) {
             responseBody.append("...more...");
         }
         logStream.reset();

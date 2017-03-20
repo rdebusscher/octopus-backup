@@ -23,12 +23,6 @@ import java.util.Map;
 
 @SuppressWarnings("squid:S1226")
 public class Base32 {
-    private static final Base32 INSTANCE =
-            new Base32("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"); // RFC 4648/3548
-
-    private static Base32 getInstance() {
-        return INSTANCE;
-    }
 
     // 32 alpha-numeric characters.
     private String ALPHABET;
@@ -133,6 +127,13 @@ public class Base32 {
             result.append(DIGITS[index]);
         }
         return result.toString();
+    }
+
+    private static final Base32 INSTANCE =
+            new Base32("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"); // RFC 4648/3548
+
+    private static Base32 getInstance() {
+        return INSTANCE;
     }
 
     public static class DecodingException extends Exception {

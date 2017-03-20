@@ -90,11 +90,11 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         String apiKey = httpServletRequest.getHeader("x-api-key");
         String token = httpServletRequest.getHeader("Authorization");
 
-        return createToken(httpServletRequest, apiKey, token);
+        return createToken(apiKey, token);
 
     }
 
-    private AuthenticationToken createToken(HttpServletRequest request, String apiKey, String token) {
+    private AuthenticationToken createToken(String apiKey, String token) {
 
         if (token == null) {
             throw new AuthenticationException("Authorization header value incorrect");
@@ -108,14 +108,14 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
             throw new AuthenticationException("Authorization header value must start with Bearer");
         }
 
-        JWTUser octopusToken = createOctopusToken(request, apiKey, parts[1]);
+        JWTUser octopusToken = createOctopusToken(apiKey, parts[1]);
         if (octopusToken == null) {
             throw new AuthenticationException("Authentication failed");
         }
         return octopusToken;
     }
 
-    private JWTUser createOctopusToken(HttpServletRequest request, String apiKey, String token) {
+    private JWTUser createOctopusToken(String apiKey, String token) {
 
         JWTUser user = null;
 

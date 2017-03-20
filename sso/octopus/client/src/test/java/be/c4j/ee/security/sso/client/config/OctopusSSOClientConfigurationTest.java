@@ -105,7 +105,7 @@ public class OctopusSSOClientConfigurationTest {
         parameters.put("SSO.flow", "token");
         TestConfigSource.defineConfigValue(parameters);
 
-        assertThat(configuration.getSSOClientSecret()).isNull();
+        assertThat(configuration.getSSOClientSecret()).isEmpty();
     }
 
     @Test

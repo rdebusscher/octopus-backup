@@ -110,7 +110,7 @@ public final class Property implements AnnotatedElement {
         if (writeMethod != null) {
             type = writeMethod.getParameterTypes()[0];
             genericType = writeMethod.getGenericParameterTypes()[0];
-        } else /* if (readMethod != null) is always true */ {
+        } else /* readMethod != null is always true */ {
             type = readMethod.getReturnType();
             genericType = readMethod.getGenericReturnType();
         }
@@ -138,8 +138,8 @@ public final class Property implements AnnotatedElement {
         field = findAccessorField(declaringBean.getType(), name, type);
 
         // Annotations
-        Map<Class<? extends Annotation>, Annotation> annotations = new HashMap<Class<? extends Annotation>, Annotation>(4);
-        Map<Class<? extends Annotation>, Annotation> declaredAnnotations = new HashMap<Class<? extends Annotation>, Annotation>(4);
+        Map<Class<? extends Annotation>, Annotation> annotationsMap = new HashMap<Class<? extends Annotation>, Annotation>(4);
+        Map<Class<? extends Annotation>, Annotation> declaredAnnotationsMap = new HashMap<Class<? extends Annotation>, Annotation>(4);
         for (AnnotatedElement element : new AnnotatedElement[]{field, readMethod, writeMethod}) {
             if (element == null) {
                 continue;
@@ -148,20 +148,20 @@ public final class Property implements AnnotatedElement {
             // General Annotations
             for (Annotation annotation : element.getAnnotations()) {
                 Class<? extends Annotation> annotationType = annotation.annotationType();
-                annotations.put(annotationType, annotation);
+                annotationsMap.put(annotationType, annotation);
             }
 
             // Declared Annotations
             if (((Member) element).getDeclaringClass() == declaringBean.getType()) {
                 for (Annotation annotation : element.getDeclaredAnnotations()) {
                     Class<? extends Annotation> annotationType = annotation.annotationType();
-                    declaredAnnotations.put(annotationType, annotation);
+                    declaredAnnotationsMap.put(annotationType, annotation);
                 }
             }
         }
 
-        this.annotations = optimizeMap(annotations);
-        this.declaredAnnotations = optimizeMap(declaredAnnotations);
+        this.annotations = optimizeMap(annotationsMap);
+        this.declaredAnnotations = optimizeMap(declaredAnnotationsMap);
     }
 
     /**
@@ -411,7 +411,7 @@ public final class Property implements AnnotatedElement {
      * @throws ReflectionException if access to the underlying method throws an exception
      * @throws ReflectionException if this property is write-only (no public readMethod)
      */
-    public Object get(Object obj) throws ReflectionException {
+    public Object get(Object obj) {
         try {
             if (isPublic(readMethod)) {
                 return readMethod.invoke(obj, null);
@@ -439,7 +439,7 @@ public final class Property implements AnnotatedElement {
      * @throws ReflectionException if accessing to the underlying method throws an exception
      * @throws ReflectionException if this property is read-only (no public writeMethod)
      */
-    public void set(Object obj, Object value) throws ReflectionException {
+    public void set(Object obj, Object value) {
         try {
             if (isPublic(writeMethod)) {
                 writeMethod.invoke(obj, new Object[]{value});

@@ -67,7 +67,7 @@ import java.util.List;
 @WebServlet("/octopus/sso/authenticate")
 public class AuthenticationServlet extends HttpServlet {
 
-    private Logger logger = LoggerFactory.getLogger(AuthenticationServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationServlet.class);
 
     @Inject
     private SSOServerConfiguration ssoServerConfiguration;
@@ -188,7 +188,7 @@ public class AuthenticationServlet extends HttpServlet {
 
     private void showDebugInfo(OctopusSSOUser user) {
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated and cookie written if needed.", user.getFullName()));
+            LOGGER.info(String.format("User %s is authenticated and cookie written if needed.", user.getFullName()));
         }
     }
 

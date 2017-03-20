@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 @ApplicationScoped
 public class SSOServerConfiguration extends AbstractOctopusConfig {
 
-    private final int cookieTimeToLive = 10;
-    private final int accessTokenTimeToLive = 3600;
+    private static final int COOKIE_TIME_TO_LIVE = 10;
+    private static final int ACCESS_TOKEN_TIME_TO_LIVE = 3600;
 
     protected SSOServerConfiguration() {
     }
@@ -67,12 +67,12 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
 
             if (!(result > 0)) {
                 LOGGER.warn("Invalid configuration value for SSO.cookie.timetolive = " + timeToLive + ". Using default of 10h");
-                result = cookieTimeToLive;
+                result = COOKIE_TIME_TO_LIVE;
             }
 
         } else {
             LOGGER.warn("Invalid configuration value for SSO.cookie.timetolive = " + timeToLive + ". Using default of 10h");
-            result = cookieTimeToLive;
+            result = COOKIE_TIME_TO_LIVE;
         }
         return result;
     }
@@ -124,12 +124,12 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
 
             if (!(result > 0)) {
                 LOGGER.warn("Invalid configuration value for SSO.access.token.timetolive = " + timeToLive + ". Using default of 1h");
-                result = accessTokenTimeToLive;
+                result = ACCESS_TOKEN_TIME_TO_LIVE;
             }
 
         } else {
             LOGGER.warn("Invalid configuration value for SSO.access.token.timetolive = " + timeToLive + ". Using default of 10h");
-            result = accessTokenTimeToLive;
+            result = ACCESS_TOKEN_TIME_TO_LIVE;
         }
         return result;
     }

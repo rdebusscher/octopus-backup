@@ -15,20 +15,18 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
-import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import be.c4j.ee.security.octopus.AbstractValidatedAuthenticationToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Token;
 
-import javax.security.auth.Subject;
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  */
-public class OAuth2User implements ValidatedAuthenticationToken, Principal {
+public class OAuth2User extends AbstractValidatedAuthenticationToken {
 
     public static final String LOCAL_ID = "localId";
 
@@ -39,8 +37,6 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
     private String localId;
 
     private String lastName;
-
-    private String fullName;
 
     private String picture;
 
@@ -229,18 +225,6 @@ public class OAuth2User implements ValidatedAuthenticationToken, Principal {
         sb.append(", Octopus-app='").append(applicationName).append('\'');
         sb.append('}');
         return sb.toString();
-    }
-
-    @Override
-    public String getName() {
-        return fullName;
-    }
-
-    public boolean implies(Subject subject) {
-        if (subject == null) {
-            return false;
-        }
-        return subject.getPrincipals().contains(this);
     }
 
     @Override

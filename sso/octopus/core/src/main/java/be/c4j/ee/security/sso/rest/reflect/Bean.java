@@ -35,46 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see Class#getDeclaredMethods()
  */
 public final class Bean<T> {
-    private final static Map<Class<?>, SoftReference<Bean<?>>> beansCache = new ConcurrentHashMap<Class<?>, SoftReference<Bean<?>>>();
+    private static final Map<Class<?>, SoftReference<Bean<?>>> BEANS_CACHE = new ConcurrentHashMap<Class<?>, SoftReference<Bean<?>>>();
 
     private final Class<T> type;
     private final Map<String, Property> properties;
     private final Map<String, Property> declaredProperties;
-
-    /**
-     * Introspects a {@link Class} or an interface and learns about all
-     * its {@link Property} elements.
-     * <p>
-     * <p> If the target type has been previously analized then the {@link Bean}
-     * instance is retrieved from a thread-safe {@link SoftReference} cache.
-     *
-     * @param beanClass the class or interface to analize
-     * @return a {@link Bean} object describing the target class or interface
-     * @throws NullPointerException if the given beanClass parameter is {@code null}
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> Bean<T> forClass(Class<T> beanClass) {
-        if (beanClass == null) {
-            throw new NullPointerException("Cannot introspect a bean with a 'null' beanClass.");
-        }
-
-        Bean bean;
-        SoftReference<Bean<?>> softReference = beansCache.get(beanClass);
-
-        if (softReference == null) {
-            bean = new Bean(beanClass);
-            beansCache.put(beanClass, new SoftReference<Bean<?>>(bean));
-        } else {
-            bean = softReference.get();
-
-            if (bean == null) {
-                bean = new Bean(beanClass);
-                beansCache.put(beanClass, new SoftReference<Bean<?>>(bean));
-            }
-        }
-
-        return bean;
-    }
 
     /**
      * Internal: Introspects a {@link Class} or an interface and learns about all
@@ -89,29 +54,29 @@ public final class Bean<T> {
         this.type = type;
 
         // Properties
-        Map<String, Property> properties = new HashMap<String, Property>();
+        Map<String, Property> propertyMap = new HashMap<String, Property>();
         for (PropertyDescriptor descriptor : getPropertyDescriptors(type.getMethods())) {
             Property property = new Property(this, descriptor.name, descriptor.readMethod, descriptor.writeMethod);
-            properties.put(property.getName(), property);
+            propertyMap.put(property.getName(), property);
         }
 
         // Declared Properties
-        Map<String, Property> declaredProperties = new HashMap<String, Property>();
+        Map<String, Property> declaredPropertyMap = new HashMap<String, Property>();
         for (PropertyDescriptor descriptor : getPropertyDescriptors(type.getDeclaredMethods())) {
             Property declaredProperty = new Property(this, descriptor.name, descriptor.readMethod, descriptor.writeMethod);
 
             // Properties are immutable and Map::containsValue(V) uses Property::equals() to check equality.
             // Considering that a property with the same name, bean and accessors is "technically" equivalent
             // to its corrispective declared version, then it can be used instead, saving some heap memory space.
-            if (properties.containsValue(declaredProperty)) {
-                declaredProperties.put(declaredProperty.getName(), properties.get(declaredProperty.getName()));
+            if (propertyMap.containsValue(declaredProperty)) {
+                declaredPropertyMap.put(declaredProperty.getName(), propertyMap.get(declaredProperty.getName()));
             } else {
-                declaredProperties.put(declaredProperty.getName(), declaredProperty);
+                declaredPropertyMap.put(declaredProperty.getName(), declaredProperty);
             }
         }
 
-        this.properties = optimizeMap(properties);
-        this.declaredProperties = optimizeMap(declaredProperties);
+        this.properties = optimizeMap(propertyMap);
+        this.declaredProperties = optimizeMap(declaredPropertyMap);
     }
 
     /**
@@ -215,7 +180,7 @@ public final class Bean<T> {
             return name;
         }
 
-        char chars[] = name.toCharArray();
+        char[] chars = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
 
         return new String(chars);
@@ -379,6 +344,41 @@ public final class Bean<T> {
     }
 
     /**
+     * Introspects a {@link Class} or an interface and learns about all
+     * its {@link Property} elements.
+     * <p>
+     * <p> If the target type has been previously analized then the {@link Bean}
+     * instance is retrieved from a thread-safe {@link SoftReference} cache.
+     *
+     * @param beanClass the class or interface to analize
+     * @return a {@link Bean} object describing the target class or interface
+     * @throws NullPointerException if the given beanClass parameter is {@code null}
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Bean<T> forClass(Class<T> beanClass) {
+        if (beanClass == null) {
+            throw new NullPointerException("Cannot introspect a bean with a 'null' beanClass.");
+        }
+
+        Bean bean;
+        SoftReference<Bean<?>> softReference = BEANS_CACHE.get(beanClass);
+
+        if (softReference == null) {
+            bean = new Bean(beanClass);
+            BEANS_CACHE.put(beanClass, new SoftReference<Bean<?>>(bean));
+        } else {
+            bean = softReference.get();
+
+            if (bean == null) {
+                bean = new Bean(beanClass);
+                BEANS_CACHE.put(beanClass, new SoftReference<Bean<?>>(bean));
+            }
+        }
+
+        return bean;
+    }
+
+    /**
      * Internal: Returns an optimized (memory-wise) version of a map.
      * <p>
      * <p> {@link Collections.EmptyMap} has near-zero memory
@@ -403,12 +403,12 @@ public final class Bean<T> {
     /**
      * Internal: Custom dataholder.
      */
-    private final static class PropertyDescriptor {
-        public String name;
-        public Method readMethod;
-        public Method writeMethod;
-        public boolean isIsser;
-        public boolean isGetter;
-        public boolean isSetter;
+    private static final class PropertyDescriptor {
+        String name;
+        Method readMethod;
+        Method writeMethod;
+        boolean isIsser;
+        boolean isGetter;
+        boolean isSetter;
     }
 }

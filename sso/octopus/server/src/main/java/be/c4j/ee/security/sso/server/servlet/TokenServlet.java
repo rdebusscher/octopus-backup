@@ -64,11 +64,6 @@ public class TokenServlet extends HttpServlet {
     private OctopusConfig octopusConfig;
 
     @Override
-    public void init() throws ServletException {
-        super.init();
-    }
-
-    @Override
     protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse response) throws ServletException, IOException {
 
         TokenRequest tokenRequest = (TokenRequest) httpServletRequest.getAttribute(AbstractRequest.class.getName());

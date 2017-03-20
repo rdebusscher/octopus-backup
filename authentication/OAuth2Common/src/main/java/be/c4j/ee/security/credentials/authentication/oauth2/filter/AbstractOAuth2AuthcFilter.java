@@ -48,7 +48,7 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
     /**
      * This class's logger.
      */
-    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
 
@@ -73,8 +73,8 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
             return new IncorrectDataToken("No Authorization header found on the request");
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Attempting to execute login with headers [" + authorizationHeader + "]");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Attempting to execute login with headers [" + authorizationHeader + "]");
         }
 
         String[] authTokens = authorizationHeader.split(" ");

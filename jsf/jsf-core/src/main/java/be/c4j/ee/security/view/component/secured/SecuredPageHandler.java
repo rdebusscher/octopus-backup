@@ -20,9 +20,9 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
-import javax.faces.view.facelets.*;
+import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.TagConfig;
 import java.io.IOException;
 
 /**

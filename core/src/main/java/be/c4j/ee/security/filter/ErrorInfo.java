@@ -25,8 +25,8 @@ public class ErrorInfo {
     private String code;
     private String message;
 
-    // For JAX-RS
     public ErrorInfo() {
+        // For JAX-RS
     }
 
     public ErrorInfo(String code, String message) {

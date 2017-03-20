@@ -50,8 +50,8 @@ public class OctopusSecurityContext implements Serializable {
 
     /*  Support for System accounts */
     public void activateSystemAccount(String systemAccountIdentifier) {
-        Subject subject = SecurityUtils.getSubject();
-        if (subject.isAuthenticated()) {
+        Subject currentSubject = SecurityUtils.getSubject();
+        if (currentSubject.isAuthenticated()) {
             throw new SystemAccountActivationException();
         } else {
             // TODO Do we need to protect this by checking it is from a trusted place?

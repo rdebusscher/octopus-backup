@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.inject.Vetoed;
+import java.util.Map;
 
 import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 
@@ -69,22 +70,13 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
             JSONObject jsonObject = (JSONObject) parser.parse(json);
 
             Object value;
-            for (String propertyName : jsonObject.keySet()) {
-                value = jsonObject.get(propertyName);
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
 
-                Property property = bean.getProperty(propertyName);
-                Class<?> actualType = property.getActualType();
+                value = entry.getValue();
+
+                Property property = bean.getProperty(entry.getKey());
                 if (property.isWritable()) {
-                    if (Property.isBasicPropertyType(actualType)) {
-                        if (actualType.equals(Long.class) && value instanceof Integer) {
-                            Integer intValue = (Integer) value;
-                            property.set(result, intValue.longValue());
-                        } else {
-                            property.set(result, value);
-                        }
-                    } else {
-                        property.set(result, readValue(value.toString(), actualType));
-                    }
+                    setPropertyValue(result, value, property);
                 }
             }
         } catch (InstantiationException e) {
@@ -98,5 +90,19 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
             throw new OctopusUnexpectedException(e.getMessage());
         }
         return result;
+    }
+
+    private <T> void setPropertyValue(T result, Object value, Property property) {
+        Class<?> actualType = property.getActualType();
+        if (Property.isBasicPropertyType(actualType)) {
+            if (actualType.equals(Long.class) && value instanceof Integer) {
+                Integer intValue = (Integer) value;
+                property.set(result, intValue.longValue());
+            } else {
+                property.set(result, value);
+            }
+        } else {
+            property.set(result, readValue(value.toString(), actualType));
+        }
     }
 }

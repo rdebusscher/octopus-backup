@@ -33,6 +33,9 @@ import java.util.UUID;
  */
 public class JWKManagerEC {
 
+    private JWKManagerEC() {
+    }
+
     public static void main(String[] args) {
         String xApiKey = UUID.randomUUID().toString();
         //JWK jwk = make(KeyUse.SIGNATURE, new Algorithm("ES512"), ECKey.Curve.P_521, xApiKey);

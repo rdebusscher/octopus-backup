@@ -16,6 +16,7 @@
 package be.c4j.ee.security.event;
 
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.octopus.ProcessAuthenticationToken;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationListener;
@@ -43,20 +44,24 @@ public class OctopusAuthenticationListener implements AuthenticationListener {
 
     @Override
     public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
-        LogonEvent event = new LogonEvent(token, info);
-        ThreadContext.put(IN_AUTHENTICATION_EVENT_FLAG, new InAuthenticationEvent());
-        try {
-            logonEvent.fire(event);
-        } finally {
-            // In any case (also in case of access denied) we need to remove this flag
-            ThreadContext.remove(IN_AUTHENTICATION_EVENT_FLAG);
+        if (!(token instanceof ProcessAuthenticationToken)) {
+            LogonEvent event = new LogonEvent(token, info);
+            ThreadContext.put(IN_AUTHENTICATION_EVENT_FLAG, new InAuthenticationEvent());
+            try {
+                logonEvent.fire(event);
+            } finally {
+                // In any case (also in case of access denied) we need to remove this flag
+                ThreadContext.remove(IN_AUTHENTICATION_EVENT_FLAG);
+            }
         }
     }
 
     @Override
     public void onFailure(AuthenticationToken token, AuthenticationException ae) {
-        LogonFailureEvent event = new LogonFailureEvent(token, ae);
-        logonFailureEvent.fire(event);
+        if (!(token instanceof ProcessAuthenticationToken)) {
+            LogonFailureEvent event = new LogonFailureEvent(token, ae);
+            logonFailureEvent.fire(event);
+        }
     }
 
     @Override

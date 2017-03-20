@@ -28,6 +28,9 @@ import java.security.NoSuchAlgorithmException;
 public class AESSecretGenerator {
 
 
+    private AESSecretGenerator() {
+    }
+
     public static void main(String[] args) throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(256);

@@ -15,19 +15,19 @@
  */
 package be.c4j.ee.security.sso;
 
-import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import be.c4j.ee.security.octopus.AbstractValidatedAuthenticationToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
-import javax.security.auth.Subject;
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Principal created when using the SSO feature. This is an additional Principal (next to UserPrincipal) hich is also avau-ilable
+ * in the PrincipalCollection. <br/>
+ * The userInfo map is not serialized.
  */
-public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
+public class OctopusSSOUser extends AbstractValidatedAuthenticationToken {
 
     public static final String LOCAL_ID = "localId";
 
@@ -39,11 +39,10 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
 
     private String lastName;
     private String firstName;
-    private String fullName;
 
     private String email;
 
-    private Map<String, Object> userInfo = new HashMap<String, Object>();
+    private transient Map<String, Object> userInfo = new HashMap<String, Object>();
 
     public String getId() {
         return id;
@@ -148,18 +147,6 @@ public class OctopusSSOUser implements ValidatedAuthenticationToken, Principal {
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append('}');
         return sb.toString();
-    }
-
-    @Override
-    public String getName() {
-        return fullName;
-    }
-
-    public boolean implies(Subject subject) {
-        if (subject == null) {
-            return false;
-        }
-        return subject.getPrincipals().contains(this);
     }
 
     @Override

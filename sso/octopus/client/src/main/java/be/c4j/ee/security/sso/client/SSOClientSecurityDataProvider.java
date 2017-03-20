@@ -152,7 +152,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
             return new StringPermissionLookup(permissions);
         } else {
             String message = response.readEntity(String.class);
-            System.out.println(message); // FIXME
+            logger.warn(String.format("Retrieving all permissions for application %s failed with %s", config.getSSOApplication(), message));
         }
         return null;
 

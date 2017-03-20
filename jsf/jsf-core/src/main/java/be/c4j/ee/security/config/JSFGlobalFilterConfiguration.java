@@ -43,12 +43,12 @@ public class JSFGlobalFilterConfiguration implements GlobalFilterConfiguration {
 
     @Override
     public Map<String, Class<? extends AdviceFilter>> getGlobalFilters() {
-        Map<String, Class<? extends AdviceFilter>> filters = new HashMap<String, Class<? extends AdviceFilter>>();
+        Map<String, Class<? extends AdviceFilter>> result = new HashMap<String, Class<? extends AdviceFilter>>();
         // Only add the Session Hijacking filter when the developer didn't switch the feature off.
         if (octopusJSFConfig.getSessionHijackingLevel() != SessionHijackingLevel.OFF) {
-            filters.put("sh", SessionHijackingFilter.class);
+            result.put("sh", SessionHijackingFilter.class);
         }
-        return filters;
+        return result;
     }
 
     @Override

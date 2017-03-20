@@ -35,6 +35,9 @@ import java.util.Scanner;
  */
 public class JWTTesterEC {
 
+    private JWTTesterEC() {
+    }
+
     public static void main(String[] args) throws IOException, ParseException, JOSEException {
 
         String privateContent = readFile("private_EC.jwk");

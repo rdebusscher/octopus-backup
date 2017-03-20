@@ -41,7 +41,7 @@ import java.net.URISyntaxException;
  */
 public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializable {
 
-    private ThreadLocal<OpenIdVariableClientData> variableClientData;
+    private ThreadLocal<OpenIdVariableClientData> variableClientDataThreadLocal;
 
     private String loginURL;
 
@@ -55,23 +55,23 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
     public void init() throws ShiroException {
         BeanProvider.injectFields(this);
 
-        variableClientData = new ThreadLocal<OpenIdVariableClientData>();
+        variableClientDataThreadLocal = new ThreadLocal<OpenIdVariableClientData>();
     }
 
     @Override
     public String getLoginUrl() {
         // Since getLoginURL is called multiple times (isAccessAllowed) > optimize
-        if (this.loginURL == null) {
-            String loginURL = super.getLoginUrl();
+        if (loginURL == null) {
+            String loginURLPartial = super.getLoginUrl();
 
-            OpenIdVariableClientData variableClientData = this.variableClientData.get();
+            OpenIdVariableClientData variableClientData = variableClientDataThreadLocal.get();
 
             AuthenticationRequest req;
             try {
                 URI callback = new URI(variableClientData.getRootURL() + "/octopus/sso/SSOCallback");
                 ClientID clientId = new ClientID(octopusSSOClientConfiguration.getSSOClientId());
                 req = new AuthenticationRequest(
-                        new URI(loginURL),
+                        new URI(loginURLPartial),
                         octopusSSOClientConfiguration.getSSOType().getResponseType(),
                         Scope.parse("openid octopus " + octopusSSOClientConfiguration.getSSOScopes()),
                         clientId,
@@ -82,9 +82,9 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
                 throw new OctopusUnexpectedException(e);
             }
 
-            this.loginURL = loginURL + '?' + req.toHTTPRequest().getQuery();
+            loginURL = loginURLPartial + '?' + req.toHTTPRequest().getQuery();
         }
-        return this.loginURL;
+        return loginURL;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
             // TODO when we integrate Shiro, update the getLoginURL with parameters so that we can have access to the request
 
             OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(urlUtil.determineRoot((HttpServletRequest) request));
-            this.variableClientData.set(variableClientData);
+            variableClientDataThreadLocal.set(variableClientData);
 
             HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
@@ -106,7 +106,7 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
     protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
         super.cleanup(request, response, existing);
 
-        variableClientData.remove();  // To be on the safe side that the ThreadLocal is cleanup properly.
-        // TODO When shiro integrated we probably don't need this anymore as wd don't use the ThreadLocal anymore.
+        variableClientDataThreadLocal.remove();  // To be on the safe side that the ThreadLocal is cleanup properly.
+        // TODO When shiro integrated we probably don't need this anymore as we don't use the ThreadLocal anymore.
     }
 }

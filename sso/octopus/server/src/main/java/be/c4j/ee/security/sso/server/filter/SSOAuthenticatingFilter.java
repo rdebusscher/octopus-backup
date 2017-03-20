@@ -64,10 +64,10 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         String apiKey = httpServletRequest.getHeader("x-api-key");
         String token = httpServletRequest.getHeader("Authorization");
 
-        return createSSOUser(httpServletRequest, apiKey, token);
+        return createSSOUser(apiKey, token);
     }
 
-    private AuthenticationToken createSSOUser(HttpServletRequest request, String apiKey, String token) {
+    private AuthenticationToken createSSOUser(String apiKey, String token) {
 
         // FIXME the IncorrectDataToken does not result in a correct Error response
         if (encryptionHandler != null && encryptionHandler.requiresApiKey() && apiKey == null) {
@@ -87,14 +87,14 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             return new IncorrectDataToken("Authorization header value must start with Bearer");
         }
 
-        OctopusSSOUser octopusToken = createOctopusToken(request, apiKey, parts[1]);
+        OctopusSSOUser octopusToken = createOctopusToken(apiKey, parts[1]);
         if (octopusToken == null) {
             return new IncorrectDataToken("Authentication failed");
         }
         return octopusToken;
     }
 
-    private OctopusSSOUser createOctopusToken(HttpServletRequest request, String apiKey, String token) {
+    private OctopusSSOUser createOctopusToken(String apiKey, String token) {
         String accessToken = null;
 
         OctopusSSOUser user = tokenStore.getUserByAccessCode(token);
@@ -145,7 +145,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         if (e != null) {
             throw e; // Propagate the error further so that UserRest filter can properly handle it.
         }
-        return super.onLoginFailure(token, e, request, response);
+        return super.onLoginFailure(token, null, request, response);
     }
 
     /**

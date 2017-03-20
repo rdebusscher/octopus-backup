@@ -21,19 +21,12 @@ package be.c4j.ee.security.exception;
 
 public class OctopusUnexpectedException extends RuntimeException {
 
-    private Throwable cause;
-
     public OctopusUnexpectedException(String message) {
         super(message);
     }
 
     public OctopusUnexpectedException(Throwable cause) {
         super(cause);
-        this.cause = cause;
     }
 
-    @Override
-    public Throwable getCause() {
-        return cause;
-    }
 }

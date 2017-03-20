@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +53,7 @@ public class CasInfoProvider {
         }
     }
 
-    public CasUser retrieveUserInfo(String ticket, HttpServletRequest req) {
+    public CasUser retrieveUserInfo(String ticket) {
         CasUser result = new CasUser(ticket);
 
         try {

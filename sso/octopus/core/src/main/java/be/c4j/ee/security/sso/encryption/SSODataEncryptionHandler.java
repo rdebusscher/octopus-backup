@@ -15,12 +15,14 @@
  */
 package be.c4j.ee.security.sso.encryption;
 
+import java.io.Serializable;
+
 /**
  * Used by the SSO Client / Server parts to encrypt (with JWT for example) the applicationName.
  * And thus an additional protection for unauthorized usage of the SSO facilities of Octopus.
  * TODO Review usage now that we have complete openId support
  */
-public interface SSODataEncryptionHandler {
+public interface SSODataEncryptionHandler extends Serializable {
 
     String encryptData(String data, String apiKey);
 

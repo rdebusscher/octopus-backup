@@ -41,7 +41,7 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/SSOLogoutCallback")
 public class SSOLogoutCallbackServlet extends HttpServlet {
 
-    private Logger logger = LoggerFactory.getLogger(SSOLogoutCallbackServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SSOLogoutCallbackServlet.class);
 
     @Inject
     private OctopusConfig octopusConfig;
@@ -98,7 +98,7 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
     private void showDebugInfo(String token) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("SSO Server requested logout of User (token = %s)", token));
+            LOGGER.info(String.format("SSO Server requested logout of User (token = %s)", token));
         }
     }
 }

@@ -15,11 +15,13 @@
  */
 package be.c4j.ee.security.sso.rest;
 
+import java.io.Serializable;
+
 /**
  *
  */
 
-public interface PrincipalUserInfoJSONProvider {
+public interface PrincipalUserInfoJSONProvider extends Serializable {
 
     String writeValue(Object data);
 

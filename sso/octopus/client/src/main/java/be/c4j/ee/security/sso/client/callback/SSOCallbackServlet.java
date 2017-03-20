@@ -40,7 +40,7 @@ import com.nimbusds.openid.connect.sdk.*;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.UnauthorizedException;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -97,7 +97,7 @@ public class SSOCallbackServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-
+        // FIXME Split up this method in the 3 parts.
         HttpSession session = httpServletRequest.getSession(true);
 
         OpenIdVariableClientData variableClientData = (OpenIdVariableClientData) session.getAttribute(OpenIdVariableClientData.class.getName());
@@ -136,14 +136,21 @@ public class SSOCallbackServlet extends HttpServlet {
         }
 
         if (accessToken == null) {
-            // There was some issue retrieving the accessToken;
+            // There was some issue retrieving the accessToken.
             return;
         }
 
         try {
             UserInfoRequest infoRequest = new UserInfoRequest(new URI(config.getUserInfoEndpoint()), accessToken);
 
-            HTTPResponse response = infoRequest.toHTTPRequest().send();
+            HTTPResponse response;
+            try {
+                response = infoRequest.toHTTPRequest().send();
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
+
+            }
 
             UserInfoResponse userInfoResponse = UserInfoResponse.parse(response);
 
@@ -194,7 +201,6 @@ public class SSOCallbackServlet extends HttpServlet {
             OctopusSSOUser user = octopusSSOUserConverter.fromUserInfo(userInfo, userInfoJSONProvider);
 
             user.setBearerAccessToken(accessToken);
-            //user.setToken(code);
 
             try {
 
@@ -211,7 +217,7 @@ public class SSOCallbackServlet extends HttpServlet {
 
                 }
 
-            } catch (UnauthorizedException e) {
+            } catch (AuthenticationException e) {
                 handleException(httpServletRequest, httpServletResponse, e, user);
             }
 

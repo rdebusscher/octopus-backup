@@ -96,7 +96,7 @@ public class ExchangeForAccessCode {
 
 
             ClientAuthentication clientAuth = new ClientSecretJWT(new ClientID(config.getSSOClientId())
-                    , tokenEndPoint, algorithm, new Secret(new String(config.getSSOClientSecret())));
+                    , tokenEndPoint, algorithm, new Secret(new String(config.getSSOClientSecret())));  // TODO Verify the UTF encoding
 
             TokenRequest tokenRequest = new TokenRequest(tokenEndPoint, clientAuth, grant, null);
 

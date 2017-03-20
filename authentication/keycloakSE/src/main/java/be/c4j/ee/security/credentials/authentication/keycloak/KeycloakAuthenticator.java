@@ -138,6 +138,7 @@ public class KeycloakAuthenticator {
             try {
                 is.close();
             } catch (IOException ignored) {
+                // We can ignore this
             }
         }
 

@@ -35,6 +35,9 @@ import java.util.Scanner;
  */
 public class JWTTesterRSA {
 
+    private JWTTesterRSA() {
+    }
+
     public static void main(String[] args) throws IOException, ParseException, JOSEException {
 
         String privateContent = readFile("private_RSA.jwk");

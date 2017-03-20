@@ -28,7 +28,7 @@ import java.io.Serializable;
  */
 public class ExternalPasswordAuthenticationInfo extends SimpleAuthenticationInfo {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ExternalPasswordAuthenticationInfo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalPasswordAuthenticationInfo.class);
 
     public ExternalPasswordAuthenticationInfo(Object principal, String realmName) {
         this.principals = new SimplePrincipalCollection(principal, realmName);

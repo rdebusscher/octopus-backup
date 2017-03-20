@@ -91,5 +91,6 @@ public class OctopusUserFilter extends UserFilter {
      * @param response
      */
     public void prepareLoginURL(ServletRequest request, ServletResponse response) {
+        // Override in subclasses if needed.
     }
 }

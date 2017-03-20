@@ -65,7 +65,7 @@ public class CasCallbackServlet extends HttpServlet {
         CasUser casUser = null;
         HttpSession sess = request.getSession();
         try {
-            casUser = casInfoProvider.retrieveUserInfo(ticket, request);
+            casUser = casInfoProvider.retrieveUserInfo(ticket);
 
             sessionUtil.invalidateCurrentSession(request);
 

@@ -20,8 +20,10 @@ import be.c4j.ee.security.sso.rest.reflect.Property;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import net.minidev.json.JSONObject;
+import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +35,9 @@ import java.util.Map;
  */
 @ApplicationScoped
 public class OctopusSSOUserConverter {
+
+    @Inject
+    private Logger logger;
 
     private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", OctopusSSOUser.LOCAL_ID, "userName", "lastName", "firstName", "fullName", "email");
 
@@ -95,7 +100,7 @@ public class OctopusSSOUserConverter {
 
                     Class<?> aClass = tryToDefineClass(keyValue);
                     if (aClass != null) {
-                        int markerPos = keyValue.indexOf("@");
+                        int markerPos = keyValue.indexOf('@');
                         value = jsonProvider.readValue(keyValue.substring(markerPos + 1), aClass);
                     } else {
                         value = keyValue; // We don't have the class, we keep the string representation for convenience.
@@ -113,13 +118,14 @@ public class OctopusSSOUserConverter {
         return result;
     }
 
-    private static Class<?> tryToDefineClass(String keyValue) {
+    private Class<?> tryToDefineClass(String keyValue) {
         Class<?> result = null;
         String[] parts = keyValue.split("@", 2);
         try {
             result = Class.forName(parts[0]);
         } catch (ClassNotFoundException e) {
             // Nothing to do here, we don't have that class on the classpath
+            logger.warn(String.format("Reading serialized userInfo data failed for OctopusSSOUser as class %s can't be located", parts[0]));
         }
 
         return result;

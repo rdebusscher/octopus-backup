@@ -16,10 +16,7 @@
 package be.c4j.ee.security.view.model;
 
 import be.c4j.ee.security.OctopusJSFSecurityContext;
-import be.c4j.ee.security.context.OctopusSecurityContext;
-import be.c4j.ee.security.logout.LogoutHandler;
 import be.c4j.ee.security.messages.FacesMessages;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;

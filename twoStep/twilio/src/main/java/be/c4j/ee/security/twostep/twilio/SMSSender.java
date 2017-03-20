@@ -26,6 +26,7 @@ import javax.enterprise.context.ApplicationScoped;
 public class SMSSender {
 
     public void sendSMS(UserPrincipal userPrincipal, String otpValue) {
+        // FIXME
         System.out.println(otpValue);
     }
 }

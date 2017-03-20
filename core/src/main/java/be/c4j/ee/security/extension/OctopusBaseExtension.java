@@ -130,11 +130,6 @@ public class OctopusBaseExtension implements Extension {
             return result;
         }
 
-        @Override
-        public void destroy(Bean<GenericPermissionVoter> bean, GenericPermissionVoter instance,
-                            CreationalContext<GenericPermissionVoter> creationalContext) {
-            super.destroy(bean, instance, creationalContext);
-        }
     }
 
     private static class RoleLifecycleCallback extends DelegatingContextualLifecycle<GenericRoleVoter> {
@@ -165,11 +160,6 @@ public class OctopusBaseExtension implements Extension {
             return result;
         }
 
-        @Override
-        public void destroy(Bean<GenericRoleVoter> bean, GenericRoleVoter instance,
-                            CreationalContext<GenericRoleVoter> creationalContext) {
-            super.destroy(bean, instance, creationalContext);
-        }
     }
 
 }

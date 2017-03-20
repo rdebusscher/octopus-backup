@@ -52,11 +52,12 @@ public class KeycloakUser implements AuthenticationToken, Principal {
 
     private String clientSession;
 
+    // TODO In common with OAuth2User
+    // FIXME We need a core-SE module.
+    private Map<String, String> userInfo = new HashMap<String, String>();
+
     private KeycloakUser() {
     }
-
-    // TODO In common with OAuth2User
-    private Map<String, String> userInfo = new HashMap<String, String>();
 
     public String getId() {
         return id;

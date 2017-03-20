@@ -23,6 +23,9 @@ import be.c4j.ee.security.credentials.authentication.keycloak.KeycloakUser;
  */
 public class MainProgram {
 
+    private MainProgram() {
+    }
+
     public static void main(String[] args) {
         KeycloakAuthenticator authenticator = new KeycloakAuthenticator("/keycloak.json");
         try {

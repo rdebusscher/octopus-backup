@@ -16,8 +16,6 @@
 package be.c4j.demo.security.exception.handler;
 
 import be.c4j.ee.security.messages.FacesMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.faces.context.ExceptionHandler;
 import javax.faces.context.ExceptionHandlerWrapper;
@@ -29,8 +27,6 @@ import java.util.Iterator;
  *
  */
 public class GenericJSFExceptionHandler extends ExceptionHandlerWrapper {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericJSFExceptionHandler.class);
 
     private ExceptionHandler wrapped;
 

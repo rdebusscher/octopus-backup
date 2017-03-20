@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.server.servlet;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
@@ -75,7 +76,12 @@ public class LogoutServlet extends HttpServlet {
 
         tokenStore.removeUser(octopusSSOUser);
 
-        resp.sendRedirect(getLogoutURL(request));
+        try {
+            resp.sendRedirect(getLogoutURL(request));
+        } catch (IOException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
+        }
 
         SecurityUtils.getSubject().logout();
 
