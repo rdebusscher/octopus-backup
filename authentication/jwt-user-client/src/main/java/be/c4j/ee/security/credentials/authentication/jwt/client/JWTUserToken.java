@@ -130,7 +130,9 @@ public class JWTUserToken {
     private String definePayload() {
         JSONObject result = new JSONObject();
         result.put("id", userPrincipal.getId());
-        result.put("externalId", userPrincipal.getExternalId());
+        if (userPrincipal.getExternalId() != null) {
+            result.put("externalId", userPrincipal.getExternalId());
+        }
         result.put("userName", userPrincipal.getUserName());
         result.put("name", userPrincipal.getName());
 

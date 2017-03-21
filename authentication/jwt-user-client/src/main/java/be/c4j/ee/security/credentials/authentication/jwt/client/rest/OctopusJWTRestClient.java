@@ -80,6 +80,7 @@ public class OctopusJWTRestClient {
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get();
+        // FIXME Status 404 -> Wrong URL
         if (response.getStatus() == 401) {
             ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
             // TODO put something meaning full in the exception point like URL?
