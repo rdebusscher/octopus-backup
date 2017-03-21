@@ -91,6 +91,7 @@
     </properties>
 
     <modules>
+        <module>core-se</module>
         <module>core</module>
         <module>jsf</module>
         <module>javaee6</module>

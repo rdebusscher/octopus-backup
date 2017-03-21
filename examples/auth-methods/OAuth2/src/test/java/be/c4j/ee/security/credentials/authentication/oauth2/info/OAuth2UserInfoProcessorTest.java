@@ -22,7 +22,6 @@ import net.minidev.json.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +53,7 @@ public class OAuth2UserInfoProcessorTest {
 
         processor.processJSON(user, json, keys);
 
-        Map<String, Serializable> userInfo = user.getUserInfo();
+        Map<String, Object> userInfo = user.getUserInfo();
         assertThat(userInfo).hasSize(9);  // There are 7 other keys which are added by default
 
         assertThat(userInfo).containsEntry("key1", "value1");

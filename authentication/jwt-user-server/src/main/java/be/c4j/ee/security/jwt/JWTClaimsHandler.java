@@ -17,7 +17,6 @@ package be.c4j.ee.security.jwt;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -28,5 +27,5 @@ public interface JWTClaimsHandler {
 
     boolean claimsAreValid(JWTClaimsSet claimsSet);
 
-    Map<String, Serializable> defineAdditionalUserInfo(JWTUser jwtUser);
+    Map<String, Object> defineAdditionalUserInfo(JWTUser jwtUser);
 }

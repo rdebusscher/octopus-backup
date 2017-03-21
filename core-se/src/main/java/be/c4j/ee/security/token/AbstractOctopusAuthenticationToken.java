@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.octopus;
+package be.c4j.ee.security.token;
 
-import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import org.apache.shiro.authc.AuthenticationToken;
 
 import javax.security.auth.Subject;
+import java.io.Serializable;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  */
 
-public abstract class AbstractValidatedAuthenticationToken implements ValidatedAuthenticationToken, Principal {
+public abstract class AbstractOctopusAuthenticationToken implements AuthenticationToken, Principal {
 
     protected String fullName;
+
+    protected Map<String, Object> userInfo = new HashMap<String, Object>();
 
     @Override
     public String getName() {
@@ -40,6 +45,23 @@ public abstract class AbstractValidatedAuthenticationToken implements ValidatedA
         }
 
         return subject.getPrincipals().contains(this);
+    }
+
+    public void addUserInfo(String key, Serializable value) {
+        userInfo.put(key, value);
+    }
+
+    public void addUserInfo(Map<String, Object> info) {
+        userInfo.putAll(info);
+    }
+
+    public Map<String, Object> getUserInfo() {
+
+        return userInfo;
+    }
+
+    public <T> T getUserInfo(String key) {
+        return (T) userInfo.get(key);
     }
 
 }

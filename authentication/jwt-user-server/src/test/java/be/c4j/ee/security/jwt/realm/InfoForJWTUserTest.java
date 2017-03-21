@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +65,7 @@ public class InfoForJWTUserTest {
     public void getAuthenticationInfo() {
         JWTUser jwtUser = new JWTUser("subject", "id");
         jwtUser.setUserName("username");
-        Map<String, Serializable> userInfo = new HashMap<String, Serializable>();
+        Map<String, Object> userInfo = new HashMap<String, Object>();
         userInfo.put("key", "JUnit");
         jwtUser.addUserInfo(userInfo);
 

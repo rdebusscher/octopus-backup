@@ -51,7 +51,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -225,7 +224,7 @@ public class JWTAuthenticatingFilterTest {
 
         when(jwtClaimsHandlerMock.claimsAreValid(any(JWTClaimsSet.class))).thenReturn(true);
 
-        Map<String, Serializable> extras = new HashMap<String, Serializable>();
+        Map<String, Object> extras = new HashMap<String, Object>();
         extras.put("ExtraKey", "JUnit");
         when(jwtClaimsHandlerMock.defineAdditionalUserInfo(any(JWTUser.class))).thenReturn(extras);
 

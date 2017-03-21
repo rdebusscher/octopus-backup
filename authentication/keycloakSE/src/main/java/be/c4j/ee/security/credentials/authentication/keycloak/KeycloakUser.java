@@ -15,20 +15,18 @@
  */
 package be.c4j.ee.security.credentials.authentication.keycloak;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.IDToken;
 
 import javax.security.auth.Subject;
-import java.io.Serializable;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  */
-public class KeycloakUser implements AuthenticationToken, Principal {
+public class KeycloakUser extends AbstractOctopusAuthenticationToken {
 
     private String id;
 
@@ -51,10 +49,6 @@ public class KeycloakUser implements AuthenticationToken, Principal {
     private AccessTokenResponse accessToken;
 
     private String clientSession;
-
-    // TODO In common with OAuth2User
-    // FIXME We need a core-SE module.
-    private Map<String, String> userInfo = new HashMap<String, String>();
 
     private KeycloakUser() {
     }
@@ -147,8 +141,9 @@ public class KeycloakUser implements AuthenticationToken, Principal {
         this.clientSession = clientSession;
     }
 
-    public Map<String, Serializable> getUserInfo() {
-        Map<String, Serializable> result = new HashMap<String, Serializable>();
+    public Map<String, Object> getUserInfo() {
+        // TODO Rename?
+        Map<String, Object> result = new HashMap<String, Object>();
         // TODO Make some constants out of these
         result.put("email", email);
         result.put("picture", picture);

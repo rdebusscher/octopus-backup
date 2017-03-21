@@ -100,7 +100,7 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
-    public AuthenticationInfoBuilder addUserInfo(Map<String, ? extends Serializable> values) {
+    public AuthenticationInfoBuilder addUserInfo(Map<String, Object> values) {
         userInfo.putAll(values);
         return this;
     }

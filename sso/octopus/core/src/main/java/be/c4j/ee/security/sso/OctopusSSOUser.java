@@ -15,19 +15,16 @@
  */
 package be.c4j.ee.security.sso;
 
-import be.c4j.ee.security.octopus.AbstractValidatedAuthenticationToken;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Principal created when using the SSO feature. This is an additional Principal (next to UserPrincipal) hich is also avau-ilable
  * in the PrincipalCollection. <br/>
  * The userInfo map is not serialized.
  */
-public class OctopusSSOUser extends AbstractValidatedAuthenticationToken {
+public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
     public static final String LOCAL_ID = "localId";
 
@@ -41,8 +38,6 @@ public class OctopusSSOUser extends AbstractValidatedAuthenticationToken {
     private String firstName;
 
     private String email;
-
-    private transient Map<String, Object> userInfo = new HashMap<String, Object>();
 
     public String getId() {
         return id;
@@ -120,20 +115,8 @@ public class OctopusSSOUser extends AbstractValidatedAuthenticationToken {
         this.firstName = firstName;
     }
 
-    public void addUserInfo(String key, Serializable value) {
-        userInfo.put(key, value);
-    }
-
-    public void addUserInfo(Map<String, Object> info) {
-        userInfo.putAll(info);
-    }
-
     public boolean isLoggedOn() {
         return id != null;
-    }
-
-    public Map<String, Object> getUserInfo() {
-        return userInfo;
     }
 
     @Override
@@ -157,10 +140,6 @@ public class OctopusSSOUser extends AbstractValidatedAuthenticationToken {
     @Override
     public Object getCredentials() {
         return cookieToken;
-    }
-
-    public <T> T getUserInfo(String key) {
-        return (T) userInfo.get(key);
     }
 
     @Override

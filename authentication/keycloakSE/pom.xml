@@ -39,6 +39,11 @@
     </properties>
     <dependencies>
 
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core-se</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.keycloak</groupId>

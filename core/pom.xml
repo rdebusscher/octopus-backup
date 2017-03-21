@@ -42,6 +42,12 @@
         </dependency>
 
         <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core-se</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-web</artifactId>
             <version>${shiro.version}</version>

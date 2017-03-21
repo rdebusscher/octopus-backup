@@ -15,18 +15,18 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
-import be.c4j.ee.security.octopus.AbstractValidatedAuthenticationToken;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Token;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  */
-public class OAuth2User extends AbstractValidatedAuthenticationToken {
+public class OAuth2User extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
     public static final String LOCAL_ID = "localId";
 
@@ -53,8 +53,6 @@ public class OAuth2User extends AbstractValidatedAuthenticationToken {
     private String domain;
 
     private boolean verifiedEmail;  // Needs to become properties
-
-    private Map<String, String> userInfo = new HashMap<String, String>();
 
     private Map<String, String> info = new HashMap<String, String>();
 
@@ -158,10 +156,6 @@ public class OAuth2User extends AbstractValidatedAuthenticationToken {
         this.verifiedEmail = verifiedEmail;
     }
 
-    public void addUserInfo(String key, String value) {
-        userInfo.put(key, value);
-    }
-
     public boolean isLoggedOn() {
         return id != null;
     }
@@ -190,8 +184,8 @@ public class OAuth2User extends AbstractValidatedAuthenticationToken {
         this.info = info;
     }
 
-    public Map<String, Serializable> getUserInfo() {
-        Map<String, Serializable> result = new HashMap<String, Serializable>();
+    public Map<String, Object> getUserInfo() {
+        Map<String, Object> result = new HashMap<String, Object>();
         // TODO Make some constants out of these
         result.put("email", email);
         result.put("firstName", firstName);
