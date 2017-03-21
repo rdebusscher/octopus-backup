@@ -54,8 +54,6 @@ public class JWTUserConfigTest {
     @Test
     public void getJWTOperation_JWT_NotSpecified() {
         // On the JWT User Server side, the JWT Signature doesn't need to be specified as it is contained in the JWT Header of the Token
-        Map<String, String> values = new HashMap<String, String>();
-        TestConfigSource.defineConfigValue(values);
 
         JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);

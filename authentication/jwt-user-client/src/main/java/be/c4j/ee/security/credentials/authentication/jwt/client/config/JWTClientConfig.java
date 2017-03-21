@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.config;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.jwt.config.JWTSignature;
 import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -27,11 +29,30 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class JWTClientConfig extends JWTUserConfig {
 
+    private static final String INVALID_VALUE_JWT_TOKEN_TIME_TO_LIVE = "Invalid value specified for parameter jwt.token.timeToLive, needs to be a positive integer value";
+
     @ConfigEntry
     public int getJWTTimeToLive() {
         String propertyValue = ConfigResolver.getPropertyValue("jwt.token.timeToLive", "2");
-        // FIXME Cast NumberformatException
-        return Integer.valueOf(propertyValue);
+        Integer result;
+        try {
+            result = Integer.valueOf(propertyValue);
+            if (result < 1) {
+                throw new OctopusConfigurationException(INVALID_VALUE_JWT_TOKEN_TIME_TO_LIVE);
+            }
+        } catch (NumberFormatException e) {
+            throw new OctopusConfigurationException(INVALID_VALUE_JWT_TOKEN_TIME_TO_LIVE);
+        }
+        return result;
     }
 
+    @Override
+    public JWTSignature getJwtSignature() {
+        JWTSignature signature = super.getJwtSignature();
+        if (signature == null) {
+            throw new OctopusConfigurationException("No Algorithm specified for the JWT signature; parameter jwt.algorithm incorrect");
+        }
+
+        return signature;
+    }
 }
