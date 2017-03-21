@@ -15,6 +15,9 @@
  */
 package be.c4j.ee.security.view.interceptor;
 
+import be.c4j.ee.security.config.OctopusJSFConfig;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+
 import javax.faces.render.RenderKit;
 import javax.faces.render.RenderKitWrapper;
 import javax.faces.render.Renderer;
@@ -24,9 +27,13 @@ import javax.faces.render.Renderer;
  */
 public class SecureRendererKit extends RenderKitWrapper {
     private RenderKit renderKit;
+    private boolean excludePrimeFacesMobile;
 
     public SecureRendererKit(RenderKit renderKit) {
         this.renderKit = renderKit;
+
+        OctopusJSFConfig octopusConfig = BeanProvider.getContextualReference(OctopusJSFConfig.class);
+        excludePrimeFacesMobile = Boolean.valueOf(octopusConfig.getExcludePrimeFacesMobile());
     }
 
     @Override
@@ -44,8 +51,11 @@ public class SecureRendererKit extends RenderKitWrapper {
 
     @Override
     public void addRenderer(String s, String s2, Renderer renderer) {
-        // FIXME Issue 25, workaround, not a very good solution
-        if (!renderer.getClass().getName().contains("mobile")) {
+        boolean addRenderer = true;
+        if (excludePrimeFacesMobile && renderer.getClass().getName().contains("mobile")) {
+            addRenderer = false;
+        }
+        if (addRenderer) {
             super.addRenderer(s, s2, renderer);
         }
     }

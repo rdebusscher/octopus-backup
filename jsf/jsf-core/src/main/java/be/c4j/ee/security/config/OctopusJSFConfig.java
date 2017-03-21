@@ -78,4 +78,10 @@ public class OctopusJSFConfig extends AbstractOctopusConfig implements ModuleCon
 
     }
 
+    @ConfigEntry
+    public String getExcludePrimeFacesMobile() {
+        return ConfigResolver.getPropertyValue("primefaces.mobile.exclusion", "false");
+    }
+
+
 }

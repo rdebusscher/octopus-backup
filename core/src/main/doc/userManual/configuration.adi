@@ -111,6 +111,12 @@ default : *true*
 
 When active, only one session for a user is allowed (based on the principalId defined in the AuthenticationInfoBuilder). When the user logs on, the other session is automatically logged out.
 
+==== primefaces.mobile.exclusion (JSF Only)
+
+default : *false*
+
+When true, the Mobile Renderers of primeFaces are excluded. This can be needed due to an issue which occurred in a certain situation but could not be reproduced in other situations.
+
 ==== hashAlgorithmName
 
 default : *(none)*
