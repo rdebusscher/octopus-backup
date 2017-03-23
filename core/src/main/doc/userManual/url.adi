@@ -10,7 +10,7 @@ In theory, all Shiro defined filters can be used. But only these seems us useful
 
 *ssl*    Access must be through a secure http connection (https)
 
-*noSessionCreation*   Handy in the case of URLs used with JAX-RS endpoints to disable the creation of a HTTP session.
+*noSessionCreation*   Handy in the case of URLs used with JAX-RS endpoints to disable the creation of a HTTP session. Disables also the _SessionHijacking_ filter.
 
 ==== Octopus Core
 

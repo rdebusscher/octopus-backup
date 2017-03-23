@@ -19,7 +19,7 @@ import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.rest.AuthenticationInfo;
 
 /**
- *
+ *  FIXME Remove, no longer in use Grant_type password of OAuth2/OpenIdConnect will be used
  */
 public interface RestAuthenticationHandler {
 
