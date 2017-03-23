@@ -62,6 +62,7 @@ public class OctopusSSOUserConverter {
         Map<String, Object> info = new HashMap<String, Object>(ssoUser.getUserInfo());
         info.remove("token"); // FIXME Create constant
         info.remove("upstreamToken"); // FIXME Create constant
+        info.remove("authorizationInfo"); // FIXME Create constant
 
         for (Map.Entry<String, Object> infoEntry : info.entrySet()) {
 
