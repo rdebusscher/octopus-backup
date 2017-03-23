@@ -43,9 +43,14 @@
         </dependency>
 
         <dependency>
-
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>octopus-jsf-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+            <artifactId>cas-se</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

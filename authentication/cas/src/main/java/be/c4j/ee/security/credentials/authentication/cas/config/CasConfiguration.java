@@ -15,20 +15,22 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas.config;
 
+import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.inject.Specializes;
+import javax.inject.Inject;
 
 /**
- * FIXME Split this into JSF and non-JSF configuration properties.
- * And create a cas-se for usage outside JSF/Rest
+ *
  */
 @Specializes
 public class CasConfiguration extends OctopusJSFConfig {
 
-    private String casService;
+    @Inject
+    private CasSEConfiguration casSEConfiguration;
 
     @Override
     public String getLoginPage() {
@@ -54,26 +56,25 @@ public class CasConfiguration extends OctopusJSFConfig {
 
     @ConfigEntry
     public String getCASEmailProperty() {
-        return ConfigResolver.getPropertyValue("CAS.property.email", "email");
+        // Not used in this octopus module (but used from cas-se module) but here for the logging functionality
+        return casSEConfiguration.getCASEmailProperty();
     }
 
     @ConfigEntry
     public String getSSOServer() {
-        return ConfigResolver.getPropertyValue("SSO.server", "");
+        return casSEConfiguration.getSSOServer();
     }
 
     @ConfigEntry
     public String getCASProtocol() {
-        // TODO Validate the contents
-        return ConfigResolver.getPropertyValue("CAS.protocol", "CAS"); // SAML should also be supported
+        // Not used in this octopus module (but used from cas-se module) but here for the logging functionality
+        return casSEConfiguration.getCASProtocol();
     }
 
     @ConfigEntry(value = "Determined later on, see log entry")
     public String getCASService() {
-        return casService;
+        // Not used in this octopus module (but used from cas-se module) but here for the logging functionality
+        return casSEConfiguration.getCASService();
     }
 
-    public void setCasService(String casService) {
-        this.casService = casService;
-    }
 }

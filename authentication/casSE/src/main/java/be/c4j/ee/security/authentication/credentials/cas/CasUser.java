@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.cas;
+package be.c4j.ee.security.authentication.credentials.cas;
 
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 

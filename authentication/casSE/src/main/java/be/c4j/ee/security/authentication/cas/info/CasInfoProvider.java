@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.cas.info;
+package be.c4j.ee.security.authentication.cas.info;
 
-import be.c4j.ee.security.credentials.authentication.cas.CasAuthenticationException;
-import be.c4j.ee.security.credentials.authentication.cas.CasUser;
-import be.c4j.ee.security.credentials.authentication.cas.config.CasConfiguration;
+import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
+import be.c4j.ee.security.authentication.credentials.cas.CasUser;
+import be.c4j.ee.security.authentication.cas.exception.CasAuthenticationException;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,17 +30,26 @@ import java.util.Map;
 /**
  *
  */
-@ApplicationScoped
 public class CasInfoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CasInfoProvider.class);
-    @Inject
-    private CasConfiguration casConfiguration;
+
+    private CasSEConfiguration casConfiguration;
 
     private TicketValidator ticketValidator;
 
-    @PostConstruct
-    public void init() {
+    public CasInfoProvider() {
+        // Within the cas module, we create a producer for this class which we inject at some places.
+        // But this means that the class must be conform the CDI rules and that means a non arg constructor
+        // even if CDI doesn't instantiate instances.
+    }
+
+    public CasInfoProvider(CasSEConfiguration casConfiguration) {
+        this.casConfiguration = casConfiguration;
+        init();
+    }
+
+    private void init() {
         String urlPrefix = casConfiguration.getSSOServer();
         if ("saml".equalsIgnoreCase(casConfiguration.getCASProtocol())) {
             ticketValidator = new Saml11TicketValidator(urlPrefix);
@@ -77,16 +83,6 @@ public class CasInfoProvider {
             }
 
             result.setUserInfo(info);
-
-            /*
-             FIXME
-            String rememberMeAttributeName = getRememberMeAttributeName();
-            String rememberMeStringValue = (String) attributes.get(rememberMeAttributeName);
-            boolean isRemembered = rememberMeStringValue != null && Boolean.parseBoolean(rememberMeStringValue);
-            if (isRemembered) {
-                casToken.setRememberMe(true);
-            }
-            */
 
         } catch (TicketValidationException e) {
             LOGGER.error("Validating CAS Ticket failed", e);

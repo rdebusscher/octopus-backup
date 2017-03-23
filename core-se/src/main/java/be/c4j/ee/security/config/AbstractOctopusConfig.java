@@ -45,7 +45,7 @@ public class AbstractOctopusConfig {
         //The properties file octopusConfig.properties on the class path
         Properties configProperties = new Properties();
         try {
-            InputStream resourceStream = OctopusConfig.class.getClassLoader()
+            InputStream resourceStream = AbstractOctopusConfig.class.getClassLoader()
                     .getResourceAsStream(OCTOPUS_CONFIG_PROPERTIES);
             if (resourceStream != null) {
                 configProperties.load(resourceStream);

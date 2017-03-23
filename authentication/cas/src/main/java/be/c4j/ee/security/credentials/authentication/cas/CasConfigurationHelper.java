@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas;
 
-import be.c4j.ee.security.credentials.authentication.cas.config.CasConfiguration;
+import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,7 +32,7 @@ public class CasConfigurationHelper {
     private Logger logger;
 
     @Inject
-    private CasConfiguration casConfiguration;
+    private CasSEConfiguration casConfiguration;
 
     private boolean loginUrlDefined = false;
     private String casService;

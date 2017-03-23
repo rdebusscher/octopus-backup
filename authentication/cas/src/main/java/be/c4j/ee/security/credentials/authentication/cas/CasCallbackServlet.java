@@ -15,9 +15,10 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas;
 
+import be.c4j.ee.security.authentication.credentials.cas.CasUser;
+import be.c4j.ee.security.authentication.cas.info.CasInfoProvider;
 import be.c4j.ee.security.authentication.ActiveSessionRegistry;
 import be.c4j.ee.security.config.OctopusJSFConfig;
-import be.c4j.ee.security.credentials.authentication.cas.info.CasInfoProvider;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.session.SessionUtil;
 import org.apache.shiro.SecurityUtils;
@@ -78,7 +79,7 @@ public class CasCallbackServlet extends HttpServlet {
             } catch (IOException e) {
                 // OWASP A6 : Sensitive Data Exposure
                 throw new OctopusUnexpectedException(e);
-                // FIXME see that we cache this at the filter and it never gets exposed to the client
+                // FIXME see that we catch this at the filter and it never gets exposed to the client
             }
 
         } catch (AuthenticationException e) {

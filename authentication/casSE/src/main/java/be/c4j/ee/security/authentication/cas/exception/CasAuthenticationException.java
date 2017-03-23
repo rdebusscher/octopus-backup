@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.cas;
+package be.c4j.ee.security.authentication.cas.exception;
 
 import org.apache.shiro.authc.AuthenticationException;
 
@@ -24,5 +24,9 @@ public class CasAuthenticationException extends AuthenticationException {
 
     public CasAuthenticationException(Throwable cause) {
         super(cause);
+    }
+
+    public CasAuthenticationException(String message) {
+        super(message);
     }
 }

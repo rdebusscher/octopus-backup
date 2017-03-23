@@ -42,6 +42,7 @@
         <module>totp</module>
         <module>keycloakSE</module>
         <module>keycloak</module>
+        <module>casSE</module>
     </modules>
 
     <build>

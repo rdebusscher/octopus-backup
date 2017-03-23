@@ -106,3 +106,15 @@ An example can be found ???here???
 
 You can go even further and the complete authentication (checking if the user specified the correct user name and password combination) can be handled externally by a third party system using OAuth2, CAS, SAML, etc ...
 Specific extensions are designed to work with these system and examples are described ???here???
+
+
+==== Java SE support
+
+===== CAS
+
+TODO
+
+Important, don't forget to call +CasSEConfiguration.prepareConfiguration()+ to initialize the configuration system properly.
+===== KeyCloak
+
+===== Password grant type of Octopus Server (OAuth2 compatible)
