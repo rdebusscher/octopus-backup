@@ -82,7 +82,8 @@
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
-            <version>5.0</version>
+            <version>${primefaces.version.demo}</version>
+            <!-- We need version 5.0 or later since we need the Mobile Renderers -->
             <scope>test</scope>
         </dependency>
     </dependencies>
