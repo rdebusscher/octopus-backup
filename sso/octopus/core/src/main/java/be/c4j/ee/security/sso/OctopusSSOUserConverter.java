@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -110,8 +109,7 @@ public class OctopusSSOUserConverter {
                 } else {
                     value = keyValue;
                 }
-                // We always know that it is serializable because we started from a map which contains only serializables.
-                result.addUserInfo(keyName, (Serializable) value);
+                result.addUserInfo(keyName, value);
             }
         }
 

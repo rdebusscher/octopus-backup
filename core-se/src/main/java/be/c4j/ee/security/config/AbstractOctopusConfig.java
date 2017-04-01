@@ -30,7 +30,7 @@ import java.util.Properties;
 /**
  *
  */
-public class AbstractOctopusConfig {
+public abstract class AbstractOctopusConfig {
     private static final String OCTOPUS_CONFIG_PROPERTIES = "octopusConfig.properties";
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());

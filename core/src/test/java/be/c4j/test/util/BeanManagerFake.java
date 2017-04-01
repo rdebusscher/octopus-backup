@@ -15,7 +15,6 @@
  */
 package be.c4j.test.util;
 
-import be.c4j.util.ReflectionUtil;
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.util.metadata.builder.AnnotatedTypeBuilder;

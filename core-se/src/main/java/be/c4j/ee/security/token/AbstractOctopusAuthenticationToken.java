@@ -18,7 +18,6 @@ package be.c4j.ee.security.token;
 import org.apache.shiro.authc.AuthenticationToken;
 
 import javax.security.auth.Subject;
-import java.io.Serializable;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +46,7 @@ public abstract class AbstractOctopusAuthenticationToken implements Authenticati
         return subject.getPrincipals().contains(this);
     }
 
-    public void addUserInfo(String key, Serializable value) {
+    public void addUserInfo(String key, Object value) {
         userInfo.put(key, value);
     }
 

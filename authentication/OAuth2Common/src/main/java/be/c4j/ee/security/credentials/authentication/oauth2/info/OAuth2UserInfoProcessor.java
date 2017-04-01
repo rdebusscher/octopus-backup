@@ -38,7 +38,7 @@ public abstract class OAuth2UserInfoProcessor {
             key = keys.next();
             if (!excludeKeys.contains(key)) {
                 Object info = jsonObject.get(key);
-                oAuth2User.addUserInfo(key, info == null ? null : info.toString());
+                oAuth2User.addUserInfo(key, info);
             }
         }
     }

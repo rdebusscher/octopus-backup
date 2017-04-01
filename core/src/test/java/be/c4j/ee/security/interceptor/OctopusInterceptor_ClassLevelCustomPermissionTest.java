@@ -20,7 +20,7 @@ import be.c4j.ee.security.interceptor.testclasses.ClassLevelCustomPermission;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.PermissionLookupFixture;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

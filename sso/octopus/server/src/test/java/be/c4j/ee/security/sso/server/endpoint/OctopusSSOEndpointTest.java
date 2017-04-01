@@ -26,7 +26,7 @@ import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.Audience;

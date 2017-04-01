@@ -20,7 +20,7 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.util.TimeUtil;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;

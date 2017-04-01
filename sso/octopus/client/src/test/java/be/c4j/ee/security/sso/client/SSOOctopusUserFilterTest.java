@@ -19,7 +19,7 @@ import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.util.URLUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

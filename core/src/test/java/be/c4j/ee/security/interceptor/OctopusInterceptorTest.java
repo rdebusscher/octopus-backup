@@ -30,7 +30,7 @@ import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import be.c4j.ee.security.twostep.TwoStepConfig;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

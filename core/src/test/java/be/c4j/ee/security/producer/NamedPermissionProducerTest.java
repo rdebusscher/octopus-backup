@@ -22,7 +22,7 @@ import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.realm.OctopusPermissions;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;

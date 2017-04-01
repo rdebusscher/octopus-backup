@@ -29,7 +29,7 @@ import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.shiro.authz.AuthorizationInfo;

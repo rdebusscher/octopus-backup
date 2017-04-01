@@ -23,7 +23,7 @@ import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.PermissionLookupFixture;
 import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.ee.security.twostep.TwoStepConfig;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
 import org.junit.runner.RunWith;

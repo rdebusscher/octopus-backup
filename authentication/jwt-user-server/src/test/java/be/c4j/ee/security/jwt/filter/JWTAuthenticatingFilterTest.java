@@ -27,7 +27,7 @@ import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
 import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;

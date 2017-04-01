@@ -44,7 +44,9 @@ public class OctopusConfigSource extends BaseConfigSource {
 
             }
         } catch (MalformedURLException e) {
-            LOGGER.error("unable to read configuration from : " + configFile, e);
+            LOGGER.error("Unable to read configuration from : " + configFile, e);
+        } catch (IllegalStateException e) {  // FileNotFoundException from PropertyFileUtils.loadProperties()
+            LOGGER.error("Unable to read configuration from : " + configFile, e);
         } finally {
             if (properties == null) {
                 properties = new Properties();

@@ -18,7 +18,7 @@ package be.c4j.ee.security.sso.server.store;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
