@@ -52,6 +52,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+
 /**
  *
  */
@@ -88,7 +90,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String apiKey = httpServletRequest.getHeader("x-api-key");
-        String token = httpServletRequest.getHeader("Authorization");
+        String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
         return createToken(apiKey, token);
 
@@ -216,7 +218,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String token = httpServletRequest.getHeader("Authorization");
+        String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
         if (token != null && !token.isEmpty()) {
             return executeLogin(request, response);
         } else {

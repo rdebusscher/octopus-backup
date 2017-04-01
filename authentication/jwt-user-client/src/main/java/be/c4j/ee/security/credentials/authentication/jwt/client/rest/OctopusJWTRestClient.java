@@ -32,6 +32,8 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+
 /**
  *
  */
@@ -57,7 +59,7 @@ public class OctopusJWTRestClient {
     }
 
     public void addAuthenticationHeader(Invocation.Builder builder, String apiKey, JWTClaimsProvider jwtClaimsProvider) {
-        builder.header("Authorization", getAuthenticationHeader(apiKey, jwtClaimsProvider));
+        builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader(apiKey, jwtClaimsProvider));
         builder.header("x-api-key", apiKey);
     }
 

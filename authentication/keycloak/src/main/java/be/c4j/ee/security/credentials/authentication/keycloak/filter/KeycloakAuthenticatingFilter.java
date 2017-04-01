@@ -78,7 +78,7 @@ public class KeycloakAuthenticatingFilter extends BasicHttpAuthenticationFilter 
         HttpGet get = new HttpGet(url);
 
         // add request header
-        get.addHeader("Authorization", authorizationHeader);
+        get.addHeader(AUTHORIZATION_HEADER, authorizationHeader);
         get.addHeader("Accept", "application/json");
 
         KeycloakUser result = null;
