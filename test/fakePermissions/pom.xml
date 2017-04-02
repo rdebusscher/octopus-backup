@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>test</artifactId>
-        <version>0.9.6.4</version>
+        <version>0.9.6.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <artifactId>fakePermissions</artifactId>
-    <version>0.9.6.4</version>
+    <version>0.9.6.5-SNAPSHOT</version>
 
     <name>Fake authorization module for SSO Client module of Octopus</name>
 
