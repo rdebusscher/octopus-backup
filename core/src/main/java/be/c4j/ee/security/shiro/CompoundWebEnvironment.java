@@ -22,12 +22,14 @@ import be.c4j.ee.security.filter.GlobalFilterConfiguration;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import be.c4j.ee.security.salt.HashEncoding;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.web.config.IniFilterChainResolverFactory;
 import org.apache.shiro.web.env.IniWebEnvironment;
+import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +66,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                     .getSection(APP_URL));
 
             configureCache(ini);
+            configureSessionStorageEvaluator(ini);
 
             String hashAlgorithmName = config.getHashAlgorithmName();
             if (!hashAlgorithmName.isEmpty()) {
@@ -109,6 +112,11 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void configureCache(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("cacheManager", config.getCacheManager());
+    }
+
+    private void configureSessionStorageEvaluator(Ini ini) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("octopusSessionStorageEvaluator", OctopusSessionStorageEvaluator.class.getName());
     }
 
     private void addPluginConfiguration(Ini ini) {
@@ -183,5 +191,14 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void addURLsWithNamedPermission(Ini someIni) {
         URLPermissionProtector protector = BeanProvider.getContextualReference(URLPermissionProtector.class);
         protector.configurePermissions(someIni.getSection(IniFilterChainResolverFactory.URLS));
+    }
+
+    @Override
+    protected WebSecurityManager createWebSecurityManager() {
+        // TODO With 0.9.7 we can do this in the OctopusSecurityManagerFactory
+        // So that SecurityManager is available with @StartupEvent
+        WebSecurityManager securityManager = super.createWebSecurityManager();
+        SecurityUtils.setSecurityManager(securityManager);
+        return securityManager;
     }
 }
