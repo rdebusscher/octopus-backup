@@ -26,6 +26,7 @@ import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.salt.OctopusHashedCredentialsMatcher;
 import be.c4j.ee.security.url.ProgrammaticURLProtectionProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -71,6 +72,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                     .getSection(APP_URL));
 
             configureCache(ini);
+            configureSessionStorageEvaluator(ini);
 
             String hashAlgorithmName = config.getHashAlgorithmName();
             if (!hashAlgorithmName.isEmpty()) {
@@ -136,6 +138,11 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         mainSection.put("cacheManager", config.getCacheManager());
         mainSection.put("appRealm.cacheManager", "$cacheManager");
         mainSection.put("securityManager.cacheManager", "$cacheManager");
+    }
+
+    private void configureSessionStorageEvaluator(Ini ini) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("octopusSessionStorageEvaluator", OctopusSessionStorageEvaluator.class.getName());
     }
 
     private void addPluginConfiguration(Ini ini) {
@@ -292,4 +299,13 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         return resolver;
     }
 
+
+    @Override
+    protected WebSecurityManager createWebSecurityManager() {
+        // TODO With 0.9.7 we can do this in the OctopusSecurityManagerFactory
+        // So that SecurityManager is available with @StartupEvent
+        WebSecurityManager securityManager = super.createWebSecurityManager();
+        SecurityUtils.setSecurityManager(securityManager);
+        return securityManager;
+    }
 }
