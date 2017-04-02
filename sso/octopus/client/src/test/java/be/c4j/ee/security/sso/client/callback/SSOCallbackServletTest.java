@@ -15,23 +15,18 @@
  */
 package be.c4j.ee.security.sso.client.callback;
 
+import be.c4j.ee.security.authentication.octopus.exception.OctopusRetrievalException;
+import be.c4j.ee.security.authentication.octopus.requestor.OctopusUserRequestor;
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.session.SessionUtil;
+import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
-import be.c4j.ee.security.util.SecretUtil;
-import be.c4j.ee.security.util.TimeUtil;
-import be.c4j.util.ReflectionUtil;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -39,12 +34,10 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
-import net.jadler.Jadler;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.util.SavedRequest;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +52,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,6 +89,9 @@ public class SSOCallbackServletTest {
     private CallbackErrorHandler callbackErrorHandlerMock;
 
     @Mock
+    private OctopusUserRequestor octopusUserRequestorMock;
+
+    @Mock
     private SessionUtil sessionUtilMock;
 
     @Mock
@@ -114,14 +111,8 @@ public class SSOCallbackServletTest {
 
     @Before
     public void setUp() throws IllegalAccessException {
-        Jadler.initJadler();
 
         ReflectionUtil.injectDependencies(callbackServlet, new OctopusSSOUserConverter());
-    }
-
-    @After
-    public void tearDown() {
-        Jadler.closeJadler();
     }
 
     @Test
@@ -210,7 +201,7 @@ public class SSOCallbackServletTest {
     }
 
     @Test
-    public void doGet_ValidAuthenticationToken() throws ServletException, IOException {
+    public void doGet_ValidAuthenticationToken() throws ServletException, IOException, java.text.ParseException, JOSEException, OctopusRetrievalException, ParseException, URISyntaxException {
         when(httpServletRequestMock.getSession(true)).thenReturn(httpSessionMock);
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
@@ -218,45 +209,14 @@ public class SSOCallbackServletTest {
         when(httpServletRequestMock.getQueryString()).thenReturn("code=TheAuthorizationCode&state=" + clientData.getState().getValue());
 
         when(clientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
-        when(clientConfigurationMock.getSSOClientId()).thenReturn("JUnit_client");
+
 
         AuthorizationCode authorizationCode = new AuthorizationCode("TheAuthorizationCode");
         when(exchangeForAccessCodeMock.doExchange(httpServletResponseMock, clientData, authorizationCode)).thenReturn(new BearerAccessToken("TheAccessToken"));
 
-        when(clientConfigurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
-
-        TimeUtil timeUtil = new TimeUtil();
-
-        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
-        builder.subject("JUnit");
-        builder.issuer("http://localhost/oidc");
-        builder.audience("JUnit_client");
-        builder.claim("nonce", clientData.getNonce().getValue());
-        builder.expirationTime(timeUtil.addSecondsToDate(2, new Date()));
-
-        SecretUtil secretUtil = new SecretUtil();
-        secretUtil.init();
-        String secret = secretUtil.generateSecretBase64(32);
-
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-        SignedJWT signedJWT = new SignedJWT(header, builder.build());
-
-        try {
-            signedJWT.sign(new MACSigner(secret));
-        } catch (JOSEException e) {
-            throw new OctopusUnexpectedException(e);
-        }
-
-        Jadler.onRequest()
-                .havingMethodEqualTo("GET")
-                .havingPathEqualTo("/oidc/octopus/sso/user")
-                .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
-                .respond()
-                .withBody(signedJWT.serialize())
-                .withContentType("application/jwt");
-
-        when(clientConfigurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
-        when(clientConfigurationMock.getSSOServer()).thenReturn("http://localhost/oidc");
+        BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
+        OctopusSSOUser ssoUser = new OctopusSSOUser();
+        when(octopusUserRequestorMock.getOctopusSSOUser(clientData, accessToken)).thenReturn(ssoUser);
 
         ThreadContext.bind(subjectMock);
         when(subjectMock.getSession(false)).thenReturn(sessionMock);

@@ -17,36 +17,22 @@ package be.c4j.ee.security.sso.server.servlet;
 
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
-import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.SSOProducerBean;
-import be.c4j.ee.security.sso.server.client.ClientInfo;
-import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
+import be.c4j.ee.security.sso.server.servlet.helper.OIDCTokenHelper;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
-import be.c4j.ee.security.util.TimeUtil;
-import be.c4j.ee.security.util.URLUtil;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.KeyLengthException;
-import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
-import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseMode;
-import com.nimbusds.oauth2.sdk.id.Audience;
-import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
-import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +44,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -79,16 +63,10 @@ public class AuthenticationServlet extends HttpServlet {
     private SSOTokenStore tokenStore;
 
     @Inject
-    private ClientInfoRetriever clientInfoRetriever;
-
-    @Inject
     private OctopusConfig octopusConfig;
 
     @Inject
-    private URLUtil urlUtil;
-
-    @Inject
-    private TimeUtil timeUtil;
+    private OIDCTokenHelper oidcTokenHelper;
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse response) throws ServletException, IOException {
@@ -99,8 +77,7 @@ public class AuthenticationServlet extends HttpServlet {
         AuthenticationRequest request = (AuthenticationRequest) httpServletRequest.getAttribute(AbstractRequest.class.getName());
 
         String clientId = request.getClientID().getValue();
-        IDTokenClaimsSet claimsSet = defineIDToken(httpServletRequest, ssoUser, request, clientId);
-
+        IDTokenClaimsSet claimsSet = oidcTokenHelper.defineIDToken(httpServletRequest, ssoUser, request, clientId);
 
         OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(ssoServerConfiguration.getOIDCTokenLength()
                 , ssoServerConfiguration.getSSOAccessTokenTimeToLive(), request.getScope()));
@@ -121,21 +98,7 @@ public class AuthenticationServlet extends HttpServlet {
                 // Set the variable so that the Access code is send in this response.
                 accessToken = oidcStoreData.getAccessToken();
             }
-            try {
-
-                ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientId);
-
-                idToken = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet.toJWTClaimsSet());
-
-                idToken.sign(new MACSigner(clientInfo.getIdTokenSecret()));
-            } catch (ParseException e) {
-                throw new OctopusUnexpectedException(e);
-            } catch (KeyLengthException e) {
-                throw new OctopusConfigurationException(e.getMessage());  // TODO Better informative message
-                // Although, developers should take care that no invalid value can be stored (and thus retrieved here)
-            } catch (JOSEException e) {
-                throw new OctopusUnexpectedException(e);
-            }
+            idToken = oidcTokenHelper.signIdToken(clientId, claimsSet);
         }
 
         oidcStoreData.setIdTokenClaimsSet(claimsSet);
@@ -167,23 +130,6 @@ public class AuthenticationServlet extends HttpServlet {
         } finally {
             httpServletRequest.getSession().invalidate();  // Don't keep the session on the SSO server
         }
-    }
-
-    private IDTokenClaimsSet defineIDToken(HttpServletRequest httpServletRequest, OctopusSSOUser ssoUser, AuthenticationRequest request, String clientId) {
-        Nonce nonce = request.getNonce();
-
-        Issuer iss = new Issuer(urlUtil.determineRoot(httpServletRequest));
-        Subject sub = new Subject(ssoUser.getName());
-        List<Audience> audList = new Audience(clientId).toSingleAudienceList();
-
-
-        Date iat = new Date();
-        Date exp = timeUtil.addSecondsToDate(ssoServerConfiguration.getSSOAccessTokenTimeToLive(), iat); // TODO Verify how we handle expiration when multiple clients are using the server
-
-        IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(iss, sub, audList, exp, iat);
-
-        claimsSet.setNonce(nonce);
-        return claimsSet;
     }
 
     private void showDebugInfo(OctopusSSOUser user) {

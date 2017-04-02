@@ -17,6 +17,7 @@ package be.c4j.ee.security.util;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 
 /**
  *
@@ -33,6 +34,25 @@ public class URLUtil {
         result.append(req.getServerPort());
         result.append(req.getContextPath());
         return result.toString();
+    }
+
+    /**
+     * baseURI is the contextRoot appended with the ApplicationPath
+     * FIXME Document that when creating a Octopus SSO Server application Path can only be a 1 'level' (like /data, but not /octopus/data)
+     *
+     * @param baseURI
+     * @return
+     */
+    public String determineRoot(URI baseURI) {
+        String base = baseURI.toASCIIString();
+
+        // Strip the trailing /
+        String result = base.substring(0, base.length() - 1);
+
+        // Find the last /
+        int idx = result.lastIndexOf('/');
+
+        return result.substring(0, idx);
     }
 
 }

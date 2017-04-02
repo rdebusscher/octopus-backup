@@ -28,6 +28,7 @@ public class ClientInfo {
 
     private String callbackURL;
     private boolean octopusClient;
+    private boolean directAccessAllowed;
     private String idTokenSecret;  // For the idToken of the UserInfoEndpoint (signing of the JWT)
     private String clientSecret;  // For the ClientAuthentication of the TokenEndpoint (signing of the JWT)
 
@@ -88,5 +89,13 @@ public class ClientInfo {
 
     public void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
+    }
+
+    public boolean isDirectAccessAllowed() {
+        return directAccessAllowed;
+    }
+
+    public void setDirectAccessAllowed(boolean directAccessAllowed) {
+        this.directAccessAllowed = directAccessAllowed;
     }
 }

@@ -43,6 +43,7 @@
         <module>keycloakSE</module>
         <module>keycloak</module>
         <module>casSE</module>
+        <module>octopusSE</module>
     </modules>
 
     <build>

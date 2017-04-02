@@ -25,10 +25,12 @@ import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
+import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.config.UserEndpointEncoding;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.util.TimeUtil;
+import be.c4j.ee.security.util.URLUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -36,6 +38,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
@@ -49,12 +52,16 @@ import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.*;
+
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static com.nimbusds.openid.connect.sdk.claims.UserInfo.SUB_CLAIM_NAME;
 
 /**
  *
@@ -72,6 +79,9 @@ public class OctopusSSOEndpoint {
     private OctopusConfig octopusConfig;
 
     @Inject
+    private SSOServerConfiguration ssoServerConfiguration;
+
+    @Inject
     private SSOPermissionProvider ssoPermissionProvider;
 
     @Inject
@@ -86,6 +96,9 @@ public class OctopusSSOEndpoint {
     @Inject
     private TimeUtil timeUtil;
 
+    @Inject
+    private URLUtil urlUtil;
+
     private PrincipalUserInfoJSONProvider userInfoJSONProvider;
 
     @PostConstruct
@@ -99,14 +112,14 @@ public class OctopusSSOEndpoint {
     @Path("/user")
     @POST
     @RequiresUser
-    public Response getUserInfoPost(@HeaderParam("Authorization") String authorizationHeader, @Context UriInfo uriDetails) {
+    public Response getUserInfoPost(@HeaderParam(AUTHORIZATION_HEADER) String authorizationHeader, @Context UriInfo uriDetails) {
         return getUserInfo(authorizationHeader, uriDetails);
     }
 
     @Path("/user")
     @GET
     @RequiresUser
-    public Response getUserInfo(@HeaderParam("Authorization") String authorizationHeader, @Context UriInfo uriDetails) {
+    public Response getUserInfo(@HeaderParam(AUTHORIZATION_HEADER) String authorizationHeader, @Context UriInfo uriDetails) {
 
         //When scope contains octopus -> always signed or encrypted. and not JSON by default !!!
         showDebugInfo(ssoUser);
@@ -119,8 +132,25 @@ public class OctopusSSOEndpoint {
 
         JWTClaimsSet jwtClaimsSet;
         try {
-            jwtClaimsSet = idTokenClaimsSet.toJWTClaimsSet();
+            if (idTokenClaimsSet == null) {
+                // There was no scope openid specified. But for convenience we define a minimal response
+                JSONObject json = new JSONObject();
+                json.put(SUB_CLAIM_NAME, ssoUser.getUserName());
+
+                json.put("iss", urlUtil.determineRoot(uriDetails.getBaseUri()));
+
+                Date iat = new Date();
+                Date exp = timeUtil.addSecondsToDate(ssoServerConfiguration.getSSOAccessTokenTimeToLive(), iat); // TODO Verify how we handle expiration when multiple clients are using the server
+
+                json.put("exp", exp.getTime());
+
+                jwtClaimsSet = JWTClaimsSet.parse(json);
+            } else {
+                jwtClaimsSet = idTokenClaimsSet.toJWTClaimsSet();
+            }
         } catch (ParseException e) {
+            throw new OctopusUnexpectedException(e);
+        } catch (java.text.ParseException e) {
             throw new OctopusUnexpectedException(e);
         }
 
@@ -128,7 +158,8 @@ public class OctopusSSOEndpoint {
 
         UserInfo userInfo = octopusSSOUserConverter.fromIdToken(jwtClaimsSet);
 
-        if (oidcStoreData.getAccessToken().getScope().contains("octopus")) {
+        Scope scope = oidcStoreData.getAccessToken().getScope();
+        if (scope != null && scope.contains("octopus")) {
 
             userInfo.putAll(octopusSSOUserConverter.asClaims(ssoUser, userInfoJSONProvider));
 
@@ -202,8 +233,13 @@ public class OctopusSSOEndpoint {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresUser
-    public Map<String, String> getUserPermissions(@PathParam("applicationName") String application) {
-        return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
+    public Map<String, String> getUserPermissions(@PathParam("applicationName") String application, @Context HttpServletRequest httpServletRequest) {
+        Scope scope = (Scope) httpServletRequest.getAttribute(Scope.class.getName());
+        if (scope != null && scope.contains("octopus")) {
+            return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
+        } else {
+            return null;
+        }
     }
 
     @Path("/permissions/{applicationName}")

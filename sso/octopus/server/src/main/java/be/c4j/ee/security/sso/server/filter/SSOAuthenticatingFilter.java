@@ -20,8 +20,10 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
+import com.nimbusds.oauth2.sdk.Scope;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
@@ -37,6 +39,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
 
 /**
  *
@@ -62,12 +66,12 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String apiKey = httpServletRequest.getHeader("x-api-key");
-        String token = httpServletRequest.getHeader("Authorization");
+        String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
-        return createSSOUser(apiKey, token);
+        return createSSOUser(httpServletRequest, apiKey, token);
     }
 
-    private AuthenticationToken createSSOUser(String apiKey, String token) {
+    private AuthenticationToken createSSOUser(ServletRequest request, String apiKey, String token) {
 
         // FIXME the IncorrectDataToken does not result in a correct Error response
         if (encryptionHandler != null && encryptionHandler.requiresApiKey() && apiKey == null) {
@@ -87,14 +91,14 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             return new IncorrectDataToken("Authorization header value must start with Bearer");
         }
 
-        OctopusSSOUser octopusToken = createOctopusToken(apiKey, parts[1]);
+        OctopusSSOUser octopusToken = createOctopusToken(request, apiKey, parts[1]);
         if (octopusToken == null) {
             return new IncorrectDataToken("Authentication failed");
         }
         return octopusToken;
     }
 
-    private OctopusSSOUser createOctopusToken(String apiKey, String token) {
+    private OctopusSSOUser createOctopusToken(ServletRequest request, String apiKey, String token) {
         String accessToken = null;
 
         OctopusSSOUser user = tokenStore.getUserByAccessCode(token);
@@ -104,6 +108,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             // So we can assume that the encryptionHandler isn't used (can be the case when using implicit flow)
             // TODO Verify the usecase of encryptionHandler
             accessToken = token;
+
         } else {
             if (encryptionHandler != null) {
                 if (encryptionHandler.validate(apiKey, token)) {
@@ -119,6 +124,10 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         if (user == null) {
             logger.info("No user information found for token " + accessToken);
         } else {
+            // Put the scope on the request so that the endpoint can use this information
+            OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAccessToken(accessToken);
+            request.setAttribute(Scope.class.getName(), oidcStoreData.getScope());
+
             showDebugInfo(user);
         }
         return user;

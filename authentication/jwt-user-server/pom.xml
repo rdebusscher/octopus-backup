@@ -48,9 +48,18 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- test dependencies -->
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>octopus-core</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core-se</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

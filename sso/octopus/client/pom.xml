@@ -35,8 +35,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>be.c4j.ee.security.octopus.sso</groupId>
-            <artifactId>sso-core</artifactId>
+            <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+            <artifactId>octopus-se</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -47,6 +47,7 @@
             <version>5.24</version>
         </dependency>
 
+        <!-- test dependencies -->
         <dependency>
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>octopus-core</artifactId>
@@ -63,12 +64,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>net.jadler</groupId>

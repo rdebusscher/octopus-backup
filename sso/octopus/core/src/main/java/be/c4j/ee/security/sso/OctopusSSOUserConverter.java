@@ -80,7 +80,9 @@ public class OctopusSSOUserConverter {
         OctopusSSOUser result = new OctopusSSOUser();
         result.setId(userInfo.getStringClaim("id"));
         result.setLocalId(userInfo.getStringClaim("localId"));
-        result.setUserName(userInfo.getPreferredUsername());
+        String username = userInfo.getPreferredUsername();
+        // with resourceOwnerPasswordCredentials, username is in "sub"
+        result.setUserName(username == null ? userInfo.getStringClaim("sub") : username);
 
         result.setLastName(userInfo.getFamilyName());
         result.setFirstName(userInfo.getGivenName());

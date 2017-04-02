@@ -19,9 +19,13 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
+import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
+import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,7 +49,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SSOAuthenticatingFilterTest {
 
-    private static final String REAL_TOKEN = "realToken";
+    private static final String ACCESS_TOKEN = "realToken";
 
     @Mock
     private HttpServletRequest httpServletRequestMock;
@@ -72,6 +77,7 @@ public class SSOAuthenticatingFilterTest {
         beanManagerFake = new BeanManagerFake();
 
         beanManagerFake.registerBean(octopusConfigMock, OctopusConfig.class);
+        beanManagerFake.registerBean(new TimeUtil(), TimeUtil.class);
         beanManagerFake.endRegistration();
 
         when(octopusConfigMock.showDebugFor()).thenReturn(new ArrayList<Debug>());
@@ -162,12 +168,18 @@ public class SSOAuthenticatingFilterTest {
 
         OctopusSSOUser user = new OctopusSSOUser();
 
-        when(tokenStore.getUserByAccessCode(REAL_TOKEN)).thenReturn(user);
+        when(tokenStore.getUserByAccessCode(ACCESS_TOKEN)).thenReturn(user);
+        OIDCStoreData oidcData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN));
+        Scope scope = Scope.parse("openid octopus");
+        oidcData.setScope(scope);
+        when(tokenStore.getOIDCDataByAccessToken(ACCESS_TOKEN)).thenReturn(oidcData);
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
         assertThat(token).isNotExactlyInstanceOf(IncorrectDataToken.class);
         assertThat(token).isSameAs(user);
+
+        verify(httpServletRequestMock).setAttribute(Scope.class.getName(), scope);
     }
 
     @Test
@@ -175,11 +187,15 @@ public class SSOAuthenticatingFilterTest {
         when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer token");
         when(ssoDataEncryptionHandlerMock.validate(null, "token")).thenReturn(true);
-        when(ssoDataEncryptionHandlerMock.decryptData("token", null)).thenReturn(REAL_TOKEN);
+        when(ssoDataEncryptionHandlerMock.decryptData("token", null)).thenReturn(ACCESS_TOKEN);
 
         OctopusSSOUser user = new OctopusSSOUser();
 
-        when(tokenStore.getUserByAccessCode(REAL_TOKEN)).thenReturn(user);
+        when(tokenStore.getUserByAccessCode(ACCESS_TOKEN)).thenReturn(user);
+        OIDCStoreData oidcData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN));
+        Scope scope = Scope.parse("openid octopus");
+        oidcData.setScope(scope);
+        when(tokenStore.getOIDCDataByAccessToken(ACCESS_TOKEN)).thenReturn(oidcData);
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 

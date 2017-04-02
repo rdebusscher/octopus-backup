@@ -143,7 +143,7 @@ public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implement
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -161,7 +161,7 @@ public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implement
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;

@@ -30,13 +30,27 @@ public class OpenIdVariableClientData implements Serializable {
     private Nonce nonce;
     private String rootURL;
 
+    /**
+     * Used from within the Octopus SE module.
+     */
+    public OpenIdVariableClientData() {
+        this(null);
+    }
+
+    /**
+     * Used from within the Octopus SSO client module.
+     *
+     * @param rootURL
+     */
     public OpenIdVariableClientData(String rootURL) {
         this.rootURL = rootURL;
-        // Generate State
-        state = new State();
+        if (rootURL != null) {
+            // Generate State
+            state = new State();
 
-        // Generate nonce
-        nonce = new Nonce();
+            // Generate nonce
+            nonce = new Nonce();
+        }
     }
 
     public State getState() {

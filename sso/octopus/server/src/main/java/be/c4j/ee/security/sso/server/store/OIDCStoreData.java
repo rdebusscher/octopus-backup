@@ -85,7 +85,7 @@ public class OIDCStoreData {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -99,7 +99,7 @@ public class OIDCStoreData {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return clientId != null ? clientId.hashCode() : 0;
     }
 }

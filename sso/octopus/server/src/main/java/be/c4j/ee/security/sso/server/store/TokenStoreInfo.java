@@ -72,9 +72,21 @@ public class TokenStoreInfo {
     private OIDCStoreData findOIDCStoreData(ClientID clientID) {
         OIDCStoreData result = null;
         for (OIDCStoreData oidcStoreDatum : oidcStoreData) {
-            if (clientID.equals(oidcStoreDatum.getClientId())) {
+            if (areClientIdsEqual(clientID, oidcStoreDatum)) {
                 result = oidcStoreDatum;
             }
+        }
+        return result;
+    }
+
+    private boolean areClientIdsEqual(ClientID clientID, OIDCStoreData oidcStoreDatum) {
+        // FIXME TEst cases
+        boolean result = false;
+        if (clientID == null && oidcStoreDatum.getClientId() == null) {
+            result = true;
+        }
+        if (clientID != null) {
+            result = clientID.equals(oidcStoreDatum.getClientId());
         }
         return result;
     }

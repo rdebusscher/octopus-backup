@@ -103,13 +103,20 @@ public class MemoryTokenStore implements SSOTokenStore {
     @Override
     public void addLoginFromClient(OctopusSSOUser ssoUser, String cookieToken, String userAgent, String remoteHost, OIDCStoreData oidcStoreData) {
 
-        TokenStoreInfo storeInfo = findStoreInfo(ssoUser);
+        TokenStoreInfo storeInfo;
+        if (cookieToken != null) {
+            storeInfo = findStoreInfoByCookieToken(ssoUser);
+        } else {
+            storeInfo = findStoreInfoByAccessToken(ssoUser);
+        }
 
         if (storeInfo == null) {
             // First logon
             storeInfo = new TokenStoreInfo(ssoUser, cookieToken, userAgent, remoteHost);
 
-            byCookieCode.put(cookieToken, storeInfo);
+            if (cookieToken != null) {
+                byCookieCode.put(cookieToken, storeInfo);
+            }
         }
 
         storeInfo.addOIDCStoreData(oidcStoreData);
@@ -122,9 +129,21 @@ public class MemoryTokenStore implements SSOTokenStore {
 
     }
 
-    private TokenStoreInfo findStoreInfo(OctopusSSOUser ssoUser) {
+    private TokenStoreInfo findStoreInfoByCookieToken(OctopusSSOUser ssoUser) {
         TokenStoreInfo result = null;
         Iterator<Map.Entry<String, TokenStoreInfo>> iterator = byCookieCode.entrySet().iterator();
+        while (result == null && iterator.hasNext()) {
+            Map.Entry<String, TokenStoreInfo> entry = iterator.next();
+            if (entry.getValue().getOctopusSSOUser().equals(ssoUser)) {
+                result = entry.getValue();
+            }
+        }
+        return result;
+    }
+
+    private TokenStoreInfo findStoreInfoByAccessToken(OctopusSSOUser ssoUser) {
+        TokenStoreInfo result = null;
+        Iterator<Map.Entry<String, TokenStoreInfo>> iterator = byAccessCode.entrySet().iterator();
         while (result == null && iterator.hasNext()) {
             Map.Entry<String, TokenStoreInfo> entry = iterator.next();
             if (entry.getValue().getOctopusSSOUser().equals(ssoUser)) {
@@ -149,7 +168,7 @@ public class MemoryTokenStore implements SSOTokenStore {
     @Override
     public List<OIDCStoreData> getLoggedInClients(OctopusSSOUser octopusSSOUser) {
         List<OIDCStoreData> result = new ArrayList<OIDCStoreData>();
-        TokenStoreInfo storeInfo = findStoreInfo(octopusSSOUser);
+        TokenStoreInfo storeInfo = findStoreInfoByCookieToken(octopusSSOUser);
         if (storeInfo != null) {
             // TODO We should always find an entry
             result.addAll(storeInfo.getOidcStoreData());

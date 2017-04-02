@@ -21,13 +21,17 @@ import be.c4j.ee.security.sso.server.SSOProducerBean;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
+import be.c4j.ee.security.sso.server.servlet.helper.OIDCTokenHelper;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.util.TimeUtil;
-import be.c4j.ee.security.util.URLUtil;
 import be.c4j.test.util.BeanManagerFake;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -36,7 +40,6 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.*;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.apache.shiro.codec.Base64;
 import org.junit.After;
@@ -47,7 +50,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -56,12 +61,15 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,16 +89,10 @@ public class AuthenticationServletTest {
     private SSOProducerBean ssoProducerBeanMock;
 
     @Mock
-    private SSOServerConfiguration ssoServerConfiguration;
+    private SSOServerConfiguration ssoServerConfigurationMock;
 
     @Mock
     private AuthenticationRequest authenticationRequestMock;
-
-    @Mock
-    private URLUtil urlUtilMock;
-
-    @Mock
-    private TimeUtil timeUtilMock;
 
     @Mock
     private SSOTokenStore tokenStoreMock;
@@ -103,6 +105,9 @@ public class AuthenticationServletTest {
 
     @Mock
     private OctopusConfig octopusConfigMock;
+
+    @Mock
+    private OIDCTokenHelper oidcTokenHelperMock;
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
@@ -142,16 +147,14 @@ public class AuthenticationServletTest {
         ssoUser.setCookieToken("CookieTokenRememberMe");
         when(ssoProducerBeanMock.getOctopusSSOUser()).thenReturn(ssoUser);
 
-        when(timeUtilMock.addSecondsToDate(anyLong(), any(Date.class))).thenReturn(new Date());
-        when(ssoServerConfiguration.getOIDCTokenLength()).thenReturn(48);
-        when(ssoServerConfiguration.getSSOAccessTokenTimeToLive()).thenReturn(3600);
+        when(ssoServerConfigurationMock.getOIDCTokenLength()).thenReturn(48);
+        when(ssoServerConfigurationMock.getSSOAccessTokenTimeToLive()).thenReturn(3600);
 
         when(httpServletRequestMock.getAttribute(AbstractRequest.class.getName())).thenReturn(authenticationRequestMock);
         when(authenticationRequestMock.getResponseType()).thenReturn(ResponseType.parse("code"));
         when(authenticationRequestMock.getClientID()).thenReturn(new ClientID("JUnit_client"));
         when(authenticationRequestMock.getRedirectionURI()).thenReturn(new URI("http://client.app/testing"));
         when(authenticationRequestMock.getState()).thenReturn(new State("stateValue"));
-        when(authenticationRequestMock.getNonce()).thenReturn(new Nonce("nonceValue"));
         when(authenticationRequestMock.getScope()).thenReturn(Scope.parse("scope1 scope2"));
 
         when(httpServletRequestMock.getSession()).thenReturn(httpSessionMock);
@@ -159,7 +162,10 @@ public class AuthenticationServletTest {
         when(httpServletRequestMock.getHeader("User-Agent")).thenReturn("UserAgentValue");
         when(httpServletRequestMock.getRemoteAddr()).thenReturn("remoteAddressValue");
 
-        when(urlUtilMock.determineRoot(httpServletRequestMock)).thenReturn("http://some.host/root");
+        List<Audience> aud = new ArrayList<Audience>();
+        IDTokenClaimsSet expectedClaimSet = new IDTokenClaimsSet(new Issuer("issuer"), new Subject("sub"), aud, new Date(), new Date());
+        when(oidcTokenHelperMock.defineIDToken(httpServletRequestMock, ssoUser, authenticationRequestMock, "JUnit_client"))
+                .thenReturn(expectedClaimSet);
 
         authenticationServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
@@ -171,7 +177,7 @@ public class AuthenticationServletTest {
 
         String authorizationCode = callbackURL.substring(31, callbackURL.indexOf('&'));
         byte[] bytes = Base64.decode(authorizationCode);
-        assertThat(bytes.length >= 45 && bytes.length <= 48).isTrue(); // Don't know why the actual length isn't 48
+        assertThat(bytes.length >= 45 && bytes.length <= 48).isTrue(); // FIXME Don't know why the actual length isn't 48
 
         verify(tokenStoreMock).addLoginFromClient(any(OctopusSSOUser.class), cookieTokenArgumentCaptor.capture(),
                 userAgentArgumentCaptor.capture(), remoteHostArgumentCaptor.capture(), oidcStoreDataArgumentCaptor.capture());
@@ -186,19 +192,9 @@ public class AuthenticationServletTest {
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
         IDTokenClaimsSet claimsSet = oidcStoreDataArgumentCaptor.getValue().getIdTokenClaimsSet();
-
-        checkIdToken(claimsSet);
+        assertThat(claimsSet).isSameAs(expectedClaimSet);
 
         verify(httpSessionMock).invalidate();
-    }
-
-    private void checkIdToken(IDTokenClaimsSet claimsSet) {
-        assertThat(claimsSet.getAudience()).containsExactly(new Audience("JUnit_client"));
-        assertThat(claimsSet.getIssuer()).isEqualTo(new Issuer("http://some.host/root"));
-        assertThat(claimsSet.getSubject()).isEqualTo(new Subject("JUnit test"));
-        assertThat(claimsSet.getExpirationTime()).isNotNull();
-        assertThat(claimsSet.getIssueTime()).isNotNull();
-        assertThat(claimsSet.getNonce()).isEqualTo(Nonce.parse("nonceValue"));
     }
 
 
@@ -209,15 +205,13 @@ public class AuthenticationServletTest {
         ssoUser.setCookieToken("CookieTokenRememberMe");
         when(ssoProducerBeanMock.getOctopusSSOUser()).thenReturn(ssoUser);
 
-        when(timeUtilMock.addSecondsToDate(anyLong(), any(Date.class))).thenReturn(new Date());
-        when(ssoServerConfiguration.getOIDCTokenLength()).thenReturn(48);
+        when(ssoServerConfigurationMock.getOIDCTokenLength()).thenReturn(48);
 
         when(httpServletRequestMock.getAttribute(AbstractRequest.class.getName())).thenReturn(authenticationRequestMock);
         when(authenticationRequestMock.getResponseType()).thenReturn(ResponseType.parse("id_token"));
         when(authenticationRequestMock.getClientID()).thenReturn(new ClientID("JUnit_client"));
         when(authenticationRequestMock.getRedirectionURI()).thenReturn(new URI("http://client.app/testing"));
         when(authenticationRequestMock.getState()).thenReturn(new State("stateValue"));
-        when(authenticationRequestMock.getNonce()).thenReturn(new Nonce("nonceValue"));
         when(authenticationRequestMock.getScope()).thenReturn(Scope.parse("scope1 scope2"));
 
         when(httpServletRequestMock.getSession()).thenReturn(httpSessionMock);
@@ -225,12 +219,16 @@ public class AuthenticationServletTest {
         when(httpServletRequestMock.getHeader("User-Agent")).thenReturn("UserAgentValue");
         when(httpServletRequestMock.getRemoteAddr()).thenReturn("remoteAddressValue");
 
-        when(urlUtilMock.determineRoot(httpServletRequestMock)).thenReturn("http://some.host/root");
-
         ClientInfo clientInfo = new ClientInfo();
         String idTokenSecret = "01234567890123456789012345678901234567890";
         clientInfo.setIdTokenSecret(idTokenSecret);
-        when(clientInfoRetrieverMock.retrieveInfo("JUnit_client")).thenReturn(clientInfo);
+
+        List<Audience> aud = Audience.create("aud");
+        IDTokenClaimsSet expectedClaimSet = new IDTokenClaimsSet(new Issuer("issuer"), new Subject("sub"), aud, new Date(), new Date());
+        when(oidcTokenHelperMock.defineIDToken(httpServletRequestMock, ssoUser, authenticationRequestMock, "JUnit_client"))
+                .thenReturn(expectedClaimSet);
+
+        configureTokenSigning(idTokenSecret);
 
         authenticationServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
@@ -244,7 +242,6 @@ public class AuthenticationServletTest {
 
         SignedJWT jwt = SignedJWT.parse(idToken);
         jwt.verify(new MACVerifier(idTokenSecret));
-        checkIdToken(IDTokenClaimsSet.parse(jwt.getJWTClaimsSet().toJSONObject().toJSONString()));
 
         verify(tokenStoreMock).addLoginFromClient(any(OctopusSSOUser.class), cookieTokenArgumentCaptor.capture(),
                 userAgentArgumentCaptor.capture(), remoteHostArgumentCaptor.capture(), oidcStoreDataArgumentCaptor.capture());
@@ -259,10 +256,44 @@ public class AuthenticationServletTest {
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
         IDTokenClaimsSet claimsSet = oidcStoreDataArgumentCaptor.getValue().getIdTokenClaimsSet();
-
-        checkIdToken(claimsSet);
+        assertThat(claimsSet).isSameAs(expectedClaimSet);
 
         verify(httpSessionMock).invalidate();
+    }
+
+    private void configureTokenSigning(final String idTokenSecret) {
+        Issuer iss = new Issuer("http://some.host/root");
+        Subject sub = new Subject("subject");
+        List<Audience> audList = Audience.create("JUnit_client");
+        final IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(iss, sub, audList, new Date(), new Date());
+
+        when(oidcTokenHelperMock.signIdToken(anyString(), any(IDTokenClaimsSet.class))).thenAnswer(new Answer<SignedJWT>() {
+            @Override
+            public SignedJWT answer(InvocationOnMock invocation) throws Throwable {
+                SignedJWT idToken = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet.toJWTClaimsSet());
+
+                idToken.sign(new MACSigner(idTokenSecret));
+
+                return idToken;
+            }
+        });
+
+    }
+
+    private void verifyContent(JWTClaimsSet jwtClaimsSet, IDTokenClaimsSet expectedClaimSet) {
+
+
+        try {
+            Map<String, Object> claims = jwtClaimsSet.getClaims();
+            for (Map.Entry<String, Object> entry : expectedClaimSet.toJWTClaimsSet().getClaims().entrySet()) {
+                assertThat(claims).containsKey(entry.getKey());
+                assertThat(claims).containsEntry(entry.getKey(), entry.getValue());
+            }
+
+
+        } catch (ParseException e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
@@ -272,15 +303,13 @@ public class AuthenticationServletTest {
         ssoUser.setCookieToken("CookieTokenRememberMe");
         when(ssoProducerBeanMock.getOctopusSSOUser()).thenReturn(ssoUser);
 
-        when(timeUtilMock.addSecondsToDate(anyLong(), any(Date.class))).thenReturn(new Date());
-        when(ssoServerConfiguration.getOIDCTokenLength()).thenReturn(48);
+        when(ssoServerConfigurationMock.getOIDCTokenLength()).thenReturn(48);
 
         when(httpServletRequestMock.getAttribute(AbstractRequest.class.getName())).thenReturn(authenticationRequestMock);
         when(authenticationRequestMock.getResponseType()).thenReturn(ResponseType.parse("id_token token"));
         when(authenticationRequestMock.getClientID()).thenReturn(new ClientID("JUnit_client"));
         when(authenticationRequestMock.getRedirectionURI()).thenReturn(new URI("http://client.app/testing"));
         when(authenticationRequestMock.getState()).thenReturn(new State("stateValue"));
-        when(authenticationRequestMock.getNonce()).thenReturn(new Nonce("nonceValue"));
         when(authenticationRequestMock.getScope()).thenReturn(Scope.parse("scope1 scope2"));
 
         when(httpServletRequestMock.getSession()).thenReturn(httpSessionMock);
@@ -288,12 +317,16 @@ public class AuthenticationServletTest {
         when(httpServletRequestMock.getHeader("User-Agent")).thenReturn("UserAgentValue");
         when(httpServletRequestMock.getRemoteAddr()).thenReturn("remoteAddressValue");
 
-        when(urlUtilMock.determineRoot(httpServletRequestMock)).thenReturn("http://some.host/root");
-
         ClientInfo clientInfo = new ClientInfo();
         String idTokenSecret = "01234567890123456789012345678901234567890";
         clientInfo.setIdTokenSecret(idTokenSecret);
-        when(clientInfoRetrieverMock.retrieveInfo("JUnit_client")).thenReturn(clientInfo);
+
+        configureTokenSigning(idTokenSecret);
+
+        List<Audience> aud = Audience.create("aud");
+        IDTokenClaimsSet expectedClaimSet = new IDTokenClaimsSet(new Issuer("issuer"), new Subject("sub"), aud, new Date(), new Date());
+        when(oidcTokenHelperMock.defineIDToken(httpServletRequestMock, ssoUser, authenticationRequestMock, "JUnit_client"))
+                .thenReturn(expectedClaimSet);
 
         authenticationServlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
@@ -317,7 +350,6 @@ public class AuthenticationServletTest {
         String idToken = parameters.get("id_token");
         SignedJWT jwt = SignedJWT.parse(idToken);
         jwt.verify(new MACVerifier(idTokenSecret));
-        checkIdToken(IDTokenClaimsSet.parse(jwt.getJWTClaimsSet().toJSONObject().toJSONString()));
 
         verify(tokenStoreMock).addLoginFromClient(any(OctopusSSOUser.class), cookieTokenArgumentCaptor.capture(),
                 userAgentArgumentCaptor.capture(), remoteHostArgumentCaptor.capture(), oidcStoreDataArgumentCaptor.capture());
@@ -332,8 +364,7 @@ public class AuthenticationServletTest {
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
         IDTokenClaimsSet claimsSet = oidcStoreDataArgumentCaptor.getValue().getIdTokenClaimsSet();
-
-        checkIdToken(claimsSet);
+        assertThat(claimsSet).isSameAs(expectedClaimSet);
 
         verify(httpSessionMock).invalidate();
     }

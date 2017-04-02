@@ -49,6 +49,7 @@
         <module>jwt-user-server</module>
         <module>keycloakSE</module>
         <module>keycloak</module>
+        <module>octopusSE</module>
     </modules>
 
 </project>

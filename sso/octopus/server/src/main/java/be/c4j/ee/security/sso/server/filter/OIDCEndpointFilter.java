@@ -24,11 +24,13 @@ import be.c4j.ee.security.sso.server.token.OIDCEndpointToken;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.verifier.ClientAuthenticationVerifier;
 import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationErrorResponse;
@@ -55,6 +57,8 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
 
 /**
  * Filter for the Authenticate and token endpoint.
@@ -157,7 +161,7 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
             HTTPRequest.Method method = HTTPRequest.Method.valueOf(httpServletRequest.getMethod());
             URL url = new URL(httpServletRequest.getRequestURL().toString());
             HTTPRequest httpRequest = new HTTPRequest(method, url);
-            httpRequest.setAuthorization(httpServletRequest.getHeader("Authorization"));
+            httpRequest.setAuthorization(httpServletRequest.getHeader(AUTHORIZATION_HEADER));
             httpRequest.setContentType(CommonContentTypes.APPLICATION_URLENCODED);
 
             String query = httpServletRequest.getReader().readLine();
@@ -166,39 +170,29 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
             tokenRequest = TokenRequest.parse(httpRequest);
 
-            ClientAuthentication clientAuthentication = tokenRequest.getClientAuthentication();
-
-            Set<Audience> expectedAudience = new HashSet<Audience>();
-            expectedAudience.add(new Audience(url.toExternalForm()));
-
-            ClientAuthenticationVerifier<Object> authenticationVerifier = new ClientAuthenticationVerifier<Object>(selector, expectedAudience);
-
-            try {
-                authenticationVerifier.verify(clientAuthentication, null, null);
-            } catch (InvalidClientException e) {
-                LOGGER.info(e.getMessage());
-                result = new ErrorInfo(e.getErrorObject());
-            } catch (JOSEException e) {
-                ErrorObject errorObject = new ErrorObject("OCT-SSO-SERVER-011", "invalid JWT");
-                result = new ErrorInfo(errorObject);
+            GrantType grantType = tokenRequest.getAuthorizationGrant().getType();
+            if (grantType.requiresClientAuthentication() || tokenRequest.getClientAuthentication() != null) {
+                result = checkClientCredentials(tokenRequest, url, httpRequest, grantType);
             }
 
-            if (result == null) {
-                ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientAuthentication.getClientID().getValue());
+            if (result == null && GrantType.PASSWORD.equals(grantType)) {
 
-                // TODO clientInfo should never be null, is already checked by the clientAuthenticationVerifier.
-                if (!clientInfo.getActualCallbackURL().equals(httpRequest.getQueryParameters().get("redirect_uri"))) {
-                    // 3.1.3.2 Ensure that the redirect_uri parameter value is identical to the redirect_uri parameter value that was included in the initial Authorization Request
-                    result = new ErrorInfo(new ErrorObject("OCT-SSO-SERVER-012", "Invalid \"redirect_uri\" parameter: "));
+                //when scope contains openid or openid/octopus -> clientAuthentication required
+                if (hasIdScopes(tokenRequest) && tokenRequest.getClientAuthentication() == null) {
+                    ErrorObject errorObject = new ErrorObject("OCT-SSO-SERVER-013", "Scope requires client Authentication");
+                    result = new ErrorInfo(errorObject);
+
                 } else {
 
-                    OIDCEndpointToken endpointToken = new OIDCEndpointToken(clientAuthentication);
+                    // Well not completely correctly but
+                    // If call isn't authenticated at the end of the filter, there is a redirect to the Login page
+                    // So we need to do a login, and we have already one for the OIDCEndpointToken
+                    // So we reuse this. And username password it basically a clientAuthentication so not too bad.
 
-                    SecurityUtils.getSubject().login(endpointToken);
-
-                    // OK, we will check if
-                    // - Authorization Code is still valid.
-                    // - Authorization code is issued for the same ClientId
+                    ResourceOwnerPasswordCredentialsGrant passwordGrant = (ResourceOwnerPasswordCredentialsGrant) tokenRequest.getAuthorizationGrant();
+                    ClientID username = new ClientID(passwordGrant.getUsername());
+                    ClientAuthentication clientAuthentication = new ClientSecretBasic(username, passwordGrant.getPassword());
+                    SecurityUtils.getSubject().login(new OIDCEndpointToken(clientAuthentication));
                 }
             }
 
@@ -219,6 +213,61 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
             // Disable the SessionHijacking filter on this request.
             httpServletRequest.setAttribute("sh" + ALREADY_FILTERED_SUFFIX, Boolean.TRUE);
+        }
+        return result;
+    }
+
+    private boolean hasIdScopes(TokenRequest tokenRequest) {
+        return tokenRequest.getScope() != null
+                && (tokenRequest.getScope().contains("openid") || tokenRequest.getScope().contains("octopus"));
+    }
+
+    private ErrorInfo checkClientCredentials(TokenRequest tokenRequest, URL url, HTTPRequest httpRequest, GrantType grantType) {
+        ErrorInfo result = null;
+        ClientAuthentication clientAuthentication = tokenRequest.getClientAuthentication();
+
+        Set<Audience> expectedAudience = new HashSet<Audience>();
+        expectedAudience.add(new Audience(url.toExternalForm()));
+
+        ClientAuthenticationVerifier<Object> authenticationVerifier = new ClientAuthenticationVerifier<Object>(selector, expectedAudience);
+
+        try {
+            authenticationVerifier.verify(clientAuthentication, null, null);
+        } catch (InvalidClientException e) {
+            LOGGER.info(e.getMessage());
+            result = new ErrorInfo(e.getErrorObject());
+        } catch (JOSEException e) {
+            ErrorObject errorObject = new ErrorObject("OCT-SSO-SERVER-011", "invalid JWT");
+            result = new ErrorInfo(errorObject);
+        }
+
+
+        if (result == null) {
+            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientAuthentication.getClientID().getValue());
+
+
+            // TODO clientInfo should never be null, is already checked by the clientAuthenticationVerifier.
+            if (!checkRedirectURI(httpRequest, clientInfo, grantType)) {
+                // 3.1.3.2 Ensure that the redirect_uri parameter value is identical to the redirect_uri parameter value that was included in the initial Authorization Request
+                result = new ErrorInfo(new ErrorObject("OCT-SSO-SERVER-012", "Invalid \"redirect_uri\" parameter: "));
+            } else {
+
+                OIDCEndpointToken endpointToken = new OIDCEndpointToken(clientAuthentication);
+
+                SecurityUtils.getSubject().login(endpointToken);
+
+                // OK, we will check if
+                // - Authorization Code is still valid.
+                // - Authorization code is issued for the same ClientId
+            }
+        }
+        return result;
+    }
+
+    private boolean checkRedirectURI(HTTPRequest httpRequest, ClientInfo clientInfo, GrantType grantType) {
+        boolean result = true;
+        if (GrantType.AUTHORIZATION_CODE.equals(grantType) || GrantType.IMPLICIT.equals(grantType)) {
+            result = clientInfo.getActualCallbackURL().equals(httpRequest.getQueryParameters().get("redirect_uri"));
         }
         return result;
     }

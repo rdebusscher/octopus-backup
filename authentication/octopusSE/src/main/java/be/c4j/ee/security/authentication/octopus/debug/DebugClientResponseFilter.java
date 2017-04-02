@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.sso.client.debug;
+package be.c4j.ee.security.authentication.octopus.debug;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,6 @@ import java.nio.charset.Charset;
 /**
  *
  */
-
 public class DebugClientResponseFilter implements ClientResponseFilter {
 
     private Logger logger = LoggerFactory.getLogger(DebugClientResponseFilter.class);
@@ -38,12 +37,15 @@ public class DebugClientResponseFilter implements ClientResponseFilter {
 
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
+        Integer correlationId = (Integer) requestContext.getProperty(CorrelationCounter.class.getName());
         if (responseContext.hasEntity()) {
-            responseContext.setEntityStream(logInboundEntity(responseContext.getEntityStream()));
+            responseContext.setEntityStream(logInboundEntity(correlationId, responseContext.getStatus(), responseContext.getEntityStream()));
+        } else {
+            logger.info(String.format("(correlationId %5d) Received response with status %s", correlationId, responseContext.getStatus()));
         }
     }
 
-    private InputStream logInboundEntity(InputStream stream) throws IOException {
+    private InputStream logInboundEntity(int correlationId, int status, InputStream stream) throws IOException {
         StringBuilder responseBody = new StringBuilder();
         InputStream logStream = stream;
         if (!stream.markSupported()) {
@@ -58,7 +60,8 @@ public class DebugClientResponseFilter implements ClientResponseFilter {
         }
         logStream.reset();
 
-        logger.info("REST call body content " + responseBody.toString());
+        logger.info(String.format("(correlationId %5d) Received response with status %s and content '%s'", correlationId, status, responseBody.toString()));
+
         return logStream;
     }
 }

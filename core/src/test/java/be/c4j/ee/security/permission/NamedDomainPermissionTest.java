@@ -15,6 +15,9 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.model.UserPrincipal;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +65,7 @@ public class NamedDomainPermissionTest {
     }
 
     @Test
-    public void testBypassBugithinSetTargets() {
+    public void testBypassBugWithinSetTargets() {
         NamedDomainPermission permission = new NamedDomainPermission("PERMISSION1", "Permission:1:*");
         assertThat(permission.toString()).isEqualTo("permission:1:*");
     }
