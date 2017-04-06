@@ -143,7 +143,8 @@ public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implement
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
+        // Can't be final because of CDI
         if (this == o) {
             return true;
         }
@@ -161,7 +162,8 @@ public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implement
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
+        // Can't be final because of CDI
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;

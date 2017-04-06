@@ -143,6 +143,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     private void configureSessionStorageEvaluator(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("octopusSessionStorageEvaluator", OctopusSessionStorageEvaluator.class.getName());
+        mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator", "$octopusSessionStorageEvaluator");
     }
 
     private void addPluginConfiguration(Ini ini) {

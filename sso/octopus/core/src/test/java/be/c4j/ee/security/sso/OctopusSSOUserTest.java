@@ -28,7 +28,8 @@ public class OctopusSSOUserTest {
     @Test
     public void testEqualsAndHashCode() {
         EqualsVerifier.forClass(OctopusSSOUser.class)
-                .suppress(Warning.NONFINAL_FIELDS)
+                .suppress(Warning.NONFINAL_FIELDS, Warning.STRICT_INHERITANCE)
+                // Strict_Inheritance because equals/hashcode can't be final due to CDI
                 .verify();
     }
 }

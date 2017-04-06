@@ -28,7 +28,8 @@ public class UserPrincipalTest {
     @Test
     public void testEqualsAndHashCode() {
         EqualsVerifier.forClass(UserPrincipal.class)
-                .suppress(Warning.NONFINAL_FIELDS, Warning.NULL_FIELDS)
+                .suppress(Warning.NONFINAL_FIELDS, Warning.NULL_FIELDS, Warning.STRICT_INHERITANCE)
+                // Strict_Inheritance because equals/hashcode can't be final due to CDI
                 .verify();
     }
 }

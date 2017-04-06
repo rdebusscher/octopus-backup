@@ -155,7 +155,8 @@ public class UserPrincipal implements Principal, Serializable {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
+        // Cannot be final as it is injected
         if (this == o) {
             return true;
         }
@@ -173,7 +174,8 @@ public class UserPrincipal implements Principal, Serializable {
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
+        // Cannot be final as it is injected
         return id.hashCode();
     }
 
