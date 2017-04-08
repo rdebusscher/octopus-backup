@@ -15,41 +15,38 @@
  */
 package be.c4j.ee.security.permission.filter;
 
-import be.c4j.ee.security.permission.NamedPermission;
-import be.c4j.ee.security.permission.PermissionLookup;
-import be.c4j.ee.security.util.CDIUtil;
+import be.c4j.ee.security.permission.OctopusPermissionResolver;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.ShiroException;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-public class NamedPermissionOneFilter extends AuthorizationFilter {
+public class NamedPermissionOneFilter extends AuthorizationFilter implements Initializable {
 
-    private PermissionLookup<? extends NamedPermission> permissionLookup;
+    private OctopusPermissionResolver permissionResolver;
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws
             Exception {
         Subject subject = getSubject(request, response);
         String[] permissions = (String[]) mappedValue;
-        checkLookup();
 
         boolean permitted = false;
         for (String permissionName : permissions) {
-            if (subject.isPermitted(permissionLookup.getPermission(permissionName))) {
+            if (subject.isPermitted(permissionResolver.resolvePermission(permissionName))) {
                 permitted = true;
             }
         }
         return permitted;
     }
 
-    // FIXME Need the use of Initializable and StringPermissionLookup
-    private void checkLookup() {
-        // We can't do this in onFilterConfigSet as it is to soon.  Not available at that time
-        if (permissionLookup == null) {
-            // at this time, we need the lookup to be present, otherwise the rest of the isAccessAllowed() method doesn't make much sense.
-            permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
-        }
+    @Override
+    public void init() throws ShiroException {
+        permissionResolver = BeanProvider.getContextualReference(OctopusPermissionResolver.class);
     }
+
 }

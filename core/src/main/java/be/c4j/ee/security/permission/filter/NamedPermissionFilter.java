@@ -15,13 +15,10 @@
  */
 package be.c4j.ee.security.permission.filter;
 
-import be.c4j.ee.security.permission.NamedPermission;
-import be.c4j.ee.security.permission.PermissionLookup;
-import be.c4j.ee.security.permission.StringPermissionLookup;
-import be.c4j.ee.security.util.CDIUtil;
+import be.c4j.ee.security.permission.OctopusPermissionResolver;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.Permission;
-import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authz.AuthorizationFilter;
@@ -31,9 +28,7 @@ import javax.servlet.ServletResponse;
 
 public class NamedPermissionFilter extends AuthorizationFilter implements Initializable {
 
-    private PermissionLookup<? extends NamedPermission> permissionLookup;
-
-    private StringPermissionLookup stringLookup;
+    private OctopusPermissionResolver permissionResolver;
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws
@@ -44,7 +39,7 @@ public class NamedPermissionFilter extends AuthorizationFilter implements Initia
         boolean permitted = true;
         for (String permissionName : permissions) {
 
-            Permission permission = getPermission(permissionName);
+            Permission permission = permissionResolver.resolvePermission(permissionName);
             if (!subject.isPermitted(permission)) {
                 permitted = false;
             }
@@ -52,29 +47,9 @@ public class NamedPermissionFilter extends AuthorizationFilter implements Initia
         return permitted;
     }
 
-    private Permission getPermission(String permissionName) {
-        Permission result;
-        if (permissionLookup != null) {
-            result = permissionLookup.getPermission(permissionName);
-        } else {
-            if (stringLookup != null) {
-                result = stringLookup.getPermission(permissionName);
-            } else {
-                if (permissionName.contains(":")) {
-                    result = new WildcardPermission(permissionName);
-                } else {
-                    result = new WildcardPermission(permissionName + ":*:*");
-                }
-            }
-        }
-        return result;
-    }
-
     @Override
     public void init() throws ShiroException {
-        // Optional
-        permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
-        stringLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
+        permissionResolver = BeanProvider.getContextualReference(OctopusPermissionResolver.class);
     }
 
 }

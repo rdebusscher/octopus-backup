@@ -44,9 +44,9 @@ import static org.mockito.Mockito.*;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class NamedPermissionFilterTest {
+public class NamedPermissionOneFilterTest {
 
-    private NamedPermissionFilter filter;
+    private NamedPermissionOneFilter filter;
 
     private BeanManagerFake beanManagerFake;
 
@@ -61,7 +61,7 @@ public class NamedPermissionFilterTest {
 
     @Before
     public void setUp() {
-        filter = new NamedPermissionFilter();
+        filter = new NamedPermissionOneFilter();
 
         beanManagerFake = new BeanManagerFake();
 
@@ -141,7 +141,7 @@ public class NamedPermissionFilterTest {
     }
 
     @Test
-    public void isAccessAllowed_NamedTypeSafe_Multiple_OneNotAllowed() throws Exception {
+    public void isAccessAllowed_NamedTypeSafe_Multiple_OneIsEnoughForTheFilter() throws Exception {
 
         when(subjectMock.isPermitted(any(Permission.class))).thenAnswer(new Answer<Object>() {
             @Override
@@ -152,7 +152,7 @@ public class NamedPermissionFilterTest {
         });
 
         boolean accessAllowed = filter.isAccessAllowed(null, null, new String[]{PERMISSION1.name(), PERMISSION2.name()});
-        assertThat(accessAllowed).isFalse();
+        assertThat(accessAllowed).isTrue();
 
         verify(subjectMock, times(2)).isPermitted(permissionArgumentCaptor.capture());
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(NamedDomainPermission.class);
@@ -216,7 +216,7 @@ public class NamedPermissionFilterTest {
     }
 
     @Test
-    public void isAccessAllowed_NamedString_Multiple_OneNotAllowed() throws Exception {
+    public void isAccessAllowed_NamedString_Multiple_OneIsEnoughForFilter() throws Exception {
 
         when(subjectMock.isPermitted(any(Permission.class))).thenAnswer(new Answer<Object>() {
             @Override
@@ -227,7 +227,7 @@ public class NamedPermissionFilterTest {
         });
 
         boolean accessAllowed = filter.isAccessAllowed(null, null, new String[]{"permission1", "permission2"});
-        assertThat(accessAllowed).isFalse();
+        assertThat(accessAllowed).isTrue();
 
         verify(subjectMock, times(2)).isPermitted(permissionArgumentCaptor.capture());
         assertThat(permissionArgumentCaptor.getValue()).isInstanceOf(NamedDomainPermission.class);
