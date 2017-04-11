@@ -47,6 +47,8 @@ public class NamedPermissionOneFilter extends AuthorizationFilter implements Ini
     @Override
     public void init() throws ShiroException {
         permissionResolver = BeanProvider.getContextualReference(OctopusPermissionResolver.class);
+        permissionResolver.init();
+
     }
 
 }

@@ -50,6 +50,7 @@ public class NamedPermissionFilter extends AuthorizationFilter implements Initia
     @Override
     public void init() throws ShiroException {
         permissionResolver = BeanProvider.getContextualReference(OctopusPermissionResolver.class);
+        permissionResolver.init();
     }
 
 }

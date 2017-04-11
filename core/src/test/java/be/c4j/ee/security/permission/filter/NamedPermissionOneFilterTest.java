@@ -86,6 +86,8 @@ public class NamedPermissionOneFilterTest {
 
     @After
     public void tearDown() {
+        verify(permissionResolverMock).init();  // There was an bug that the init wasn't called. Wanted to make sure we always it from now on.
+
         beanManagerFake.deregistration();
     }
 
