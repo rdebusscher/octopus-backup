@@ -15,9 +15,11 @@
  */
 package be.c4j.ee.security.sso.server.url;
 
+import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.url.ProgrammaticURLProtectionProvider;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,6 +29,8 @@ import java.util.Map;
 @ApplicationScoped
 public class SSOServerURLProtectionProvider implements ProgrammaticURLProtectionProvider {
 
+    @Inject
+    private SSOServerConfiguration configuration;
 
     @Override
     public Map<String, String> getURLEntriesToAdd() {
@@ -38,7 +42,7 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
         result.put("/octopus/sso/logout", "userRequired");  // So we need a user (from cookie) to be able to logout
 
         result.put("/octopus/sso/authenticate", "oidcFilter");
-        result.put("/octopus/sso/token", "oidcFilter");
+        result.put("/octopus/sso/token", String.format("rate[%s], oidcFilter", configuration.getOIDCEndpointRateLimit()));
         result.put("/octopus/**", "none");
 
         return result;

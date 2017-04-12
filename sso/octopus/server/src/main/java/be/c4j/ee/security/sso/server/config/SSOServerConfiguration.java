@@ -134,4 +134,8 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
         return result;
     }
 
+    @ConfigEntry
+    public String getOIDCEndpointRateLimit() {
+        return ConfigResolver.getPropertyValue("SSO.rate.limit", "60/1m");
+    }
 }

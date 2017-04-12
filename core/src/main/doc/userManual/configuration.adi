@@ -265,6 +265,20 @@ default : *true*
 
 Is the secure flag on the cookie set, meaning it is only added to https requests.
 
+==== SSO.rate.limit (Octopus SSO Server)
+
+default : *60/1m*
+
+Configures the Rate limit filter for the Access token endpoint of the OIDC compliant endpoint.
+
+Configuration consist of 2 values, the number of request (r) and the time period (t). The config value is specified as r/t.
+
+r : Positive integer number
+
+t : Time period (amount and unit where unit can be _s_ (second), _m_ (minute) and _h_ (hour)
+
+The difference between 1/1s and 60/1m is that on average there is 1 call allowed each second but 60/1m allows for a short momentary burst. (for example 7 request in 1 second, as long as we don't exceed the 60 requests during the last minute.)
+
 ==== CAS.protocol (CAS only)
 
 default : *CAS*

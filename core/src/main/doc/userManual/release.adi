@@ -1,12 +1,13 @@
 === 0.9.7
 
 . String based Permissions.
-. Octopus SSO (Server and client modules) (Java EE 7 only) - Auth2 and OpenIdConnect compatible.
+. Octopus SSO (Server and client modules) (Java EE 7 only) - OAuth2 and OpenIdConnect compatible.
 . Principal and permission transfer within header to JAX-RS endpoint (Java EE 7 only) for Self Contained Systems support.
 . TwoStep authentication with support for SMS (Twilio) and TOTP.
 . Protection for Session fixation and hijacking.
 . Programmatic define permissions for URLs
-. Initial support for java SE (CAS SE, Password Grant Oauth2/OpenId Connect, ...)
+. Additional filter userRequired _rate_
+. Initial support for java SE (CAS SE, Password Grant OAuth2/OpenId Connect, ...)
 . Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
 
 Breaking changes

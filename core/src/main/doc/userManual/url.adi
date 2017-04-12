@@ -22,7 +22,7 @@ In theory, all Shiro defined filters can be used. But only these seems us useful
 
 *np1*    alias for _namedPermission1_ filter
 
-namedRole   Specify between brackets the named roles which are needed to allow access like +namedRole[role1, role2]+
+*namedRole*   Specify between brackets the named roles which are needed to allow access like +namedRole[role1, role2]+
 
 *nr*    alias for the _namedRole_ filter
 
@@ -35,6 +35,10 @@ namedRole   Specify between brackets the named roles which are needed to allow a
 *audit*   Filter for auditing access, is used when the configuration parameter +globalAuditActive+ is set but can also be used on selective URL patterns.
 
 *none*   All access to these URL patterns is prohibited.
+
+*userRequired* Verifies if a user is already known. However, no redirect to login URL is performed when no user is authenticated (which is the case for the _user_ filter)
+
+*rate*  Rate Limit filter to protect URLs against DDOS attacks. Config of rate is explained here ???
 
 ==== OAuth2 Google module
 
