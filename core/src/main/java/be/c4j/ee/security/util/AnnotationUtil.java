@@ -139,6 +139,7 @@ public final class AnnotationUtil {
         result.addClassAnnotation(getAnnotation(someClassType, RequiresUser.class));
         result.addClassAnnotation(getAnnotation(someClassType, RequiresRoles.class));
         result.addClassAnnotation(getAnnotation(someClassType, RequiresPermissions.class));
+        result.addClassAnnotation(getAnnotation(someClassType, OctopusPermissions.class));
         result.addClassAnnotation(getAnnotation(someClassType, CustomVoterCheck.class));
         result.addClassAnnotation(getAnnotation(someClassType, SystemAccount.class));
         if (config.getNamedPermissionCheckClass() != null) {

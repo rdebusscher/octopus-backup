@@ -16,22 +16,23 @@
 package be.c4j.ee.security.interceptor.testclasses;
 
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
+import be.c4j.ee.security.realm.OctopusPermissions;
 
 /**
  *
  */
-@TestPermissionCheck(TestPermission.PERMISSION1)
-public class ClassLevelCustomPermission {
+@OctopusPermissions("permission:1:*")
+public class ClassLevelOctopusPermissionWildCard {
 
-    public static final String CLASS_LEVEL_CUSTOM_PERMISSION = "ClassLevel#customPermission";
+    public static final String CLASS_LEVEL_OCTOPUS_PERMISSION = "ClassLevel#octopusPermissionWildCard";
 
 
-    public void customPermission1() {
-        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_CUSTOM_PERMISSION);
+    public void octopusPermission1() {
+        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_OCTOPUS_PERMISSION);
     }
 
-    public void customPermission1Bis() {
-        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_CUSTOM_PERMISSION);
+    public void octopusPermission1Bis() {
+        CallFeedbackCollector.addCallFeedback(CLASS_LEVEL_OCTOPUS_PERMISSION);
     }
 
 }

@@ -64,6 +64,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class OctopusInterceptorTest {
     protected static final String PERMISSION1 = "PERMISSION1";
     protected static final String PERMISSION2 = "PERMISSION2";
+    protected static final String PERMISSION1_WILDCARD = "permission:1:*";
+    protected static final String PERMISSION2_WILDCARD = "permission:2:*";
     protected static final Boolean NOT_AUTHENTICATED = Boolean.FALSE;
     protected static final Boolean AUTHENTICATED = Boolean.TRUE;
     protected static final Boolean NO_CUSTOM_ACCESS = Boolean.FALSE;
@@ -149,6 +151,22 @@ public class OctopusInterceptorTest {
                 throw new IllegalArgumentException();
             }
         }).when(subjectMock).checkPermission((Permission) any());
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Object parameter = invocationOnMock.getArguments()[0];
+                if (parameter instanceof Permission) {
+                    Permission permission = (Permission) parameter;
+                    if (namedPermission == null || !namedPermission.implies(permission)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                throw new IllegalArgumentException();
+            }
+        }).when(subjectMock).isPermitted((Permission) any());
 
 
         doAnswer(new Answer() {
