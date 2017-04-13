@@ -111,7 +111,7 @@ public class ExchangeForAccessCode {
 
                 result = oidcTokens.getBearerAccessToken();
 
-                IDTokenClaimsVerifier claimsVerifier = new IDTokenClaimsVerifier(new Issuer(config.getSSOServer()), new ClientID(config.getSSOClientId()), variableClientData.getNonce(), 0);
+                IDTokenClaimsVerifier claimsVerifier = new IDTokenClaimsVerifier(new Issuer(config.getOctopusSSOServer()), new ClientID(config.getSSOClientId()), variableClientData.getNonce(), 0);
                 claimsVerifier.verify(idToken.getJWTClaimsSet());
             } else {
                 TokenErrorResponse errorResponse = (TokenErrorResponse) tokenResponse;

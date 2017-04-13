@@ -36,19 +36,19 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @Override
     public String getLoginPage() {
 
-        return getSSOServer() + "/octopus/sso/authenticate";
+        return getOctopusSSOServer() + "/octopus/sso/authenticate";
 
     }
 
     public String getTokenEndpoint() {
 
-        return getSSOServer() + "/octopus/sso/token";
+        return getOctopusSSOServer() + "/octopus/sso/token";
 
     }
 
     public String getUserInfoEndpoint() {
 
-        return getSSOServer() + "/data/octopus/sso/user";
+        return getOctopusSSOServer() + "/data/octopus/sso/user";
 
     }
 
@@ -56,14 +56,14 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     public String getLogoutPage() {
         if (logoutPage == null) {
 
-            logoutPage = getSSOServer() + "/octopus/sso/logout?client_id=" + getSSOClientId();
+            logoutPage = getOctopusSSOServer() + "/octopus/sso/logout?client_id=" + getSSOClientId();
         }
         return logoutPage;
     }
 
     @ConfigEntry
-    public String getSSOServer() {
-        return ConfigResolver.getPropertyValue("SSO.server", "");
+    public String getOctopusSSOServer() {
+        return ConfigResolver.getPropertyValue("SSO.octopus.server", "");
     }
 
     @ConfigEntry

@@ -40,19 +40,19 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
         return ConfigResolver.getPropertyValue("SSO.application.suffix", "");
     }
 
-    public String getSSOServer() {
-        return ConfigResolver.getPropertyValue("SSO.server", "");
+    public String getOctopusSSOServer() {
+        return ConfigResolver.getPropertyValue("SSO.octopus.server", "");
     }
 
     public String getUserInfoEndpoint() {
 
-        return getSSOServer() + "/data/octopus/sso/user";
+        return getOctopusSSOServer() + "/data/octopus/sso/user";
 
     }
 
     public String getTokenEndpoint() {
 
-        return getSSOServer() + "/octopus/sso/token";
+        return getOctopusSSOServer() + "/octopus/sso/token";
 
     }
 

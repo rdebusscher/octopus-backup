@@ -66,7 +66,7 @@ public class PermissionRequestor extends AbstractRequestor {
 
     public List<NamedDomainPermission> retrieveUserPermissions(String accessToken) {
         List<NamedDomainPermission> permissions;
-        WebTarget target = client.target(configuration.getSSOServer() + "/" + configuration.getSSOEndpointRoot() + "/octopus/sso/user/permissions/" + configuration.getSSOApplication());
+        WebTarget target = client.target(configuration.getOctopusSSOServer() + "/" + configuration.getSSOEndpointRoot() + "/octopus/sso/user/permissions/" + configuration.getSSOApplication());
 
         Response response = target.request()
                 .header(AUTHORIZATION_HEADER, "Bearer " + defineToken(accessToken))
@@ -125,7 +125,7 @@ public class PermissionRequestor extends AbstractRequestor {
 
     public List<NamedDomainPermission> retrieveAllPermissions() {
         List<NamedDomainPermission> permissions;
-        WebTarget target = client.target(configuration.getSSOServer() + "/" + configuration.getSSOEndpointRoot() + "/octopus/sso/permissions/" + configuration.getSSOApplication());
+        WebTarget target = client.target(configuration.getOctopusSSOServer() + "/" + configuration.getSSOEndpointRoot() + "/octopus/sso/permissions/" + configuration.getSSOApplication());
 
         Response response = target.request()
                 .accept(MediaType.APPLICATION_JSON)

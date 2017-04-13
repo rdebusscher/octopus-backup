@@ -152,7 +152,7 @@ public class ExchangeForAccessCodeTest {
         OIDCTokens token = defineTokens(variableClientData, 2);
         OIDCTokenResponse oidcTokenResponse = new OIDCTokenResponse(token);
 
-        when(clientConfigurationMock.getSSOServer()).thenReturn("http://some.server/oidc");
+        when(clientConfigurationMock.getOctopusSSOServer()).thenReturn("http://some.server/oidc");
         when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         Jadler.onRequest()
@@ -191,7 +191,7 @@ public class ExchangeForAccessCodeTest {
         OIDCTokens token = defineTokens(variableClientData, -1);
         OIDCTokenResponse oidcTokenResponse = new OIDCTokenResponse(token);
 
-        when(clientConfigurationMock.getSSOServer()).thenReturn("http://some.server/oidc");
+        when(clientConfigurationMock.getOctopusSSOServer()).thenReturn("http://some.server/oidc");
         when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         Jadler.onRequest()

@@ -59,7 +59,7 @@ public class PermissionRequestorTest {
 
     @Test
     public void retrieveUserPermissions() {
-        when(octopusSEConfigurationMock.getSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
+        when(octopusSEConfigurationMock.getOctopusSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
         when(octopusSEConfigurationMock.getSSOEndpointRoot()).thenReturn("data");
         when(octopusSEConfigurationMock.getSSOApplication()).thenReturn("junitApp");
 
@@ -82,7 +82,7 @@ public class PermissionRequestorTest {
 
     @Test
     public void retrieveAllPermissions() {
-        when(octopusSEConfigurationMock.getSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
+        when(octopusSEConfigurationMock.getOctopusSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
         when(octopusSEConfigurationMock.getSSOEndpointRoot()).thenReturn("data");
         when(octopusSEConfigurationMock.getSSOApplication()).thenReturn("junitApp");
 
@@ -101,7 +101,7 @@ public class PermissionRequestorTest {
 
     @Test
     public void retrieveAllPermissions_Empty() {
-        when(octopusSEConfigurationMock.getSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
+        when(octopusSEConfigurationMock.getOctopusSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
         when(octopusSEConfigurationMock.getSSOEndpointRoot()).thenReturn("data");
         when(octopusSEConfigurationMock.getSSOApplication()).thenReturn("junitApp");
 
@@ -117,7 +117,7 @@ public class PermissionRequestorTest {
 
     @Test
     public void retrieveAllPermissions_Failure() {
-        when(octopusSEConfigurationMock.getSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
+        when(octopusSEConfigurationMock.getOctopusSSOServer()).thenReturn("http://localhost:" + Jadler.port() + "/oidc");
         when(octopusSEConfigurationMock.getSSOEndpointRoot()).thenReturn("data");
         when(octopusSEConfigurationMock.getSSOApplication()).thenReturn("junitApp");
 

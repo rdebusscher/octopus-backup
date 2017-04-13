@@ -241,7 +241,7 @@ default : *true*
 
 Is Single logout active? When true, the Keycloak server is called to end the SSO session for the user. In turn, Keycloak will contact all applications which are using the SSO session to terminate their specific session.
 
-==== SSO.server (Octopus SSO, CAS, SAML, Keycloak)
+==== SSO.server (CAS, SAML, Keycloak)
 
 default : *(none)*
 
@@ -278,6 +278,12 @@ r : Positive integer number
 t : Time period (amount and unit where unit can be _s_ (second), _m_ (minute) and _h_ (hour)
 
 The difference between 1/1s and 60/1m is that on average there is 1 call allowed each second but 60/1m allows for a short momentary burst. (for example 7 request in 1 second, as long as we don't exceed the 60 requests during the last minute.)
+
+==== SSO.octopus.server (Octopus SSO Client)
+
+default : *(none)*
+
+The login URL (or part of it) of the remote authentication page. See the Octopus SSO documentation for the usage.
 
 ==== CAS.protocol (CAS only)
 

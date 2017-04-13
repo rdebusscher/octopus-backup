@@ -98,7 +98,7 @@ public class OctopusUserRequestorTest {
         String secret = secretUtil.generateSecretBase64(32);
 
         when(configurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
-        when(configurationMock.getSSOServer()).thenReturn("http://localhost/oidc");
+        when(configurationMock.getOctopusSSOServer()).thenReturn("http://localhost/oidc");
         when(configurationMock.getSSOClientId()).thenReturn("JUnit_client");
         when(configurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
 
@@ -144,7 +144,7 @@ public class OctopusUserRequestorTest {
         String secret = secretUtil.generateSecretBase64(32);
 
         when(configurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
-        when(configurationMock.getSSOServer()).thenReturn("http://localhost/oidc");
+        when(configurationMock.getOctopusSSOServer()).thenReturn("http://localhost/oidc");
         when(configurationMock.getSSOClientId()).thenReturn("JUnit_client");
         when(configurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
 
@@ -240,7 +240,7 @@ public class OctopusUserRequestorTest {
         String secret = secretUtil.generateSecretBase64(32);
 
         when(configurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
-        when(configurationMock.getSSOServer()).thenReturn("http://localhost/oidc");
+        when(configurationMock.getOctopusSSOServer()).thenReturn("http://localhost/oidc");
         when(configurationMock.getSSOClientId()).thenReturn("JUnit_client");
         when(configurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
 
@@ -301,7 +301,7 @@ public class OctopusUserRequestorTest {
 
 
         when(configurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
-        when(configurationMock.getSSOServer()).thenReturn("http://localhost/oidc");
+        when(configurationMock.getOctopusSSOServer()).thenReturn("http://localhost/oidc");
 
         TimeUtil timeUtil = new TimeUtil();
         JSONObject json = new JSONObject();

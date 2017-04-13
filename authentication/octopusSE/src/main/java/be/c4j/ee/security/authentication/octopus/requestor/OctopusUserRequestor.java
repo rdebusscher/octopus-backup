@@ -139,7 +139,7 @@ public class OctopusUserRequestor extends AbstractRequestor {
             }
         }
 
-        if (!configuration.getSSOServer().equals(userInfo.getStringClaim("iss"))) {
+        if (!configuration.getOctopusSSOServer().equals(userInfo.getStringClaim("iss"))) {
             result.add("iss");
         }
 
