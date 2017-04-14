@@ -48,7 +48,7 @@ public class PermissionRequestorTest {
         ClientConfig clientConfiguration = new ClientConfig();
         clientConfiguration.register(JacksonFeature.class);
 
-        permissionRequestor = new PermissionRequestor(octopusSEConfigurationMock, clientConfiguration);
+        permissionRequestor = new PermissionRequestor(octopusSEConfigurationMock, null, clientConfiguration);
         Jadler.initJadler();
     }
 

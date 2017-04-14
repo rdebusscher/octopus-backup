@@ -16,6 +16,7 @@
 package be.c4j.ee.security.authentication.octopus.requestor;
 
 import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
+import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.authentication.octopus.debug.DebugClientRequestFilter;
 import be.c4j.ee.security.authentication.octopus.debug.DebugClientResponseFilter;
 import be.c4j.ee.security.config.Debug;
@@ -41,16 +42,12 @@ public class PermissionRequestor extends AbstractRequestor {
 
     private Client client;
 
-    public PermissionRequestor(OctopusSEConfiguration configuration) {
-        this(configuration, null);
-    }
-
-    public PermissionRequestor(OctopusSEConfiguration configuration, Configuration clientConfiguration) {
+    public PermissionRequestor(OctopusSEConfiguration configuration, ClientCustomization clientCustomization, Configuration clientConfiguration) {
         super(configuration);
-        init(clientConfiguration);
+        init(clientConfiguration, clientCustomization);
     }
 
-    private void init(Configuration clientConfiguration) {
+    private void init(Configuration clientConfiguration, ClientCustomization clientCustomization) {
         if (clientConfiguration != null) {
             client = ClientBuilder.newClient(clientConfiguration);
         } else {
@@ -60,6 +57,10 @@ public class PermissionRequestor extends AbstractRequestor {
         if (configuration.showDebugFor().contains(Debug.SSO_REST)) {
             client.register(DebugClientResponseFilter.class);
             client.register(DebugClientRequestFilter.class);
+        }
+
+        if (clientCustomization != null) {
+            clientCustomization.customize(client, this.getClass());
         }
 
     }

@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.client;
 
 import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
+import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.authentication.octopus.requestor.PermissionRequestor;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
@@ -64,8 +65,12 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         // FIXME Fix usage, is now broken
         encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
 
-        // FIXME, a way to specify the clientConfiguration as the second parameter
-        permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), null);
+        ClientCustomization clientCustomization = BeanProvider.getContextualReference(ClientCustomization.class, true);
+        if (clientCustomization == null) {
+            permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), null, null);
+        } else {
+            permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), clientCustomization, clientCustomization.getConfiguration(PermissionRequestor.class));
+        }
 
     }
 

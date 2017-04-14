@@ -89,7 +89,7 @@ public class MainProgram {
         ClientConfig clientConfiguration = new ClientConfig();
         clientConfiguration.register(JacksonFeature.class);
 
-        PermissionRequestor permissionRequestor = new PermissionRequestor(configuration, clientConfiguration);
+        PermissionRequestor permissionRequestor = new PermissionRequestor(configuration, null, clientConfiguration);
         List<NamedDomainPermission> permissions = permissionRequestor.retrieveAllPermissions();
         System.out.println(permissions);
 

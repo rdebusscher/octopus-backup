@@ -51,6 +51,7 @@ public class OctopusJWTRestClient {
 
     @PostConstruct
     public void init() {
+        // TODO We can't put ClientCustomization on a location where it can be used here and for SSOClientSecurityDataProvider
         client = ClientBuilder.newClient();
     }
 
