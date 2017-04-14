@@ -16,7 +16,7 @@
 package be.c4j.ee.security.shiro;
 
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.web.filter.AccessControlFilter;
+import org.apache.shiro.web.filter.authz.AuthorizationFilter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -25,8 +25,7 @@ import javax.servlet.ServletResponse;
  *
  */
 
-public class UserRequiredFilter extends AccessControlFilter {
-
+public class UserRequiredFilter extends AuthorizationFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
@@ -36,8 +35,4 @@ public class UserRequiredFilter extends AccessControlFilter {
 
     }
 
-    @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        return false;
-    }
 }

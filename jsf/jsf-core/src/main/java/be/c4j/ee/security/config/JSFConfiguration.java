@@ -38,18 +38,17 @@ public class JSFConfiguration implements ConfigurationPlugin {
         mainSection.put("user", OctopusUserFilter.class.getName());
         mainSection.put("user.loginUrl", config.getLoginPage());
 
-        // FIXME For Issue 83, We need to add here the other filters
-        /*
-        namedPermission = be.c4j.ee.security.permission.filter.NamedPermissionFilter
-        namedPermission1 = be.c4j.ee.security.permission.filter.NamedPermissionOneFilter
-        np = be.c4j.ee.security.permission.filter.NamedPermissionFilter
-        np1 = be.c4j.ee.security.permission.filter.NamedPermissionOneFilter
-        namedRole = be.c4j.ee.security.role.filter.NamedRoleFilter
-        namedRole1 = be.c4j.ee.security.role.filter.NamedRoleOneFilter
-        nr = be.c4j.ee.security.role.filter.NamedRoleFilter
-        nr1 = be.c4j.ee.security.role.filter.NamedRoleOneFilter
-        voter = be.c4j.ee.security.custom.filter.CustomVoterFilter
-         */
+
+        mainSection.put("namedPermission.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("namedPermission1.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("np.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("np1.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("namedRole.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("namedRole1.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("nr.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("nr1.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("voter.unauthorizedUrl", config.getUnauthorizedExceptionPage());
+        mainSection.put("userRequired.unauthorizedUrl", config.getUnauthorizedExceptionPage());
 
     }
 }
