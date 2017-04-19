@@ -35,12 +35,6 @@ public class SecretUtil {
         secureRandom = new SecureRandom();
     }
 
-    // FIXME Verify usages
-    public byte[] decodeSecretBase64(String secretBase64) {
-
-        return Base64.decode(secretBase64);
-    }
-
     public String generateSecretBase64(int byteLength) {
         byte[] secret = new byte[byteLength];
 

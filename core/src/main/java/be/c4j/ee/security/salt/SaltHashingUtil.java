@@ -16,6 +16,7 @@
 package be.c4j.ee.security.salt;
 
 import be.c4j.ee.security.config.OctopusConfig;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,15 @@ public class SaltHashingUtil {
         return salt;
     }
 
+    public byte[] base64Decode(String secretBase64) {
+
+        return Base64.decode(secretBase64);
+    }
+
+    public String Base64Encode(byte[] salt) {
+        return Base64.encodeToString(salt);
+    }
+
     public String hash(String password, byte[] salt) {
         HashEncoding hashEncoding = config.getHashEncoding();
 
@@ -72,12 +82,12 @@ public class SaltHashingUtil {
         return result;
     }
 
-    public String hashInHex(String password, byte[] salt) {
+    private String hashInHex(String password, byte[] salt) {
         SimpleHash hash = new SimpleHash(config.getHashAlgorithmName(), password, salt);
         return hash.toHex();
     }
 
-    public String hashInBase64(String password, byte[] salt) {
+    private String hashInBase64(String password, byte[] salt) {
         SimpleHash hash = new SimpleHash(config.getHashAlgorithmName(), password, salt);
         return hash.toBase64();
     }
