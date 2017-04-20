@@ -15,9 +15,9 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWKFileReader;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,7 +32,7 @@ public class EncryptionHandlerFactory {
 
 
     @Inject
-    private JWTClientConfig jwtClientConfig;
+    private JWTUserConfig jwtUserConfig;
 
     @Inject
     private JWKFileReader jwkFileReader;
@@ -47,7 +47,7 @@ public class EncryptionHandlerFactory {
                 result = handlerInstances.get(jweAlgorithm);
                 if (result == null) {
                     result = new AESEncryptionHandler();
-                    result.init(jwtClientConfig, jwkFileReader);
+                    result.init(jwtUserConfig, jwkFileReader);
                     handlerInstances.put(jweAlgorithm, result);
                 }
                 break;
@@ -55,7 +55,7 @@ public class EncryptionHandlerFactory {
                 result = handlerInstances.get(jweAlgorithm);
                 if (result == null) {
                     result = new ECEncryptionHandler();
-                    result.init(jwtClientConfig, jwkFileReader);
+                    result.init(jwtUserConfig, jwkFileReader);
                     handlerInstances.put(jweAlgorithm, result);
                 }
                 break;
@@ -63,7 +63,7 @@ public class EncryptionHandlerFactory {
                 result = handlerInstances.get(jweAlgorithm);
                 if (result == null) {
                     result = new RSAEncryptionHandler();
-                    result.init(jwtClientConfig, jwkFileReader);
+                    result.init(jwtUserConfig, jwkFileReader);
                     handlerInstances.put(jweAlgorithm, result);
                 }
                 break;

@@ -15,8 +15,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.jwt.config.JWKFileReader;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -26,7 +26,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 public interface EncryptionHandler {
 
-    void init(JWTClientConfig jwtClientConfig, JWKFileReader jwkFileReader);
+    void init(JWTUserConfig jwtUserConfig, JWKFileReader jwkFileReader);
 
     String doEncryption(String apiKey, SignedJWT signedJWT) throws JOSEException;
 }

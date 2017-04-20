@@ -44,9 +44,6 @@ public class OctopusJWTRestClient {
     @Inject
     private JWTUserToken jwtUserToken;
 
-    @Inject
-    private JWTClientConfig jwtClientConfig;
-
     private Client client;
 
     @PostConstruct

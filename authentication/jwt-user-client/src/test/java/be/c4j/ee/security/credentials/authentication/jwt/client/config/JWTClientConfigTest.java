@@ -16,9 +16,12 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.config;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.c4j.test.TestConfigSource;
+import be.c4j.test.util.ReflectionUtil;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JWTClientConfigTest {
 
-    private JWTClientConfig jwtClientConfig = new JWTClientConfig();
+    private JWTClientConfig jwtClientConfig;
+
+    @Before
+    public void setup() throws IllegalAccessException {
+        jwtClientConfig = new JWTClientConfig();
+        ReflectionUtil.injectDependencies(jwtClientConfig, new JWTUserConfig());
+    }
 
     @After
     public void teardown() {

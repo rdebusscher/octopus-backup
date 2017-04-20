@@ -16,20 +16,26 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.config;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.jwt.config.JWEAlgorithm;
+import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.JWTSignature;
 import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  *
  */
 @ApplicationScoped
-public class JWTClientConfig extends JWTUserConfig {
+public class JWTClientConfig {
 
     private static final String INVALID_VALUE_JWT_TOKEN_TIME_TO_LIVE = "Invalid value specified for parameter jwt.token.timeToLive, needs to be a positive integer value";
+
+    @Inject
+    private JWTUserConfig jwtUserConfig;
 
     @ConfigEntry
     public int getJWTTimeToLive() {
@@ -46,9 +52,25 @@ public class JWTClientConfig extends JWTUserConfig {
         return result;
     }
 
-    @Override
+    // methods delegating to JWTUserConfig
+    @ConfigEntry(noLogging = true)
+    public String getHMACTokenSecret() {
+        return jwtUserConfig.getHMACTokenSecret();
+    }
+
+    @ConfigEntry
+    public JWTOperation getJWTOperation() {
+        return jwtUserConfig.getJWTOperation();
+    }
+
+    @ConfigEntry
+    public JWEAlgorithm getJWEAlgorithm() {
+        return jwtUserConfig.getJWEAlgorithm();
+    }
+
+    @ConfigEntry
     public JWTSignature getJwtSignature() {
-        JWTSignature signature = super.getJwtSignature();
+        JWTSignature signature = jwtUserConfig.getJwtSignature();
         if (signature == null) {
             throw new OctopusConfigurationException("No Algorithm specified for the JWT signature; parameter jwt.algorithm incorrect");
         }

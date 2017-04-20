@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
 import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.jwt.config.JWKFileReader;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.AESEncrypter;
 import com.nimbusds.jose.util.Base64;
@@ -29,12 +30,12 @@ import com.nimbusds.jwt.SignedJWT;
 public class AESEncryptionHandler implements EncryptionHandler {
 
 
-    private JWTClientConfig jwtClientConfig;
+    private JWTUserConfig jwtUserConfig;
 
     @Override
-    public void init(JWTClientConfig jwtClientConfig, JWKFileReader jwkFileReader) {
+    public void init(JWTUserConfig jwtUserConfig, JWKFileReader jwkFileReader) {
 
-        this.jwtClientConfig = jwtClientConfig;
+        this.jwtUserConfig = jwtUserConfig;
         // We don't need the JWKFileReader for AES
     }
 
@@ -48,7 +49,7 @@ public class AESEncryptionHandler implements EncryptionHandler {
                 new Payload(signedJWT));
 
         // Perform encryption
-        Base64 aesSecret = new Base64(jwtClientConfig.getAESTokenSecret());
+        Base64 aesSecret = new Base64(jwtUserConfig.getAESTokenSecret());
         jweObject.encrypt(new AESEncrypter(aesSecret.decode()));
 
         // Serialise to JWE compact form
