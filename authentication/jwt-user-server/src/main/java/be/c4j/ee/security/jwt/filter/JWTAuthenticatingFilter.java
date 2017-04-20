@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.jwt.filter;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
@@ -143,7 +144,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
                 user = new JWTUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
                 user.setUserName(optString(jsonObject, "userName"));
-                user.setExternalId(optString(jsonObject, "externalId"));
+                user.setExternalId(optString(jsonObject, OctopusConstants.EXTERNAL_ID));
 
                 assignPermissionsAndRoles(user, jsonObject);
 

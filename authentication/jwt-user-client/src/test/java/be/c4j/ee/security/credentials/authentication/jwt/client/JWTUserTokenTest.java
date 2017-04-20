@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandler;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandlerFactory;
@@ -106,7 +107,7 @@ public class JWTUserTokenTest {
         jwtUserToken.init();
 
         UserPrincipal userPrincipal = new UserPrincipal("serialId", "JUnit", "Octopus");
-        userPrincipal.getInfo().put(UserPrincipal.EXTERNAL_ID, "123");
+        userPrincipal.getInfo().put(OctopusConstants.EXTERNAL_ID, "123");
 
         AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
         builder.addPermission("stringPermission");
@@ -147,7 +148,7 @@ public class JWTUserTokenTest {
         jwtUserToken.init();
 
         UserPrincipal userPrincipal = new UserPrincipal("serialId", "JUnit", "Octopus");
-        userPrincipal.getInfo().put(UserPrincipal.EXTERNAL_ID, "123");
+        userPrincipal.getInfo().put(OctopusConstants.EXTERNAL_ID, "123");
 
         AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
         builder.addPermission("stringPermission");
@@ -189,7 +190,7 @@ public class JWTUserTokenTest {
         jwtUserToken.init();
 
         UserPrincipal userPrincipal = new UserPrincipal("serialId", "JUnit", "Octopus");
-        userPrincipal.getInfo().put(UserPrincipal.EXTERNAL_ID, "123");
+        userPrincipal.getInfo().put(OctopusConstants.EXTERNAL_ID, "123");
 
         AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
         builder.addPermission("stringPermission");
@@ -223,7 +224,7 @@ public class JWTUserTokenTest {
         jwtUserToken.init();
 
         UserPrincipal userPrincipal = new UserPrincipal("serialId", "JUnit", "Octopus");
-        userPrincipal.getInfo().put(UserPrincipal.EXTERNAL_ID, "123");
+        userPrincipal.getInfo().put(OctopusConstants.EXTERNAL_ID, "123");
 
         AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
         builder.addPermission("stringPermission");

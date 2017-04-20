@@ -24,6 +24,23 @@ public final class OctopusConstants {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     public static final String AUTHORIZATION_INFO = "authorizationInfo";
+    public static final String AUTHENTICATION_TOKEN = "authenticationToken";
+
+    public static final String MOBILE_NUMBER = "mobileNumber";
+    public static final String FIRST_NAME = "firstName";
+    public static final String LAST_NAME = "lastName";
+    public static final String FULL_NAME = "fullName";
+    public static final String EMAIL = "email";
+    public static final String EXTERNAL_ID = "externalId";
+
+    public static final String PICTURE = "picture";
+    public static final String GENDER = "gender";
+    public static final String LOCALE = "locale";
+    public static final String TOKEN = "token";
+    public static final String UPSTREAM_TOKEN = "upstreamToken";
+
+    public static final String DOMAIN = "domain";
+    public static final String OAUTH2_TOKEN = "OAuth2token";
 
     private OctopusConstants() {
     }

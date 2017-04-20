@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.reflect.Property;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -40,7 +41,7 @@ public class OctopusSSOUserConverter {
     @Inject
     private Logger logger;
 
-    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", OctopusSSOUser.LOCAL_ID, "userName", "lastName", "firstName", "fullName", "email");
+    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", OctopusSSOUser.LOCAL_ID, "userName", OctopusConstants.LAST_NAME, OctopusConstants.FIRST_NAME, OctopusConstants.FULL_NAME, OctopusConstants.EMAIL);
 
     public UserInfo fromIdToken(JWTClaimsSet idTokenClaims) {
         return new UserInfo(idTokenClaims);
@@ -61,8 +62,8 @@ public class OctopusSSOUserConverter {
         result.put(UserInfo.EMAIL_CLAIM_NAME, ssoUser.getEmail());
 
         Map<String, Object> info = new HashMap<String, Object>(ssoUser.getUserInfo());
-        info.remove("token"); // FIXME Create constant
-        info.remove("upstreamToken"); // FIXME Create constant
+        info.remove(OctopusConstants.TOKEN);
+        info.remove(OctopusConstants.UPSTREAM_TOKEN);
         info.remove(AUTHORIZATION_INFO);
 
         for (Map.Entry<String, Object> infoEntry : info.entrySet()) {

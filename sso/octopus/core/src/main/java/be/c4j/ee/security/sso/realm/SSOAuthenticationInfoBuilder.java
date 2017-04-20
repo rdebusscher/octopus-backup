@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.realm;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -39,8 +40,9 @@ public class SSOAuthenticationInfoBuilder {
 
 
         UserPrincipal principal = new UserPrincipal(octopusSSOUser.getId(), octopusSSOUser.getUserName(), octopusSSOUser.getName());
-        principal.addUserInfo("email", octopusSSOUser.getEmail());  // Make sure the email is within the userInfo
+        principal.addUserInfo(OctopusConstants.EMAIL, octopusSSOUser.getEmail());  // Make sure the email is within the userInfo
         principal.addUserInfo(octopusSSOUser.getUserInfo());
+        principal.addUserInfo(OctopusConstants.FULL_NAME, octopusSSOUser.getFullName());
         authenticationInfo = new SimpleAuthenticationInfo(principal, null, DEFAULT_REALM);
 
     }

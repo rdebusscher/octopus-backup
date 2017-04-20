@@ -31,6 +31,7 @@ import java.util.List;
  */
 @ApplicationScoped
 public class GithubJSONProcessor extends OAuth2UserInfoProcessor {
+    // Constants in this class are specific for Github and thus we don't put them in OctopusConstants
 
     private static final List<String> KEYS = Arrays.asList("id", "email", "name", "url", "gravatar_url");
 

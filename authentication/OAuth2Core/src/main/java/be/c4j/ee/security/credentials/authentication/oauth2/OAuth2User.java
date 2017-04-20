@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -186,17 +187,17 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
 
     public Map<String, Object> getUserInfo() {
         Map<String, Object> result = new HashMap<String, Object>();
-        // TODO Make some constants out of these
-        result.put("email", email);
-        result.put("firstName", firstName);
-        result.put("lastName", lastName);
-        result.put("picture", picture);
-        result.put("gender", gender);
-        result.put("domain", domain);
-        result.put("locale", locale);
+
+        result.put(OctopusConstants.EMAIL, email);
+        result.put(OctopusConstants.FIRST_NAME, firstName);
+        result.put(OctopusConstants.LAST_NAME, lastName);
+        result.put(OctopusConstants.PICTURE, picture);
+        result.put(OctopusConstants.GENDER, gender);
+        result.put(OctopusConstants.DOMAIN, domain);
+        result.put(OctopusConstants.LOCALE, locale);
         if (token != null) {
-            result.put("token", token.getAccessToken());
-            result.put("OAuth2token", token);
+            result.put(OctopusConstants.TOKEN, token.getAccessToken());
+            result.put(OctopusConstants.OAUTH2_TOKEN, token);
         }
         result.putAll(userInfo);
 

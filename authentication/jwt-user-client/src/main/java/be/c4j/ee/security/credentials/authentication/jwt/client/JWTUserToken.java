@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandler;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandlerFactory;
@@ -133,7 +134,7 @@ public class JWTUserToken {
         JSONObject result = new JSONObject();
         result.put("id", userPrincipal.getId());
         if (userPrincipal.getExternalId() != null) {
-            result.put("externalId", userPrincipal.getExternalId());
+            result.put(OctopusConstants.EXTERNAL_ID, userPrincipal.getExternalId());
         }
         result.put("userName", userPrincipal.getUserName());
         result.put("name", userPrincipal.getName());

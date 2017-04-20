@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.OctopusPermissionResolver;
@@ -127,10 +128,10 @@ public class OctopusRealm extends AuthorizingRealm {
             Object principal = authenticationInfo.getPrincipals().getPrimaryPrincipal();
             if (principal instanceof UserPrincipal) {
                 UserPrincipal user = (UserPrincipal) principal;
-                if (user.getInfo().containsKey("token")) {
-                    user.addUserInfo("upstreamToken", (Serializable) user.getUserInfo("token"));
+                if (user.getInfo().containsKey(OctopusConstants.TOKEN)) {
+                    user.addUserInfo(OctopusConstants.UPSTREAM_TOKEN, (Serializable) user.getUserInfo(OctopusConstants.TOKEN));
                 }
-                user.addUserInfo("token", token);  // TODO Create constants!!
+                user.addUserInfo(OctopusConstants.TOKEN, token);
             }
         }
 

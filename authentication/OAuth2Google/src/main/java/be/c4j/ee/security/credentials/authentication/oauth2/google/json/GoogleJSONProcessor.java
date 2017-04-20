@@ -31,6 +31,7 @@ import java.util.List;
  */
 @ApplicationScoped
 public class GoogleJSONProcessor extends OAuth2UserInfoProcessor {
+    // Constants in this class are specific for Google and thus we don't put them in OctopusConstants
 
     private static final List<String> KEYS = Arrays.asList("sub", "email", "verified_email", "family_name", "given_name", "name", "hd", "link", "picture", "gender", "locale");
 

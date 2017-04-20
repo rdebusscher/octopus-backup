@@ -27,6 +27,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import static be.c4j.ee.security.OctopusConstants.AUTHENTICATION_TOKEN;
+
 /**
  *
  */
@@ -49,7 +51,7 @@ public class KeycloakLogoutHandler {
         if (keycloakConfiguration.getKeycloakSingleLogout()) {
 
             //userprincipal == null !!
-            KeycloakUser user = userPrincipal.getUserInfo("authenticationToken"); // TODO Use constant.
+            KeycloakUser user = userPrincipal.getUserInfo(AUTHENTICATION_TOKEN);
 
             authenticator.logout(user);
         }

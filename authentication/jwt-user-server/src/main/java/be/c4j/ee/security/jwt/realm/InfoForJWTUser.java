@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.jwt.realm;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.jwt.JWTUser;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
@@ -42,7 +43,7 @@ public class InfoForJWTUser implements OctopusDefinedAuthenticationInfo, Octopus
             infoBuilder.name(jwtUser.getName());
             infoBuilder.userName(jwtUser.getUserName());
             infoBuilder.principalId(jwtUser.getId());
-            infoBuilder.addUserInfo(UserPrincipal.EXTERNAL_ID, jwtUser.getExternalId());
+            infoBuilder.addUserInfo(OctopusConstants.EXTERNAL_ID, jwtUser.getExternalId());
             infoBuilder.addUserInfo(jwtUser.getUserInfo());
             authenticationInfo = infoBuilder.build();
         }

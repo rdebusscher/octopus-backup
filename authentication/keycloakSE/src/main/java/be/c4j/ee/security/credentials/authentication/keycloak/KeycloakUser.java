@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.keycloak;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.IDToken;
@@ -144,14 +145,15 @@ public class KeycloakUser extends AbstractOctopusAuthenticationToken {
     public Map<String, Object> getUserInfo() {
         // TODO Rename?
         Map<String, Object> result = new HashMap<String, Object>();
-        // TODO Make some constants out of these
-        result.put("email", email);
-        result.put("picture", picture);
-        result.put("gender", gender);
-        result.put("locale", locale);
+
+        result.put(OctopusConstants.EMAIL, email);
+        result.put(OctopusConstants.PICTURE, picture);
+        result.put(OctopusConstants.GENDER, gender);
+        result.put(OctopusConstants.LOCALE, locale);
         if (accessToken != null) {
-            result.put("token", accessToken.getToken());
+            result.put(OctopusConstants.TOKEN, accessToken.getToken());
         }
+
         result.putAll(userInfo);
 
         return result;

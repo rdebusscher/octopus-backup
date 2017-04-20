@@ -32,6 +32,7 @@ import java.util.List;
 @ApplicationScoped
 public class LinkedinJSONProcessor extends OAuth2UserInfoProcessor {
 
+    // Constants in this class are specific for LinkedIn and thus we don't put them in OctopusConstants
     private static final List<String> KEYS = Arrays.asList("id", "emailAddress", "publicProfileUrl", "pictureUrl");
 
     public OAuth2User extractLinkedinUser(String json) {

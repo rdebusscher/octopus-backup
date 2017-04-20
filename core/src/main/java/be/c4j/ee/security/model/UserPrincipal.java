@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.model;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.exception.OctopusIllegalActionException;
 
 import javax.enterprise.inject.Typed;
@@ -25,14 +26,6 @@ import java.util.Map;
 
 @Typed
 public class UserPrincipal implements Principal, Serializable {
-
-    // TODO Use these contants also in OctopusSSOUser
-    public static final String MOBILE_NUMBER = "mobileNumber";
-    public static final String FIRST_NAME = "firstName";
-    public static final String LAST_NAME = "lastName";
-    public static final String FULL_NAME = "fullName";
-    public static final String EMAIL = "email";
-    public static final String EXTERNAL_ID = "externalId";
 
     private Serializable id;
     private String userName;
@@ -125,32 +118,32 @@ public class UserPrincipal implements Principal, Serializable {
     }
 
     public String getMobileNumber() {
-        Object value = userInfo.get(MOBILE_NUMBER);
+        Object value = userInfo.get(OctopusConstants.MOBILE_NUMBER);
         return value == null ? null : value.toString();
     }
 
     public String getFirstName() {
-        Object value = userInfo.get(FIRST_NAME);
+        Object value = userInfo.get(OctopusConstants.FIRST_NAME);
         return value == null ? null : value.toString();
     }
 
     public String getLastName() {
-        Object value = userInfo.get(LAST_NAME);
+        Object value = userInfo.get(OctopusConstants.LAST_NAME);
         return value == null ? null : value.toString();
     }
 
     public String getFullName() {
-        Object value = userInfo.get(FULL_NAME);
+        Object value = userInfo.get(OctopusConstants.FULL_NAME);
         return value == null ? null : value.toString();
     }
 
     public String getEmail() {
-        Object value = userInfo.get(EMAIL);
+        Object value = userInfo.get(OctopusConstants.EMAIL);
         return value == null ? null : value.toString();
     }
 
     public String getExternalId() {
-        Object value = userInfo.get(EXTERNAL_ID);
+        Object value = userInfo.get(OctopusConstants.EXTERNAL_ID);
         return value == null ? null : value.toString();
     }
 
