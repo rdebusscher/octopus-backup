@@ -16,11 +16,12 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 
 
+import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvider;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.filter.ErrorInfo;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -29,6 +30,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -48,8 +50,26 @@ public class OctopusJWTRestClient {
 
     @PostConstruct
     public void init() {
-        // TODO We can't put ClientCustomization on a location where it can be used here and for SSOClientSecurityDataProvider
-        client = ClientBuilder.newClient();
+        ClientCustomization clientCustomization = BeanProvider.getContextualReference(ClientCustomization.class, true);
+        Configuration configuration = getConfiguration(clientCustomization);
+        if (configuration == null) {
+
+            client = ClientBuilder.newClient();
+        } else {
+            client = ClientBuilder.newClient(clientCustomization.getConfiguration(this.getClass()));
+
+        }
+        if (clientCustomization != null) {
+            clientCustomization.customize(client, this.getClass());
+        }
+    }
+
+    private Configuration getConfiguration(ClientCustomization clientCustomization) {
+        Configuration result = null;
+        if (clientCustomization != null) {
+            result = clientCustomization.getConfiguration(this.getClass());
+        }
+        return result;
     }
 
     public Client getClient() {
