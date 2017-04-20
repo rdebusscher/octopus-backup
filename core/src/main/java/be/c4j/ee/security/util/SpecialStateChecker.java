@@ -17,6 +17,7 @@ package be.c4j.ee.security.util;
 
 import be.c4j.ee.security.event.OctopusAuthenticationListener;
 import be.c4j.ee.security.realm.OctopusRealm;
+import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import org.apache.shiro.util.ThreadContext;
 
 /**
@@ -28,7 +29,8 @@ public final class SpecialStateChecker {
     }
 
     public static boolean isInAuthorization() {
-        return ThreadContext.get(OctopusRealm.IN_AUTHORIZATION_FLAG) instanceof OctopusRealm.InAuthorization;
+        return ThreadContext.get(OctopusRealm.IN_AUTHORIZATION_FLAG) instanceof OctopusRealm.InAuthorization
+                || ThreadContext.get(OctopusRealm.IN_AUTHORIZATION_FLAG) instanceof OctopusRealmAuthenticator.InAuthorization;
     }
 
     public static boolean isInAuthentication() {

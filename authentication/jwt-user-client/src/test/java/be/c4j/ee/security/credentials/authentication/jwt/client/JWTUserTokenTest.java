@@ -46,6 +46,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
@@ -112,7 +113,7 @@ public class JWTUserTokenTest {
         builder.addPermission(new NamedDomainPermission("namedPermission", "Test:*:*"));
         AuthorizationInfo info = builder.build();
 
-        userPrincipal.addUserInfo("authorizationInfo", info);
+        userPrincipal.addUserInfo(AUTHORIZATION_INFO, info);
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
 
@@ -153,7 +154,7 @@ public class JWTUserTokenTest {
         builder.addPermission(new NamedDomainPermission("namedPermission", "Test:*:*"));
         AuthorizationInfo info = builder.build();
 
-        userPrincipal.addUserInfo("authorizationInfo", info);
+        userPrincipal.addUserInfo(AUTHORIZATION_INFO, info);
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
 
@@ -197,7 +198,7 @@ public class JWTUserTokenTest {
 
         when(encryptionHandlerFactoryMock.getEncryptionHandler(JWEAlgorithm.AES)).thenReturn(encryptionHandlerMock);
         when(encryptionHandlerMock.doEncryption((String) isNull(), any(SignedJWT.class))).thenReturn("The encrypted");
-        userPrincipal.addUserInfo("authorizationInfo", info);
+        userPrincipal.addUserInfo(AUTHORIZATION_INFO, info);
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
 
@@ -231,7 +232,7 @@ public class JWTUserTokenTest {
 
         when(encryptionHandlerFactoryMock.getEncryptionHandler(JWEAlgorithm.AES)).thenReturn(encryptionHandlerMock);
         when(encryptionHandlerMock.doEncryption((String) isNull(), any(SignedJWT.class))).thenThrow(new JOSEException("X"));
-        userPrincipal.addUserInfo("authorizationInfo", info);
+        userPrincipal.addUserInfo(AUTHORIZATION_INFO, info);
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
 

@@ -23,6 +23,8 @@ public final class OctopusConstants {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
+    public static final String AUTHORIZATION_INFO = "authorizationInfo";
+
     private OctopusConstants() {
     }
 }

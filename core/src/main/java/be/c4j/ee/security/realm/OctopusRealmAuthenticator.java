@@ -26,6 +26,10 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.util.ThreadContext;
+
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
+import static be.c4j.ee.security.realm.OctopusRealm.IN_AUTHORIZATION_FLAG;
 
 public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
 
@@ -60,14 +64,26 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
 
         if (authorizationInfoRequired && realm instanceof OctopusRealm) {
 
-            OctopusRealm octopusRealm = (OctopusRealm) realm;
-            AuthorizationInfo authorizationInfo = octopusRealm.doGetAuthorizationInfo(authenticationInfo.getPrincipals());
+            ThreadContext.put(IN_AUTHORIZATION_FLAG, new InAuthorization());
+            try {
+                OctopusRealm octopusRealm = (OctopusRealm) realm;
+                AuthorizationInfo authorizationInfo = octopusRealm.doGetAuthorizationInfo(authenticationInfo.getPrincipals());
 
-            UserPrincipal userPrincipal = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
-            userPrincipal.addUserInfo("authorizationInfo", authorizationInfo);
+                UserPrincipal userPrincipal = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
+                userPrincipal.addUserInfo(AUTHORIZATION_INFO, authorizationInfo);
+
+            } finally {
+
+                ThreadContext.remove(IN_AUTHORIZATION_FLAG);
+            }
         }
 
         return authenticationInfo;
     }
 
+    public static class InAuthorization {
+
+        private InAuthorization() {
+        }
+    }
 }

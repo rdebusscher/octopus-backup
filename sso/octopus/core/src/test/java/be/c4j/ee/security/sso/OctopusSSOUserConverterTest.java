@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +62,7 @@ public class OctopusSSOUserConverterTest {
 
         ssoUser.addUserInfo("token", "ShouldBeRemovedToken");
         ssoUser.addUserInfo("upstreamToken", "ShouldBeRemovedUpstreamToken");
-        ssoUser.addUserInfo("authorizationInfo", "ShouldBeRemovedAuthorizationInfo");
+        ssoUser.addUserInfo(AUTHORIZATION_INFO, "ShouldBeRemovedAuthorizationInfo");
 
         ssoUser.addUserInfo("stringProperty", "StringPropertyValue");
         ssoUser.addUserInfo("longProperty", 123L);

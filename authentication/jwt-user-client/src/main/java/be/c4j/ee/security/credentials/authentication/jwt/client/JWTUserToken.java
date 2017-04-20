@@ -42,6 +42,8 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.Map;
 
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
+
 /**
  *
  */
@@ -136,7 +138,7 @@ public class JWTUserToken {
         result.put("userName", userPrincipal.getUserName());
         result.put("name", userPrincipal.getName());
 
-        AuthorizationInfo info = userPrincipal.getUserInfo("authorizationInfo");
+        AuthorizationInfo info = userPrincipal.getUserInfo(AUTHORIZATION_INFO);
 
         JSONArray rolesArray = new JSONArray();
         if (info.getRoles() != null) {
