@@ -513,6 +513,9 @@ public final class Property implements AnnotatedElement {
         if (classType.equals(Long.class)) {
             result = true;
         }
+        if (classType.equals(Integer.class)) {
+            result = true;
+        }
         if (classType.equals(Boolean.class) || classType.equals(boolean.class)) {
             result = true;
         }
