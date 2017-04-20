@@ -3,6 +3,7 @@
 . String based Permissions.
 . Octopus SSO (Server and client modules) (Java EE 7 only) - OAuth2 and OpenIdConnect compatible.
 . Principal and permission transfer within header to JAX-RS endpoint (Java EE 7 only) for Self Contained Systems support.
+. Adding roles as groups of permissions concept and string based roles.
 . TwoStep authentication with support for SMS (Twilio) and TOTP.
 . Protection for Session fixation and hijacking.
 . Programmatic define permissions for URLs

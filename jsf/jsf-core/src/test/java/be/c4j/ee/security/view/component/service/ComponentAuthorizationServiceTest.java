@@ -18,6 +18,8 @@ package be.c4j.ee.security.view.component.service;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookupFixture;
+import be.c4j.ee.security.role.NamedApplicationRole;
+import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
 import be.c4j.test.util.BeanManagerFake;
@@ -51,6 +53,9 @@ public class ComponentAuthorizationServiceTest {
 
     private static final String MY_PERMISSION = "myPermission";
     private static final String NOT_MY_PERMISSION = "notMyPermission";
+    private static final String MY_ROLE = "myRole";
+    private static final String NOT_MY_ROLE = "notMyRole";
+
     private ComponentAuthorizationService service;
 
     private BeanManagerFake beanManagerFake;
@@ -60,6 +65,12 @@ public class ComponentAuthorizationServiceTest {
 
     @Mock
     private AbstractAccessDecisionVoter notMyPermissionVoterMock;
+
+    @Mock
+    private AbstractAccessDecisionVoter myRoleVoterMock;
+
+    @Mock
+    private AbstractAccessDecisionVoter notMyRoleVoterMock;
 
     @Mock
     private Subject subjectMock;
@@ -78,6 +89,8 @@ public class ComponentAuthorizationServiceTest {
 
         beanManagerFake.registerBean(MY_PERMISSION, myPermissionVoterMock);
         beanManagerFake.registerBean(NOT_MY_PERMISSION, notMyPermissionVoterMock);
+        beanManagerFake.registerBean(MY_ROLE, myRoleVoterMock);
+        beanManagerFake.registerBean(NOT_MY_ROLE, notMyRoleVoterMock);
 
         beanManagerFake.registerBean(subjectMock, Subject.class);
         beanManagerFake.registerBean(securityViolationInfoProducerMock, SecurityViolationInfoProducer.class);
@@ -87,6 +100,12 @@ public class ComponentAuthorizationServiceTest {
         Set<SecurityViolation> violations = new HashSet<SecurityViolation>();
         violations.add(securityViolationMock);
         when(notMyPermissionVoterMock.checkPermission(any(AccessDecisionVoterContext.class))).thenReturn(violations);
+
+        when(myRoleVoterMock.checkPermission(any(AccessDecisionVoterContext.class))).thenReturn(new HashSet<SecurityViolation>());
+
+        violations = new HashSet<SecurityViolation>();
+        violations.add(securityViolationMock);
+        when(notMyRoleVoterMock.checkPermission(any(AccessDecisionVoterContext.class))).thenReturn(violations);
 
     }
 
@@ -178,6 +197,23 @@ public class ComponentAuthorizationServiceTest {
                 return null;
             }
         }).when(subjectMock).checkPermission(any(NamedDomainPermission.class));
+
+        //Mockito.doThrow(new AuthorizationException("Role not authorized")).when(subjectMock).checkPermission(any(NamedApplicationRole.class));
+    }
+
+    private void configureSubjectRoleCheck(final String roleName) {
+        Mockito.doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                NamedApplicationRole rolePermission = (NamedApplicationRole) invocation.getArguments()[0];
+                if (!roleName.equalsIgnoreCase(rolePermission.getRoleName())) {
+                    throw new AuthorizationException();
+                }
+                return null;
+            }
+        }).when(subjectMock).checkPermission(any(NamedApplicationRole.class));
+
+        //Mockito.doThrow(new AuthorizationException("Role not authorized")).when(subjectMock).checkPermission(any(NamedDomainPermission.class));
     }
 
     @Test
@@ -206,7 +242,7 @@ public class ComponentAuthorizationServiceTest {
     }
 
     @Test
-    public void hasAccess_StringPermission_NoMapping_access() {
+    public void hasAccess_StringPermission_NoMapping_NoAccess() {
         finishSetup();
 
         configureSubjectPermissionCheck("other:*:*");
@@ -245,5 +281,60 @@ public class ComponentAuthorizationServiceTest {
         boolean access = service.hasAccess(data);
         assertThat(access).isFalse();
     }
+
+    @Test
+    public void hasAccess_rolePermission_NoMapping() {
+
+        finishSetup();
+
+        configureSubjectRoleCheck("role1");
+        SecuredComponentDataParameter[] parameters = new SecuredComponentDataParameter[0];
+        SecuredComponentData data = new SecuredComponentData("::role1", false, false, parameters, null);
+
+        boolean access = service.hasAccess(data);
+        assertThat(access).isTrue();
+    }
+
+    @Test
+    public void hasAccess_rolePermission_NoMapping_NoAccess() {
+
+        finishSetup();
+
+        configureSubjectRoleCheck("role2");
+        SecuredComponentDataParameter[] parameters = new SecuredComponentDataParameter[0];
+        SecuredComponentData data = new SecuredComponentData("::role1", false, false, parameters, null);
+
+        boolean access = service.hasAccess(data);
+        assertThat(access).isFalse();
+    }
+
+    @Test
+    public void hasAccess_rolePermission_Mapping() {
+        RoleLookup roleLookupMock = Mockito.mock(RoleLookup.class);
+        beanManagerFake.registerBean(roleLookupMock, RoleLookup.class);
+
+        finishSetup();
+
+        SecuredComponentDataParameter[] parameters = new SecuredComponentDataParameter[0];
+        SecuredComponentData data = new SecuredComponentData("myRole", false, false, parameters, null);
+
+        boolean access = service.hasAccess(data);
+        assertThat(access).isTrue();
+    }
+
+    @Test
+    public void hasAccess_rolePermission_Mapping_NoAccess() {
+        RoleLookup roleLookupMock = Mockito.mock(RoleLookup.class);
+        beanManagerFake.registerBean(roleLookupMock, RoleLookup.class);
+
+        finishSetup();
+
+        SecuredComponentDataParameter[] parameters = new SecuredComponentDataParameter[0];
+        SecuredComponentData data = new SecuredComponentData("notMyRole", false, false, parameters, null);
+
+        boolean access = service.hasAccess(data);
+        assertThat(access).isFalse();
+    }
+
 
 }

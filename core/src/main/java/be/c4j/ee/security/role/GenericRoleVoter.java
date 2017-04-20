@@ -51,7 +51,6 @@ public class GenericRoleVoter extends AbstractAccessDecisionVoter {
             violations.add(newSecurityViolation(infoProducer.getViolationInfo(accessDecisionVoterContext, namedRole)));
 
         }
-
     }
 
     public boolean verifyPermission() {
@@ -63,4 +62,12 @@ public class GenericRoleVoter extends AbstractAccessDecisionVoter {
         }
         return result;
     }
+
+    public static GenericRoleVoter createInstance(NamedApplicationRole namedRole) {
+        GenericRoleVoter result = new GenericRoleVoter();
+        result.subject = BeanProvider.getContextualReference(Subject.class);
+        result.namedRole = namedRole;
+        return result;
+    }
+
 }

@@ -15,7 +15,6 @@
  */
 package be.c4j.ee.security.realm;
 
-import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
@@ -84,10 +83,6 @@ public class AuthorizationInfoBuilder {
     }
 
     public AuthorizationInfoBuilder addRole(NamedRole namedRole) {
-        if (roleLookup == null && rolePermissionResolver == null) {
-            throw new OctopusConfigurationException("A @Producer needs to be defined for RoleLookup or CDI bean implementing RolePermissionResolver");
-        }
-
         boolean resolved = false;
         if (rolePermissionResolver != null) {
             Collection<Permission> permissions = rolePermissionResolver.resolvePermissionsInRole(namedRole.name());

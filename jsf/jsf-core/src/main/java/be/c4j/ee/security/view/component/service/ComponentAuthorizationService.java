@@ -19,6 +19,8 @@ import be.c4j.ee.security.CustomAccessDecissionVoterContext;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookup;
+import be.c4j.ee.security.role.GenericRoleVoter;
+import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
@@ -110,23 +112,28 @@ public class ComponentAuthorizationService {
         AbstractAccessDecisionVoter result = null;
 
         if (name.contains(":")) {
-            NamedDomainPermission permission;
-            if (name.startsWith(":")) {
-                // Remove the leading :
-                String realName = name.substring(1);
-                if (stringLookup == null) {
-                    // We found a name but developer didn't specify some lookup. So assume :*:* at the end
-
-                    permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(realName), realName + ":*:*");
-                } else {
-                    permission = stringLookup.getPermission(realName);
-                }
+            if (name.startsWith("::")) {
+                String realName = name.substring(2);
+                result = GenericRoleVoter.createInstance(new NamedApplicationRole(realName));
             } else {
-                // TODO During testing we found out that x:y fails, need to perform checks everywhere
-                // A full blown wildcard shiro permission
-                permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(name), name);
+                NamedDomainPermission permission;
+                if (name.startsWith(":")) {
+                    // Remove the leading :
+                    String realName = name.substring(1);
+                    if (stringLookup == null) {
+                        // We found a name but developer didn't specify some lookup. So assume :*:* at the end
+
+                        permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(realName), realName + ":*:*");
+                    } else {
+                        permission = stringLookup.getPermission(realName);
+                    }
+                } else {
+                    // TODO During testing we found out that x:y fails, need to perform checks everywhere
+                    // A full blown wildcard shiro permission
+                    permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(name), name);
+                }
+                result = GenericPermissionVoter.createInstance(permission);
             }
-            result = GenericPermissionVoter.createInstance(permission);
 
         } else {
             try {

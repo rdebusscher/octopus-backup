@@ -16,6 +16,8 @@
 package be.c4j.ee.security.config;
 
 import be.c4j.ee.security.permission.PermissionLookup;
+import be.c4j.ee.security.role.NamedApplicationRole;
+import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.CDIUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
@@ -26,18 +28,19 @@ public class VoterNameFactory {
 
     private boolean initialized = false;
     private PermissionLookup permissionLookup;
+    private RoleLookup roleLookup;
     private OctopusConfig octopusConfig;
 
     public String generatePermissionBeanName(String permissionNames) {
         checkDependencies();
-        return generateName(permissionNames, octopusConfig.getPermissionVoterSuffix());
+        return generateName(permissionNames, octopusConfig.getPermissionVoterSuffix(), false);
     }
 
     /**
      * This version can be used from within the extension and doesn't trigger the BeanManager (which isn't possible during execution of the extension.
      * This special version assumes that only one permission name (or role name) is passed (so no , in parameter value)
      * This method assumes that a PermissionLookup will be available, which is ok since we have defined a NamedPermissionClass within configuration which makes a PermissionLookup required.
-     * (on other words : Method is called from extension and only when we have NamedPermissionClass, we are calling this method. And NamedPermissionClass requires  PermissionLookup)
+     * (in other words : Method is called from extension and only when we have NamedPermissionClass, we are calling this method. And NamedPermissionClass requires  PermissionLookup)
      *
      * @param name
      * @return
@@ -55,6 +58,7 @@ public class VoterNameFactory {
         if (!initialized) {
             // Find the optional permissionLookup
             permissionLookup = CDIUtil.getOptionalBean(PermissionLookup.class);
+            roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
 
             octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
 
@@ -62,35 +66,64 @@ public class VoterNameFactory {
         }
     }
 
-    private String generateName(String permissionNames, String voterSuffix) {
+    private String generateName(String permissionNames, String voterSuffix, boolean role) {
         String[] names = permissionNames.split(",");
         StringBuilder result = new StringBuilder();
-        String voterName;
         for (String permissionName : names) {
 
             if (result.length() > 0) {
                 result.append(", ");
             }
-            if (permissionLookup != null && permissionLookup.containsPermission(permissionName.trim())) {
-                voterName = transformName(permissionName.trim());
-                result.append(voterName);
-                result.append(voterSuffix);
+
+            if (role) {
+                handleRole(result, permissionName, voterSuffix);
             } else {
-                if (permissionName.contains(":")) {
-                    // We have a fully defined permission name like octopus:test:*
-                    result.append(permissionName.trim());
-                } else {
-                    // We have a named Permission octopusTest, which is not an enum value but String based.
-                    //The : in front will flag this situation later on.
-                    result.append(':').append(permissionName.trim());
-                }
+                handlePermission(result, permissionName, voterSuffix);
             }
         }
         return result.toString();
     }
 
+    private void handlePermission(StringBuilder result, String permissionName, String voterSuffix) {
+        String voterName;
+        if (permissionLookup != null && permissionLookup.containsPermission(permissionName.trim())) {
+            voterName = transformName(permissionName.trim());
+            result.append(voterName);
+            result.append(voterSuffix);
+        } else {
+            if (permissionName.contains(":")) {
+                // We have a fully defined permission name like octopus:test:*
+                result.append(permissionName.trim());
+            } else {
+                // We have a named Permission octopusTest, which is not an enum value but String based.
+                //The : in front will flag this situation later on.
+                result.append(':').append(permissionName.trim());
+            }
+        }
+    }
+
+    private void handleRole(StringBuilder result, String roleName, String voterSuffix) {
+        String voterName;
+        NamedApplicationRole namedRole = null;
+        if (roleLookup != null) {
+            namedRole = roleLookup.getRole(roleName.trim());
+        }
+        if (namedRole != null) {
+            // Role is explicitly mapped and thus bean is created by the extension.
+            // TODO Verify, what should we use as name roleName or namedRole properties. Verify with Extension and IntegrationTest
+            voterName = transformName(roleName.trim());
+            result.append(voterName);
+            result.append(voterSuffix);
+        } else {
+            // We have a named role which is not explicitly defined. Use the name as such
+            result.append("::").append(roleName.trim());
+
+        }
+    }
+
     public String generateRoleBeanName(String roleName) {
-        return generateName(roleName, octopusConfig.getRoleVoterSuffix());
+        checkDependencies();
+        return generateName(roleName, octopusConfig.getRoleVoterSuffix(), true);
     }
 
     private String transformName(String roleName) {

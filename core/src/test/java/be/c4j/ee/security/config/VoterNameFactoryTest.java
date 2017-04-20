@@ -16,12 +16,15 @@
 package be.c4j.ee.security.config;
 
 import be.c4j.ee.security.permission.PermissionLookupFixture;
+import be.c4j.ee.security.role.NamedApplicationRole;
+import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.test.util.BeanManagerFake;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +51,7 @@ public class VoterNameFactoryTest {
         factory = new VoterNameFactory();
 
         when(octopusConfigMock.getPermissionVoterSuffix()).thenReturn("PermissionVoter");
+        when(octopusConfigMock.getRoleVoterSuffix()).thenReturn("RoleVoter");
 
     }
 
@@ -121,7 +125,7 @@ public class VoterNameFactoryTest {
     }
 
     @Test
-    public void testGeneratePermissionBeanName_StringVersion_Multiple() {
+    public void generatePermissionBeanName_StringVersion_Multiple() {
         // Finish preparation
         beanManagerFake.endRegistration();
 
@@ -149,6 +153,31 @@ public class VoterNameFactoryTest {
         String beanName = factory.generatePermissionBeanName("octopus:test:*, octopus:test:second");
         assertThat(beanName).isEqualTo("octopus:test:*, octopus:test:second");
 
+    }
+
+    @Test
+    public void generateRoleBeanName_StringName() {
+        // Finish preparation
+        beanManagerFake.endRegistration();
+
+        String beanName = factory.generateRoleBeanName("myRole");
+        assertThat(beanName).isEqualTo("::myRole");
+    }
+
+    @Test
+    public void generateRoleBeanName_LookupVersion() {
+
+        RoleLookup roleLookupMock = Mockito.mock(RoleLookup.class);
+        beanManagerFake.registerBean(roleLookupMock, RoleLookup.class);
+
+        // Finish preparation
+        beanManagerFake.endRegistration();
+
+        NamedApplicationRole namedRole = new NamedApplicationRole("JUnitRole");
+        when(roleLookupMock.getRole("myRole")).thenReturn(namedRole);
+
+        String beanName = factory.generateRoleBeanName("myRole");
+        assertThat(beanName).isEqualTo("myroleRoleVoter");
     }
 
 }
