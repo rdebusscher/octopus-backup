@@ -49,6 +49,12 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+            <artifactId>octopus-se</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
         <!-- Test dependencies -->
 
         <dependency>
