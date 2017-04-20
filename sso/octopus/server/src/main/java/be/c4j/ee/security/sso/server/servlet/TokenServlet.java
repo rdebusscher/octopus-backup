@@ -141,7 +141,7 @@ public class TokenServlet extends HttpServlet {
                 , ssoServerConfiguration.getSSOAccessTokenTimeToLive(), tokenRequest.getScope()));
 
         OctopusSSOUser ssoUser = ssoProducerBean.getOctopusSSOUser();
-        ;
+
         if (tokenRequest.getScope() != null && tokenRequest.getScope().contains("openid")) {
             // TODO Study spec to see if these can be combined and it makes sense to do so?
 

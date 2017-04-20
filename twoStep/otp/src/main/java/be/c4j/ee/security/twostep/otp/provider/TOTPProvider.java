@@ -121,7 +121,7 @@ public class TOTPProvider implements OTPProvider {
      */
 
     private String generateTOTP(byte[] key, long tm, int codeDigits, String crypto) {
-        String result;
+        StringBuilder result;
 
         // Allocating an array of bytes to represent the specified instant of time.
         byte[] data = new byte[8];
@@ -143,11 +143,11 @@ public class TOTPProvider implements OTPProvider {
 
         int otp = binary % ((int) Math.pow(10, codeDigits));
 
-        result = Integer.toString(otp);
+        result = new StringBuilder(Integer.toString(otp));
         while (result.length() < codeDigits) {
-            result = "0" + result;
+            result.insert(0, "0");
         }
-        return result;
+        return result.toString();
     }
 
 }

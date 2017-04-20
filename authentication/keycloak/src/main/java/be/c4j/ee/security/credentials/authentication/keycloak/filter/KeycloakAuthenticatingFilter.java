@@ -81,7 +81,7 @@ public class KeycloakAuthenticatingFilter extends BasicHttpAuthenticationFilter 
         get.addHeader(AUTHORIZATION_HEADER, authorizationHeader);
         get.addHeader("Accept", "application/json");
 
-        KeycloakUser result = null;
+        KeycloakUser result;
         try {
             HttpResponse userInfoResponse = deployment.getClient().execute(get);
             if (userInfoResponse.getStatusLine().getStatusCode() == 200) {

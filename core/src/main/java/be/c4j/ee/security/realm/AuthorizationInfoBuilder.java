@@ -105,9 +105,7 @@ public class AuthorizationInfoBuilder {
     }
 
     public AuthorizationInfoBuilder addRoles(Collection<? extends NamedRole> namedRoles) {
-        Iterator<? extends NamedRole> iter = namedRoles.iterator();
-        while (iter.hasNext()) {
-            NamedRole namedRole = iter.next();
+        for (NamedRole namedRole : namedRoles) {
             addRole(namedRole);
         }
         return this;

@@ -183,7 +183,7 @@ public class OIDCAdapter {
         }
 
         AccessTokenHandler handler = new AccessTokenHandler(deployment, tokenResponse);
-        KeycloakUser user = null;
+        KeycloakUser user;
         try {
             user = handler.extractUser();
         } catch (OIDCAuthenticationException ex) {

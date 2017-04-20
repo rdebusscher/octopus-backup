@@ -105,7 +105,7 @@ public class KeycloakAuthenticator {
     }
 
     private AccessTokenResponse getAccessToken(String username, String password) throws Exception {
-        AccessTokenResponse tokenResponse = null;
+        AccessTokenResponse tokenResponse;
         HttpClient client = deployment.getClient();
 
         HttpPost post = new HttpPost(

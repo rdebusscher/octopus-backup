@@ -44,6 +44,6 @@ public enum TokenInstance implements Token {
         public boolean isUsable() {
             return false;
         }
-    };
+    }
 
 }

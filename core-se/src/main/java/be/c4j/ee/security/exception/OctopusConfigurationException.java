@@ -18,7 +18,7 @@ package be.c4j.ee.security.exception;
 import org.apache.shiro.authc.AuthenticationException;
 
 /**
- *
+ * TODO Review if it is correct that it extends AuthenticationException
  */
 public class OctopusConfigurationException extends AuthenticationException {
 

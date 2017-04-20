@@ -24,8 +24,6 @@ import java.util.Map;
 @SuppressWarnings("squid:S1226")
 public class Base32 {
 
-    // 32 alpha-numeric characters.
-    private String ALPHABET;
     private char[] DIGITS;
     private int MASK;
     private int SHIFT;
@@ -34,8 +32,8 @@ public class Base32 {
     private static final String SEPARATOR = "-";
 
     private Base32(String alphabet) {
-        this.ALPHABET = alphabet;
-        DIGITS = ALPHABET.toCharArray();
+        // 32 alpha-numeric characters.
+        DIGITS = alphabet.toCharArray();
         MASK = DIGITS.length - 1;
         SHIFT = Integer.numberOfTrailingZeros(DIGITS.length);
         CHAR_MAP = new HashMap<Character, Integer>();

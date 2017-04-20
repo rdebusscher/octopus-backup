@@ -54,7 +54,7 @@ public class GithubInfoProvider implements OAuth2InfoProvider {
         OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
 
         authService.signRequest(token, request);
-        OAuth2User oAuth2User = null;
+        OAuth2User oAuth2User;
         try {
             Response oResp = authService.execute(request);
             oAuth2User = jsonProcessor.extractGithubUser(oResp.getBody());

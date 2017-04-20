@@ -146,7 +146,7 @@ public class SSOCallbackServlet extends HttpServlet {
         }
 
         try {
-            OctopusSSOUser user = null;
+            OctopusSSOUser user;
             try {
                 user = octopusUserRequestor.getOctopusSSOUser(variableClientData, accessToken);
             } catch (OctopusRetrievalException e) {

@@ -202,7 +202,7 @@ public class HOTPProvider implements OTPProvider {
      * @return A numeric String in base 10 that includes digits plus the optional checksum digit if requested.
      */
     private String generateOTP(byte[] secret, long movingFactor) {
-        String result;
+        StringBuilder result;
         int codeDigits = digits;
 
         // put movingFactor value into text byte array
@@ -228,11 +228,11 @@ public class HOTPProvider implements OTPProvider {
         if (addChecksum) {
             otp = (otp * 10) + calcChecksum(otp, codeDigits);
         }
-        result = Integer.toString(otp);
+        result = new StringBuilder(Integer.toString(otp));
         while (result.length() < digits) {
-            result = "0" + result;
+            result.insert(0, "0");
         }
-        return result;
+        return result.toString();
     }
 
 }

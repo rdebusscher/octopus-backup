@@ -15,7 +15,6 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
 import be.c4j.ee.security.jwt.config.JWKFileReader;
 import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import com.nimbusds.jose.*;

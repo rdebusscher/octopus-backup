@@ -72,7 +72,7 @@ public class ApplicationUsageInfo {
     }
 
     public String getPrincipalName() {
-        String result = null;
+        String result;
         if (isAuthenticated()) {
             result = userPrincipal.getName();
         } else {

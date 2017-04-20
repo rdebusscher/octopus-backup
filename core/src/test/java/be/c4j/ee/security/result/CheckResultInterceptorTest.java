@@ -44,7 +44,7 @@ public class CheckResultInterceptorTest {
         beanManagerFake.deregistration();
     }
 
-    protected void finishCDISetup() throws IllegalAccessException {
+    protected void finishCDISetup() {
 
         beanManagerFake.endRegistration();
     }

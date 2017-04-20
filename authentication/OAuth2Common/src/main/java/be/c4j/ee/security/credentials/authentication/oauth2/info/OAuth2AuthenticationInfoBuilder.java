@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * FIXME Verify why this class is never used.
  */
 
 public class OAuth2AuthenticationInfoBuilder {

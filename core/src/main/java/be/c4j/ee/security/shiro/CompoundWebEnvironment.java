@@ -303,7 +303,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
     @Override
     protected WebSecurityManager createWebSecurityManager() {
-        // TODO With 0.9.7 we can do this in the OctopusSecurityManagerFactory
+        // FIXME With 0.9.7 we can do this in the OctopusSecurityManagerFactory
         // So that SecurityManager is available with @StartupEvent
         WebSecurityManager securityManager = super.createWebSecurityManager();
         SecurityUtils.setSecurityManager(securityManager);

@@ -15,9 +15,6 @@
  */
 package be.c4j.ee.security.permission;
 
-import be.c4j.ee.security.model.UserPrincipal;
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

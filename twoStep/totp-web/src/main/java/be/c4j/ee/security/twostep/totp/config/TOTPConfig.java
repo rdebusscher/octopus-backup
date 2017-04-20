@@ -35,7 +35,7 @@ public class TOTPConfig extends OTPConfig {
 
     @ConfigEntry
     public int getSecretLength() {
-        int result = 0;
+        int result;
         try {
             result = Integer.parseInt(ConfigResolver.getPropertyValue("totp.secret.length", "128"));
         } catch (NumberFormatException e) {
@@ -46,7 +46,7 @@ public class TOTPConfig extends OTPConfig {
 
     @ConfigEntry
     public int getWindow() {
-        int result = 0;
+        int result;
         try {
             result = Integer.parseInt(ConfigResolver.getPropertyValue("totp.window", "1"));
         } catch (NumberFormatException e) {

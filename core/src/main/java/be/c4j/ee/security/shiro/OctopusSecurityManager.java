@@ -130,7 +130,7 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
                 ((MutablePrincipalCollection) principals).add(ssoPrincipalProvider.createSSOPrincipal(userPrincipal), DEFAULT_REALM);
             }
 
-            if (userPrincipal != null && userPrincipal.needsTwoStepAuthentication()) {
+            if (userPrincipal.needsTwoStepAuthentication()) {
 
                 result = twoStepSubjectFactory.createSubject(context);
             } else {

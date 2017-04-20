@@ -85,7 +85,7 @@ public class DebugClientResponseFilterTest {
         when(clientResponseContextMock.getStatus()).thenReturn(200);
         when(clientResponseContextMock.hasEntity()).thenReturn(true);
         when(clientResponseContextMock.getEntityStream()).thenReturn(inputStreamMock);
-        when(clientRequestContextMock.getProperty(CorrelationCounter.class.getName())).thenReturn(Integer.valueOf(12));
+        when(clientRequestContextMock.getProperty(CorrelationCounter.class.getName())).thenReturn(12);
 
         when(inputStreamMock.read(any(byte[].class), anyInt(), anyInt())).thenAnswer(new Answer<Integer>() {
             @Override

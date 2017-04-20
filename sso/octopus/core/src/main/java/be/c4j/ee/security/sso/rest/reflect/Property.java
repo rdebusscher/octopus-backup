@@ -442,7 +442,7 @@ public final class Property implements AnnotatedElement {
     public void set(Object obj, Object value) {
         try {
             if (isPublic(writeMethod)) {
-                writeMethod.invoke(obj, new Object[]{value});
+                writeMethod.invoke(obj, value);
             } else {
                 throw new ReflectionException("Cannot set the value of " + this + ", as it is read-only.");
             }
