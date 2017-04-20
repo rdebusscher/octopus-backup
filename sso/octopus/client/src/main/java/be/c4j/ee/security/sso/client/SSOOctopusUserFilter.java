@@ -89,15 +89,17 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
 
     @Override
     public void prepareLoginURL(ServletRequest request, ServletResponse response) {
-        if (loginURL == null) {
-            // TODO when we integrate Shiro, update the getLoginURL with parameters so that we can have access to the request
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
+        HttpSession session = httpServletRequest.getSession(true);
+
+        if (session.getAttribute(OpenIdVariableClientData.class.getName()) == null) {
+            // TODO when we integrate Shiro, We have to come up with a solution for this
+            // Basically, it boils down to some initialization which is executed before the redirect to the login page is performed.
+            // Maybe just an implementation of some interface which will be called.
             OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(urlUtil.determineRoot((HttpServletRequest) request));
             variableClientDataThreadLocal.set(variableClientData);
 
-            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-
-            HttpSession session = httpServletRequest.getSession(true);
             session.setAttribute(OpenIdVariableClientData.class.getName(), variableClientData);
         }
     }
