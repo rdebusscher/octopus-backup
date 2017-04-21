@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.producer;
-
-import be.c4j.ee.security.permission.NamedPermission;
+package be.c4j.ee.security.producer.testclasses;
 
 /**
  *
  */
-public enum TestAnnotation implements NamedPermission {
-    TEST, SECOND
+public @interface TestPermissionAnnotationCheck {
+
+    TestPermissionAnnotation[] value();
 }

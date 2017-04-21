@@ -17,12 +17,14 @@ package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.realm.OctopusRoles;
 import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -45,9 +47,6 @@ public class NamedRoleProducer {
 
     private RoleLookup<? extends NamedRole> lookup;
 
-    @Inject
-    private BeanManager beanManager;
-
     @PostConstruct
     public void init() {
         // Optional to make sure that if the bean is not created without actually needing it, we don't get into trouble if the lookup isn't defined.
@@ -56,20 +55,55 @@ public class NamedRoleProducer {
 
     @Produces
     public GenericRoleVoter getVoter(InjectionPoint injectionPoint) {
+        GenericRoleVoter result = null;
+
         Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedRoleCheckClass());
-        if (annotation == null) {
+
+        if (annotation != null) {
+            NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
+            if (roles.length > 1) {
+                throw new AmbiguousResolutionException("Only one named role can be specified.");
+            }
+
+            result = CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
+                    .generateRoleBeanName(roles[0].name()), GenericRoleVoter.class);
+
+        }
+
+        if (result == null) {
+            annotation = injectionPoint.getAnnotated().getAnnotation(OctopusRoles.class);
+            if (annotation != null) {
+                String[] roleNames = AnnotationUtil.getStringValues(annotation);
+                if (roleNames.length > 1) {
+                    throw new AmbiguousResolutionException("Only one role can be specified."); // FIXME Specify at which InjectionPoint
+                }
+
+
+                NamedApplicationRole namedRole = lookup.getRole(roleNames[0]);
+                if (namedRole == null) {
+                    namedRole = new NamedApplicationRole(roleNames[0]);
+                }
+
+                result = GenericRoleVoter.createInstance(namedRole);
+            }
+        }
+
+        if (result == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for GenericRoleVoter needs an additional " + config.getNamedRoleCheck() +
+                    "Injection points for GenericRoleVoter needs an additional " + getInjectPointAnnotationText() +
                             " annotation to determine the correct bean");
         }
-        NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
-        if (roles.length > 1) {
-            throw new AmbiguousResolutionException("Only one named role can be specified.");
+
+        return result;
+    }
+
+    private String getInjectPointAnnotationText() {
+        StringBuilder result = new StringBuilder();
+        result.append(OctopusRoles.class.getName());
+        if (config.getNamedRoleCheckClass() != null) {
+            result.append(" or ").append(config.getNamedRoleCheckClass().getName());
         }
-
-
-        return CDIUtil.getContextualReferenceByName(beanManager, nameFactory
-                .generateRoleBeanName(roles[0].name()), GenericRoleVoter.class);
+        return result.toString();
     }
 
     @Produces

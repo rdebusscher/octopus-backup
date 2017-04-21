@@ -80,7 +80,7 @@ public class NamedPermissionProducer {
             Annotation annotation = injectionPoint.getAnnotated().getAnnotation(OctopusPermissions.class);
             if (annotation != null) {
 
-                String[] stringPermissions = AnnotationUtil.getStringPermissionValues(annotation);
+                String[] stringPermissions = AnnotationUtil.getStringValues(annotation);
                 if (stringPermissions.length > 1) {
                     throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
                 }

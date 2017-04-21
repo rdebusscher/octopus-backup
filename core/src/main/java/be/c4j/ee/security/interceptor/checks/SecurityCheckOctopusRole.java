@@ -18,9 +18,9 @@ package be.c4j.ee.security.interceptor.checks;
 import be.c4j.ee.security.Combined;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
-import be.c4j.ee.security.permission.NamedDomainPermission;
-import be.c4j.ee.security.permission.StringPermissionLookup;
-import be.c4j.ee.security.realm.OctopusPermissions;
+import be.c4j.ee.security.realm.OctopusRoles;
+import be.c4j.ee.security.role.NamedApplicationRole;
+import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
@@ -38,24 +38,24 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * SecurityCheck for the annotation @OctopusPermissions which takes String permission (named, wildcard or short version)
+ * SecurityCheck for the annotation @OctopusRoles which takes String (named or plain)
  */
 @ApplicationScoped
-public class SecurityCheckOctopusPermission implements SecurityCheck {
+public class SecurityCheckOctopusRole implements SecurityCheck {
 
     @Inject
     private SecurityViolationInfoProducer infoProducer;
 
-    private StringPermissionLookup stringPermissionLookup;
+    private RoleLookup roleLookup;
 
-    private Map<String, NamedDomainPermission> permissionCache;
+    private Map<String, NamedApplicationRole> permissionCache;
 
     @PostConstruct
     public void init() {
         // StringPermissionProvider is optional.
-        stringPermissionLookup = BeanProvider.getContextualReference(StringPermissionLookup.class, true);
+        roleLookup = BeanProvider.getContextualReference(RoleLookup.class, true);
 
-        permissionCache = new HashMap<String, NamedDomainPermission>();
+        permissionCache = new HashMap<String, NamedApplicationRole>();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SecurityCheckOctopusPermission implements SecurityCheck {
                     new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(accessContext))
             );
         } else {
-            Set<SecurityViolation> securityViolations = performPermissionChecks(securityAnnotation, subject, accessContext);
+            Set<SecurityViolation> securityViolations = performRoleChecks(securityAnnotation, subject, accessContext);
             if (!securityViolations.isEmpty()) {
                 result = SecurityCheckInfo.withException(
                         new OctopusUnauthorizedException(securityViolations));
@@ -80,34 +80,27 @@ public class SecurityCheckOctopusPermission implements SecurityCheck {
         return result;
     }
 
-    private Set<SecurityViolation> performPermissionChecks(Annotation octopusPermission, Subject subject, AccessDecisionVoterContext accessContext) {
+    private Set<SecurityViolation> performRoleChecks(Annotation octopusPermission, Subject subject, AccessDecisionVoterContext accessContext) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
-
         Combined permissionCombination = AnnotationUtil.getPermissionCombination(octopusPermission);
         boolean onePermissionGranted = false;
-        NamedDomainPermission permission;
-        for (String permissionString : AnnotationUtil.getStringValues(octopusPermission)) {
-            if (stringPermissionLookup != null) {
-                permission = stringPermissionLookup.getPermission(permissionString);
-                // TODO What if we specify a String value which isn't defined in the lookup?
-            } else {
-                permission = permissionCache.get(permissionString);
-                if (permission == null) {
-                    if (!permissionString.contains(":")) {
-                        permissionString += ":*:*";
-                    }
-                    permission = new NamedDomainPermission(StringPermissionLookup.createNameForPermission(permissionString), permissionString);
-                    permissionCache.put(permissionString, permission);
-                }
-
+        for (String roleName : AnnotationUtil.getStringValues(octopusPermission)) {
+            NamedApplicationRole namedRole = null;
+            if (roleLookup != null) {
+                namedRole = roleLookup.getRole(roleName);
             }
-
-
-            if (subject.isPermitted(permission)) {
+            if (namedRole == null) {
+                namedRole = permissionCache.get(roleName);
+                if (namedRole == null) {
+                    namedRole = new NamedApplicationRole(roleName);
+                    permissionCache.put(roleName, namedRole);
+                }
+            }
+            if (subject.isPermitted(namedRole)) {
                 onePermissionGranted = true;
             } else {
                 InvocationContext invocationContext = accessContext.getSource();
-                result.add(infoProducer.defineOctopusViolation(invocationContext, permission));
+                result.add(infoProducer.defineOctopusViolation(invocationContext, namedRole));
             }
         }
         // When we have specified OR and there is one permissions which didn't result in some violations
@@ -121,6 +114,6 @@ public class SecurityCheckOctopusPermission implements SecurityCheck {
 
     @Override
     public boolean hasSupportFor(Object annotation) {
-        return OctopusPermissions.class.isAssignableFrom(annotation.getClass());
+        return OctopusRoles.class.isAssignableFrom(annotation.getClass());
     }
 }

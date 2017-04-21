@@ -21,10 +21,7 @@ import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.interceptor.AnnotationInfo;
 import be.c4j.ee.security.permission.NamedPermission;
-import be.c4j.ee.security.realm.OctopusPermissions;
-import be.c4j.ee.security.realm.OnlyDuringAuthentication;
-import be.c4j.ee.security.realm.OnlyDuringAuthenticationEvent;
-import be.c4j.ee.security.realm.OnlyDuringAuthorization;
+import be.c4j.ee.security.realm.*;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.systemaccount.SystemAccount;
 import org.apache.shiro.authz.annotation.*;
@@ -58,7 +55,7 @@ public final class AnnotationUtil {
         return result;
     }
 
-    public static String[] getStringPermissionValues(Annotation someCustomNamedCheck) {
+    public static String[] getStringValues(Annotation someCustomNamedCheck) {
         String[] result = null;
         for (Method method : someCustomNamedCheck.getClass().getDeclaredMethods()) {
             if ("value".equals(method.getName())) {
@@ -122,6 +119,7 @@ public final class AnnotationUtil {
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresRoles.class));
         result.addMethodAnnotation(someMethod.getAnnotation(RequiresPermissions.class));
         result.addMethodAnnotation(someMethod.getAnnotation(OctopusPermissions.class));
+        result.addMethodAnnotation(someMethod.getAnnotation(OctopusRoles.class));
         result.addMethodAnnotation(someMethod.getAnnotation(CustomVoterCheck.class));
         result.addMethodAnnotation(someMethod.getAnnotation(SystemAccount.class));
         result.addMethodAnnotation(someMethod.getAnnotation(OnlyDuringAuthorization.class));
@@ -140,6 +138,7 @@ public final class AnnotationUtil {
         result.addClassAnnotation(getAnnotation(someClassType, RequiresRoles.class));
         result.addClassAnnotation(getAnnotation(someClassType, RequiresPermissions.class));
         result.addClassAnnotation(getAnnotation(someClassType, OctopusPermissions.class));
+        result.addClassAnnotation(getAnnotation(someClassType, OctopusRoles.class));
         result.addClassAnnotation(getAnnotation(someClassType, CustomVoterCheck.class));
         result.addClassAnnotation(getAnnotation(someClassType, SystemAccount.class));
         if (config.getNamedPermissionCheckClass() != null) {

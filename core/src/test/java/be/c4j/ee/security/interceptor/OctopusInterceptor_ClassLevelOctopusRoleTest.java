@@ -16,8 +16,10 @@
 package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
-import be.c4j.ee.security.interceptor.testclasses.ClassLevelOctopusPermissionWildCard;
+import be.c4j.ee.security.interceptor.testclasses.ClassLevelOctopusPermission;
+import be.c4j.ee.security.interceptor.testclasses.ClassLevelOctopusRole;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.StringPermissionLookupFixture;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -30,12 +32,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
+ * FIXME Method level tests
  */
 @RunWith(Parameterized.class)
-public class OctopusInterceptor_ClassLevelOctopusPermissionWildCardTest extends OctopusInterceptorTest {
+public class OctopusInterceptor_ClassLevelOctopusRoleTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_ClassLevelOctopusPermissionWildCardTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount, String role) {
+    public OctopusInterceptor_ClassLevelOctopusRoleTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount, String role) {
         super(authenticated, permission, customAccess, shiroPermission, systemAccount, role);
     }
 
@@ -45,20 +47,21 @@ public class OctopusInterceptor_ClassLevelOctopusPermissionWildCardTest extends 
                 {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, null},            //0
                 {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null, null, null},               //1
                 {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, null},                //2
-                {AUTHENTICATED, PERMISSION1_WILDCARD, NO_CUSTOM_ACCESS, null, null, null},        //3
-                {AUTHENTICATED, PERMISSION2_WILDCARD, NO_CUSTOM_ACCESS, null, null, null},        //4
+                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null, null, null},        //3
+                {AUTHENTICATED, PERMISSION2, NO_CUSTOM_ACCESS, null, null, null},        //4
                 {AUTHENTICATED, null, CUSTOM_ACCESS, null, null, null},                   //5
                 {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1, null, null},            //6
                 {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1, null},           //7
                 {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, ROLE1},           //8
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, ROLE2},           //9
         });
     }
 
     @Test
     public void testInterceptShiroSecurity_octopusPermission1() throws Exception {
 
-        Object target = new ClassLevelOctopusPermissionWildCard();
-        Method method = target.getClass().getMethod("octopusPermission1");
+        Object target = new ClassLevelOctopusRole();
+        Method method = target.getClass().getMethod("octopusRole1");
         InvocationContext context = new TestInvocationContext(target, method);
 
         performAndCheck(context);
@@ -66,47 +69,39 @@ public class OctopusInterceptor_ClassLevelOctopusPermissionWildCardTest extends 
 
     private void performAndCheck(InvocationContext context) throws Exception {
 
+        StringPermissionLookupFixture.registerLookup(beanManagerFake);
+
         finishCDISetup();
 
-        securityCheckOctopusPermission.init();
+        securityCheckOctopusRole.init();
 
         try {
             octopusInterceptor.interceptShiroSecurity(context);
 
-            assertThat(permission).isEqualTo(PERMISSION1_WILDCARD);
+            assertThat(role).isEqualTo(ROLE1);
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).hasSize(1);
-            assertThat(feedback).contains(ClassLevelOctopusPermissionWildCard.CLASS_LEVEL_OCTOPUS_PERMISSION);
+            assertThat(feedback).contains(ClassLevelOctopusRole.CLASS_LEVEL_OCTOPUS_ROLE);
 
         } catch (OctopusUnauthorizedException e) {
 
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).isEmpty();
 
-            assertThat(permission).isNotEqualToIgnoringCase(PERMISSION1_WILDCARD);
-
+            assertThat(role).isNotEqualToIgnoringCase(ROLE1);
         }
     }
 
     @Test
     public void testInterceptShiroSecurity_octopusPermission1Bis() throws Exception {
 
-        Object target = new ClassLevelOctopusPermissionWildCard();
-        Method method = target.getClass().getMethod("octopusPermission1Bis");
+        Object target = new ClassLevelOctopusRole();
+        Method method = target.getClass().getMethod("octopusRole1Bis");
         InvocationContext context = new TestInvocationContext(target, method);
 
         performAndCheck(context);
     }
 
-
-    protected NamedDomainPermission getNamedDomainPermission(String permissionName) {
-        NamedDomainPermission result = null;
-        if (permissionName != null) {
-
-            result = new NamedDomainPermission(permissionName, permissionName);
-        }
-        return result;
-    }
 
 }
 

@@ -47,22 +47,23 @@ import static org.mockito.Mockito.when;
 @RunWith(Parameterized.class)
 public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
 
-    public OctopusInterceptor_MethodLevelTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
-        super(authenticated, permission, customAccess, shiroPermission, systemAccount);
+    public OctopusInterceptor_MethodLevelTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount, String role) {
+        super(authenticated, permission, customAccess, shiroPermission, systemAccount, role);
     }
 
     @Parameterized.Parameters
     public static List<Object[]> defineScenarios() {
         return Arrays.asList(new Object[][]{
-                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null},            //0
-                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null, null},               //1
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null},                //2
-                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null, null},        //3
-                {AUTHENTICATED, null, CUSTOM_ACCESS, null, null},                   //4
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1, null},            //5
-                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1},           //6
-                {AUTHENTICATED, NAMED_OCTOPUS, NO_CUSTOM_ACCESS, null, null},        //7
-                {AUTHENTICATED, OCTOPUS, NO_CUSTOM_ACCESS, null, null}        //8
+                {NOT_AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, null},            //0
+                {NOT_AUTHENTICATED, null, CUSTOM_ACCESS, null, null, null},               //1
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, null},                //2
+                {AUTHENTICATED, PERMISSION1, NO_CUSTOM_ACCESS, null, null, null},        //3
+                {AUTHENTICATED, null, CUSTOM_ACCESS, null, null, null},                   //4
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, SHIRO1, null, null},            //5
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, ACCOUNT1, null},           //6
+                {AUTHENTICATED, NAMED_OCTOPUS, NO_CUSTOM_ACCESS, null, null, null},        //7
+                {AUTHENTICATED, OCTOPUS, NO_CUSTOM_ACCESS, null, null, null},        //8
+                {AUTHENTICATED, null, NO_CUSTOM_ACCESS, null, null, ROLE1},           //9
         });
     }
 

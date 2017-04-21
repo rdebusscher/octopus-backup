@@ -27,6 +27,7 @@ import be.c4j.ee.security.interceptor.testclasses.TestRoleCheck;
 import be.c4j.ee.security.octopus.AnnotationAuthorizationChecker;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.realm.SecurityDataProvider;
+import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import be.c4j.ee.security.twostep.TwoStepConfig;
 import be.c4j.test.util.BeanManagerFake;
@@ -74,8 +75,11 @@ public class OctopusInterceptorTest {
     protected static final String ACCOUNT1 = "account1";
     protected static final String NAMED_OCTOPUS = "named:octopus:*";
     protected static final String OCTOPUS = "octopus:*:*";
+    protected static final String ROLE1 = "role1";
+    protected static final String ROLE2 = "role2";
 
     protected SecurityCheckOctopusPermission securityCheckOctopusPermission;
+    protected SecurityCheckOctopusRole securityCheckOctopusRole;
 
     protected static final String AUTHORIZATION_PERMISSION = "Authorization:*:*";
 
@@ -83,7 +87,7 @@ public class OctopusInterceptorTest {
     private OctopusConfig octopusConfigMock;
 
     @Mock
-    private TwoStepConfig twoStepConfigConfig;
+    private TwoStepConfig twoStepConfigConfigMock;
 
     @Mock
     private SecurityViolationInfoProducer infoProducerMock;
@@ -103,13 +107,15 @@ public class OctopusInterceptorTest {
     protected boolean customAccess;
     protected String shiroPermission;
     protected String systemAccount;
+    protected String role;
 
-    public OctopusInterceptorTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount) {
+    public OctopusInterceptorTest(boolean authenticated, String permission, boolean customAccess, String shiroPermission, String systemAccount, String role) {
         this.authenticated = authenticated;
         this.permission = permission;
         this.customAccess = customAccess;
         this.shiroPermission = shiroPermission;
         this.systemAccount = systemAccount;
+        this.role = role;
     }
 
     @Before
@@ -134,6 +140,7 @@ public class OctopusInterceptorTest {
 
         // Define logic at subject level to see if subject has the required permission
         final NamedDomainPermission namedPermission = getNamedDomainPermission(permission);
+        final NamedApplicationRole namedRole = getNamedApplicationRole(role);
 
 
         doAnswer(new Answer() {
@@ -142,11 +149,16 @@ public class OctopusInterceptorTest {
                 Object parameter = invocationOnMock.getArguments()[0];
                 if (parameter instanceof Permission) {
                     Permission permission = (Permission) parameter;
-                    if (namedPermission == null || !namedPermission.implies(permission)) {
+                    if (namedPermission == null && namedRole == null) {
                         throw new AuthorizationException();
-                    } else {
-                        return null;
                     }
+                    if (namedPermission != null && !namedPermission.implies(permission)) {
+                        throw new AuthorizationException();
+                    }
+                    if (namedRole != null && !namedRole.implies(permission)) {
+                        throw new AuthorizationException();
+                    }
+                    return null;
                 }
                 throw new IllegalArgumentException();
             }
@@ -158,11 +170,17 @@ public class OctopusInterceptorTest {
                 Object parameter = invocationOnMock.getArguments()[0];
                 if (parameter instanceof Permission) {
                     Permission permission = (Permission) parameter;
-                    if (namedPermission == null || !namedPermission.implies(permission)) {
+                    if (namedPermission == null && namedRole == null) {
                         return false;
-                    } else {
-                        return true;
                     }
+                    if (namedPermission != null && !namedPermission.implies(permission)) {
+                        return false;
+                    }
+                    if (namedRole != null && !namedRole.implies(permission)) {
+                        return false;
+                    }
+                    return true;
+
                 }
                 throw new IllegalArgumentException();
             }
@@ -280,6 +298,11 @@ public class OctopusInterceptorTest {
         ReflectionUtil.injectDependencies(securityCheckOctopusPermission, infoProducerMock);
 
         beanManagerFake.registerBean(securityCheckOctopusPermission, SecurityCheck.class);
+
+        securityCheckOctopusRole = new SecurityCheckOctopusRole();
+        ReflectionUtil.injectDependencies(securityCheckOctopusRole, infoProducerMock);
+
+        beanManagerFake.registerBean(securityCheckOctopusRole, SecurityCheck.class);
     }
 
     @After
@@ -306,6 +329,15 @@ public class OctopusInterceptorTest {
         if (permissionName != null) {
 
             result = new NamedDomainPermission(permissionName, permissionName.toLowerCase(Locale.ENGLISH), "*", "*");
+        }
+        return result;
+    }
+
+    protected NamedApplicationRole getNamedApplicationRole(String roleName) {
+        NamedApplicationRole result = null;
+        if (roleName != null) {
+
+            result = new NamedApplicationRole(roleName);
         }
         return result;
     }
