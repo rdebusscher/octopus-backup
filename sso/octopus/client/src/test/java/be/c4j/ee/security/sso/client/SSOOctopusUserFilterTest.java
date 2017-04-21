@@ -24,15 +24,23 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -51,7 +59,13 @@ public class SSOOctopusUserFilterTest {
     private HttpServletRequest httpServletRequestMock;
 
     @Mock
+    private HttpServletResponse httpServletResponseMock;
+
+    @Mock
     private HttpSession httpSessionMock;
+
+    @Captor
+    private ArgumentCaptor<String> stringArgumentCaptor;
 
     @InjectMocks
     private SSOOctopusUserFilter userFilter;
@@ -80,17 +94,31 @@ public class SSOOctopusUserFilterTest {
 
 
     @Test
-    public void getLoginUrl() throws IllegalAccessException, NoSuchFieldException {
+    public void redirectToLogin() throws IllegalAccessException, NoSuchFieldException, IOException {
 
         when(octopusSSOClientConfigurationMock.getSSOClientId()).thenReturn("clientId");
         when(octopusSSOClientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
         when(octopusSSOClientConfigurationMock.getSSOScopes()).thenReturn("");
 
-        ReflectionUtil.setFieldValue(userFilter, "loginUrl", "http://sso.server.org/root");
-        String loginUrl = userFilter.getLoginUrl();
+        ReflectionUtil.setFieldValue(userFilter, "partialLoginURL", "http://sso.server.org/root");
+
+        when(httpServletResponseMock.encodeRedirectURL(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArgument(0);
+            }
+        });
+
+        userFilter.redirectToLogin(httpServletRequestMock, httpServletResponseMock);
+
+        verify(httpServletResponseMock).sendRedirect(stringArgumentCaptor.capture());
+
+        String loginUrl = stringArgumentCaptor.getValue();
+
         assertThat(loginUrl).startsWith("http://sso.server.org/root?response_type=code&client_id=clientId&redirect_uri=http%3A%2F%2Fclient.app%2Fbase%2Foctopus%2Fsso%2FSSOCallback&scope=openid+octopus&");
         assertThat(loginUrl).contains("&state=");
         assertThat(loginUrl).contains("&nonce=");
+
     }
 
 }

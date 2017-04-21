@@ -45,6 +45,8 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
 
     private String loginURL;
 
+    private String partialLoginURL; // Partial in the sense that the openIdConnect query parameters aren't present.
+
     @Inject
     private OctopusSSOClientConfiguration octopusSSOClientConfiguration;
 
@@ -60,29 +62,9 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
 
     @Override
     public String getLoginUrl() {
-        // Since getLoginURL is called multiple times (isAccessAllowed) > optimize
         if (loginURL == null) {
-            String loginURLPartial = super.getLoginUrl();
-
-            OpenIdVariableClientData variableClientData = variableClientDataThreadLocal.get();
-
-            AuthenticationRequest req;
-            try {
-                URI callback = new URI(variableClientData.getRootURL() + "/octopus/sso/SSOCallback");
-                ClientID clientId = new ClientID(octopusSSOClientConfiguration.getSSOClientId());
-                req = new AuthenticationRequest(
-                        new URI(loginURLPartial),
-                        octopusSSOClientConfiguration.getSSOType().getResponseType(),
-                        Scope.parse("openid octopus " + octopusSSOClientConfiguration.getSSOScopes()),
-                        clientId,
-                        callback,
-                        variableClientData.getState(),
-                        variableClientData.getNonce());
-            } catch (URISyntaxException e) {
-                throw new OctopusUnexpectedException(e);
-            }
-
-            loginURL = loginURLPartial + '?' + req.toHTTPRequest().getQuery();
+            partialLoginURL = super.getLoginUrl();
+            loginURL = partialLoginURL;
         }
         return loginURL;
     }
@@ -110,5 +92,35 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
 
         variableClientDataThreadLocal.remove();  // To be on the safe side that the ThreadLocal is cleanup properly.
         // TODO When shiro integrated we probably don't need this anymore as we don't use the ThreadLocal anymore.
+    }
+
+    @Override
+    protected void redirectToLogin(ServletRequest req, ServletResponse res) throws IOException {
+        determineActualLoginURL();
+        super.redirectToLogin(req, res);
+        loginURL = partialLoginURL;
+    }
+
+    private void determineActualLoginURL() {
+        OpenIdVariableClientData variableClientData = variableClientDataThreadLocal.get();
+
+        AuthenticationRequest req;
+        try {
+            URI callback = new URI(variableClientData.getRootURL() + "/octopus/sso/SSOCallback");
+            ClientID clientId = new ClientID(octopusSSOClientConfiguration.getSSOClientId());
+            req = new AuthenticationRequest(
+                    new URI(partialLoginURL),
+                    octopusSSOClientConfiguration.getSSOType().getResponseType(),
+                    Scope.parse("openid octopus " + octopusSSOClientConfiguration.getSSOScopes()),
+                    clientId,
+                    callback,
+                    variableClientData.getState(),
+                    variableClientData.getNonce());
+        } catch (URISyntaxException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+
+        loginURL = partialLoginURL + '?' + req.toHTTPRequest().getQuery();
+
     }
 }
