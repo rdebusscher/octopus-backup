@@ -44,7 +44,7 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus.sso</groupId>
-            <artifactId>sso-core</artifactId>
+            <artifactId>octopus-sso-core</artifactId>
             <version>0.9.7-SNAPSHOT</version>
         </dependency>
 
@@ -101,13 +101,6 @@
             <scope>test</scope>
         </dependency>
 
-
-        <dependency>
-            <groupId>net.jadler</groupId>
-            <artifactId>jadler-all</artifactId>
-            <version>${jadler.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>

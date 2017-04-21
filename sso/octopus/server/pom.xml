@@ -36,7 +36,7 @@
     <dependencies>
         <dependency>
             <groupId>be.c4j.ee.security.octopus.sso</groupId>
-            <artifactId>sso-core</artifactId>
+            <artifactId>octopus-sso-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
