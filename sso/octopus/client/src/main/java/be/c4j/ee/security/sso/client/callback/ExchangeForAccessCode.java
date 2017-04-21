@@ -18,12 +18,11 @@ package be.c4j.ee.security.sso.client.callback;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.util.ByteUtils;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.oauth2.sdk.*;
@@ -48,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Set;
 
 /**
  *
@@ -65,23 +63,16 @@ public class ExchangeForAccessCode {
     private OctopusSSOClientConfiguration config;
 
     @Inject
+    private JWSAlgorithmFactory jwsAlgorithmFactory;
+
+    @Inject
     private CallbackErrorHandler callbackErrorHandler;
 
     private JWSAlgorithm algorithm;
 
     @PostConstruct
     public void init() {
-        Set<JWSAlgorithm> algorithms = MACSigner.getCompatibleAlgorithms(ByteUtils.bitLength(config.getSSOClientSecret()));
-
-        if (algorithms.contains(JWSAlgorithm.HS512)) {
-            algorithm = JWSAlgorithm.HS512;
-        }
-        if (algorithm == null && algorithms.contains(JWSAlgorithm.HS384)) {
-            algorithm = JWSAlgorithm.HS384;
-        }
-        if (algorithm == null && algorithms.contains(JWSAlgorithm.HS256)) {
-            algorithm = JWSAlgorithm.HS256;
-        }
+        algorithm = jwsAlgorithmFactory.determineOptimalAlgorithm(config.getSSOClientSecret());
     }
 
     public BearerAccessToken doExchange(HttpServletResponse httpServletResponse, OpenIdVariableClientData variableClientData, AuthorizationCode authorizationCode) {
@@ -112,7 +103,7 @@ public class ExchangeForAccessCode {
                 result = oidcTokens.getBearerAccessToken();
 
                 IDTokenClaimsVerifier claimsVerifier = new IDTokenClaimsVerifier(new Issuer(config.getOctopusSSOServer()), new ClientID(config.getSSOClientId()), variableClientData.getNonce(), 0);
-                claimsVerifier.verify(idToken.getJWTClaimsSet());
+                claimsVerifier.verify(idToken.getJWTClaimsSet(), null);
             } else {
                 TokenErrorResponse errorResponse = (TokenErrorResponse) tokenResponse;
                 callbackErrorHandler.showErrorMessage(httpServletResponse, errorResponse.getErrorObject());

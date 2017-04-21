@@ -16,6 +16,8 @@
 package be.c4j.ee.security.logout;
 
 import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.test.util.BeanManagerFake;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,8 +45,22 @@ public class LogoutHandlerTest {
     @InjectMocks
     private LogoutHandler logoutHandler;
 
+    private BeanManagerFake beanManagerFake = new BeanManagerFake();
+
+    @Mock
+    private LogoutURLProcessor logoutURLProcessorMock;
+
+    @After
+    public void teardown() {
+        beanManagerFake.deregistration();
+    }
+
     @Test
-    public void testGetLogoutPage() {
+    public void getLogoutPage() {
+
+        beanManagerFake.endRegistration();
+        logoutHandler.init();
+
         when(externalContextMock.getRequestContextPath()).thenReturn("/demo");
         when(octopusConfigMock.getLogoutPage()).thenReturn("/");
 
@@ -54,7 +70,10 @@ public class LogoutHandlerTest {
     }
 
     @Test
-    public void testGetLogoutPage_absolutePage() {
+    public void getLogoutPage_absolutePage() {
+        beanManagerFake.endRegistration();
+        logoutHandler.init();
+
         when(externalContextMock.getRequestContextPath()).thenReturn("/demo");
         String logoutPage = "http://domain.com/logout";
         when(octopusConfigMock.getLogoutPage()).thenReturn(logoutPage);
@@ -62,5 +81,23 @@ public class LogoutHandlerTest {
         String result = logoutHandler.getLogoutPage(externalContextMock);
 
         assertThat(result).isEqualTo(logoutPage);
+    }
+
+    @Test
+    public void getLogoutPage_withProcessor() {
+        beanManagerFake.registerBean(logoutURLProcessorMock, LogoutURLProcessor.class);
+        beanManagerFake.endRegistration();
+        logoutHandler.init();
+
+        when(externalContextMock.getRequestContextPath()).thenReturn("/demo");
+        String logoutPage = "http://domain.com/logout";
+        when(octopusConfigMock.getLogoutPage()).thenReturn(logoutPage);
+
+        String anotherPage = "http://domain.com/anotherPage";
+        when(logoutURLProcessorMock.postProcessLogoutUrl(logoutPage)).thenReturn(anotherPage);
+
+        String result = logoutHandler.getLogoutPage(externalContextMock);
+
+        assertThat(result).isEqualTo(anotherPage);
     }
 }

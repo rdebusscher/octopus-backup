@@ -17,10 +17,10 @@ package be.c4j.ee.security.sso.client.callback;
 
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.util.TimeUtil;
-import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -79,6 +79,9 @@ public class ExchangeForAccessCodeTest {
     @Mock
     private CallbackErrorHandler callbackErrorHandlerMock;
 
+    @Mock
+    private JWSAlgorithmFactory jwsAlgorithmFactoryMock;
+
     @InjectMocks
     private ExchangeForAccessCode exchangeForAccessCode;
 
@@ -96,39 +99,6 @@ public class ExchangeForAccessCodeTest {
         Jadler.closeJadler();
     }
 
-    @Test
-    public void init_secretShort() throws NoSuchFieldException, IllegalAccessException {
-
-        defineSecret(256 / 8 + 1);
-
-        exchangeForAccessCode.init();
-
-        JWSAlgorithm algorithm = ReflectionUtil.getFieldValue(exchangeForAccessCode, "algorithm");
-        assertThat(algorithm).isEqualTo(JWSAlgorithm.HS256);
-    }
-
-    @Test
-    public void init_secretMedium() throws NoSuchFieldException, IllegalAccessException {
-
-        defineSecret(384 / 8 + 1);
-
-        exchangeForAccessCode.init();
-
-        JWSAlgorithm algorithm = ReflectionUtil.getFieldValue(exchangeForAccessCode, "algorithm");
-        assertThat(algorithm).isEqualTo(JWSAlgorithm.HS384);
-    }
-
-    @Test
-    public void init_secretLong() throws NoSuchFieldException, IllegalAccessException {
-
-        defineSecret(512 / 8 + 1);
-
-        exchangeForAccessCode.init();
-
-        JWSAlgorithm algorithm = ReflectionUtil.getFieldValue(exchangeForAccessCode, "algorithm");
-        assertThat(algorithm).isEqualTo(JWSAlgorithm.HS512);
-    }
-
     private void defineSecret(int byteLength) {
         byte[] bytes = new byte[byteLength];
         SecureRandom secureRandom = new SecureRandom();
@@ -141,6 +111,7 @@ public class ExchangeForAccessCodeTest {
     @Test
     public void doExchange_happyCase() throws IOException, ParseException {
         defineSecret(256 / 8 + 1);
+        when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
         exchangeForAccessCode.init();
 
         when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
@@ -180,6 +151,7 @@ public class ExchangeForAccessCodeTest {
     @Test
     public void doExchange_clientAuthenticationJWTExpired() throws IOException, ParseException {
         defineSecret(256 / 8 + 1);
+        when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
         exchangeForAccessCode.init();
 
         when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
@@ -219,6 +191,7 @@ public class ExchangeForAccessCodeTest {
     @Test
     public void doExchange_errorResponse() throws IOException, ParseException {
         defineSecret(256 / 8 + 1);
+        when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
         exchangeForAccessCode.init();
 
         when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");

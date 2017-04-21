@@ -199,6 +199,7 @@ public class TokenServlet extends HttpServlet {
 
         if (oidcStoreData.getIdTokenClaimsSet() != null) {
             // FIXME Config
+            // FIXME We should also add the clientId to the token info, so that it can be used as id_token_hint for the logout request.
             PlainJWT plainJWT = new PlainJWT(oidcStoreData.getIdTokenClaimsSet().toJWTClaimsSet());
 
             OIDCTokens token = new OIDCTokens(plainJWT, oidcStoreData.getAccessToken(), null); // TODO refresh tokens

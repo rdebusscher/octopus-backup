@@ -25,6 +25,13 @@ import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.util.Base64;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,7 +78,19 @@ public class LogoutServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
-        String clientId = request.getParameter("client_id");
+        LogoutRequest logoutRequest;
+        try {
+            logoutRequest = LogoutRequest.parse(request.getQueryString());
+        } catch (ParseException e) {
+            // OWASP A6 : Sensitive Data Exposure
+            throw new OctopusUnexpectedException(e);
+            // TODO What should we return (check spec)
+        }
+
+        if (!validRequest((SignedJWT) logoutRequest.getIDTokenHint())) {
+            return; // Just ignore when an invalid requests comes in.
+        }
+        String clientId = getClientId(logoutRequest.getIDTokenHint());
 
         doSingleLogout(clientId);
 
@@ -85,10 +105,44 @@ public class LogoutServlet extends HttpServlet {
 
         SecurityUtils.getSubject().logout();
 
-        request.getSession().invalidate();  // TODO Verify if we need this. logout has done this already?
-
         showDebugInfo(octopusSSOUser);
 
+    }
+
+    private String getClientId(JWT idTokenHint) {
+        return idTokenHint.getHeader().getCustomParam("clientId").toString();
+    }
+
+    private boolean validRequest(SignedJWT idTokenHint) {
+        if (idTokenHint == null) {
+            return false;
+        }
+
+        try {
+            String clientId = idTokenHint.getHeader().getCustomParam("clientId").toString();
+            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientId);
+            if (clientInfo == null) {
+                return false;
+            }
+
+            byte[] clientSecret = new Base64(clientInfo.getClientSecret()).decode();
+            MACVerifier verifier = new MACVerifier(clientSecret);
+            if (!idTokenHint.verify(verifier)) {
+                return false;
+            }
+
+            if (!clientId.equals(idTokenHint.getJWTClaimsSet().getSubject())) {
+                return false;
+            }
+
+            return !idTokenHint.getJWTClaimsSet().getExpirationTime().before(new Date());
+        } catch (JOSEException e) {
+            // TODO Log this
+            return false;
+        } catch (java.text.ParseException e) {
+            // TODO Log this
+            return false;
+        }
     }
 
     private void doSingleLogout(String clientId) {
@@ -131,14 +185,14 @@ public class LogoutServlet extends HttpServlet {
 
     private String getLogoutURL(HttpServletRequest request) {
 
-        String rootUrl = getRootUrl(request);
+        String result;
         String logoutPage = jsfConfiguration.getLogoutPage();
         if (logoutPage.startsWith("/")) {
-            rootUrl += logoutPage;
+            result = getRootUrl(request) + logoutPage;
         } else {
-            rootUrl = logoutPage;
+            result = logoutPage;
         }
-        return rootUrl;
+        return result;
     }
 
     private String getRootUrl(HttpServletRequest request) {

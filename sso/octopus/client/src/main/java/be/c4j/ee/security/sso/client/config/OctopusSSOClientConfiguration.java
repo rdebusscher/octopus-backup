@@ -40,12 +40,14 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     }
 
+    // FIXME This is also defined in OctopusSEConfiguration and that one should be used !!
     public String getTokenEndpoint() {
 
         return getOctopusSSOServer() + "/octopus/sso/token";
 
     }
 
+    // FIXME This is also defined in OctopusSEConfiguration and used from there.
     public String getUserInfoEndpoint() {
 
         return getOctopusSSOServer() + "/data/octopus/sso/user";
@@ -56,7 +58,7 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     public String getLogoutPage() {
         if (logoutPage == null) {
 
-            logoutPage = getOctopusSSOServer() + "/octopus/sso/logout?client_id=" + getSSOClientId();
+            logoutPage = getOctopusSSOServer() + "/octopus/sso/logout";
         }
         return logoutPage;
     }

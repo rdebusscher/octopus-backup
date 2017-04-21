@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>5.24</version>
+            <version>${oauth2-oidc-sdk.version}</version>
         </dependency>
 
         <!-- test dependencies -->

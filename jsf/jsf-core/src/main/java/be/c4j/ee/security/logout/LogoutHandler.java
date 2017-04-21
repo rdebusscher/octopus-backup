@@ -16,10 +16,13 @@
 package be.c4j.ee.security.logout;
 
 import be.c4j.ee.security.config.OctopusJSFConfig;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.context.ExternalContext;
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  *
@@ -30,6 +33,13 @@ public class LogoutHandler {
     @Inject
     private OctopusJSFConfig octopusConfig;
 
+    private List<LogoutURLProcessor> logoutURLProcessors;
+
+    @PostConstruct
+    public void init() {
+        logoutURLProcessors = BeanProvider.getContextualReferences(LogoutURLProcessor.class, true);
+    }
+
     /* We can create overloaded methods with other types ike ServletRequest to find out at which URL we are running */
     public String getLogoutPage(ExternalContext externalContext) {
         String rootUrl = getRootUrl(externalContext);
@@ -38,6 +48,10 @@ public class LogoutHandler {
             rootUrl += logoutPage;
         } else {
             rootUrl = logoutPage;
+        }
+
+        for (LogoutURLProcessor processor : logoutURLProcessors) {
+            rootUrl = processor.postProcessLogoutUrl(rootUrl);
         }
         return rootUrl;
     }

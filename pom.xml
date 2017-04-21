@@ -87,7 +87,8 @@
         <primefaces.version>4.0</primefaces.version>  <!-- building the framework -->
         <primefaces.version.demo>5.0</primefaces.version.demo> <!-- used in de demos and examples -->
 
-        <nimbus-jose-jwt.version>4.34.2</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>4.36.1</nimbus-jose-jwt.version>
+        <oauth2-oidc-sdk.version>5.25</oauth2-oidc-sdk.version>
         <slf4j.version>1.7.7</slf4j.version>
 
         <jadler.version>1.3.0</jadler.version>
@@ -149,6 +150,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- test dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -171,9 +173,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.7</version>
+            <groupId>uk.org.lidalia</groupId>
+            <artifactId>slf4j-test</artifactId>
+            <version>1.2.0</version>
             <scope>test</scope>
         </dependency>
 
