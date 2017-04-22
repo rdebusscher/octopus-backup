@@ -31,7 +31,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.AmbiguousResolutionException;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.UnsatisfiedResolutionException;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
@@ -57,7 +56,12 @@ public class NamedRoleProducer {
     public GenericRoleVoter getVoter(InjectionPoint injectionPoint) {
         GenericRoleVoter result = null;
 
-        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedRoleCheckClass());
+        Annotation annotation = null;
+
+        Class<? extends Annotation> namedRoleCheckClass = config.getNamedRoleCheckClass();
+        if (namedRoleCheckClass != null) {
+            annotation = injectionPoint.getAnnotated().getAnnotation(namedRoleCheckClass);
+        }
 
         if (annotation != null) {
             NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
@@ -79,7 +83,10 @@ public class NamedRoleProducer {
                 }
 
 
-                NamedApplicationRole namedRole = lookup.getRole(roleNames[0]);
+                NamedApplicationRole namedRole = null;
+                if (lookup != null) {
+                    namedRole = lookup.getRole(roleNames[0]);
+                }
                 if (namedRole == null) {
                     namedRole = new NamedApplicationRole(roleNames[0]);
                 }
@@ -108,23 +115,49 @@ public class NamedRoleProducer {
 
     @Produces
     public NamedApplicationRole getRole(InjectionPoint injectionPoint) {
-        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedRoleCheckClass());
-        if (annotation == null) {
+        NamedApplicationRole result = null;
+
+        Annotation annotation = null;
+
+        Class<? extends Annotation> namedRoleCheckClass = config.getNamedRoleCheckClass();
+        if (namedRoleCheckClass != null) {
+            annotation = injectionPoint.getAnnotated().getAnnotation(namedRoleCheckClass);
+        }
+
+        if (annotation != null) {
+            NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
+            if (roles.length > 1) {
+                throw new AmbiguousResolutionException("Only one named role can be specified.");
+            }
+
+            // With getNamedRoleCheckClass defined, the roleLookup is also required
+            result = lookup.getRole(roles[0].name());
+
+        }
+
+        if (result == null) {
+            annotation = injectionPoint.getAnnotated().getAnnotation(OctopusRoles.class);
+            if (annotation != null) {
+                String[] roleNames = AnnotationUtil.getStringValues(annotation);
+                if (roleNames.length > 1) {
+                    throw new AmbiguousResolutionException("Only one role can be specified."); // FIXME Specify at which InjectionPoint
+                }
+
+                if (lookup != null) {
+                    result = lookup.getRole(roleNames[0]);
+                }
+                if (result == null) {
+                    result = new NamedApplicationRole(roleNames[0]);
+                }
+
+            }
+        }
+        if (result == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for NamedApplicationRole needs an additional " + config.getNamedRoleCheck() +
+                    "Injection points for NamedApplicationRole needs an additional " + getInjectPointAnnotationText() +
                             " annotation to determine the correct bean");
         }
-        NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
-        if (roles.length > 1) {
-            throw new AmbiguousResolutionException("Only one named role can be specified.");
-        }
-        NamedApplicationRole result;
 
-        if (lookup == null) {
-            result = new NamedApplicationRole(roles[0].name());
-        } else {
-            result = lookup.getRole(roles[0].name());
-        }
         return result;
 
     }

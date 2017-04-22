@@ -50,7 +50,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class NamedRoleProducerTest {
 
-    public static final String TEST_ROLE = "testROLE";
+    private static final String TEST_ROLE = "testROLE";
 
     @Mock
     private InjectionPoint injectionPointMock;
@@ -67,7 +67,6 @@ public class NamedRoleProducerTest {
     @Mock
     private VoterNameFactory voterNameFactoryMock;
 
-    // FIXME Another test class with no RoleLookup.
     @Mock
     private RoleLookup roleLookupMock;
 
@@ -76,6 +75,7 @@ public class NamedRoleProducerTest {
     private BeanManagerFake beanManagerFake;
 
     private GenericRoleVoter correctRoleVoter;
+    private NamedApplicationRole correctNamedRole;
 
     @InjectMocks
     private NamedRoleProducer producer;
@@ -87,6 +87,7 @@ public class NamedRoleProducerTest {
 
         beanManagerFake = new BeanManagerFake();
         correctRoleVoter = new GenericRoleVoter();
+        correctNamedRole = new NamedApplicationRole(TEST_ROLE);
     }
 
     private void registerOctopusConfig(Class<? extends Annotation> namedRoleCheckClass) throws IllegalAccessException {
@@ -202,6 +203,83 @@ public class NamedRoleProducerTest {
         when(octopusRolesMock.value()).thenReturn(new String[]{TEST_ROLE, "SecondPermission"});
 
         producer.getVoter(injectionPointMock);
+    }
+
+
+    @Test
+    public void getRole() throws IllegalAccessException {
+        registerOctopusConfig(TestRoleAnnotationCheck.class);
+        when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(testRoleAnnotationCheckMock);
+
+        when(testRoleAnnotationCheckMock.value()).thenReturn(new TestRoleAnnotation[]{TestRoleAnnotation.TEST});
+
+        beanManagerFake.endRegistration();
+
+        when(roleLookupMock.getRole(TestRoleAnnotation.TEST.name())).thenReturn(correctNamedRole);
+
+        NamedApplicationRole role = producer.getRole(injectionPointMock);
+
+        assertThat(role).isEqualTo(correctNamedRole);
+    }
+
+    @Test
+    public void getRole_WithNamedRole() throws IllegalAccessException {
+        registerOctopusConfig(null);
+        when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(octopusRolesMock);
+
+        when(octopusRolesMock.value()).thenReturn(new String[]{TestRoleAnnotation.TEST.name()});
+
+        beanManagerFake.endRegistration();
+
+        when(roleLookupMock.getRole(TestRoleAnnotation.TEST.name())).thenReturn(correctNamedRole);
+
+        NamedApplicationRole role = producer.getRole(injectionPointMock);
+
+        assertThat(role).isEqualTo(correctNamedRole);
+    }
+
+    @Test(expected = AmbiguousResolutionException.class)
+    public void getRole_multiple() throws IllegalAccessException {
+        registerOctopusConfig(TestRoleAnnotationCheck.class);
+        when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(testRoleAnnotationCheckMock);
+
+        when(testRoleAnnotationCheckMock.value()).thenReturn(new TestRoleAnnotation[]{TestRoleAnnotation.TEST, TestRoleAnnotation.SECOND});
+
+        beanManagerFake.endRegistration();
+
+        producer.getRole(injectionPointMock);
+    }
+
+    @Test(expected = UnsatisfiedResolutionException.class)
+    public void getRole_missingAnnotation() throws IllegalAccessException {
+        registerOctopusConfig(TestRoleAnnotationCheck.class);
+        when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(null);
+
+        beanManagerFake.endRegistration();
+
+        producer.getRole(injectionPointMock);
+    }
+
+    @Test(expected = AmbiguousResolutionException.class)
+    public void getRole_multiple_Named() throws IllegalAccessException {
+        registerOctopusConfig(null);
+        when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(octopusRolesMock);
+
+        when(octopusRolesMock.value()).thenReturn(new String[]{"a", "b"});
+
+        beanManagerFake.endRegistration();
+
+        producer.getRole(injectionPointMock);
+    }
+
+    @Test(expected = UnsatisfiedResolutionException.class)
+    public void getRole_missingAnnotation_named() throws IllegalAccessException {
+        registerOctopusConfig(null);
+        when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(null);
+
+        beanManagerFake.endRegistration();
+
+        producer.getRole(injectionPointMock);
     }
 
     private static class OctopusConfigMock extends OctopusConfig {

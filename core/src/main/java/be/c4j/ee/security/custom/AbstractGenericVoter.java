@@ -21,6 +21,7 @@ import be.c4j.ee.security.util.MethodParameterCheckUtil;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
+import org.apache.shiro.subject.Subject;
 
 import javax.inject.Inject;
 import javax.interceptor.InvocationContext;
@@ -40,6 +41,9 @@ public abstract class AbstractGenericVoter extends AbstractAccessDecisionVoter {
 
     @Inject
     protected UserPrincipal userPrincipal;
+
+    @Inject
+    protected Subject subject;
 
     protected void checkMethodHasParameterTypes(Set<SecurityViolation> violations, InvocationContext invocationContext, Class<?>... parameterTypes) {
         SecurityViolation violation = methodParameterCheckUtil.checkMethodHasParameterTypes(invocationContext, parameterTypes);
