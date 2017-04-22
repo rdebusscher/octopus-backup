@@ -17,7 +17,6 @@ package be.c4j.ee.security.producer;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
-import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.*;
 import be.c4j.ee.security.realm.OctopusPermissions;
 import be.c4j.ee.security.util.AnnotationUtil;
@@ -63,7 +62,7 @@ public class NamedPermissionProducer {
     public GenericPermissionVoter getVoter(InjectionPoint injectionPoint) {
         NamedPermission[] permissions = null;
 
-        GenericPermissionVoter voter = null;
+        GenericPermissionVoter result = null;
 
         if (config.getNamedPermissionCheckClass() != null) {
             Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedPermissionCheckClass());
@@ -72,11 +71,12 @@ public class NamedPermissionProducer {
                 if (permissions.length > 1) {
                     throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
                 }
-                voter = CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
+                result = CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
                         .generatePermissionBeanName(permissions[0].name()), GenericPermissionVoter.class);
             }
         }
-        if (permissions == null) {
+
+        if (result == null) {
             Annotation annotation = injectionPoint.getAnnotated().getAnnotation(OctopusPermissions.class);
             if (annotation != null) {
 
@@ -85,45 +85,68 @@ public class NamedPermissionProducer {
                     throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
                 }
 
+                // See remarks at init() about the usage of StringLookup, even if the developer hasn't defined one
                 NamedDomainPermission permission = stringLookup.getPermission(stringPermissions[0]);
 
                 // TODO CDI Bean is dependent, can we cache it here since it could be application scoped but then we can't change NamedDomainPermission
 
-                voter = GenericPermissionVoter.createInstance(permission);
+                result = GenericPermissionVoter.createInstance(permission);
             }
         }
 
-        if (permissions == null && voter == null) {
+        if (result == null) {
             throw new UnsatisfiedResolutionException(
                     "Injection points for GenericPermissionVoter needs an additional " + getInjectPointAnnotationText() +
                             " annotation to determine the correct bean"
             );
         }
 
-
-        return voter;
+        return result;
     }
 
     @Produces
     public NamedDomainPermission getPermission(InjectionPoint injectionPoint) {
-        Annotation annotation = injectionPoint.getAnnotated().getAnnotation(config.getNamedPermissionCheckClass());
-        if (annotation == null) {
+        Class<? extends Annotation> namedPermissionCheckClass = config.getNamedPermissionCheckClass();
+
+        NamedDomainPermission result = null;
+
+        if (namedPermissionCheckClass != null) {
+
+            Annotation annotation = injectionPoint.getAnnotated().getAnnotation(namedPermissionCheckClass);
+
+            if (annotation != null) {
+                NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
+                if (permissions.length > 1) {
+                    throw new AmbiguousResolutionException("Only one named permission can be specified.");
+                }
+
+                // When we have NamedPermissionCheckClass, lookup is required.
+                result = lookup.getPermission(permissions[0].name());
+            }
+        }
+
+        if (result == null) {
+            Annotation annotation = injectionPoint.getAnnotated().getAnnotation(OctopusPermissions.class);
+            if (annotation != null) {
+
+                String[] stringPermissions = AnnotationUtil.getStringValues(annotation);
+                if (stringPermissions.length > 1) {
+                    throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
+                }
+
+                // See remarks at init() about the usage of StringLookup, even if the developer hasn't defined one
+                result = stringLookup.getPermission(stringPermissions[0]);
+            }
+        }
+
+        if (result == null) {
             throw new UnsatisfiedResolutionException(
                     "Injection points for NamedDomainPermission needs an additional " + getInjectPointAnnotationText() +
                             " annotation to determine the correct bean"
             );
         }
-        NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
-        if (permissions.length > 1) {
-            throw new AmbiguousResolutionException("Only one named permission can be specified.");
-        }
 
-        if (lookup == null) {
-            throw new OctopusConfigurationException("A @Producer needs to be defined for PermissionLookup");
-        }
-
-        return lookup.getPermission(permissions[0].name());
-
+        return result;
     }
 
     private String getInjectPointAnnotationText() {
