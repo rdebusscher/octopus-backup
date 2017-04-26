@@ -21,6 +21,7 @@ import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 
 import javax.enterprise.context.Dependent;
 import java.io.Serializable;
@@ -59,6 +60,10 @@ public class OctopusSecurityContext implements Serializable {
             SecurityUtils.getSubject().login(new SystemAccountAuthenticationToken(accountPrincipal));
         }
 
+    }
+
+    public void releaseSubject() {
+        ThreadContext.unbindSubject();
     }
 
     public static boolean isSystemAccount(Object principal) {
