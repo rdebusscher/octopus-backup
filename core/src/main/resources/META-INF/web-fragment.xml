@@ -21,7 +21,7 @@
               xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd"
               id="WebFragment_ID" version="3.0">
-    <display-name>CTB Java EE Security</display-name>
+
     <name>CTB_Java_EE_Security</name>
     <listener>
         <!-- configuration of Shiro -->
