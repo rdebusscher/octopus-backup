@@ -18,6 +18,7 @@ package be.c4j.ee.security.interceptor.testclasses;
 import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
 import be.c4j.ee.security.realm.OctopusPermissions;
+import be.c4j.ee.security.realm.OctopusRoles;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
 import be.c4j.ee.security.systemaccount.SystemAccount;
@@ -44,6 +45,7 @@ public class MethodLevel {
     public static final String METHOD_LEVEL_SYSTEM_ACCOUNT2 = "MethodLevel#systemAccount2";
     public static final String METHOD_LEVEL_OCTOPUS_PERMISSION1 = "MethodLevel#octopusPermission1";
     public static final String METHOD_LEVEL_OCTOPUS_PERMISSION2 = "MethodLevel#octopusPermission2";
+    public static final String METHOD_LEVEL_OCTOPUS_ROLE = "MethodLevel#octopusRole";
 
     @PermitAll
     public void permitAll() {
@@ -111,8 +113,12 @@ public class MethodLevel {
 
     @OctopusPermissions("octopus:action:*")
     public void octopusPermission2() {
-        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION1);
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION2);
     }
 
+    @OctopusRoles("role1")
+    public void octopusRole() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_ROLE);
+    }
 }
 

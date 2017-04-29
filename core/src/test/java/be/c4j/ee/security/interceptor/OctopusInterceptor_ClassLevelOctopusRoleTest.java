@@ -16,9 +16,7 @@
 package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
-import be.c4j.ee.security.interceptor.testclasses.ClassLevelOctopusPermission;
 import be.c4j.ee.security.interceptor.testclasses.ClassLevelOctopusRole;
-import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookupFixture;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +30,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * FIXME Method level tests
+ *
  */
 @RunWith(Parameterized.class)
 public class OctopusInterceptor_ClassLevelOctopusRoleTest extends OctopusInterceptorTest {

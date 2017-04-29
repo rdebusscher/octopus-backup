@@ -17,6 +17,8 @@ package be.c4j.ee.security.interceptor.testclasses;
 
 import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
+import be.c4j.ee.security.realm.OctopusPermissions;
+import be.c4j.ee.security.realm.OctopusRoles;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
 import be.c4j.ee.security.systemaccount.SystemAccount;
@@ -41,6 +43,9 @@ public class MethodLevelOverride {
     public static final String METHOD_LEVEL_REQUIRES_PERMISSION1 = "MethodLevelOverride#requiresPermission1";
     public static final String METHOD_LEVEL_REQUIRES_PERMISSION2 = "MethodLevelOverride#requiresPermission2";
     public static final String METHOD_LEVEL_SYSTEM_ACCOUNT1 = "MethodLevel#systemAccount1";
+    public static final String METHOD_LEVEL_OCTOPUS_PERMISSION1 = "MethodLevel#octopusPermission1";
+    public static final String METHOD_LEVEL_OCTOPUS_PERMISSION2 = "MethodLevel#octopusPermission2";
+    public static final String METHOD_LEVEL_OCTOPUS_ROLE = "MethodLevel#octopusRole";
 
     public void noAnnotation() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_NO_ANNOTATION);
@@ -89,6 +94,21 @@ public class MethodLevelOverride {
     @SystemAccount("account1")
     public void systemAccountValue1() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_SYSTEM_ACCOUNT1);
+    }
+
+    @OctopusPermissions("permissionName")
+    public void octopusPermission1() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION1);
+    }
+
+    @OctopusPermissions("octopus:action:*")
+    public void octopusPermission2() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION2);
+    }
+
+    @OctopusRoles("role1")
+    public void octopusRole() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_ROLE);
     }
 
 }

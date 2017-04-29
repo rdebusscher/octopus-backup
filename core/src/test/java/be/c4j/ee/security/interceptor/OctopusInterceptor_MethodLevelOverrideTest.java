@@ -17,10 +17,12 @@ package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.interceptor.testclasses.MethodLevel;
 import be.c4j.ee.security.interceptor.testclasses.MethodLevelOverride;
 import be.c4j.ee.security.permission.GenericPermissionVoter;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.PermissionLookupFixture;
+import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.ee.security.twostep.TwoStepConfig;
 import be.c4j.test.util.ReflectionUtil;
@@ -368,6 +370,91 @@ public class OctopusInterceptor_MethodLevelOverrideTest extends OctopusIntercept
             assertThat(feedback).contains(MethodLevelOverride.METHOD_LEVEL_SYSTEM_ACCOUNT1);
 
             assertThat(systemAccount).isEqualTo(ACCOUNT1);
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusPermission1() throws Exception {
+
+        Object target = new MethodLevelOverride();
+        Method method = target.getClass().getMethod("octopusPermission1");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        List<NamedDomainPermission> allPermissions = new ArrayList<NamedDomainPermission>();
+        allPermissions.add(new NamedDomainPermission("permissionName", NAMED_OCTOPUS));
+        StringPermissionLookup lookup = new StringPermissionLookup(allPermissions);
+        beanManagerFake.registerBean(lookup, StringPermissionLookup.class);
+
+        finishCDISetup();
+
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_PERMISSION1);
+
+            assertThat(permission).isEqualTo(NAMED_OCTOPUS);
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusPermission2() throws Exception {
+
+        Object target = new MethodLevelOverride();
+        Method method = target.getClass().getMethod("octopusPermission2");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_PERMISSION2);
+
+            assertThat(permission).isEqualTo(OCTOPUS);
+
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusRole() throws Exception {
+
+        Object target = new MethodLevelOverride();
+        Method method = target.getClass().getMethod("octopusRole");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+        securityCheckOctopusRole.init();
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_ROLE);
+
+            assertThat(role).isEqualTo(ROLE1);
 
         } catch (OctopusUnauthorizedException e) {
 

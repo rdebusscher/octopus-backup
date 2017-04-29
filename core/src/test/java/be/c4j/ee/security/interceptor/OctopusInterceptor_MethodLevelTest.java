@@ -461,6 +461,39 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         try {
             octopusInterceptor.interceptShiroSecurity(context);
 
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_PERMISSION2);
+
+            assertThat(permission).isEqualTo(OCTOPUS);
+
+
+        } catch (OctopusUnauthorizedException e) {
+
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusRole() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("octopusRole");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+        securityCheckOctopusRole.init();
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_ROLE);
+
+            assertThat(role).isEqualTo(ROLE1);
+
 
         } catch (OctopusUnauthorizedException e) {
 
