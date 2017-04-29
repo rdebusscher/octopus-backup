@@ -42,6 +42,9 @@ public final class OctopusConstants {
     public static final String DOMAIN = "domain";
     public static final String OAUTH2_TOKEN = "OAuth2token";
 
+    public static final String OCTOPUS_AUTHENTICATED = "OctopusAuthenticated";
+    public static final String OCTOPUS_REFERER = "OctopusReferer";
+
     private OctopusConstants() {
     }
 }
