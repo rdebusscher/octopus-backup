@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.endpoint;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
@@ -69,6 +70,8 @@ import static com.nimbusds.openid.connect.sdk.claims.UserInfo.SUB_CLAIM_NAME;
 @Path("/octopus/sso")
 @Singleton
 public class OctopusSSOEndpoint {
+
+    private static final List<String> KEYS = Arrays.asList(OctopusConstants.EMAIL, OctopusConstants.TOKEN, "rememberMe");
 
     private Logger logger = LoggerFactory.getLogger(OctopusSSOEndpoint.class);
 
@@ -165,6 +168,25 @@ public class OctopusSSOEndpoint {
 
             endpointEncoding = UserEndpointEncoding.JWS;
         }
+
+        if (scope != null && scope.contains("email")) {
+
+            userInfo.setEmailAddress(ssoUser.getEmail());
+        }
+
+        if (scope != null && scope.contains("userinfo")) {
+
+
+            Map<String, Object> filteredInfo = new HashMap<String, Object>();
+            for (Map.Entry<String, Object> entry : ssoUser.getUserInfo().entrySet()) {
+                if (!KEYS.contains(entry.getKey())) {
+                    filteredInfo.put(entry.getKey(), entry.getValue());
+                }
+            }
+            userInfo.putAll(filteredInfo);
+        }
+
+        // TODO Extension so that we can handle custom scopes.
 
         Response.ResponseBuilder builder = Response.status(Response.Status.OK);
 

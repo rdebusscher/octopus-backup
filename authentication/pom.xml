@@ -41,6 +41,7 @@
         <module>OAuth2Google</module>
         <module>OAuth2Github</module>
         <module>OAuth2Linkedin</module>
+        <module>OAuth2Octopus</module>
         <module>casSE</module>
         <module>cas</module>
         <module>jwt</module>

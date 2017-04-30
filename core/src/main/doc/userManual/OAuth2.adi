@@ -21,6 +21,7 @@ But other providers are also supported, this table gives an overview of the prov
 |Google    |octopus-oauth2-google     |Google
 |GitHub    |octopus-oauth2-github  |Github
 |LinkedIn    |octopus-oauth2-linkedin    |Linkedin
+|Octopus    |octopus-oauth2-octopus    |Octopus
 |=======================
 
 And if you like, you can add multiple OAuth2 modules, so that the end user of your application can choose which provider he wants to use. See in the configuration, what you need to do in order to make this scenario work.
@@ -60,7 +61,7 @@ public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
 }
 ----
 
-Of course, you can do additional things here and also limit hwo can access your application.
+Of course, you can do additional things here and also limit who can access your application.
 
 In the case where you have build an application which should only be used by the employees of your company (which are using for example Google for work and thus have all a Google account) you can verify the email domain of the logged in user to check if the authenticated user belongs to your company (OAuth2User.getEmail() ).
 In the case the user isn't allowed access to your app, you can just return _null_ as the result of the getAuthenticationInfo() method.
@@ -80,6 +81,14 @@ For example, the next snippet shows the config to be able to read the Google+ in
 ----
 OAuth2.scopes=https://www.googleapis.com/auth/plus.circles.read
 ----
+
+The Octopus module has additional configration properties and possibilities.
+
+Since the Octopus SSO Server artifact can be used to create your own implementation of a compliant OAuth2/OpenIdConnect server, you need to specify the URL where the server is located which you want to use for authentication/Authoriazation. This is achieved with the _octopus.server_ configuration parameter.
+
+Within the Octopus Server, the developers have also defined the root for the JAX-RS endpoint containing the User endpoint. That value needs to be specifiued by the parameter _octopus.data.endpoint.root_.
+
+The Octopus server by default returns only the username and email address of the logged in user. There is a special scope supported, called _userinfo_, which returns alls the information specified by the developers withiun the userInfo map when they created the AuthenticationInfoBuilder. You can specify that the information must be returned by defining the _OAuth2.scopes_ parameter in the configuration with the value _userinfo_.
 
 ==== Using multiple providers
 

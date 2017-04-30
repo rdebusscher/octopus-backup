@@ -48,7 +48,10 @@ public class OctopusClientCredentialsSelector implements ClientCredentialsSelect
             throw InvalidClientException.BAD_ID;
         }
         ArrayList<Secret> result = new ArrayList<Secret>();
+        // For Octopus SSO, there the secret is a Base64 encoded array
         result.add(new Secret(new String(clientInfo.getClientSecretByte(), Charset.forName("UTF-8"))));
+        // For Octopus as OAuth2 (like Google) provider replacement. There It is the plain text
+        result.add(new Secret(clientInfo.getClientSecret()));
         return result;
 
     }

@@ -217,6 +217,18 @@ default : */login.xhtml*
 
 The page which is shown to the user when multiple OAuth2 providers are found on the classpath so that the user can choose which provider he wants to take.
 
+==== octopus.server (Octopus OAuth2 only)
+
+default : *(none)*
+
+Root of the Octopus OAuth2/openIdConnect deployment to use with the octopus-oauth2-octopus artifact. Like https://myserver/oidc
+
+==== octopus.data.endpoint.root (Octopus OAuth2 only)
+
+default : */data*
+
+Root of the Octopus OAuth2/openIdConnect Rest endpoints. Typical the value defined within the @ApplicationPath annotation. See also the section of Creation your custom OAuth2/OpenIdConnect server ???
+
 ==== keycloak.file (keycloak only)
 
 default : *(none)*
