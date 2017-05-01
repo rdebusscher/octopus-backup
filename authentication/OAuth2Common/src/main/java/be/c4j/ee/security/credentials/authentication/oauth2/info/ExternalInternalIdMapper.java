@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
-import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.event.LogonEvent;
 import be.c4j.ee.security.model.UserPrincipal;
 
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * FIXME Review usage.
  */
 @ApplicationScoped
 public class ExternalInternalIdMapper {
@@ -42,7 +42,7 @@ public class ExternalInternalIdMapper {
         Object primaryPrincipal = logonEvent.getInfo().getPrincipals().getPrimaryPrincipal();
         if (primaryPrincipal instanceof UserPrincipal) {
             UserPrincipal userPrincipal = (UserPrincipal) primaryPrincipal;
-            idMap.put(userPrincipal.getId().toString(), userPrincipal.getInfo().get(OAuth2User.LOCAL_ID));
+            idMap.put(userPrincipal.getId().toString(), userPrincipal.getInfo().get(OctopusConstants.LOCAL_ID));
         }
     }
 

@@ -26,8 +26,6 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
  */
 public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
-    public static final String LOCAL_ID = "localId";
-
     private String id;
     private String localId;
     private String userName;

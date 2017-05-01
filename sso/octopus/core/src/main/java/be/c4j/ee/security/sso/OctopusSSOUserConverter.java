@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
+import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 
 /**
  *
@@ -41,7 +42,7 @@ public class OctopusSSOUserConverter {
     @Inject
     private Logger logger;
 
-    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", OctopusSSOUser.LOCAL_ID, "userName", OctopusConstants.LAST_NAME, OctopusConstants.FIRST_NAME, OctopusConstants.FULL_NAME, OctopusConstants.EMAIL);
+    private static final List<String> DEFAULT_PROPERTY_NAMES = Arrays.asList("id", OctopusConstants.LOCAL_ID, "userName", OctopusConstants.LAST_NAME, OctopusConstants.FIRST_NAME, OctopusConstants.FULL_NAME, OctopusConstants.EMAIL);
 
     public UserInfo fromIdToken(JWTClaimsSet idTokenClaims) {
         return new UserInfo(idTokenClaims);
@@ -52,7 +53,7 @@ public class OctopusSSOUserConverter {
 
 
         result.put("id", ssoUser.getId());
-        result.put("localId", ssoUser.getLocalId());
+        result.put(LOCAL_ID, ssoUser.getLocalId());
 
         result.put(UserInfo.PREFERRED_USERNAME_CLAIM_NAME, ssoUser.getUserName());
 
@@ -82,7 +83,8 @@ public class OctopusSSOUserConverter {
     public OctopusSSOUser fromUserInfo(UserInfo userInfo, PrincipalUserInfoJSONProvider jsonProvider) {
         OctopusSSOUser result = new OctopusSSOUser();
         result.setId(userInfo.getStringClaim("id"));
-        result.setLocalId(userInfo.getStringClaim("localId"));
+        Object localIdClaim = userInfo.getClaim(LOCAL_ID);
+        result.setLocalId(localIdClaim == null ? null : localIdClaim.toString());  // Get String returns null for (short) numbers
         String username = userInfo.getPreferredUsername();
         // with resourceOwnerPasswordCredentials, username is in "sub"
         result.setUserName(username == null ? userInfo.getStringClaim("sub") : username);

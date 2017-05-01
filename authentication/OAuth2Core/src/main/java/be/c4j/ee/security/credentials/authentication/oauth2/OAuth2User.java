@@ -29,8 +29,6 @@ import java.util.Map;
  */
 public class OAuth2User extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
-    public static final String LOCAL_ID = "localId";
-
     public static final String OAUTH2_USER_INFO = "oAuth2UserInfo";
 
     private String id;

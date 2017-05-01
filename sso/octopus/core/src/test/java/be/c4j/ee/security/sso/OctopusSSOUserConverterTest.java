@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
+import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +81,7 @@ public class OctopusSSOUserConverterTest {
         Map<String, Object> claims = octopusSSOUserConverter.asClaims(ssoUser, jsonProviderMock);
 
         assertThat(claims).containsEntry("id", "IdValue");
-        assertThat(claims).containsEntry("localId", "LocalIdValue");
+        assertThat(claims).containsEntry(LOCAL_ID, "LocalIdValue");
 
         assertThat(claims).containsEntry(UserInfo.PREFERRED_USERNAME_CLAIM_NAME, "UserNameValue");
 
@@ -103,7 +104,7 @@ public class OctopusSSOUserConverterTest {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", "IdValue");
-        jsonObject.put("localId", "LocalIdValue");
+        jsonObject.put(LOCAL_ID, "LocalIdValue");
 
         jsonObject.put(UserInfo.PREFERRED_USERNAME_CLAIM_NAME, "UserNameValue");
 
@@ -155,7 +156,7 @@ public class OctopusSSOUserConverterTest {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", "IdValue");
-        jsonObject.put("localId", "LocalIdValue");
+        jsonObject.put(LOCAL_ID, "LocalIdValue");
 
         jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
         UserInfo userInfo = new UserInfo(jsonObject);

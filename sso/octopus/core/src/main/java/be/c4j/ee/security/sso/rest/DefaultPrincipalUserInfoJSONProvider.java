@@ -31,7 +31,7 @@ import java.util.Map;
 import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 
 /**
- *
+ * TODO, this doesn't support serialization of values in super classes.
  */
 @Vetoed
 public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJSONProvider {

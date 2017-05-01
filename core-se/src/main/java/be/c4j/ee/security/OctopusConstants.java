@@ -32,6 +32,8 @@ public final class OctopusConstants {
     public static final String FULL_NAME = "fullName";
     public static final String EMAIL = "email";
     public static final String EXTERNAL_ID = "externalId";
+    public static final String LOCAL_ID = "localId";  // TODO is there a difference and how correctly used (LocalId vs ExternalId)
+
 
     public static final String PICTURE = "picture";
     public static final String GENDER = "gender";

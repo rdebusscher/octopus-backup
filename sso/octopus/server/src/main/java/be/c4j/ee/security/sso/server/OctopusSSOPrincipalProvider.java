@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
@@ -38,7 +39,7 @@ public class OctopusSSOPrincipalProvider implements SSOPrincipalProvider {
 
         OctopusSSOUser ssoUser = new OctopusSSOUser();
 
-        Object localId = userPrincipal.getInfo().get(OctopusSSOUser.LOCAL_ID);
+        Object localId = userPrincipal.getInfo().get(OctopusConstants.LOCAL_ID);
         if (localId == null) {
             localId = userPrincipal.getId();
         }
