@@ -16,7 +16,6 @@
 package be.c4j.ee.security.credentials.authentication.oauth2.filter;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import be.c4j.ee.security.credentials.authentication.oauth2.application.ApplicationInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -100,20 +99,12 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
         }
 
         if (oauth2User == null) {
-            // FIXME Check Iof this status setting is required.
+            // FIXME Check If this status setting is required.
             ((HttpServletResponse) response).setStatus(401);
             return new IncorrectDataToken("Unable to create the Authentication token based on the request info");
         }
 
-        setApplication(oauth2User);
         return oauth2User;
-    }
-
-    private void setApplication(OAuth2User oAuth2User) {
-        ApplicationInfo applicationInfo = BeanProvider.getContextualReference(ApplicationInfo.class, true);
-        if (applicationInfo != null) {
-            oAuth2User.setApplicationName(applicationInfo.getName());
-        }
     }
 
     private void setCachedOAuth2User(String authToken, OAuth2User oauth2User) {

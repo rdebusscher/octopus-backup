@@ -40,11 +40,6 @@ public class OAuth2SessionAttributes {
         session.setAttribute(CSRF_TOKEN, token);
     }
 
-    public void setApplication(HttpServletRequest request, String applicationName) {
-        HttpSession session = request.getSession();
-        session.setAttribute(OAuth2Configuration.APPLICATION, applicationName);
-    }
-
     public OAuth20Service getOAuth2Service(HttpServletRequest request) {
         HttpSession session = request.getSession();
         return (OAuth20Service) session.getAttribute(OAUTH2_SERVICE);
@@ -53,11 +48,6 @@ public class OAuth2SessionAttributes {
     public String getCSRFToken(HttpServletRequest request) {
         HttpSession session = request.getSession();
         return (String) session.getAttribute(CSRF_TOKEN);
-    }
-
-    public String getApplication(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        return (String) session.getAttribute(OAuth2Configuration.APPLICATION);
     }
 
 }

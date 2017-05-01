@@ -30,7 +30,7 @@ public class SSOHelper {
     private static final String CLIENT_ID_LOGIN = "SSOClientIdLogin";
 
     public void markAsSSOLogin(HttpServletRequest httpServletRequest, String clientId) {
-        httpServletRequest.getSession().setAttribute("SSOClientIdLogin", clientId);
+        httpServletRequest.getSession().setAttribute(CLIENT_ID_LOGIN, clientId);
     }
 
     public String getSSOClientId(Subject subject) {

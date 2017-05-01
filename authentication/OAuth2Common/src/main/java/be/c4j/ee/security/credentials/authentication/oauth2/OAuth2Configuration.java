@@ -29,7 +29,6 @@ import javax.inject.Inject;
 @Specializes
 public class OAuth2Configuration extends OctopusJSFConfig {
 
-    public static final String APPLICATION = "application";
     public static final String USER = "user";  // For the fakeLogin
 
     @Inject

@@ -18,11 +18,9 @@ package be.c4j.ee.security.credentials.authentication.oauth2.servlet;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2SessionAttributes;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import be.c4j.ee.security.credentials.authentication.oauth2.application.CustomCallbackProvider;
 import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2InfoProvider;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.session.SessionUtil;
-import be.rubus.web.jerry.provider.BeanProvider;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
@@ -56,8 +54,6 @@ public abstract class OAuth2CallbackProcessor {
     @Inject
     private OAuth2SessionAttributes oAuth2SessionAttributes;
 
-    private CustomCallbackProvider customCallbackProvider;
-
     public abstract void processCallback(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
     protected boolean checkCSRFToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -78,7 +74,6 @@ public abstract class OAuth2CallbackProcessor {
 
     protected void doAuthenticate(HttpServletRequest request, HttpServletResponse response, OAuth2InfoProvider infoProvider) throws IOException {
         OAuth20Service service = oAuth2SessionAttributes.getOAuth2Service(request);
-        String applicationName = oAuth2SessionAttributes.getApplication(request);
 
         //Get the all important authorization code
         String code = request.getParameter(getAccessTokenParameterName());
@@ -99,25 +94,14 @@ public abstract class OAuth2CallbackProcessor {
             throw new OAuthException("Failed to retrieve information from the OAuth2 Authentication token");
         }
 
-        // FIXME Review next lines
-        oAuth2User.setApplicationName(applicationName);
-        customCallbackProvider = BeanProvider.getContextualReference(CustomCallbackProvider.class, true);
-        String callbackURL = null;
-        if (customCallbackProvider != null) {
-            callbackURL = customCallbackProvider.determineApplicationCallbackURL(applicationName);
-        }
         try {
 
             sessionUtil.invalidateCurrentSession(request);
 
             SecurityUtils.getSubject().login(oAuth2User);
-            if (callbackURL != null) {
-                response.sendRedirect(callbackURL + "?token=" + token.getAccessToken());
-
-            } else {
-                SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
-                response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
-            }
+            // TODO Here we had the custom CallbackURL when we had the applicationName. Test to see if it works now with SSO Server/Client
+            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
+            response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
         } catch (AuthenticationException e) {
             HttpSession sess = request.getSession();
             sess.setAttribute(OAuth2User.OAUTH2_USER_INFO, oAuth2User);

@@ -70,7 +70,6 @@ public class OAuth2Servlet extends HttpServlet {
 
         oAuth2SessionAttributes.setOAuth2Service(request, service);
         oAuth2SessionAttributes.setCSRFToken(request, token);
-        oAuth2SessionAttributes.setApplication(request, request.getParameter(OAuth2Configuration.APPLICATION));
 
         String authorizationUrl = service.getAuthorizationUrl();
         response.sendRedirect(postProcessAuthorizationUrl(request, authorizationUrl));

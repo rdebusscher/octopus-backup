@@ -59,8 +59,6 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
 
     private OAuth2AccessToken token;
 
-    private String applicationName;  // FIXME required?
-
     public String getId() {
         return id;
     }
@@ -169,14 +167,6 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
         this.token = token;
     }
 
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
     public Map<String, String> getInfo() {
         return info;
     }
@@ -217,7 +207,6 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", domain='").append(domain).append('\'');
         sb.append(", verifiedEmail=").append(verifiedEmail);
-        sb.append(", Octopus-app='").append(applicationName).append('\'');
         sb.append('}');
         return sb.toString();
     }
