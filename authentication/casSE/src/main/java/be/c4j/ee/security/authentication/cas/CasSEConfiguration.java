@@ -16,6 +16,7 @@
 package be.c4j.ee.security.authentication.cas;
 
 import be.c4j.ee.security.config.AbstractOctopusConfig;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 /**
@@ -34,9 +35,16 @@ public class CasSEConfiguration extends AbstractOctopusConfig {
         return ConfigResolver.getPropertyValue("SSO.server", "");
     }
 
-    public String getCASProtocol() {
-        // TODO Validate the contents
-        return ConfigResolver.getPropertyValue("CAS.protocol", "CAS"); // SAML should also be supported
+    public CASProtocol getCASProtocol() {
+
+        String casProtocol = ConfigResolver.getPropertyValue("CAS.protocol", "CAS");
+        // SAML should also be supported, but not tested for the moment.
+
+        CASProtocol result = CASProtocol.fromValue(casProtocol);
+        if (result == null) {
+            throw new OctopusConfigurationException(String.format("Invalid value for parameter CAS.protocol specified : %s (CAS or SMAL allowed)", casProtocol));
+        }
+        return result;
     }
 
     public String getCASService() {

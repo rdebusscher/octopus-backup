@@ -53,6 +53,30 @@
             <scope>runtime</scope>
         </dependency>
 
+
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>saml</id>
+            <properties>
+                <cas.client.version>3.4.1</cas.client.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jasig.cas.client</groupId>
+                    <artifactId>cas-client-support-saml</artifactId>
+                    <version>${cas.client.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.opensaml</groupId>
+                    <artifactId>opensaml</artifactId>
+                    <version>1.1</version>
+                </dependency>
+
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>

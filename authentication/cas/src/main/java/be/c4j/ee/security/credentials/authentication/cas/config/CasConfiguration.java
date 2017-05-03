@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas.config;
 
+import be.c4j.ee.security.authentication.cas.CASProtocol;
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
@@ -66,7 +67,7 @@ public class CasConfiguration extends OctopusJSFConfig {
     }
 
     @ConfigEntry
-    public String getCASProtocol() {
+    public CASProtocol getCASProtocol() {
         // Not used in this octopus module (but used from cas-se module) but here for the logging functionality
         return casSEConfiguration.getCASProtocol();
     }

@@ -16,8 +16,8 @@
 package be.c4j.ee.security.authentication.cas.info;
 
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
-import be.c4j.ee.security.authentication.credentials.cas.CasUser;
 import be.c4j.ee.security.authentication.cas.exception.CasAuthenticationException;
+import be.c4j.ee.security.authentication.credentials.cas.CasUser;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.*;
 import org.slf4j.Logger;
@@ -51,12 +51,18 @@ public class CasInfoProvider {
 
     private void init() {
         String urlPrefix = casConfiguration.getSSOServer();
-        if ("saml".equalsIgnoreCase(casConfiguration.getCASProtocol())) {
-            ticketValidator = new Saml11TicketValidator(urlPrefix);
-        } else {
 
-            ticketValidator = new Cas20ServiceTicketValidator(urlPrefix);
+        switch (casConfiguration.getCASProtocol()) {
+
+            case CAS:
+                ticketValidator = new Cas30ServiceTicketValidator(urlPrefix);
+                break;
+
+            case SAML:
+                ticketValidator = new Saml11TicketValidator(urlPrefix);
+                break;
         }
+
     }
 
     public CasUser retrieveUserInfo(String ticket) {

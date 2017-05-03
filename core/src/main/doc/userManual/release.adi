@@ -8,7 +8,7 @@
 . TwoStep authentication with support for SMS (Twilio) and TOTP.
 . Protection for Session fixation and hijacking.
 . Programmatic define permissions for URLs
-. Additional filter userRequired,  _rate_
+. Additional filter userRequired, _rate_
 . Initial support for java SE (CAS SE, Password Grant OAuth2/OpenId Connect, ...)
 . Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
 
@@ -19,6 +19,7 @@ Breaking changes
 . Removed artefact be.c4j.ee.security.octopus:octopus-sso-client. You should use the new SSO server and Client modules.
 . UserInfo keys are now Object and no longer Serializable. (AuthenticationInfoBuilder and UserPrincipal.userInfo for example)
 . Method OctopusSecurityContext.loginWithRedirect is moved to new OctopusJSFSecurityContext class.
+. CAS client is upgraded and support for SAML (with CAS server) is only available by adding org.jasig.cas.client:cas-client-support-saml
 
 === 0.9.6.4
 

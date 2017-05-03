@@ -16,10 +16,13 @@
 package be.c4j.demo.security.cas;
 
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
-import be.c4j.ee.security.authentication.credentials.cas.CasUser;
 import be.c4j.ee.security.authentication.cas.TicketRequestor;
 import be.c4j.ee.security.authentication.cas.info.CasInfoProvider;
+import be.c4j.ee.security.authentication.credentials.cas.CasUser;
 import org.apache.shiro.authc.UsernamePasswordToken;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  *
@@ -44,7 +47,12 @@ public class MainProgram {
 
         CasInfoProvider infoProvider = new CasInfoProvider(configuration);
         CasUser casUser = infoProvider.retrieveUserInfo(serviceTicket);
+
         System.out.println(casUser);
+        for (Map.Entry<Serializable, Serializable> entry : casUser.getUserInfo().entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+
     }
 
 

@@ -34,6 +34,9 @@
 
     <name>jasig/CAS integration for non Web based clients</name>
 
+    <properties>
+        <cas.client.version>3.4.1</cas.client.version>
+    </properties>
     <dependencies>
 
         <dependency>
@@ -43,15 +46,22 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jasig.cas</groupId>
+            <groupId>org.jasig.cas.client</groupId>
             <artifactId>cas-client-core</artifactId>
-            <version>3.1.10</version>
+            <version>${cas.client.version}</version>
             <exclusions> <!-- In conflict with Jadler Jetty instance-->
                 <exclusion>
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jasig.cas.client</groupId>
+            <artifactId>cas-client-support-saml</artifactId>
+            <version>${cas.client.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test dependencies-->
@@ -61,6 +71,13 @@
             <artifactId>octopus-core-se</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.deltaspike.core</groupId>
+            <artifactId>deltaspike-core-impl</artifactId>
+            <version>${deltaspike.version}</version>
             <scope>test</scope>
         </dependency>
 

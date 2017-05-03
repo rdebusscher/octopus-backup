@@ -96,6 +96,7 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
         return ConfigResolver.getPropertyValue("saltLength", "0");
     }
 
+    // TODO used on the OctopusUserFilter from the core, but basically only for JSF. So we should move OctopususerFilter to JSF Core?
     @ConfigEntry
     public String getPostIsAllowedSavedRequest() {
         return ConfigResolver.getPropertyValue("allowPostAsSavedRequest", "true");
