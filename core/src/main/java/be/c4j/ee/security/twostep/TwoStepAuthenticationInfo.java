@@ -15,8 +15,12 @@
  */
 package be.c4j.ee.security.twostep;
 
+import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+
+import static be.c4j.ee.security.realm.AuthenticationInfoBuilder.DEFAULT_REALM;
 
 /**
  *
@@ -24,10 +28,12 @@ import org.apache.shiro.subject.PrincipalCollection;
 public class TwoStepAuthenticationInfo implements AuthenticationInfo {
 
     private TwoStepCredentialsMatcher matcher;
+    private UserPrincipal userPrincipal;
 
 
-    public TwoStepAuthenticationInfo(TwoStepCredentialsMatcher matcher) {
+    public TwoStepAuthenticationInfo(TwoStepCredentialsMatcher matcher, UserPrincipal userPrincipal) {
         this.matcher = matcher;
+        this.userPrincipal = userPrincipal;
     }
 
     public TwoStepCredentialsMatcher getMatcher() {
@@ -36,7 +42,7 @@ public class TwoStepAuthenticationInfo implements AuthenticationInfo {
 
     @Override
     public PrincipalCollection getPrincipals() {
-        return null;
+        return new SimplePrincipalCollection(userPrincipal, DEFAULT_REALM);
     }
 
     @Override

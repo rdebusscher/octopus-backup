@@ -47,6 +47,6 @@ public class TOTPTwoStepProvider implements TwoStepProvider {
     @Override
     public TwoStepAuthenticationInfo defineAuthenticationInfo(AuthenticationToken token, UserPrincipal userPrincipal) {
         OTPUserData userData = userDataPersistence.retrieveData(userPrincipal);
-        return new TwoStepAuthenticationInfo(new TOTPCredentialsMatcher(handler, userData));
+        return new TwoStepAuthenticationInfo(new TOTPCredentialsMatcher(handler, userData), userPrincipal);
     }
 }

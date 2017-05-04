@@ -16,6 +16,7 @@
 package be.c4j.ee.security.session;
 
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.twostep.TwoStepSubject;
 import org.apache.shiro.SecurityUtils;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,6 +42,10 @@ public class SessionUtil {
             return;
         }
 
+        if (SecurityUtils.getSubject() instanceof TwoStepSubject) {
+            // Otherwise the principals are cleared from the current subject which isn't something we want :)
+            return;
+        }
         HttpSession session = request.getSession();
 
         HashMap<String, Object> content = new HashMap<String, Object>();

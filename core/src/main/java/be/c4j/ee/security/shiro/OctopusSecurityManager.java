@@ -117,7 +117,7 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
 
     protected Subject doCreateSubject(SubjectContext context) {
 
-        PrincipalCollection principals = getPrincipalCollection(context);
+        PrincipalCollection principals = context.resolvePrincipals();
 
         UserPrincipal userPrincipal = getUserPrincipal(principals);
 

@@ -124,7 +124,7 @@ public class OctopusRealm extends AuthorizingRealm {
         }
 
         // TODO Document this action
-        if (authenticationInfo != null) {
+        if (authenticationInfo != null && authenticationInfo.getPrincipals() != null) {
             Object principal = authenticationInfo.getPrincipals().getPrimaryPrincipal();
             if (principal instanceof UserPrincipal) {
                 UserPrincipal user = (UserPrincipal) principal;

@@ -70,7 +70,7 @@ public class TwilioTwoStepProvider implements TwoStepProvider {
     public TwoStepAuthenticationInfo defineAuthenticationInfo(AuthenticationToken token, UserPrincipal userPrincipal) {
         String value = otpValues.get(userPrincipal.getId());
         otpValues.remove(userPrincipal.getId()); // Make sure it can't be retrieved a second time!!
-        return new TwoStepAuthenticationInfo(new SimpleTwoStepMatcher(value));
+        return new TwoStepAuthenticationInfo(new SimpleTwoStepMatcher(value), userPrincipal);
     }
 
 }
