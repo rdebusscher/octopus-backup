@@ -17,7 +17,6 @@ package be.c4j.ee.security.authentication.credentials.cas;
 
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 
-import java.io.Serializable;
 import java.security.Principal;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class CasUser implements ValidatedAuthenticationToken, Principal {
     private String ticket;
     private String userName;
     private String email;
-    private Map<Serializable, Serializable> userInfo;
+    private Map<String, Object> userInfo;
 
     public CasUser(String ticket) {
         this.ticket = ticket;
@@ -57,11 +56,11 @@ public class CasUser implements ValidatedAuthenticationToken, Principal {
         this.email = email;
     }
 
-    public Map<Serializable, Serializable> getUserInfo() {
+    public Map<String, Object> getUserInfo() {
         return userInfo;
     }
 
-    public void setUserInfo(Map<Serializable, Serializable> userInfo) {
+    public void setUserInfo(Map<String, Object> userInfo) {
         this.userInfo = userInfo;
     }
 

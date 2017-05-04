@@ -81,7 +81,7 @@ public class CasInfoProvider {
 
             result.setEmail((String) attributes.get(casConfiguration.getCASEmailProperty()));
 
-            Map<Serializable, Serializable> info = new HashMap<Serializable, Serializable>();
+            Map<String, Object> info = new HashMap<String, Object>();
             for (Map.Entry<String, Object> entry : attributes.entrySet()) {
                 if (entry.getValue() instanceof Serializable) {
                     info.put(entry.getKey(), (Serializable) entry.getValue());
