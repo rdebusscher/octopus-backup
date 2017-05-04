@@ -22,6 +22,7 @@ import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeUserInfo;
 import be.c4j.ee.security.model.UserPrincipal;
 import com.github.scribejava.core.model.Token;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.shiro.authz.UnauthenticatedException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -33,6 +34,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Iterator;
 import java.util.List;
+
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 /**
  *
@@ -60,25 +64,29 @@ public class UserController {
     @Path("/info")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public OAuth2User getUserInfo(@HeaderParam("token") String token, @HeaderParam("provider") String provider, @Context HttpServletRequest req) {
+    public OAuth2User getUserInfo(@HeaderParam("token") String token, @HeaderParam("provider") String provider, @Context HttpServletRequest httpServletRequest) {
         if (token == null || token.isEmpty()) {
-            throw new WebApplicationException(Response.status(412).entity(new ErrorEntity("token is required")).build());
+            throw new WebApplicationException(Response.status(PRECONDITION_FAILED).entity(new ErrorEntity("token is required")).build());
         }
         if (provider == null || provider.isEmpty()) {
-            throw new WebApplicationException(Response.status(412).entity(new ErrorEntity("provider is required")).build());
+            throw new WebApplicationException(Response.status(PRECONDITION_FAILED).entity(new ErrorEntity("provider is required")).build());
         }
 
         OAuth2User result;
         if (token.startsWith("Fake")) {
             result = getUserInfoFake(token);
         } else {
-            result = getUserInfoStandard(token, provider, req);
+            result = getUserInfoStandard(token, provider, httpServletRequest);
         }
 
+        if (result == null) {
+            throw new WebApplicationException(Response.status(UNAUTHORIZED).entity(new ErrorEntity("Incorrect token")).build());
+        }
         RestOAuth2UserInfoProvider infoProvider = BeanProvider.getContextualReference(RestOAuth2UserInfoProvider.class, true);
         if (infoProvider != null) {
             result.setInfo(infoProvider.defineInfo(result));
         }
+
         return result;
     }
 
@@ -90,7 +98,7 @@ public class UserController {
         return result;
     }
 
-    private OAuth2User getUserInfoStandard(String token, String provider, HttpServletRequest req) {
+    private OAuth2User getUserInfoStandard(String token, String provider, HttpServletRequest httpServletRequest) {
         OAuth2User result = null;
         OAuth2InfoProvider infoProvider = null;
         Iterator<OAuth2ProviderMetaData> iterator = oAuth2ProviderMetaDataList.iterator();
@@ -103,7 +111,12 @@ public class UserController {
         if (infoProvider != null) {
             Token authToken = new Token(token, "", "Octopus");
 
-            result = infoProvider.retrieveUserInfo(authToken, req);
+            try {
+                result = infoProvider.retrieveUserInfo(authToken, httpServletRequest);
+            } catch (UnauthenticatedException e) {
+                // TODO Maybe not the best solution to handle an invalid token.
+                result = null;
+            }
             if (result != null) {
                 result.setLocalId(externalInternalIdMapper.getLocalId(result.getId()));
             }
