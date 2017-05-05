@@ -23,9 +23,6 @@ import java.lang.reflect.Field;
  */
 public final class ReflectionUtil {
 
-    private ReflectionUtil() {
-    }
-
     /**
      * Injects objects into the target (private) fields by matching the type.
      *
@@ -51,4 +48,41 @@ public final class ReflectionUtil {
             targetClass = targetClass.getSuperclass();
         }
     }
+
+    private static Field findInstanceField(Object target, String fieldName) throws NoSuchFieldException {
+        Class<?> targetClass = target.getClass();
+        return findFieldInHierarchy(targetClass, fieldName);
+    }
+
+    private static Field findFieldInHierarchy(Class<?> targetClass, String fieldName) throws NoSuchFieldException {
+        Field field = findField(targetClass, fieldName);
+        while (field == null && !Object.class.equals(targetClass)) {
+            targetClass = targetClass.getSuperclass();
+            field = findField(targetClass, fieldName);
+        }
+
+        if (field == null) {
+            throw new NoSuchFieldException("Field " + fieldName + " not found");
+        }
+        return field;
+    }
+
+    private static Field findField(Class<?> targetClass, String fieldName) {
+        Field result = null;
+        for (Field field : targetClass.getDeclaredFields()) {
+            if (fieldName.equals(field.getName())) {
+                result = field;
+            }
+        }
+        return result;
+    }
+
+    public static <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+
+        Field field = findInstanceField(target, fieldName);
+
+        field.setAccessible(true);
+        return (T) field.get(target);
+    }
+
 }

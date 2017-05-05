@@ -27,8 +27,10 @@ import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.util.CollectionUtils;
 import org.apache.shiro.web.config.IniFilterChainResolverFactory;
 import org.apache.shiro.web.env.IniWebEnvironment;
+import org.apache.shiro.web.filter.mgt.FilterChainResolver;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,4 +203,40 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         SecurityUtils.setSecurityManager(securityManager);
         return securityManager;
     }
+
+    @Override
+    protected void configure() {
+        // Copied From super class with : calling the  createOctopusFilterChainResolver
+        this.objects.clear();
+
+        WebSecurityManager securityManager = createWebSecurityManager();
+        setWebSecurityManager(securityManager);
+
+        FilterChainResolver resolver = createOctopusFilterChainResolver();
+        if (resolver != null) {
+            setFilterChainResolver(resolver);
+        }
+    }
+
+    private FilterChainResolver createOctopusFilterChainResolver() {
+
+        FilterChainResolver resolver = null;
+
+        Ini ini = getIni();
+
+        if (!CollectionUtils.isEmpty(ini)) {
+            //only create a resolver if the 'filters' or 'urls' sections are defined:
+            Ini.Section urls = ini.getSection(IniFilterChainResolverFactory.URLS);
+            Ini.Section filters = ini.getSection(IniFilterChainResolverFactory.FILTERS);
+            if (!CollectionUtils.isEmpty(urls) || !CollectionUtils.isEmpty(filters)) {
+                //either the urls section or the filters section was defined.  Go ahead and create the resolver:
+                IniFilterChainResolverFactory factory = new OctopusIniFilterChainResolverFactory(ini, this.objects);
+                resolver = factory.getInstance();
+            }
+        }
+
+        return resolver;
+    }
+
+
 }
