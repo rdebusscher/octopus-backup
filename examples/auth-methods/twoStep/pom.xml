@@ -53,7 +53,7 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus.two-step</groupId>
-            <artifactId>twilio</artifactId>
+            <artifactId>otp-sender</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

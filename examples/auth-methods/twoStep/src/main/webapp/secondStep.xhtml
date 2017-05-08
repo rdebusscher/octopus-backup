@@ -29,10 +29,10 @@
     <h:form id="frm">
         <h:panelGrid columns="2">
             <p:outputLabel for="password" value="Password:"/>
-            <p:password id="password" value="#{twilioBean.otpValue}" required="true" feedback=""/>
+            <p:password id="password" value="#{otpBean.otpValue}" required="true" feedback=""/>
 
             <h:panelGroup/>
-            <p:commandButton value="Process" actionListener="#{twilioBean.process}" update="@form" process="@form"/>
+            <p:commandButton value="Process" actionListener="#{otpBean.process}" update="@form" process="@form"/>
 
         </h:panelGrid>
         <p:messages/>

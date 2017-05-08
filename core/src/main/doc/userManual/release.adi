@@ -5,7 +5,7 @@
 . Principal and permission transfer within header to JAX-RS endpoint (Java EE 7 only) for Self Contained Systems support.
 . Octopus OAuth2 module (like Google, Twitter, ..) Java EE 6+.
 . Adding roles as groups of permissions concept and string based roles.
-. TwoStep authentication with support for SMS (Twilio) and TOTP.
+. TwoStep authentication with support for sending OTP value and TOTP (FreeOTP, Google Authenticator, ...).
 . Protection for Session fixation and hijacking.
 . Programmatic define permissions for URLs
 . Additional filter userRequired, _rate_

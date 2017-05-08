@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.twostep.twilio.view;
+package be.c4j.ee.security.twostep.otp.view;
 
 import be.c4j.ee.security.OctopusJSFSecurityContext;
-import be.c4j.ee.security.twostep.twilio.token.OTPToken;
+import be.c4j.ee.security.twostep.otp.token.OTPToken;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.ExternalContext;
@@ -30,8 +30,8 @@ import java.io.IOException;
  *
  */
 @RequestScoped
-@Named
-public class TwilioBean {
+@Named("otpBean")
+public class OTPBean {
 
     @Inject
     private OctopusJSFSecurityContext securityContext;

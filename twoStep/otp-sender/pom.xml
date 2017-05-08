@@ -29,10 +29,10 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.two-step</groupId>
-    <artifactId>twilio</artifactId>
+    <artifactId>otp-sender</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
-    <name>Twillio based 2 step(Factor) with SMS message</name>
+    <name>2 step(Factor) with sending value (SMS, ...)</name>
 
     <dependencies>
         <dependency>
@@ -47,13 +47,6 @@
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>octopus-jsf-core</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <!-- TODO Check in combination with Keycloak as we have then 2 different versions of com.fasterxml.jackson.core:jackson-core:jar -->
-            <groupId>com.twilio.sdk</groupId>
-            <artifactId>twilio-java-sdk</artifactId>
-            <version>(6.0,6.9)</version>
         </dependency>
 
         <dependency>

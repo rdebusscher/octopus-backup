@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.twostep.twilio;
+package be.c4j.ee.security.twostep.otp;
 
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
 import be.c4j.ee.security.twostep.TwoStepProvider;
-import be.c4j.ee.security.twostep.otp.OTPProvider;
-import be.c4j.ee.security.twostep.otp.OTPProviderFactory;
 import be.c4j.ee.security.twostep.otp.config.OTPConfig;
+import be.c4j.ee.security.twostep.otp.matcher.SimpleTwoStepMatcher;
 import be.c4j.ee.security.twostep.otp.persistence.OTPUserDataPersistence;
-import be.c4j.ee.security.twostep.twilio.matcher.SimpleTwoStepMatcher;
 import org.apache.shiro.authc.AuthenticationToken;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -36,7 +34,7 @@ import java.util.Map;
  *
  */
 @ApplicationScoped
-public class TwilioTwoStepProvider implements TwoStepProvider {
+public class OTPTwoStepProvider implements TwoStepProvider {
 
     @Inject
     private OTPProviderFactory otpProviderFactory;
@@ -45,7 +43,7 @@ public class TwilioTwoStepProvider implements TwoStepProvider {
     private OTPUserDataPersistence otpUserDataPersistence;
 
     @Inject
-    private SMSSender smsSender;
+    private OTPValueSender OTPValueSender;
 
     @Inject
     private OTPConfig otpConfig;
@@ -55,14 +53,10 @@ public class TwilioTwoStepProvider implements TwoStepProvider {
 
     @Override
     public void startSecondStep(HttpServletRequest request, UserPrincipal userPrincipal) {
-        String mobileNumber = userPrincipal.getMobileNumber();
-        if (mobileNumber == null || mobileNumber.isEmpty()) {
-            // FIXME
-        }
         OTPProvider provider = otpProviderFactory.retrieveOTPProvider();
 
         String otpValue = provider.generate(otpUserDataPersistence.retrieveData(userPrincipal));
-        smsSender.sendSMS(userPrincipal, otpValue);
+        OTPValueSender.sendValue(userPrincipal, otpValue);
         otpValues.put(userPrincipal.getId(), otpValue);
     }
 

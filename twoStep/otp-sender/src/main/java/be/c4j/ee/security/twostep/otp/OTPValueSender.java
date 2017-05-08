@@ -13,28 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.twostep.twilio.token;
+package be.c4j.ee.security.twostep.otp;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import be.c4j.ee.security.model.UserPrincipal;
 
 /**
  *
  */
-public class OTPToken implements AuthenticationToken {
+public interface OTPValueSender {
 
-    private String otpValue;
-
-    public OTPToken(String otpValue) {
-        this.otpValue = otpValue;
-    }
-
-    @Override
-    public Object getPrincipal() {
-        return null;
-    }
-
-    @Override
-    public Object getCredentials() {
-        return otpValue;
-    }
+    public void sendValue(UserPrincipal userPrincipal, String otpValue);
 }

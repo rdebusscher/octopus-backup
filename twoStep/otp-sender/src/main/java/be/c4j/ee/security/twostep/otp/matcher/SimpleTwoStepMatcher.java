@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.twostep.twilio;
+package be.c4j.ee.security.twostep.otp.matcher;
 
-import be.c4j.ee.security.model.UserPrincipal;
-
-import javax.enterprise.context.ApplicationScoped;
+import be.c4j.ee.security.twostep.TwoStepCredentialsMatcher;
 
 /**
  *
  */
-@ApplicationScoped
-public class SMSSender {
+public class SimpleTwoStepMatcher implements TwoStepCredentialsMatcher {
 
-    public void sendSMS(UserPrincipal userPrincipal, String otpValue) {
-        // FIXME
-        System.out.println(otpValue);
+    private Object expected;
+
+    public SimpleTwoStepMatcher(Object expected) {
+        this.expected = expected;
+    }
+
+    @Override
+    public boolean doTwoStepCredentialsMatch(Object twoStepCredentials) {
+        return expected.equals(twoStepCredentials);
     }
 }
