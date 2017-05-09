@@ -91,6 +91,7 @@ public class OctopusDelegatingSubject extends WebDelegatingSubject {
 
     }
 
+    // The following 2 methods are alos copied since they have private signature
     private void clearRunAsIdentitiesInternal() {
         //try/catch added for SHIRO-298
         try {

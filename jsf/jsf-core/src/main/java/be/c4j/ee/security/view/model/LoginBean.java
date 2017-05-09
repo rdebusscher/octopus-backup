@@ -17,6 +17,7 @@ package be.c4j.ee.security.view.model;
 
 import be.c4j.ee.security.OctopusJSFSecurityContext;
 import be.c4j.ee.security.messages.FacesMessages;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -44,6 +45,7 @@ public class LoginBean {
     private FacesMessages facesMessages;
 
     public void doLogin() throws IOException {
+        SecurityUtils.getSubject().logout();  // Before we log in, make sure that we logout first the other user/subject
         try {
             ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 

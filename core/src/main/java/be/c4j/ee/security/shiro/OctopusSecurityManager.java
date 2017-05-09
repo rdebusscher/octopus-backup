@@ -20,6 +20,7 @@ import be.c4j.ee.security.event.RememberMeLogonEvent;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
+import be.c4j.ee.security.twostep.TwoStepSubject;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
@@ -162,6 +163,16 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
         }
         super.onSuccessfulLogin(token, info, subject); // FIXME Convert the rememberMe to AfterSuccessfulLoginHandler
 
+    }
+
+    @Override
+    protected void onFailedLogin(AuthenticationToken token, AuthenticationException ae, Subject subject) {
+        super.onFailedLogin(token, ae, subject);  // Do the default stuff (with the rememberme manager
+        if (subject instanceof TwoStepSubject) {
+            // There is a failure in the validation of the OTP token
+            // log the user out since authentication as a whole failed.
+            subject.logout();
+        }
     }
 
     @Override
