@@ -19,7 +19,6 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
-import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -33,6 +32,7 @@ import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -49,17 +49,15 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
     private Logger logger = LoggerFactory.getLogger(SSOAuthenticatingFilter.class);
 
-    private SSODataEncryptionHandler encryptionHandler;
-
+    @Inject
     private SSOTokenStore tokenStore;
 
+    @Inject
     private OctopusConfig octopusConfig;
 
     @Override
     public void init() throws ShiroException {
-        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
-        tokenStore = BeanProvider.getContextualReference(SSOTokenStore.class);
-        octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
+        BeanProvider.injectFields(this);
     }
 
     @Override
@@ -73,11 +71,6 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
     private AuthenticationToken createSSOUser(ServletRequest request, String apiKey, String token) {
 
-        // FIXME the IncorrectDataToken does not result in a correct Error response
-        if (encryptionHandler != null && encryptionHandler.requiresApiKey() && apiKey == null) {
-            // x-api-key header parameter is required.
-            return new IncorrectDataToken("x-api-key header required");
-        }
         if (token == null) {
             // Authorization header parameter is required.
             return new IncorrectDataToken("Authorization header required");
@@ -110,15 +103,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             accessToken = token;
 
         } else {
-            if (encryptionHandler != null) {
-                if (encryptionHandler.validate(apiKey, token)) {
-                    accessToken = encryptionHandler.decryptData(token, apiKey);
-                    user = tokenStore.getUserByAccessCode(accessToken);
-                } else {
-                    logger.info("JWT Token is not valid " + token);
-                    return null;
-                }
-            }
+           // FIXME Support RSA keys !!
         }
 
         if (user == null) {

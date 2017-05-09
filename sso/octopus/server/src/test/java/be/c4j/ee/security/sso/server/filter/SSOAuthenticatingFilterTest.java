@@ -18,7 +18,6 @@ package be.c4j.ee.security.sso.server.filter;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.OctopusSSOUser;
-import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -58,9 +57,6 @@ public class SSOAuthenticatingFilterTest {
     private HttpServletResponse httpServletResponseMock;
 
     @Mock
-    private SSODataEncryptionHandler ssoDataEncryptionHandlerMock;
-
-    @Mock
     private SSOTokenStore tokenStore;
 
     @Mock
@@ -90,8 +86,6 @@ public class SSOAuthenticatingFilterTest {
 
     @Test
     public void createToken_missingAuthenticationHeader() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
-
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
         assertThat(token).isInstanceOf(IncorrectDataToken.class);
@@ -100,19 +94,7 @@ public class SSOAuthenticatingFilterTest {
     }
 
     @Test
-    public void createToken_missingXApiKey() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.TRUE);
-
-        AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
-
-        assertThat(token).isInstanceOf(IncorrectDataToken.class);
-        IncorrectDataToken incorrect = (IncorrectDataToken) token;
-        assertThat(incorrect.toString()).containsOnlyOnce("x-api-key header required");
-    }
-
-    @Test
     public void createToken_IncorrectAuthorizationHeader() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("JUnit");
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
@@ -124,7 +106,6 @@ public class SSOAuthenticatingFilterTest {
 
     @Test
     public void createToken_IncorrectAuthorizationHeader2() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Part1 Part2");
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
@@ -136,9 +117,7 @@ public class SSOAuthenticatingFilterTest {
 
     @Test
     public void createToken_tokenInvalid() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer token");
-        when(ssoDataEncryptionHandlerMock.validate(null, "token")).thenReturn(false);
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
@@ -149,10 +128,7 @@ public class SSOAuthenticatingFilterTest {
 
     @Test
     public void createToken_realTokenNotActive() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer token");
-        when(ssoDataEncryptionHandlerMock.validate(null, "token")).thenReturn(true);
-        when(ssoDataEncryptionHandlerMock.decryptData("token", null)).thenReturn(null);
 
         AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
@@ -163,7 +139,6 @@ public class SSOAuthenticatingFilterTest {
 
     @Test
     public void createToken() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer realToken");
 
         OctopusSSOUser user = new OctopusSSOUser();
@@ -180,27 +155,6 @@ public class SSOAuthenticatingFilterTest {
         assertThat(token).isSameAs(user);
 
         verify(httpServletRequestMock).setAttribute(Scope.class.getName(), scope);
-    }
-
-    @Test
-    public void createToken_EncryptionHandler() throws Exception {
-        when(ssoDataEncryptionHandlerMock.requiresApiKey()).thenReturn(Boolean.FALSE);
-        when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer token");
-        when(ssoDataEncryptionHandlerMock.validate(null, "token")).thenReturn(true);
-        when(ssoDataEncryptionHandlerMock.decryptData("token", null)).thenReturn(ACCESS_TOKEN);
-
-        OctopusSSOUser user = new OctopusSSOUser();
-
-        when(tokenStore.getUserByAccessCode(ACCESS_TOKEN)).thenReturn(user);
-        OIDCStoreData oidcData = new OIDCStoreData(new BearerAccessToken(ACCESS_TOKEN));
-        Scope scope = Scope.parse("openid octopus");
-        oidcData.setScope(scope);
-        when(tokenStore.getOIDCDataByAccessToken(ACCESS_TOKEN)).thenReturn(oidcData);
-
-        AuthenticationToken token = ssoAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
-
-        assertThat(token).isNotExactlyInstanceOf(IncorrectDataToken.class);
-        assertThat(token).isSameAs(user);
     }
 
 }

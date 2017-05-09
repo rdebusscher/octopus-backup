@@ -22,7 +22,6 @@ import be.c4j.ee.security.session.ApplicationUsageController;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
-import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,15 +51,6 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
     @Inject
     private ApplicationUsageController applicationUsageController;
 
-    private SSODataEncryptionHandler encryptionHandler;
-
-    @Override
-    public void init() throws ServletException {
-
-        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
-
-    }
-
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
@@ -87,11 +77,6 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
         String token = req.getParameter("access_token");
 
         String realToken = token;
-        if (ssoType == SSOFlow.IMPLICIT && encryptionHandler != null) {
-
-            realToken = encryptionHandler.decryptData(token, null);
-
-        }
         return realToken;
     }
 

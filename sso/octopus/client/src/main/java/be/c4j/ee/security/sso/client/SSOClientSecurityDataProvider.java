@@ -27,7 +27,6 @@ import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
-import be.c4j.ee.security.sso.encryption.SSODataEncryptionHandler;
 import be.c4j.ee.security.sso.realm.SSOAuthenticationInfoBuilder;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -56,15 +55,10 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
     @Inject
     private OctopusConfig octopusConfig;
 
-    private SSODataEncryptionHandler encryptionHandler;
-
     private PermissionRequestor permissionRequestor;
 
     @PostConstruct
     public void init() throws ServletException {
-        // FIXME Fix usage, is now broken
-        encryptionHandler = BeanProvider.getContextualReference(SSODataEncryptionHandler.class, true);
-
         ClientCustomization clientCustomization = BeanProvider.getContextualReference(ClientCustomization.class, true);
         if (clientCustomization == null) {
             permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), null, null);
