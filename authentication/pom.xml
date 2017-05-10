@@ -32,7 +32,7 @@
     <artifactId>authentication</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
-    <name>Authentication</name>
+    <name>Authentication Modules</name>
 
     <modules>
         <module>oracle</module>
@@ -45,9 +45,9 @@
         <module>casSE</module>
         <module>cas</module>
         <module>jwt</module>
-        <module>jwt-user-common</module>
-        <module>jwt-user-client</module>
-        <module>jwt-user-server</module>
+        <module>jwt-scs-common</module>
+        <module>jwt-scs-client</module>
+        <module>jwt-scs-server</module>
         <module>keycloakSE</module>
         <module>keycloak</module>
         <module>octopusSE</module>

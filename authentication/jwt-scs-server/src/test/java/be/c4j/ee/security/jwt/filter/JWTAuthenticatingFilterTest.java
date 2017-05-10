@@ -470,7 +470,7 @@ public class JWTAuthenticatingFilterTest {
         jwtAuthenticatingFilter.cleanup(httpServletRequestMock, httpServletResponseMock, exception);
 
         verify(printWriterMock).append(responseOutputCaptor.capture());
-        assertThat(responseOutputCaptor.getValue()).isEqualTo("{\"code\":\"OCT-JWT-USER-001\", \"message\":\"Octopus Configuration exception: Something went wrong\"}");
+        assertThat(responseOutputCaptor.getValue()).isEqualTo("{\"code\":\"OCT-JWT-SCS-001\", \"message\":\"Octopus Configuration exception: Something went wrong\"}");
     }
 
     @Test
@@ -481,7 +481,7 @@ public class JWTAuthenticatingFilterTest {
         jwtAuthenticatingFilter.cleanup(httpServletRequestMock, httpServletResponseMock, exception);
 
         verify(printWriterMock).append(responseOutputCaptor.capture());
-        assertThat(responseOutputCaptor.getValue()).isEqualTo("{\"code\":\"OCT-JWT-USER-011\", \"message\":\"Denied access\"}");
+        assertThat(responseOutputCaptor.getValue()).isEqualTo("{\"code\":\"OCT-JWT-SCS-011\", \"message\":\"Denied access\"}");
 
     }
 }

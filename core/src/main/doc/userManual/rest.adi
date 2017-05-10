@@ -30,7 +30,7 @@ Add following dependency to the pom file (amongst the other dependencies)
 ----
     <dependency>
         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-        <artifactId>jwt-user-server</artifactId>
+        <artifactId>jwt-scs-server</artifactId>
         <version>${octopus.version}</version>
     </dependency>
 ----
@@ -158,7 +158,7 @@ Add following dependency to the pom file (amongst the other dependencies)
 ----
     <dependency>
         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-        <artifactId>jwt-user-client</artifactId>
+        <artifactId>jwt-scs-client</artifactId>
         <version>${octopus.version}</version>
     </dependency>
 ----

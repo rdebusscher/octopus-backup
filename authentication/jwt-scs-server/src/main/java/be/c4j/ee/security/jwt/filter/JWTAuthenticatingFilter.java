@@ -315,7 +315,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         Exception exception = existing;
         if (exception instanceof AuthenticationException) {
             try {
-                ErrorInfo errorInfo = new ErrorInfo("OCT-JWT-USER-001", exception.getMessage());
+                ErrorInfo errorInfo = new ErrorInfo("OCT-JWT-SCS-001", exception.getMessage());
                 sendErrorInfo((HttpServletResponse) response, errorInfo);
                 exception = null;
             } catch (Exception e) {
@@ -325,7 +325,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
         OctopusUnauthorizedException unauthorizedException = findOctopusUnauthorizedException(exception);
         if (unauthorizedException != null) {
-            ErrorInfo errorInfo = new ErrorInfo("OCT-JWT-USER-011", unauthorizedException.getMessage());
+            ErrorInfo errorInfo = new ErrorInfo("OCT-JWT-SCS-011", unauthorizedException.getMessage());
             sendErrorInfo((HttpServletResponse) response, errorInfo);
             exception = null;
 

@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-    <artifactId>jwt-user-client</artifactId>
+    <artifactId>jwt-scs-client</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
     <name>Creates the JWT token with all the Authentication and Authorization info</name>
@@ -45,7 +45,7 @@
 
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-            <artifactId>jwt-user-common</artifactId>
+            <artifactId>jwt-scs-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

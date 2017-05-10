@@ -29,10 +29,10 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-    <artifactId>jwt-user-common</artifactId>
+    <artifactId>jwt-scs-common</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
-    <name>Common code for JWT User server and User Client modules</name>
+    <name>Common code for JWT SCS server and SCS Client modules</name>
 
     <dependencies>
 
