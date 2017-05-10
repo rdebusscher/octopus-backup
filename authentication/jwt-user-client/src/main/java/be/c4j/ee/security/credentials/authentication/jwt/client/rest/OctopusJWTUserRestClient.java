@@ -35,13 +35,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
 
 /**
  *
  */
 @ApplicationScoped
-public class OctopusJWTRestClient {
-
+public class OctopusJWTUserRestClient {
 
     @Inject
     private JWTUserToken jwtUserToken;
@@ -78,7 +78,7 @@ public class OctopusJWTRestClient {
 
     public void addAuthenticationHeader(Invocation.Builder builder, String apiKey, JWTClaimsProvider jwtClaimsProvider) {
         builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader(apiKey, jwtClaimsProvider));
-        builder.header("x-api-key", apiKey);
+        builder.header(X_API_KEY, apiKey);
     }
 
     private String getAuthenticationHeader(String apiKey, JWTClaimsProvider jwtClaimsProvider) {
@@ -94,6 +94,7 @@ public class OctopusJWTRestClient {
     }
 
     public <T> T get(String url, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
+        // FIXME Use URLArguments
         Invocation.Builder builder = client.target(url).request();
 
         addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);

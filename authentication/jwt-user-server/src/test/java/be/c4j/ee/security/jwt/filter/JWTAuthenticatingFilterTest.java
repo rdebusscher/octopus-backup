@@ -18,11 +18,13 @@ package be.c4j.ee.security.jwt.filter;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.JWTClaimsHandler;
 import be.c4j.ee.security.jwt.JWTUser;
 import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
 import be.c4j.ee.security.util.SecretUtil;
@@ -86,6 +88,12 @@ public class JWTAuthenticatingFilterTest {
     private JWTClaimsHandler jwtClaimsHandlerMock;
 
     @Mock
+    private JWKManager jwkManagerMock;
+
+    @Mock
+    private MappingSystemAccountToApiKey mappingSystemAccountToApiKeyMock;
+
+    @Mock
     private PrintWriter printWriterMock;
 
     @Captor
@@ -133,7 +141,19 @@ public class JWTAuthenticatingFilterTest {
 
     @Test(expected = AuthenticationException.class)
     public void createToken_WrongToken() throws Exception {
-        ReflectionUtil.injectDependencies(jwtAuthenticatingFilter, JWTOperation.JWT);
+
+        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
+
+        beanManagerFake.endRegistration();
+
+        String secret = secretUtil.generateSecretBase64(32);
+        when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
+        when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
+
+        jwtAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer wrong");
         jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
@@ -145,20 +165,28 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
-        when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secretUtil.generateSecretBase64(16));
+        String secret = secretUtil.generateSecretBase64(16);
+        when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
         jwtAuthenticatingFilter.init();
+
+        when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer XXXX"); // We should never come to the check of the token
+        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test
     public void createToken_happyCase() throws Exception {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -187,6 +215,8 @@ public class JWTAuthenticatingFilterTest {
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwtClaimsHandlerMock, JWTClaimsHandler.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -210,6 +240,8 @@ public class JWTAuthenticatingFilterTest {
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwtClaimsHandlerMock, JWTClaimsHandler.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -245,6 +277,8 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -276,6 +310,8 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -299,6 +335,8 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -330,6 +368,8 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 
@@ -404,6 +444,8 @@ public class JWTAuthenticatingFilterTest {
 
         beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
+        beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
+        beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
 
         beanManagerFake.endRegistration();
 

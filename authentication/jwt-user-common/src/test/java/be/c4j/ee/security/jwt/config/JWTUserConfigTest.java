@@ -17,6 +17,7 @@ package be.c4j.ee.security.jwt.config;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.test.TestConfigSource;
+import be.c4j.test.util.ReflectionUtil;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.junit.After;
 import org.junit.Test;
@@ -153,6 +154,28 @@ public class JWTUserConfigTest {
     }
 
     @Test
+    public void getJWTOperation_Initialized() throws NoSuchFieldException, IllegalAccessException {
+        // Check that initialization is only done once
+        Map<String, String> values = new HashMap<String, String>();
+        values.put("jwt.algorithms", "HS256");
+        TestConfigSource.defineConfigValue(values);
+        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
+
+        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        assertThat(jwtSignature).isEqualTo(JWTSignature.HS256);
+
+        ReflectionUtil.setFieldValue(jwtUserConfig, "jwtSignature", null);
+
+        jwtOperation = jwtUserConfig.getJWTOperation();
+        assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
+
+        jwtSignature = jwtUserConfig.getJwtSignature();
+        assertThat(jwtSignature).isNull();  // Not recalculated by getJWTOperation() a second time
+
+    }
+
+    @Test
     public void getHMACTokenSecret() {
         Map<String, String> values = new HashMap<String, String>();
         values.put("jwt.hmac.secret", "secret");
@@ -165,6 +188,37 @@ public class JWTUserConfigTest {
     @Test(expected = OctopusConfigurationException.class)
     public void getHMACTokenSecret_MissingValue() {
         jwtUserConfig.getHMACTokenSecret();
+    }
+
+    @Test
+    public void getSystemAccountsMapFile() {
+        Map<String, String> values = new HashMap<String, String>();
+        values.put("jwt.systemaccounts.map", "mapping.properties");
+        values.put("jwk.file", "keys.jwk");
+        TestConfigSource.defineConfigValue(values);
+
+        String accountsMapFile = jwtUserConfig.getSystemAccountsMapFile();
+        assertThat(accountsMapFile).isEqualTo("mapping.properties");
+    }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void getSystemAccountsMapFile_missingParameter() {
+        Map<String, String> values = new HashMap<String, String>();
+        values.put("jwk.file", "keys.jwk");
+        TestConfigSource.defineConfigValue(values);
+
+        jwtUserConfig.getSystemAccountsMapFile();
+
+    }
+
+    @Test
+    public void getSystemAccountsMapFile_optional() {
+        Map<String, String> values = new HashMap<String, String>();
+        TestConfigSource.defineConfigValue(values);
+
+        String systemAccountsMapFile = jwtUserConfig.getSystemAccountsMapFile();
+        assertThat(systemAccountsMapFile).isNullOrEmpty();
+
     }
 
 }

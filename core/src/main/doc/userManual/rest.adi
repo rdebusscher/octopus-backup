@@ -163,7 +163,7 @@ Add following dependency to the pom file (amongst the other dependencies)
     </dependency>
 ----
 
-To make a call to the JAX-RS endpoint, wit the transfer of the _Principal_ information within the header, inject the following class *be.c4j.ee.security.credentials.authentication.jwt.client.rest.OctopusJWTRestClient*
+To make a call to the JAX-RS endpoint, wit the transfer of the _Principal_ information within the header, inject the following class *be.c4j.ee.security.credentials.authentication.jwt.client.rest.OctopusJWTUserRestClient*
 
 The following method will call then the URL endpoint.
 

@@ -89,6 +89,8 @@ public class JWTUserToken {
 
         Date issueTime = new Date();
         claimSetBuilder.issueTime(issueTime);
+        // TODO use jwtUserConfig.getServerName
+        // claimSetBuilder.audience()
 
         claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(jwtClientConfig.getJWTTimeToLive(), issueTime));
 

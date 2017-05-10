@@ -30,6 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
 
 /**
  *
@@ -49,7 +50,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
     @Override
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String apiKey = httpServletRequest.getHeader("x-api-key");
+        String apiKey = httpServletRequest.getHeader(X_API_KEY);
         String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
         return createJWTUser(httpServletRequest, apiKey, token);

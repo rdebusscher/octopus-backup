@@ -1318,7 +1318,7 @@ default : **email**
 
 The name of the cas attribute containing the email address.
 
-#### jwk.file (JWT only)
+#### jwk.file (JWT and Octopus SSO)
 
 default : **(none)**
 
@@ -1332,7 +1332,7 @@ default : **True**
 Are only SystemAccounts allowed when using authentication based on JWT
 tokens?
 
-#### jwt.systemaccounts.map (JWT only)
+#### jwt.systemaccounts.map (JWT only and Octopus SSO)
 
 Properties file where the system accounts are defined for each api-key.
 

@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
 
 /**
  *
@@ -63,7 +64,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     @Override
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String apiKey = httpServletRequest.getHeader("x-api-key");
+        String apiKey = httpServletRequest.getHeader(X_API_KEY);
         String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
         return createSSOUser(httpServletRequest, apiKey, token);

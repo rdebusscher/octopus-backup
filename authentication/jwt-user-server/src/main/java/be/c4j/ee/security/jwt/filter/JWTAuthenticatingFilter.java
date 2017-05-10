@@ -20,15 +20,21 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.filter.ErrorInfo;
+import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.JWTClaimsHandler;
 import be.c4j.ee.security.jwt.JWTUser;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
+import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
+import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
@@ -41,6 +47,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -54,6 +61,7 @@ import java.util.Date;
 import java.util.List;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
 
 /**
  *
@@ -61,36 +69,36 @@ import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
 
 public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Initializable {
 
+    @Inject
     private JWTUserConfig jwtServerConfig;
 
     private JWTClaimsHandler jwtClaimsHandler;
 
     private JWTOperation jwtOperation;
 
-    private JWSVerifier verifier;
-
+    @Inject
     private DecryptionHandlerFactory decryptionHandlerFactory;
+
+    @Inject
+    private JWKManager jwkManager;
+
+    @Inject
+    private MappingSystemAccountToApiKey mappingSystemAccountToApiKey;
 
     @Override
     public void init() throws ShiroException {
-        jwtServerConfig = BeanProvider.getContextualReference(JWTUserConfig.class);
-        decryptionHandlerFactory = BeanProvider.getContextualReference(DecryptionHandlerFactory.class);
+        BeanProvider.injectFields(this);
 
         jwtOperation = jwtServerConfig.getJWTOperation();
 
         jwtClaimsHandler = BeanProvider.getContextualReference(JWTClaimsHandler.class, true);
 
-        try {
-            verifier = new MACVerifier(jwtServerConfig.getHMACTokenSecret());
-        } catch (JOSEException e) {
-            throw new OctopusConfigurationException(e.getMessage());
-        }
     }
 
     @Override
     protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String apiKey = httpServletRequest.getHeader("x-api-key");
+        String apiKey = httpServletRequest.getHeader(X_API_KEY);
         String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
         return createToken(apiKey, token);
@@ -111,16 +119,35 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
             throw new AuthenticationException("Authorization header value must start with Bearer");
         }
 
-        JWTUser octopusToken = createOctopusToken(apiKey, parts[1]);
+        AuthenticationToken octopusToken = createOctopusToken(apiKey, parts[1]);
         if (octopusToken == null) {
             throw new AuthenticationException("Authentication failed");
         }
         return octopusToken;
     }
 
-    private JWTUser createOctopusToken(String apiKey, String token) {
+    private AuthenticationToken createOctopusToken(String apiKey, String token) {
 
-        JWTUser user = null;
+        AuthenticationToken result = null;
+
+        if (apiKey != null) {
+            result = createSystemAccountToken(apiKey, token);
+        } else {
+            result = createJWTUserToken(apiKey, token);
+        }
+        return result;
+    }
+
+    private SystemAccountAuthenticationToken createSystemAccountToken(String apiKey, String token) {
+        SystemAccountAuthenticationToken result = null;
+        if (!jwkManager.existsApiKey(apiKey)) {
+            return null;
+        }
+
+        List<String> accountList = mappingSystemAccountToApiKey.getAccountList(apiKey);
+        if (accountList == null || accountList.isEmpty()) {
+            return null;
+        }
 
         try {
             // Parse token
@@ -131,6 +158,58 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
                 signedJWT = decryptToken(apiKey, token);
             }
 
+            JWSVerifier verifier = null;
+            try {
+                verifier = new RSASSAVerifier((RSAKey) jwkManager.getJWKForApiKey(apiKey));
+            } catch (JOSEException e) {
+                throw new OctopusConfigurationException(e.getMessage());
+            }
+
+            if (signedJWT.verify(verifier)) {
+                JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+                // TODO Show some error in  the log that makes it easier to determine why the token was invalid
+                if (!apiKey.equals(signedJWT.getHeader().getKeyID())) {
+                    throw new AuthenticationException("Invalid token");
+                }
+                if (!verifyClaims(claimsSet)) {
+                    throw new AuthenticationException("Invalid token");
+                }
+
+                if (!accountList.contains(signedJWT.getJWTClaimsSet().getSubject())) {
+                    throw new AuthenticationException("Invalid token");
+                }
+                // FIXME Check audience
+
+                result = new SystemAccountAuthenticationToken(new SystemAccountPrincipal(signedJWT.getJWTClaimsSet().getSubject()));
+
+            }
+        } catch (ParseException e) {
+            // TODO Should we log here what kind of issue. Of course don't reply to the end user with the exact issue.
+            throw new AuthenticationException("Invalid Authorization Header");
+        } catch (JOSEException e) {
+            throw new AuthenticationException("Invalid Authorization Header");
+        }
+        return result;
+    }
+
+    private JWTUser createJWTUserToken(String apiKey, String token) {
+        JWTUser result = null;
+        try {
+            JWSVerifier verifier = null;
+            try {
+                verifier = new MACVerifier(jwtServerConfig.getHMACTokenSecret());
+            } catch (JOSEException e) {
+                throw new OctopusConfigurationException(e.getMessage());
+            }
+
+            // Parse token
+            SignedJWT signedJWT;
+            if (jwtOperation == JWTOperation.JWT) {
+                signedJWT = SignedJWT.parse(token);
+            } else {
+                signedJWT = decryptToken(apiKey, token);
+            }
 
             if (signedJWT.verify(verifier)) {
 
@@ -142,15 +221,15 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
                 JSONObject jsonObject = getOctopusUserJSONData(claimsSet);
 
-                user = new JWTUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
-                user.setUserName(optString(jsonObject, "userName"));
-                user.setExternalId(optString(jsonObject, OctopusConstants.EXTERNAL_ID));
+                result = new JWTUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
+                result.setUserName(optString(jsonObject, "userName"));
+                result.setExternalId(optString(jsonObject, OctopusConstants.EXTERNAL_ID));
 
-                assignPermissionsAndRoles(user, jsonObject);
+                assignPermissionsAndRoles(result, jsonObject);
 
                 if (jwtClaimsHandler != null) {
 
-                    user.addUserInfo(jwtClaimsHandler.defineAdditionalUserInfo(user));
+                    result.addUserInfo(jwtClaimsHandler.defineAdditionalUserInfo(result));
                 }
             }
         } catch (ParseException e) {
@@ -161,8 +240,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         } catch (net.minidev.json.parser.ParseException e) {
             throw new AuthenticationException("Invalid Authorization Header");
         }
-
-        return user;
+        return result;
     }
 
     private SignedJWT decryptToken(String apiKey, String token) {

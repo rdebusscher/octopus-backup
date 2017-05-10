@@ -91,6 +91,8 @@ public class JWTUserConfig extends AbstractOctopusConfig implements ModuleConfig
         String propertyValue = ConfigResolver.getPropertyValue("jwt.hmac.secret");
         if (propertyValue == null || propertyValue.trim().isEmpty()) {
             throw new OctopusConfigurationException("Parameter jwt.hmac.secret is required");
+            // It is required if we use the transfer of Octopus User in REST Call (
+            // If we use the System option (SystemAccount version with process to Process communication) this is not needed
         }
         return propertyValue;
     }
@@ -110,4 +112,21 @@ public class JWTUserConfig extends AbstractOctopusConfig implements ModuleConfig
         return ConfigResolver.getPropertyValue("jwk.file");
     }
 
+    @ConfigEntry
+    public String getSystemAccountsMapFile() {
+        String propertyValue = ConfigResolver.getPropertyValue("jwt.systemaccounts.map");
+        if (getJWKFile() != null && (propertyValue == null || propertyValue.trim().isEmpty())) {
+            throw new OctopusConfigurationException("jwt.systemaccounts.map configuration property is required when jwk.file is set");
+        }
+        return propertyValue;
+    }
+
+    @ConfigEntry
+    public String getServerName() {
+        // Must be environment specific !!! (dev, test, ...) so that jwt tokens can't be used cross environment.
+        // TODO Maybe a bit strange that we have the parameter named sso.xxx .
+        // It is only required within the jwt part of Octopus SSO feature.
+        String propertyValue = ConfigResolver.getPropertyValue("sso.server.name", "octopus");
+        return  propertyValue;
+    }
 }

@@ -32,7 +32,7 @@
     <artifactId>two-step</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
-    <name>Authentication</name>
+    <name>TwoStep Authentication Module</name>
 
     <modules>
         <module>otp</module>

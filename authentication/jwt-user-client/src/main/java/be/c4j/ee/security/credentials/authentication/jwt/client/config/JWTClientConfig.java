@@ -77,4 +77,10 @@ public class JWTClientConfig {
 
         return signature;
     }
+
+    @ConfigEntry
+    public String getServerName() {
+        return jwtUserConfig.getServerName();
+    }
+
 }

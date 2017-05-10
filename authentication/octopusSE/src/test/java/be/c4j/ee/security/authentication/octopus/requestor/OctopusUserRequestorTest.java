@@ -116,7 +116,7 @@ public class OctopusUserRequestorTest {
                 .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
                 .respond()
                 .withBody(signedJWT.serialize())
-                .withContentType("application/jwt");
+                .withContentType("application/jwt"); // TODO Constant
 
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");

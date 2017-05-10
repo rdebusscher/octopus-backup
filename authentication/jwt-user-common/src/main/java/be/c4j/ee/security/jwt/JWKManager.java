@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.jwt.config;
+package be.c4j.ee.security.jwt;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,32 +32,39 @@ import java.text.ParseException;
 import java.util.Scanner;
 
 /**
- * FIXME relation with JWKManager ?? It does also the reading of the files (but a JWK Set !!)
+ * FIXME, We have also a JWKManager within JWT.
  */
 @ApplicationScoped
-public class JWKFileReader {
+public class JWKManager {
 
-    /**
-     * The default implementation doesn't  use the apiKey parameter. But custom specializations can use it
-     * to read a JWK file based on the Client application which call us.
-     *
-     * @param apiKey
-     * @param jwkFile
-     * @return
-     */
-    public JWK readJWKFile(String apiKey, String jwkFile) {
-        JWK result;
-        InputStream inputStream = JWKFileReader.class.getClassLoader().getResourceAsStream(jwkFile);
+    @Inject
+    private JWTUserConfig jwtConfig;
+
+    private JWKSet jwkSet;
+
+    @PostConstruct
+    public void init() {
+        jwkSet = readJWKSet();
+    }
+
+    private JWKSet readJWKSet() {
+        JWKSet result;
+        String jwkFile = jwtConfig.getJWKFile();
+        if (jwkFile == null || jwkFile.trim().isEmpty()) {
+            throw new OctopusConfigurationException("A value for the parameter jwk.file is required");
+        }
+
+        InputStream inputStream = JWKManager.class.getClassLoader().getResourceAsStream(jwkFile);
         try {
             if (inputStream == null) {
                 inputStream = new FileInputStream(jwkFile);
             }
             String content = new Scanner(inputStream).useDelimiter("\\Z").next();
-            result = JWK.parse(content);
+            result = JWKSet.parse(content);
         } catch (FileNotFoundException e) {
-            throw new OctopusConfigurationException("JWK File not found at " + jwkFile);
+            throw new OctopusConfigurationException(String.format("JWK File not found at %s", jwkFile));
         } catch (ParseException e) {
-            throw new OctopusConfigurationException("Parsing the JWK file failed with " + e.getMessage());
+            throw new OctopusConfigurationException(String.format("Parsing the JWK file failed with ", e.getMessage()));
         }
 
         try {
@@ -64,4 +75,13 @@ public class JWKFileReader {
 
         return result;
     }
+
+    public boolean existsApiKey(String apiKey) {
+        return jwkSet.getKeyByKeyId(apiKey) != null;
+    }
+
+    public JWK getJWKForApiKey(String apiKey) {
+        return jwkSet.getKeyByKeyId(apiKey);
+    }
+
 }
