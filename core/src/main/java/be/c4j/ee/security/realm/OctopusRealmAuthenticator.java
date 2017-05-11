@@ -69,8 +69,10 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
                 OctopusRealm octopusRealm = (OctopusRealm) realm;
                 AuthorizationInfo authorizationInfo = octopusRealm.doGetAuthorizationInfo(authenticationInfo.getPrincipals());
 
-                UserPrincipal userPrincipal = (UserPrincipal) authenticationInfo.getPrincipals().getPrimaryPrincipal();
-                userPrincipal.addUserInfo(AUTHORIZATION_INFO, authorizationInfo);
+                UserPrincipal userPrincipal = authenticationInfo.getPrincipals().oneByType(UserPrincipal.class);
+                if (userPrincipal != null) {
+                    userPrincipal.addUserInfo(AUTHORIZATION_INFO, authorizationInfo);
+                }
 
             } finally {
 
