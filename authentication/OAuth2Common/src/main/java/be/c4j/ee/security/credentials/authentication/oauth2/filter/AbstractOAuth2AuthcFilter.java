@@ -38,6 +38,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
+import static be.c4j.ee.security.OctopusConstants.BEARER;
+
 /**
  * Contains the generic code for the Authc Filters using OAuth2 (Google, Github, LinkedIn).
  * TODO Verify if BasicHttpAuthenticationFilter is the correct class and AuthenticatingFilter is not the preferred one.
@@ -52,7 +54,7 @@ public abstract class AbstractOAuth2AuthcFilter extends BasicHttpAuthenticationF
     private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
 
     public AbstractOAuth2AuthcFilter() {
-        setAuthzScheme("Bearer");
+        setAuthzScheme(BEARER);
         loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class, true);
     }
 

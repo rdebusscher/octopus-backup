@@ -48,6 +48,7 @@ public final class OctopusConstants {
     public static final String OCTOPUS_REFERER = "OctopusReferer";
 
     public static final String X_API_KEY = "x-api-key";
+    public static final String BEARER = "Bearer";
 
     private OctopusConstants() {
     }

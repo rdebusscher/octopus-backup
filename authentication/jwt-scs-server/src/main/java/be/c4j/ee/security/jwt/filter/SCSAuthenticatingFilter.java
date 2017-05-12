@@ -60,8 +60,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
-import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
+import static be.c4j.ee.security.OctopusConstants.*;
 import static be.c4j.ee.security.shiro.OctopusSessionStorageEvaluator.NO_STORAGE;
 
 /**
@@ -120,7 +119,7 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
         if (parts.length != 2) {
             throw new AuthenticationException("Authorization header value incorrect");
         }
-        if (!"Bearer".equals(parts[0])) {
+        if (!BEARER.equals(parts[0])) {
             throw new AuthenticationException("Authorization header value must start with Bearer");
         }
 

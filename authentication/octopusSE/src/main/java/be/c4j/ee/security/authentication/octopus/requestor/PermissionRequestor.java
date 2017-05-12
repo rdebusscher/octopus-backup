@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static be.c4j.ee.security.OctopusConstants.BEARER;
 
 /**
  *
@@ -70,7 +71,7 @@ public class PermissionRequestor extends AbstractRequestor {
         WebTarget target = client.target(configuration.getOctopusSSOServer() + "/" + configuration.getSSOEndpointRoot() + "/octopus/sso/user/permissions/" + configuration.getSSOApplication());
 
         Response response = target.request()
-                .header(AUTHORIZATION_HEADER, "Bearer " + defineToken(accessToken))
+                .header(AUTHORIZATION_HEADER, BEARER + " " + defineToken(accessToken))
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
 

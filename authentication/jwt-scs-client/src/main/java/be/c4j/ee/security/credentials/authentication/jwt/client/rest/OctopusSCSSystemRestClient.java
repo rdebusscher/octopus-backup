@@ -34,14 +34,13 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
-import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
+import static be.c4j.ee.security.OctopusConstants.*;
 
 /**
  *
  */
 @Dependent  // As we can set the systemAccount differently
-public class OctopusSCSSystemRestClient {
+public class OctopusSCSSystemRestClient extends AbstractSCSRestClient {
 
 
     @Inject
@@ -49,8 +48,6 @@ public class OctopusSCSSystemRestClient {
 
     @Inject
     private MappingSystemAccountToApiKey mappingSystemAccountToApiKey;
-
-    private Client client;
 
     private String systemAccount;
 
@@ -93,11 +90,11 @@ public class OctopusSCSSystemRestClient {
     }
 
     private String getAuthenticationHeader() {
-        return "Bearer " + jwtSystemToken.createJWTSystemToken(systemAccount);
+        return BEARER + " " + jwtSystemToken.createJWTSystemToken(systemAccount);
     }
 
     public <T> T get(String url, Class<T> classType, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
 
         addAuthenticationHeader(builder);
         Response response = builder
@@ -113,7 +110,8 @@ public class OctopusSCSSystemRestClient {
     }
 
     public <T> T post(String url, Object postBody, Class<T> classType, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
+
         addAuthenticationHeader(builder);
 
         Response response = builder
@@ -129,7 +127,7 @@ public class OctopusSCSSystemRestClient {
     }
 
     public <T> T put(String url, Object putBody, Class<T> classType, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
         addAuthenticationHeader(builder);
 
         Response response = builder
@@ -145,7 +143,7 @@ public class OctopusSCSSystemRestClient {
     }
 
     public boolean delete(String url, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
         addAuthenticationHeader(builder);
 
         Response response = builder

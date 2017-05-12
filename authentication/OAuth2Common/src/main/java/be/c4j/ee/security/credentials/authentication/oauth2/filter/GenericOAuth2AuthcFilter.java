@@ -26,6 +26,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import static be.c4j.ee.security.OctopusConstants.BEARER;
+
 /**
  *
  */
@@ -37,7 +39,7 @@ public class GenericOAuth2AuthcFilter extends BasicHttpAuthenticationFilter impl
 
     public GenericOAuth2AuthcFilter() {
         setAuthcScheme("Multiple provider OAuth2");
-        setAuthzScheme("Bearer");
+        setAuthzScheme(BEARER);
     }
 
     @Override

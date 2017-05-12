@@ -29,8 +29,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
-import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
+import static be.c4j.ee.security.OctopusConstants.*;
 
 /**
  *
@@ -74,7 +73,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         if (parts.length != 2) {
             return new IncorrectDataToken("Authorization header value incorrect");
         }
-        if (!"Bearer".equals(parts[0])) {
+        if (!BEARER.equals(parts[0])) {
             return new IncorrectDataToken("Authorization header value must start with Bearer");
         }
 

@@ -44,8 +44,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 10/05/2017.
+ *
  */
 
 @RunWith(MockitoJUnitRunner.class)
@@ -152,6 +151,36 @@ public class OctopusSCSSystemRestClientTest {
             Jadler.verifyThatRequest()
                     .receivedNever();
         }
+    }
+
+
+    @Test
+    public void get_WithParameters() {
+        when(mappingSystemAccountToApiKeyMock.containsOnlyOneMapping()).thenReturn(true);
+        when(mappingSystemAccountToApiKeyMock.getOnlyAccount()).thenReturn(SYSTEM_ACCOUNT);
+        when(mappingSystemAccountToApiKeyMock.getApiKey(SYSTEM_ACCOUNT)).thenReturn(X_API_TOKEN);
+        when(jwtSystemTokenMock.createJWTSystemToken(SYSTEM_ACCOUNT)).thenReturn(AUTH_TOKEN);
+
+        client.init();
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .havingParameterEqualTo("name1", "value1")
+                .havingParameterEqualTo("name2", "value2")
+                .respond()
+                .withContentType(CommonContentTypes.APPLICATION_JSON.toString())
+                .withBody("{\"field\":\"value\"}");
+
+        URLArgument argument1 = new URLArgument("name1", "value1");
+        URLArgument argument2 = new URLArgument("name2", "value2");
+        Data data = client.get(defineEndpoint(), Data.class, argument1, argument2);
+        assertThat(data.getField()).isEqualTo("value");
+
+        Jadler.verifyThatRequest()
+                .havingHeaderEqualTo("authorization", "Bearer " + AUTH_TOKEN)
+                .havingHeaderEqualTo("x-api-key", X_API_TOKEN)
+                .havingHeaderEqualTo(ACCEPT, "application/json")
+                .receivedOnce();
     }
 
     private String defineEndpoint() {

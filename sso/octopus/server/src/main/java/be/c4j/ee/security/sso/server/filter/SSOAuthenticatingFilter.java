@@ -40,8 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
-import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
+import static be.c4j.ee.security.OctopusConstants.*;
 
 /**
  *
@@ -81,7 +80,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         if (parts.length != 2) {
             return new IncorrectDataToken("Authorization header value incorrect");
         }
-        if (!"Bearer".equals(parts[0])) {
+        if (!BEARER.equals(parts[0])) {
             return new IncorrectDataToken("Authorization header value must start with Bearer");
         }
 
@@ -104,7 +103,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
             accessToken = token;
 
         } else {
-           // FIXME Support RSA keys !!
+            // FIXME Support RSA keys !!
         }
 
         if (user == null) {

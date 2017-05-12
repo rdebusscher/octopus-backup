@@ -104,6 +104,31 @@ public class OctopusSCSUserRestClientTest {
                 .receivedOnce();
     }
 
+    @Test
+    public void get_withParameters() {
+        when(jwtUserTokenMock.createJWTUserToken(null, null)).thenReturn(AUTH_TOKEN);
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .havingParameterEqualTo("name1", "value1")
+                .havingParameterEqualTo("name2", "value2")
+                .respond()
+                .withContentType(CommonContentTypes.APPLICATION_JSON.toString())
+                .withBody("{\"field\":\"value\"}");
+
+        URLArgument argument1 = new URLArgument("name1", "value1");
+        URLArgument argument2 = new URLArgument("name2", "value2");
+
+        Data data = client.get(defineEndpoint(), Data.class, argument1, argument2);
+        assertThat(data.getField()).isEqualTo("value");
+
+
+        Jadler.verifyThatRequest()
+                .havingHeaderEqualTo("authorization", "Bearer " + AUTH_TOKEN)
+                .havingHeaderEqualTo(ACCEPT, "application/json")
+                .receivedOnce();
+    }
+
     @Test(expected = OctopusUnauthorizedException.class)
     public void get_NotAuthenticated() {
         when(jwtUserTokenMock.createJWTUserToken(null, null)).thenReturn(AUTH_TOKEN);

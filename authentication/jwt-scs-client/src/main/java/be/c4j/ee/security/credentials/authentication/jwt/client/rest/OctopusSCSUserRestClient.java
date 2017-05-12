@@ -34,19 +34,16 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
-import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
+import static be.c4j.ee.security.OctopusConstants.*;
 
 /**
  *
  */
 @ApplicationScoped
-public class OctopusSCSUserRestClient {
+public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
 
     @Inject
     private JWTUserToken jwtUserToken;
-
-    private Client client;
 
     @PostConstruct
     public void init() {
@@ -82,7 +79,7 @@ public class OctopusSCSUserRestClient {
     }
 
     private String getAuthenticationHeader(String apiKey, JWTClaimsProvider jwtClaimsProvider) {
-        return "Bearer " + jwtUserToken.createJWTUserToken(apiKey, jwtClaimsProvider);
+        return BEARER + " " + jwtUserToken.createJWTUserToken(apiKey, jwtClaimsProvider);
     }
 
     public <T> T get(String url, Class<T> classType, URLArgument... urlArguments) {
@@ -94,8 +91,7 @@ public class OctopusSCSUserRestClient {
     }
 
     public <T> T get(String url, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
-        // FIXME Use URLArguments
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
 
         addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
         Response response = builder
@@ -119,7 +115,7 @@ public class OctopusSCSUserRestClient {
     }
 
     public <T> T post(String url, Object postBody, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
         addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
 
         Response response = builder
@@ -143,7 +139,7 @@ public class OctopusSCSUserRestClient {
     }
 
     public <T> T put(String url, Object putBody, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
         addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
 
         Response response = builder
@@ -167,7 +163,7 @@ public class OctopusSCSUserRestClient {
     }
 
     public boolean delete(String url, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
-        Invocation.Builder builder = client.target(url).request();
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
         addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
 
         Response response = builder
