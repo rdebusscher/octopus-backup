@@ -17,7 +17,7 @@ package be.c4j.ee.security.jwt;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 
@@ -38,7 +38,7 @@ import java.util.Scanner;
 public class JWKManager {
 
     @Inject
-    private JWTUserConfig jwtConfig;
+    private SCSConfig jwtConfig;
 
     private JWKSet jwkSet;
 

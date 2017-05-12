@@ -16,7 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
 import be.c4j.ee.security.OctopusConstants;
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
+import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandler;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandlerFactory;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
 public class JWTUserTokenTest {
 
     @Mock
-    private JWTClientConfig jwtClientConfigMock;
+    private SCSClientConfig SCSClientConfigMock;
 
     @Mock
     private JWTClaimsProvider jwtClaimsProviderMock;
@@ -101,8 +101,8 @@ public class JWTUserTokenTest {
 
         String secret = secretUtil.generateSecretBase64(32);
 
-        when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
-        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
+        when(SCSClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
+        when(SCSClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
         jwtUserToken.init();
 
@@ -132,7 +132,7 @@ public class JWTUserTokenTest {
     @Test(expected = OctopusConfigurationException.class)
     public void createJWTUserToken_secretTooShort() throws IllegalAccessException, ParseException {
 
-        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secretUtil.generateSecretBase64(16));
+        when(SCSClientConfigMock.getHMACTokenSecret()).thenReturn(secretUtil.generateSecretBase64(16));
 
         jwtUserToken.init();
     }
@@ -142,8 +142,8 @@ public class JWTUserTokenTest {
 
         String secret = secretUtil.generateSecretBase64(32);
 
-        when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
-        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
+        when(SCSClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
+        when(SCSClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
         jwtUserToken.init();
 
@@ -181,11 +181,11 @@ public class JWTUserTokenTest {
 
         String secret = secretUtil.generateSecretBase64(32);
 
-        when(jwtClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
-        when(jwtClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
+        when(SCSClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
+        when(SCSClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
 
-        when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
-        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
+        when(SCSClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
+        when(SCSClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
         jwtUserToken.init();
 
@@ -215,11 +215,11 @@ public class JWTUserTokenTest {
 
         String secret = secretUtil.generateSecretBase64(32);
 
-        when(jwtClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
-        when(jwtClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
+        when(SCSClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
+        when(SCSClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
 
-        when(jwtClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
-        when(jwtClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
+        when(SCSClientConfigMock.getJwtSignature()).thenReturn(JWTSignature.HS256);
+        when(SCSClientConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
         jwtUserToken.init();
 

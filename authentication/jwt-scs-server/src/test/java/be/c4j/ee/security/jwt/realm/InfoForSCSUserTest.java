@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.jwt.realm;
 
-import be.c4j.ee.security.jwt.JWTUser;
+import be.c4j.ee.security.jwt.SCSUser;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.test.util.BeanManagerFake;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -36,15 +36,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 
-public class InfoForJWTUserTest {
+public class InfoForSCSUserTest {
 
-    private InfoForJWTUser infoForJWTUser;
+    private InfoForSCSUser infoForSCSUser;
 
     private BeanManagerFake beanManagerFake;
 
     @Before
     public void setup() {
-        infoForJWTUser = new InfoForJWTUser();
+        infoForSCSUser = new InfoForSCSUser();
 
         beanManagerFake = new BeanManagerFake();
         beanManagerFake.endRegistration();
@@ -57,19 +57,19 @@ public class InfoForJWTUserTest {
 
     @Test
     public void getAuthenticationInfo_WrongToken() {
-        AuthenticationInfo info = infoForJWTUser.getAuthenticationInfo(new UsernamePasswordToken());
+        AuthenticationInfo info = infoForSCSUser.getAuthenticationInfo(new UsernamePasswordToken());
         assertThat(info).isNull();
     }
 
     @Test
     public void getAuthenticationInfo() {
-        JWTUser jwtUser = new JWTUser("subject", "id");
-        jwtUser.setUserName("username");
+        SCSUser SCSUser = new SCSUser("subject", "id");
+        SCSUser.setUserName("username");
         Map<String, Object> userInfo = new HashMap<String, Object>();
         userInfo.put("key", "JUnit");
-        jwtUser.addUserInfo(userInfo);
+        SCSUser.addUserInfo(userInfo);
 
-        AuthenticationInfo info = infoForJWTUser.getAuthenticationInfo(jwtUser);
+        AuthenticationInfo info = infoForSCSUser.getAuthenticationInfo(SCSUser);
         assertThat(info).isNotNull();
 
         Object principal = info.getPrincipals().getPrimaryPrincipal();
@@ -88,7 +88,7 @@ public class InfoForJWTUserTest {
     @Test
     public void getAuthorizationInfo_WrongPrincipal() {
 
-        AuthorizationInfo info = infoForJWTUser.getAuthorizationInfo(new Object());
+        AuthorizationInfo info = infoForSCSUser.getAuthorizationInfo(new Object());
         assertThat(info).isNull();
     }
 
@@ -96,25 +96,25 @@ public class InfoForJWTUserTest {
     public void getAuthorizationInfo_NoToken() {
 
         UserPrincipal userPrincipal = new UserPrincipal();
-        AuthorizationInfo info = infoForJWTUser.getAuthorizationInfo(userPrincipal);
+        AuthorizationInfo info = infoForSCSUser.getAuthorizationInfo(userPrincipal);
         assertThat(info).isNull();
     }
 
     @Test
     public void getAuthorizationInfo() {
 
-        JWTUser jwtUser = new JWTUser("subject", "id");
+        SCSUser SCSUser = new SCSUser("subject", "id");
         List<String> permissions = new ArrayList<String>();
 
         permissions.add("permission");
-        jwtUser.setPermissions(permissions);
+        SCSUser.setPermissions(permissions);
 
         List<String> roles = new ArrayList<String>();
-        jwtUser.setRoles(roles);
+        SCSUser.setRoles(roles);
 
         UserPrincipal userPrincipal = new UserPrincipal();
-        userPrincipal.addUserInfo("token", jwtUser);
-        AuthorizationInfo info = infoForJWTUser.getAuthorizationInfo(userPrincipal);
+        userPrincipal.addUserInfo("token", SCSUser);
+        AuthorizationInfo info = infoForSCSUser.getAuthorizationInfo(userPrincipal);
         assertThat(info).isNotNull();
 
         assertThat(info.getStringPermissions()).containsExactly("permission");

@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class OctopusJWTSystemRestClientTest {
+public class OctopusSCSSystemRestClientTest {
 
     private static final String AUTH_TOKEN = "AuthToken";
     private static final String X_API_TOKEN = "apiKey";
@@ -65,7 +65,7 @@ public class OctopusJWTSystemRestClientTest {
     private MappingSystemAccountToApiKey mappingSystemAccountToApiKeyMock;
 
     @InjectMocks
-    private OctopusJWTSystemRestClient client;
+    private OctopusSCSSystemRestClient client;
 
     private BeanManagerFake beanManagerFake;
 

@@ -31,9 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 
-public class JWTUserConfigTest {
+public class SCSConfigTest {
 
-    private JWTUserConfig jwtUserConfig = new JWTUserConfig();
+    private SCSConfig SCSConfig = new SCSConfig();
 
     @After
     public void teardown() {
@@ -45,10 +45,10 @@ public class JWTUserConfigTest {
         Map<String, String> values = new HashMap<String, String>();
         values.put("jwt.algorithms", "HS256");
         TestConfigSource.defineConfigValue(values);
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isEqualTo(JWTSignature.HS256);
     }
 
@@ -56,10 +56,10 @@ public class JWTUserConfigTest {
     public void getJWTOperation_JWT_NotSpecified() {
         // On the JWT User Server side, the JWT Signature doesn't need to be specified as it is contained in the JWT Header of the Token
 
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isNull();
     }
 
@@ -68,10 +68,10 @@ public class JWTUserConfigTest {
         Map<String, String> values = new HashMap<String, String>();
         values.put("jwt.algorithms", "JUnit");
         TestConfigSource.defineConfigValue(values);
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isNull();
     }
 
@@ -82,13 +82,13 @@ public class JWTUserConfigTest {
         values.put("jwt.aes.secret", "123");
         TestConfigSource.defineConfigValue(values);
 
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWE);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isEqualTo(JWTSignature.HS256);
 
-        JWEAlgorithm jweAlgorithm = jwtUserConfig.getJWEAlgorithm();
+        JWEAlgorithm jweAlgorithm = SCSConfig.getJWEAlgorithm();
         assertThat(jweAlgorithm).isEqualTo(JWEAlgorithm.AES);
     }
 
@@ -98,7 +98,7 @@ public class JWTUserConfigTest {
         values.put("jwt.algorithms", "HS256 AES");
         TestConfigSource.defineConfigValue(values);
 
-        jwtUserConfig.getJWTOperation();
+        SCSConfig.getJWTOperation();
     }
 
     @Test
@@ -108,13 +108,13 @@ public class JWTUserConfigTest {
         values.put("jwk.file", "private.jwk");
         TestConfigSource.defineConfigValue(values);
 
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWE);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isEqualTo(JWTSignature.HS384);
 
-        JWEAlgorithm jweAlgorithm = jwtUserConfig.getJWEAlgorithm();
+        JWEAlgorithm jweAlgorithm = SCSConfig.getJWEAlgorithm();
         assertThat(jweAlgorithm).isEqualTo(JWEAlgorithm.EC);
     }
 
@@ -124,7 +124,7 @@ public class JWTUserConfigTest {
         values.put("jwt.algorithms", "HS256 EC");
         TestConfigSource.defineConfigValue(values);
 
-        jwtUserConfig.getJWTOperation();
+        SCSConfig.getJWTOperation();
     }
 
     @Test
@@ -134,13 +134,13 @@ public class JWTUserConfigTest {
         values.put("jwk.file", "private.jwk");
         TestConfigSource.defineConfigValue(values);
 
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWE);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isEqualTo(JWTSignature.HS512);
 
-        JWEAlgorithm jweAlgorithm = jwtUserConfig.getJWEAlgorithm();
+        JWEAlgorithm jweAlgorithm = SCSConfig.getJWEAlgorithm();
         assertThat(jweAlgorithm).isEqualTo(JWEAlgorithm.RSA);
     }
 
@@ -150,7 +150,7 @@ public class JWTUserConfigTest {
         values.put("jwt.algorithms", "HS256 RSA");
         TestConfigSource.defineConfigValue(values);
 
-        jwtUserConfig.getJWTOperation();
+        SCSConfig.getJWTOperation();
     }
 
     @Test
@@ -159,18 +159,18 @@ public class JWTUserConfigTest {
         Map<String, String> values = new HashMap<String, String>();
         values.put("jwt.algorithms", "HS256");
         TestConfigSource.defineConfigValue(values);
-        JWTOperation jwtOperation = jwtUserConfig.getJWTOperation();
+        JWTOperation jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
 
-        JWTSignature jwtSignature = jwtUserConfig.getJwtSignature();
+        JWTSignature jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isEqualTo(JWTSignature.HS256);
 
-        ReflectionUtil.setFieldValue(jwtUserConfig, "jwtSignature", null);
+        ReflectionUtil.setFieldValue(SCSConfig, "jwtSignature", null);
 
-        jwtOperation = jwtUserConfig.getJWTOperation();
+        jwtOperation = SCSConfig.getJWTOperation();
         assertThat(jwtOperation).isEqualTo(JWTOperation.JWT);
 
-        jwtSignature = jwtUserConfig.getJwtSignature();
+        jwtSignature = SCSConfig.getJwtSignature();
         assertThat(jwtSignature).isNull();  // Not recalculated by getJWTOperation() a second time
 
     }
@@ -181,13 +181,13 @@ public class JWTUserConfigTest {
         values.put("jwt.hmac.secret", "secret");
         TestConfigSource.defineConfigValue(values);
 
-        String tokenSecret = jwtUserConfig.getHMACTokenSecret();
+        String tokenSecret = SCSConfig.getHMACTokenSecret();
         assertThat(tokenSecret).isNotNull();
     }
 
     @Test(expected = OctopusConfigurationException.class)
     public void getHMACTokenSecret_MissingValue() {
-        jwtUserConfig.getHMACTokenSecret();
+        SCSConfig.getHMACTokenSecret();
     }
 
     @Test
@@ -197,7 +197,7 @@ public class JWTUserConfigTest {
         values.put("jwk.file", "keys.jwk");
         TestConfigSource.defineConfigValue(values);
 
-        String accountsMapFile = jwtUserConfig.getSystemAccountsMapFile();
+        String accountsMapFile = SCSConfig.getSystemAccountsMapFile();
         assertThat(accountsMapFile).isEqualTo("mapping.properties");
     }
 
@@ -207,7 +207,7 @@ public class JWTUserConfigTest {
         values.put("jwk.file", "keys.jwk");
         TestConfigSource.defineConfigValue(values);
 
-        jwtUserConfig.getSystemAccountsMapFile();
+        SCSConfig.getSystemAccountsMapFile();
 
     }
 
@@ -216,7 +216,7 @@ public class JWTUserConfigTest {
         Map<String, String> values = new HashMap<String, String>();
         TestConfigSource.defineConfigValue(values);
 
-        String systemAccountsMapFile = jwtUserConfig.getSystemAccountsMapFile();
+        String systemAccountsMapFile = SCSConfig.getSystemAccountsMapFile();
         assertThat(systemAccountsMapFile).isNullOrEmpty();
 
     }

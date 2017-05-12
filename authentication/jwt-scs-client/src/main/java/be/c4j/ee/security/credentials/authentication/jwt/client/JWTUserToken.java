@@ -16,7 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
 import be.c4j.ee.security.OctopusConstants;
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
+import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandler;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandlerFactory;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
@@ -55,7 +55,7 @@ public class JWTUserToken {
     private UserPrincipal userPrincipal;
 
     @Inject
-    private JWTClientConfig jwtClientConfig;
+    private SCSClientConfig SCSClientConfig;
 
     @Inject
     private EncryptionHandlerFactory encryptionHandlerFactory;
@@ -70,8 +70,8 @@ public class JWTUserToken {
     @PostConstruct
     public void init() {
         try {
-            signer = new MACSigner(jwtClientConfig.getHMACTokenSecret());
-            jwtOperation = jwtClientConfig.getJWTOperation();
+            signer = new MACSigner(SCSClientConfig.getHMACTokenSecret());
+            jwtOperation = SCSClientConfig.getJWTOperation();
         } catch (KeyLengthException e) {
             throw new OctopusConfigurationException(e.getMessage());
         }
@@ -82,7 +82,7 @@ public class JWTUserToken {
         // https://connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
         String payLoad = definePayload();
 
-        JWSHeader header = new JWSHeader(jwtClientConfig.getJwtSignature().getAlgorithm());
+        JWSHeader header = new JWSHeader(SCSClientConfig.getJwtSignature().getAlgorithm());
 
         JWTClaimsSet.Builder claimSetBuilder = new JWTClaimsSet.Builder();
         claimSetBuilder.subject(payLoad);
@@ -92,7 +92,7 @@ public class JWTUserToken {
         // TODO use jwtUserConfig.getServerName
         // claimSetBuilder.audience()
 
-        claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(jwtClientConfig.getJWTTimeToLive(), issueTime));
+        claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(SCSClientConfig.getJWTTimeToLive(), issueTime));
 
         if (claimsProvider != null) {
             Map<String, Object> claims = claimsProvider.defineAdditionalClaims(userPrincipal);
@@ -124,7 +124,7 @@ public class JWTUserToken {
     private String encryptToken(String apiKey, SignedJWT signedJWT) {
         String result;
         try {
-            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(jwtClientConfig.getJWEAlgorithm());
+            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(SCSClientConfig.getJWEAlgorithm());
             result = encryptionHandler.doEncryption(apiKey, signedJWT);
         } catch (JOSEException e) {
             throw new OctopusUnexpectedException(e);

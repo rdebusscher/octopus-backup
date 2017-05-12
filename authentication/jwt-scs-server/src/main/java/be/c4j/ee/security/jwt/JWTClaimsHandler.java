@@ -27,5 +27,5 @@ public interface JWTClaimsHandler {
 
     boolean claimsAreValid(JWTClaimsSet claimsSet);
 
-    Map<String, Object> defineAdditionalUserInfo(JWTUser jwtUser);
+    Map<String, Object> defineAdditionalUserInfo(SCSUser SCSUser);
 }

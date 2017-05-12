@@ -16,7 +16,7 @@
 package be.c4j.ee.security.jwt.encryption;
 
 import be.c4j.ee.security.jwt.config.JWKFileReader;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -29,7 +29,7 @@ import java.text.ParseException;
 
 public interface DecryptionHandler {
 
-    void init(JWTUserConfig jwtUserConfig, JWKFileReader jwkFileReader);
+    void init(SCSConfig SCSConfig, JWKFileReader jwkFileReader);
 
     SignedJWT doDecryption(String apiKey, String token) throws ParseException, JOSEException;
 }

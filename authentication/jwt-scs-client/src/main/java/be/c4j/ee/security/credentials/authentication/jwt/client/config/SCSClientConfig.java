@@ -19,7 +19,7 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.JWTSignature;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
@@ -30,12 +30,12 @@ import javax.inject.Inject;
  *
  */
 @ApplicationScoped
-public class JWTClientConfig {
+public class SCSClientConfig {
 
     private static final String INVALID_VALUE_JWT_TOKEN_TIME_TO_LIVE = "Invalid value specified for parameter jwt.token.timeToLive, needs to be a positive integer value";
 
     @Inject
-    private JWTUserConfig jwtUserConfig;
+    private SCSConfig SCSConfig;
 
     @ConfigEntry
     public int getJWTTimeToLive() {
@@ -52,25 +52,25 @@ public class JWTClientConfig {
         return result;
     }
 
-    // methods delegating to JWTUserConfig
+    // methods delegating to SCSConfig
     @ConfigEntry(noLogging = true)
     public String getHMACTokenSecret() {
-        return jwtUserConfig.getHMACTokenSecret();
+        return SCSConfig.getHMACTokenSecret();
     }
 
     @ConfigEntry
     public JWTOperation getJWTOperation() {
-        return jwtUserConfig.getJWTOperation();
+        return SCSConfig.getJWTOperation();
     }
 
     @ConfigEntry
     public JWEAlgorithm getJWEAlgorithm() {
-        return jwtUserConfig.getJWEAlgorithm();
+        return SCSConfig.getJWEAlgorithm();
     }
 
     @ConfigEntry
     public JWTSignature getJwtSignature() {
-        JWTSignature signature = jwtUserConfig.getJwtSignature();
+        JWTSignature signature = SCSConfig.getJwtSignature();
         if (signature == null) {
             throw new OctopusConfigurationException("No Algorithm specified for the JWT signature; parameter jwt.algorithm incorrect");
         }
@@ -80,7 +80,7 @@ public class JWTClientConfig {
 
     @ConfigEntry
     public String getServerName() {
-        return jwtUserConfig.getServerName();
+        return SCSConfig.getServerName();
     }
 
 }

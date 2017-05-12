@@ -16,7 +16,7 @@
 package be.c4j.ee.security.jwt.realm;
 
 import be.c4j.ee.security.OctopusConstants;
-import be.c4j.ee.security.jwt.JWTUser;
+import be.c4j.ee.security.jwt.SCSUser;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
@@ -32,19 +32,19 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
-public class InfoForJWTUser implements OctopusDefinedAuthenticationInfo, OctopusDefinedAuthorizationInfo {
+public class InfoForSCSUser implements OctopusDefinedAuthenticationInfo, OctopusDefinedAuthorizationInfo {
 
     @Override
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken authenticationToken) {
         AuthenticationInfo authenticationInfo = null;
-        if (authenticationToken instanceof JWTUser) {
-            JWTUser jwtUser = (JWTUser) authenticationToken;
+        if (authenticationToken instanceof SCSUser) {
+            SCSUser SCSUser = (SCSUser) authenticationToken;
             AuthenticationInfoBuilder infoBuilder = new AuthenticationInfoBuilder();
-            infoBuilder.name(jwtUser.getName());
-            infoBuilder.userName(jwtUser.getUserName());
-            infoBuilder.principalId(jwtUser.getId());
-            infoBuilder.addUserInfo(OctopusConstants.EXTERNAL_ID, jwtUser.getExternalId());
-            infoBuilder.addUserInfo(jwtUser.getUserInfo());
+            infoBuilder.name(SCSUser.getName());
+            infoBuilder.userName(SCSUser.getUserName());
+            infoBuilder.principalId(SCSUser.getId());
+            infoBuilder.addUserInfo(OctopusConstants.EXTERNAL_ID, SCSUser.getExternalId());
+            infoBuilder.addUserInfo(SCSUser.getUserInfo());
             authenticationInfo = infoBuilder.build();
         }
         return authenticationInfo;
@@ -56,11 +56,11 @@ public class InfoForJWTUser implements OctopusDefinedAuthenticationInfo, Octopus
         if (primaryPrincipal instanceof UserPrincipal) {
             UserPrincipal user = (UserPrincipal) primaryPrincipal;
             Object token = user.getUserInfo("token");
-            if (token instanceof JWTUser) {
-                JWTUser jwtUser = (JWTUser) token;
+            if (token instanceof SCSUser) {
+                SCSUser SCSUser = (SCSUser) token;
                 AuthorizationInfoBuilder authorizationInfoBuilder = new AuthorizationInfoBuilder();
-                authorizationInfoBuilder.addRolesByName(jwtUser.getRoles());
-                authorizationInfoBuilder.addStringPermissions(jwtUser.getPermissions());
+                authorizationInfoBuilder.addRolesByName(SCSUser.getRoles());
+                authorizationInfoBuilder.addStringPermissions(SCSUser.getPermissions());
 
                 return authorizationInfoBuilder.build();
             }

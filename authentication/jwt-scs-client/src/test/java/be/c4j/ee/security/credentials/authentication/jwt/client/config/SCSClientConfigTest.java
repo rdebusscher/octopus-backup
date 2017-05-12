@@ -16,7 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.config;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import be.c4j.test.TestConfigSource;
 import be.c4j.test.util.ReflectionUtil;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -29,14 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  *
  */
-public class JWTClientConfigTest {
+public class SCSClientConfigTest {
 
-    private JWTClientConfig jwtClientConfig;
+    private SCSClientConfig SCSClientConfig;
 
     @Before
     public void setup() throws IllegalAccessException {
-        jwtClientConfig = new JWTClientConfig();
-        ReflectionUtil.injectDependencies(jwtClientConfig, new JWTUserConfig());
+        SCSClientConfig = new SCSClientConfig();
+        ReflectionUtil.injectDependencies(SCSClientConfig, new SCSConfig());
     }
 
     @After
@@ -48,14 +48,14 @@ public class JWTClientConfigTest {
     public void getJWTTimeToLive() {
         TestConfigSource.defineConfigValue("5");
 
-        int timeToLive = jwtClientConfig.getJWTTimeToLive();
+        int timeToLive = SCSClientConfig.getJWTTimeToLive();
         assertThat(timeToLive).isEqualTo(5);
     }
 
     @Test
     public void getJWTTimeToLive_defaultValue() {
 
-        int timeToLive = jwtClientConfig.getJWTTimeToLive();
+        int timeToLive = SCSClientConfig.getJWTTimeToLive();
         assertThat(timeToLive).isEqualTo(2);
     }
 
@@ -63,28 +63,28 @@ public class JWTClientConfigTest {
     public void getJWTTimeToLive_invalidValue() {
         TestConfigSource.defineConfigValue("JUnit");
 
-        jwtClientConfig.getJWTTimeToLive();
+        SCSClientConfig.getJWTTimeToLive();
     }
 
     @Test(expected = OctopusConfigurationException.class)
     public void getJWTTimeToLive_negativeValue() {
         TestConfigSource.defineConfigValue("-1");
 
-        jwtClientConfig.getJWTTimeToLive();
+        SCSClientConfig.getJWTTimeToLive();
     }
 
     @Test(expected = OctopusConfigurationException.class)
     public void getJWTTimeToLive_zeroValue() {
         TestConfigSource.defineConfigValue("0");
 
-        jwtClientConfig.getJWTTimeToLive();
+        SCSClientConfig.getJWTTimeToLive();
     }
 
     @Test(expected = OctopusConfigurationException.class)
     public void getJwtSignature() {
         // On the JWT User Client side, the JWT Signature is required!!
 
-        jwtClientConfig.getJwtSignature();
+        SCSClientConfig.getJwtSignature();
 
     }
 

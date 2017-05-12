@@ -17,7 +17,7 @@ package be.c4j.ee.security.jwt.encryption;
 
 import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWKFileReader;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ import java.util.Map;
 public class DecryptionHandlerFactory {
 
     @Inject
-    private JWTUserConfig jwtServerConfig;
+    private SCSConfig jwtServerConfig;
 
     @Inject
     private JWKFileReader jwkFileReader;

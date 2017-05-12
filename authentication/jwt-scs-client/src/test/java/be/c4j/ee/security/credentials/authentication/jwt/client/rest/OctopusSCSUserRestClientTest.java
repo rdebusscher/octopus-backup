@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class OctopusJWTUserRestClientTest {
+public class OctopusSCSUserRestClientTest {
 
     private static final String AUTH_TOKEN = "AuthToken";
 
@@ -56,7 +56,7 @@ public class OctopusJWTUserRestClientTest {
     private ClientCustomization clientCustomizationMock;
 
     @InjectMocks
-    private OctopusJWTUserRestClient client;
+    private OctopusSCSUserRestClient client;
 
     private BeanManagerFake beanManagerFake;
 

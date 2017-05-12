@@ -33,7 +33,7 @@ public class MappingSystemAccountToApiKeyTest {
 
 
     @Mock
-    private JWTUserConfig jwtUserConfigMock;
+    private SCSConfig SCSConfigMock;
 
     @InjectMocks
     private MappingSystemAccountToApiKey mapping;
@@ -41,7 +41,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getAccountList() {
 
-        when(jwtUserConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -52,7 +52,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getAccountList_nonExisting() {
 
-        when(jwtUserConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -63,7 +63,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getApiKey() {
 
-        when(jwtUserConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -74,7 +74,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getApiKey_scenario2() {
 
-        when(jwtUserConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -85,7 +85,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getApiKey_nonExisting() {
 
-        when(jwtUserConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -95,7 +95,7 @@ public class MappingSystemAccountToApiKeyTest {
 
     @Test
     public void getOnlyAccount() {
-        when(jwtUserConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey_v2.properties");
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey_v2.properties");
 
         mapping.init();
 

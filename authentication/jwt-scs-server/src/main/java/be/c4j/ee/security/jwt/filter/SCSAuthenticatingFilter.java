@@ -22,10 +22,10 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.filter.ErrorInfo;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.JWTClaimsHandler;
-import be.c4j.ee.security.jwt.JWTUser;
+import be.c4j.ee.security.jwt.SCSUser;
 import be.c4j.ee.security.jwt.config.JWTOperation;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
@@ -62,15 +62,16 @@ import java.util.List;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
 import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
+import static be.c4j.ee.security.shiro.OctopusSessionStorageEvaluator.NO_STORAGE;
 
 /**
  *
  */
 
-public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Initializable {
+public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Initializable {
 
     @Inject
-    private JWTUserConfig jwtServerConfig;
+    private SCSConfig jwtServerConfig;
 
     private JWTClaimsHandler jwtClaimsHandler;
 
@@ -101,7 +102,11 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         String apiKey = httpServletRequest.getHeader(X_API_KEY);
         String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
-        return createToken(apiKey, token);
+        AuthenticationToken result = createToken(apiKey, token);
+        if (result != null) {
+            request.setAttribute(NO_STORAGE, Boolean.TRUE);
+        }
+        return result;
 
     }
 
@@ -193,8 +198,8 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         return result;
     }
 
-    private JWTUser createJWTUserToken(String apiKey, String token) {
-        JWTUser result = null;
+    private SCSUser createJWTUserToken(String apiKey, String token) {
+        SCSUser result = null;
         try {
             JWSVerifier verifier = null;
             try {
@@ -221,7 +226,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
                 JSONObject jsonObject = getOctopusUserJSONData(claimsSet);
 
-                result = new JWTUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
+                result = new SCSUser(getString(jsonObject, "name"), getString(jsonObject, "id"));
                 result.setUserName(optString(jsonObject, "userName"));
                 result.setExternalId(optString(jsonObject, OctopusConstants.EXTERNAL_ID));
 
@@ -260,7 +265,7 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         return result;
     }
 
-    private void assignPermissionsAndRoles(JWTUser user, JSONObject jsonObject) {
+    private void assignPermissionsAndRoles(SCSUser user, JSONObject jsonObject) {
         JSONArray roles = getJSONArray(jsonObject, "roles");
         user.setRoles(convertToList(roles));
 

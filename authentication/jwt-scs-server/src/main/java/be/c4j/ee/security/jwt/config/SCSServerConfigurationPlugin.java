@@ -17,7 +17,7 @@ package be.c4j.ee.security.jwt.config;
 
 import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.PluginOrder;
-import be.c4j.ee.security.jwt.filter.JWTAuthenticatingFilter;
+import be.c4j.ee.security.jwt.filter.SCSAuthenticatingFilter;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 
@@ -28,13 +28,13 @@ import javax.enterprise.context.ApplicationScoped;
  */
 @ApplicationScoped
 @PluginOrder(75)
-public class JWTServerConfigurationPlugin implements ConfigurationPlugin {
+public class SCSServerConfigurationPlugin implements ConfigurationPlugin {
 
     @Override
     public void addConfiguration(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
 
-        mainSection.put("jwtFilter", JWTAuthenticatingFilter.class.getName());
+        mainSection.put("scs", SCSAuthenticatingFilter.class.getName());
 
     }
 }

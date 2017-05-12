@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
+import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
@@ -28,8 +28,6 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
-import org.apache.shiro.SecurityUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +58,7 @@ public class JWTSystemTokenTest {
     private static final String SERVER = "JUnit";
 
     @Mock
-    private JWTClientConfig jwtClientConfigMock;
+    private SCSClientConfig SCSClientConfigMock;
 
     @Mock
     private JWKManager jwkManagerMock;
@@ -80,11 +78,11 @@ public class JWTSystemTokenTest {
     @Test
     public void createJWTSystemToken() throws ParseException, JOSEException {
 
-        when(jwtClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
+        when(SCSClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         jwtSystemToken.init();
 
-        when(jwtClientConfigMock.getJWTTimeToLive()).thenReturn(2);
-        when(jwtClientConfigMock.getServerName()).thenReturn(SERVER);
+        when(SCSClientConfigMock.getJWTTimeToLive()).thenReturn(2);
+        when(SCSClientConfigMock.getServerName()).thenReturn(SERVER);
         RSAKey rsaJWK = makeRSA(2018, KeyUse.SIGNATURE, new Algorithm("PS512"), API_KEY);
         when(jwkManagerMock.getJWKForApiKey(API_KEY)).thenReturn(rsaJWK);
 

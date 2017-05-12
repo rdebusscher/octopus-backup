@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
-import be.c4j.ee.security.credentials.authentication.jwt.client.config.JWTClientConfig;
+import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandler;
 import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandlerFactory;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
@@ -42,7 +42,7 @@ import java.util.Date;
 public class JWTSystemToken {
 
     @Inject
-    private JWTClientConfig jwtClientConfig;
+    private SCSClientConfig SCSClientConfig;
 
     @Inject
     private JWKManager jwkManager;
@@ -60,7 +60,7 @@ public class JWTSystemToken {
 
     @PostConstruct
     public void init() {
-        jwtOperation = jwtClientConfig.getJWTOperation();
+        jwtOperation = SCSClientConfig.getJWTOperation();
 
     }
 
@@ -73,12 +73,12 @@ public class JWTSystemToken {
 
         JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder();
         claimsSetBuilder.subject(systemAccount);
-        claimsSetBuilder.audience(jwtClientConfig.getServerName());
+        claimsSetBuilder.audience(SCSClientConfig.getServerName());
 
         Date issueTime = new Date();
         claimsSetBuilder.issueTime(issueTime);
 
-        claimsSetBuilder.expirationTime(timeUtil.addSecondsToDate(jwtClientConfig.getJWTTimeToLive(), issueTime));
+        claimsSetBuilder.expirationTime(timeUtil.addSecondsToDate(SCSClientConfig.getJWTTimeToLive(), issueTime));
         // TODO Extension to add custom claims. Is this needed ?
         //claimsSetBuilder.claim("clientAddress", "127.0.0.1");
 
@@ -110,7 +110,7 @@ public class JWTSystemToken {
     private String encryptToken(String apiKey, SignedJWT signedJWT) {
         String result;
         try {
-            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(jwtClientConfig.getJWEAlgorithm());
+            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(SCSClientConfig.getJWEAlgorithm());
             result = encryptionHandler.doEncryption(apiKey, signedJWT);
         } catch (JOSEException e) {
             throw new OctopusUnexpectedException(e);

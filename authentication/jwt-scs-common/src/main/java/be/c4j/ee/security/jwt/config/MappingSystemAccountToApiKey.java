@@ -33,7 +33,7 @@ import java.util.*;
 public class MappingSystemAccountToApiKey {
 
     @Inject
-    private JWTUserConfig jwtUserConfig;
+    private SCSConfig SCSConfig;
 
     private Map<String, List<String>> systemAccountsMapping;
 
@@ -41,7 +41,7 @@ public class MappingSystemAccountToApiKey {
     public void init() {
         systemAccountsMapping = new HashMap<String, List<String>>();
 
-        String accountsMapFile = jwtUserConfig.getSystemAccountsMapFile();
+        String accountsMapFile = SCSConfig.getSystemAccountsMapFile();
         if (accountsMapFile == null || accountsMapFile.trim().isEmpty()) {
             throw new OctopusConfigurationException("A value for the parameter jwt.systemaccounts.map is required");
         }
@@ -84,6 +84,7 @@ public class MappingSystemAccountToApiKey {
 
     /**
      * execute the containsOnlyOneMapping() method first to verify there is only one !!
+     *
      * @return
      */
     public String getOnlyAccount() {

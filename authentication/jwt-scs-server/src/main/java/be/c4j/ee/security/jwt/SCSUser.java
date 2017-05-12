@@ -23,7 +23,7 @@ import java.util.List;
 /**
  *
  */
-public class JWTUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
+public class SCSUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
     private String name;
     private String id;
@@ -34,7 +34,7 @@ public class JWTUser extends AbstractOctopusAuthenticationToken implements Valid
     private List<String> roles;
     private List<String> permissions;
 
-    public JWTUser(String subject, String id) {
+    public SCSUser(String subject, String id) {
         name = subject;
         this.id = id;
 

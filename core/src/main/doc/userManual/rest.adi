@@ -4,7 +4,7 @@ For securing REST (JAX-RS) endpoints there are 3 scenarios. Each of them need a 
 
 1. Server and client are both created with Octopus (Java EE 7 only !!)
 2. Server is created with Octopus, client *users* will identify itself with some token (OAuth2, KeyCloack, CAS, ...)
-3. Server is created with Octopus but client and other processes.
+3. Server is created with Octopus but client is some other process.
 
 === Client and Server Octopus based
 
@@ -51,12 +51,12 @@ public class RestApplication extends Application {
 
 ----
 
-Another important part of the configuration is the definition of the filters. One of these filters (_jwtFilter_) will do the automatic authentication based on the header information.
+Another important part of the configuration is the definition of the filters. One of these filters (scs) will do the automatic authentication based on the header information.
 
 So within your _securedURLs.ini- file (or by means of the programmatic option) define for example the following rules.
 
 ----
-data/** = noSessionCreation, jwtFilter
+data/** = noSessionCreation, scs
 ----
 
 And the last part of the configuration is within the _octopusConfig.properties_ file. There we need to specify how the JWT we will receive will be processed.
@@ -163,7 +163,7 @@ Add following dependency to the pom file (amongst the other dependencies)
     </dependency>
 ----
 
-To make a call to the JAX-RS endpoint, wit the transfer of the _Principal_ information within the header, inject the following class *be.c4j.ee.security.credentials.authentication.jwt.client.rest.OctopusJWTUserRestClient*
+To make a call to the JAX-RS endpoint, wit the transfer of the _Principal_ information within the header, inject the following class *be.c4j.ee.security.credentials.authentication.jwt.client.rest.OctopusSCSUserRestClient*
 
 The following method will call then the URL endpoint.
 

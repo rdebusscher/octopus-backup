@@ -20,16 +20,15 @@ import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.JWTClaimsHandler;
-import be.c4j.ee.security.jwt.JWTUser;
+import be.c4j.ee.security.jwt.SCSUser;
 import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWTOperation;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
 import be.c4j.ee.security.util.SecretUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -67,7 +66,7 @@ import static org.mockito.Mockito.when;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class JWTAuthenticatingFilterTest {
+public class SCSAuthenticatingFilterTest {
 
     @Mock
     private HttpServletRequest httpServletRequestMock;
@@ -76,7 +75,7 @@ public class JWTAuthenticatingFilterTest {
     private HttpServletResponse httpServletResponseMock;
 
     @Mock
-    private JWTUserConfig jwtServerConfigMock;
+    private SCSConfig jwtServerConfigMock;
 
     @Mock
     private DecryptionHandlerFactory decryptionHandlerFactoryMock;
@@ -100,7 +99,7 @@ public class JWTAuthenticatingFilterTest {
     private ArgumentCaptor<CharSequence> responseOutputCaptor;
 
 
-    private JWTAuthenticatingFilter jwtAuthenticatingFilter;
+    private SCSAuthenticatingFilter SCSAuthenticatingFilter;
 
     private BeanManagerFake beanManagerFake;
 
@@ -108,7 +107,7 @@ public class JWTAuthenticatingFilterTest {
 
     @Before
     public void setup() {
-        jwtAuthenticatingFilter = new JWTAuthenticatingFilter();
+        SCSAuthenticatingFilter = new SCSAuthenticatingFilter();
 
         beanManagerFake = new BeanManagerFake();
 
@@ -124,25 +123,25 @@ public class JWTAuthenticatingFilterTest {
 
     @Test(expected = AuthenticationException.class)
     public void createToken_MissingAuthorizationHeader() throws Exception {
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test(expected = AuthenticationException.class)
     public void createToken_WrongAuthorizationHeader_1() throws Exception {
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Wrong");
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test(expected = AuthenticationException.class)
     public void createToken_WrongAuthorizationHeader_2() throws Exception {
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Still wrong");
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test(expected = AuthenticationException.class)
     public void createToken_WrongToken() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -153,17 +152,17 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer wrong");
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
     }
 
     @Test(expected = OctopusConfigurationException.class)
     public void createToken_ShortSecret() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -174,16 +173,16 @@ public class JWTAuthenticatingFilterTest {
         String secret = secretUtil.generateSecretBase64(16);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer XXXX"); // We should never come to the check of the token
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test
     public void createToken_happyCase() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -195,24 +194,24 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer " + createSignedJWT(secret).serialize());
 
 
-        AuthenticationToken token = jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        AuthenticationToken token = SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
         assertThat(token).isNotNull();
-        assertThat(token).isInstanceOf(JWTUser.class);
+        assertThat(token).isInstanceOf(SCSUser.class);
 
-        JWTUser jwtUser = (JWTUser) token;
-        assertThat(jwtUser.getId()).isEqualTo("123");
-        assertThat(jwtUser.getName()).isEqualTo("JUnit");
+        SCSUser SCSUser = (SCSUser) token;
+        assertThat(SCSUser.getId()).isEqualTo("123");
+        assertThat(SCSUser.getName()).isEqualTo("JUnit");
     }
 
     @Test(expected = AuthenticationException.class)
     public void createToken_happyCase_claimsHandler_notValid() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwtClaimsHandlerMock, JWTClaimsHandler.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
@@ -225,19 +224,19 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer " + createSignedJWT(secret).serialize());
 
         when(jwtClaimsHandlerMock.claimsAreValid(any(JWTClaimsSet.class))).thenReturn(false);
 
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test
     public void createToken_happyCase_claimSetHandler() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwtClaimsHandlerMock, JWTClaimsHandler.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
@@ -250,7 +249,7 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer " + createSignedJWT(secret).serialize());
 
@@ -258,24 +257,24 @@ public class JWTAuthenticatingFilterTest {
 
         Map<String, Object> extras = new HashMap<String, Object>();
         extras.put("ExtraKey", "JUnit");
-        when(jwtClaimsHandlerMock.defineAdditionalUserInfo(any(JWTUser.class))).thenReturn(extras);
+        when(jwtClaimsHandlerMock.defineAdditionalUserInfo(any(SCSUser.class))).thenReturn(extras);
 
-        AuthenticationToken token = jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        AuthenticationToken token = SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
         assertThat(token).isNotNull();
-        assertThat(token).isInstanceOf(JWTUser.class);
+        assertThat(token).isInstanceOf(SCSUser.class);
 
-        JWTUser jwtUser = (JWTUser) token;
-        assertThat(jwtUser.getId()).isEqualTo("123");
-        assertThat(jwtUser.getName()).isEqualTo("JUnit");
+        SCSUser SCSUser = (SCSUser) token;
+        assertThat(SCSUser.getId()).isEqualTo("123");
+        assertThat(SCSUser.getName()).isEqualTo("JUnit");
 
-        assertThat(jwtUser.getUserInfo()).containsEntry("ExtraKey", "JUnit");
+        assertThat(SCSUser.getUserInfo()).containsEntry("ExtraKey", "JUnit");
     }
 
 
     @Test(expected = AuthenticationException.class)
     public void createToken_InvalidToken() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -287,7 +286,7 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         String signedJWT = createSignedJWT(secret).serialize();
         int idx = signedJWT.charAt('.');
@@ -296,19 +295,19 @@ public class JWTAuthenticatingFilterTest {
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer " + signedJWT);
 
 
-        AuthenticationToken token = jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        AuthenticationToken token = SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
         assertThat(token).isNotNull();
-        assertThat(token).isInstanceOf(JWTUser.class);
+        assertThat(token).isInstanceOf(SCSUser.class);
 
-        JWTUser jwtUser = (JWTUser) token;
-        assertThat(jwtUser.getId()).isEqualTo(123L);
-        assertThat(jwtUser.getName()).isEqualTo("JUnit");
+        SCSUser SCSUser = (SCSUser) token;
+        assertThat(SCSUser.getId()).isEqualTo(123L);
+        assertThat(SCSUser.getName()).isEqualTo("JUnit");
     }
 
     @Test(expected = AuthenticationException.class)
     public void createToken_expiredToken() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -320,20 +319,20 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer " + createSignedJWT(secret));
 
 
         Thread.sleep(1500);  // Token is only 1 sec valid, so this makes it invalid.
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
     }
 
     @Test
     public void createToken_happyCase_encrypted() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -346,7 +345,7 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
         when(jwtServerConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer TheEncrypted");
 
@@ -354,19 +353,19 @@ public class JWTAuthenticatingFilterTest {
         when(decryptionHandlerFactoryMock.getDecryptionHandler(JWEAlgorithm.AES)).thenReturn(decryptionHandlerMock);
         when(decryptionHandlerMock.doDecryption(null, "TheEncrypted")).thenReturn(createSignedJWT(secret));
 
-        AuthenticationToken token = jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        AuthenticationToken token = SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
         assertThat(token).isNotNull();
-        assertThat(token).isInstanceOf(JWTUser.class);
+        assertThat(token).isInstanceOf(SCSUser.class);
 
-        JWTUser jwtUser = (JWTUser) token;
-        assertThat(jwtUser.getId()).isEqualTo("123");
-        assertThat(jwtUser.getName()).isEqualTo("JUnit");
+        SCSUser SCSUser = (SCSUser) token;
+        assertThat(SCSUser.getId()).isEqualTo("123");
+        assertThat(SCSUser.getName()).isEqualTo("JUnit");
     }
 
     @Test(expected = OctopusUnexpectedException.class)
     public void createToken_encrypted_wrong() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -379,7 +378,7 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
         when(jwtServerConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.AES);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer TheEncrypted");
 
@@ -387,7 +386,7 @@ public class JWTAuthenticatingFilterTest {
         when(decryptionHandlerFactoryMock.getDecryptionHandler(JWEAlgorithm.AES)).thenReturn(decryptionHandlerMock);
         when(decryptionHandlerMock.doDecryption(null, "TheEncrypted")).thenThrow(new ParseException("X", 1));
 
-        jwtAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 
     }
 
@@ -434,7 +433,7 @@ public class JWTAuthenticatingFilterTest {
 
     @Test(expected = AuthenticationException.class)
     public void onAccessDenied_missingHeader() throws Exception {
-        jwtAuthenticatingFilter.onAccessDenied(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.onAccessDenied(httpServletRequestMock, httpServletResponseMock);
     }
 
     @Test(expected = UnavailableSecurityManagerException.class)
@@ -442,7 +441,7 @@ public class JWTAuthenticatingFilterTest {
     // This is Shiro specific from that point so we assume it is ok.
     public void onAccessDenied_withHeader() throws Exception {
 
-        beanManagerFake.registerBean(jwtServerConfigMock, JWTUserConfig.class);
+        beanManagerFake.registerBean(jwtServerConfigMock, SCSConfig.class);
         beanManagerFake.registerBean(decryptionHandlerFactoryMock, DecryptionHandlerFactory.class);
         beanManagerFake.registerBean(jwkManagerMock, JWKManager.class);
         beanManagerFake.registerBean(mappingSystemAccountToApiKeyMock, MappingSystemAccountToApiKey.class);
@@ -454,11 +453,11 @@ public class JWTAuthenticatingFilterTest {
         when(jwtServerConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         when(jwtServerConfigMock.getHMACTokenSecret()).thenReturn(secret);
 
-        jwtAuthenticatingFilter.init();
+        SCSAuthenticatingFilter.init();
 
         when(httpServletRequestMock.getHeader("Authorization")).thenReturn("Bearer " + createSignedJWT(secret).serialize());
 
-        jwtAuthenticatingFilter.onAccessDenied(httpServletRequestMock, httpServletResponseMock);
+        SCSAuthenticatingFilter.onAccessDenied(httpServletRequestMock, httpServletResponseMock);
 
     }
 
@@ -467,7 +466,7 @@ public class JWTAuthenticatingFilterTest {
         when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
 
         OctopusConfigurationException exception = new OctopusConfigurationException("Something went wrong");
-        jwtAuthenticatingFilter.cleanup(httpServletRequestMock, httpServletResponseMock, exception);
+        SCSAuthenticatingFilter.cleanup(httpServletRequestMock, httpServletResponseMock, exception);
 
         verify(printWriterMock).append(responseOutputCaptor.capture());
         assertThat(responseOutputCaptor.getValue()).isEqualTo("{\"code\":\"OCT-JWT-SCS-001\", \"message\":\"Octopus Configuration exception: Something went wrong\"}");
@@ -478,7 +477,7 @@ public class JWTAuthenticatingFilterTest {
         when(httpServletResponseMock.getWriter()).thenReturn(printWriterMock);
 
         OctopusUnauthorizedException exception = new OctopusUnauthorizedException("Denied access", null);
-        jwtAuthenticatingFilter.cleanup(httpServletRequestMock, httpServletResponseMock, exception);
+        SCSAuthenticatingFilter.cleanup(httpServletRequestMock, httpServletResponseMock, exception);
 
         verify(printWriterMock).append(responseOutputCaptor.capture());
         assertThat(responseOutputCaptor.getValue()).isEqualTo("{\"code\":\"OCT-JWT-SCS-011\", \"message\":\"Denied access\"}");

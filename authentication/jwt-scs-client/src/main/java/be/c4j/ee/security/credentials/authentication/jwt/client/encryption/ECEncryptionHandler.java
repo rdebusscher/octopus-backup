@@ -16,7 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
 import be.c4j.ee.security.jwt.config.JWKFileReader;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDHEncrypter;
 import com.nimbusds.jose.jwk.ECKey;
@@ -30,13 +30,13 @@ import com.nimbusds.jwt.SignedJWT;
 public class ECEncryptionHandler implements EncryptionHandler {
 
 
-    private JWTUserConfig jwtUserConfig;
+    private SCSConfig SCSConfig;
     private JWKFileReader jwkFileReader;
 
     @Override
-    public void init(JWTUserConfig jwtUserConfig, JWKFileReader jwkFileReader) {
+    public void init(SCSConfig SCSConfig, JWKFileReader jwkFileReader) {
 
-        this.jwtUserConfig = jwtUserConfig;
+        this.SCSConfig = SCSConfig;
         this.jwkFileReader = jwkFileReader;
     }
 
@@ -49,7 +49,7 @@ public class ECEncryptionHandler implements EncryptionHandler {
                 new Payload(signedJWT));
 
         // Perform encryption
-        JWK jwk = jwkFileReader.readJWKFile(apiKey, jwtUserConfig.getJWKFile());
+        JWK jwk = jwkFileReader.readJWKFile(apiKey, SCSConfig.getJWKFile());
         jweObject.encrypt(new ECDHEncrypter((ECKey) jwk));
 
         // Serialise to JWE compact form

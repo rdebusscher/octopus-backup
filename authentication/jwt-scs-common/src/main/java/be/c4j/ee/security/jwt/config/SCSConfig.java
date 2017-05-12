@@ -27,7 +27,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
-public class JWTUserConfig extends AbstractOctopusConfig implements ModuleConfig {
+public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     private JWTOperation jwtOperation;
     private JWEAlgorithm jweAlgorithm;
@@ -127,6 +127,6 @@ public class JWTUserConfig extends AbstractOctopusConfig implements ModuleConfig
         // TODO Maybe a bit strange that we have the parameter named sso.xxx .
         // It is only required within the jwt part of Octopus SSO feature.
         String propertyValue = ConfigResolver.getPropertyValue("sso.server.name", "octopus");
-        return  propertyValue;
+        return propertyValue;
     }
 }

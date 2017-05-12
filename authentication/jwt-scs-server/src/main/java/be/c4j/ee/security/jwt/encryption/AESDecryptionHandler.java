@@ -16,7 +16,7 @@
 package be.c4j.ee.security.jwt.encryption;
 
 import be.c4j.ee.security.jwt.config.JWKFileReader;
-import be.c4j.ee.security.jwt.config.JWTUserConfig;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.crypto.AESDecrypter;
@@ -31,12 +31,12 @@ import java.text.ParseException;
 
 public class AESDecryptionHandler implements DecryptionHandler {
 
-    private JWTUserConfig jwtServerConfig;
+    private SCSConfig jwtServerConfig;
 
     @Override
-    public void init(JWTUserConfig jwtUserConfig, JWKFileReader jwkFileReader) {
+    public void init(SCSConfig SCSConfig, JWKFileReader jwkFileReader) {
 
-        this.jwtServerConfig = jwtUserConfig;
+        this.jwtServerConfig = SCSConfig;
         // We don't need the jwkFileReader here
     }
 

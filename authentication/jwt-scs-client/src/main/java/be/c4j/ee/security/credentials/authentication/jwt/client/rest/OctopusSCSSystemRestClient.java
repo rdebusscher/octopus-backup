@@ -17,14 +17,14 @@ package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 
 
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
-import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvider;
-import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
+import be.c4j.ee.security.credentials.authentication.jwt.client.JWTSystemToken;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.filter.ErrorInfo;
+import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -40,13 +40,19 @@ import static be.c4j.ee.security.OctopusConstants.X_API_KEY;
 /**
  *
  */
-@ApplicationScoped
-public class OctopusJWTUserRestClient {
+@Dependent  // As we can set the systemAccount differently
+public class OctopusSCSSystemRestClient {
+
 
     @Inject
-    private JWTUserToken jwtUserToken;
+    private JWTSystemToken jwtSystemToken;
+
+    @Inject
+    private MappingSystemAccountToApiKey mappingSystemAccountToApiKey;
 
     private Client client;
+
+    private String systemAccount;
 
     @PostConstruct
     public void init() {
@@ -62,6 +68,11 @@ public class OctopusJWTUserRestClient {
         if (clientCustomization != null) {
             clientCustomization.customize(client, this.getClass());
         }
+
+        if (mappingSystemAccountToApiKey.containsOnlyOneMapping()) {
+            systemAccount = mappingSystemAccountToApiKey.getOnlyAccount();
+        }
+
     }
 
     private Configuration getConfiguration(ClientCustomization clientCustomization) {
@@ -76,32 +87,23 @@ public class OctopusJWTUserRestClient {
         return client;
     }
 
-    public void addAuthenticationHeader(Invocation.Builder builder, String apiKey, JWTClaimsProvider jwtClaimsProvider) {
-        builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader(apiKey, jwtClaimsProvider));
-        builder.header(X_API_KEY, apiKey);
+    public void addAuthenticationHeader(Invocation.Builder builder) {
+        builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader());
+        builder.header(X_API_KEY, mappingSystemAccountToApiKey.getApiKey(systemAccount));
     }
 
-    private String getAuthenticationHeader(String apiKey, JWTClaimsProvider jwtClaimsProvider) {
-        return "Bearer " + jwtUserToken.createJWTUserToken(apiKey, jwtClaimsProvider);
+    private String getAuthenticationHeader() {
+        return "Bearer " + jwtSystemToken.createJWTSystemToken(systemAccount);
     }
 
     public <T> T get(String url, Class<T> classType, URLArgument... urlArguments) {
-        return get(url, classType, null, null, urlArguments);
-    }
-
-    public <T> T get(String url, Class<T> classType, String apiKey, URLArgument... urlArguments) {
-        return get(url, classType, null, apiKey, urlArguments);
-    }
-
-    public <T> T get(String url, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
-        // FIXME Use URLArguments
         Invocation.Builder builder = client.target(url).request();
 
-        addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
+        addAuthenticationHeader(builder);
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get();
-        // FIXME Status 404 -> Wrong URL
+        // FIXME check also Status 404 -> Wrong URL
         if (response.getStatus() == 401) {
             ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
             // TODO put something meaning full in the exception point like URL?
@@ -111,16 +113,8 @@ public class OctopusJWTUserRestClient {
     }
 
     public <T> T post(String url, Object postBody, Class<T> classType, URLArgument... urlArguments) {
-        return post(url, postBody, classType, null, null, urlArguments);
-    }
-
-    public <T> T post(String url, Object postBody, Class<T> classType, String apiKey, URLArgument... urlArguments) {
-        return post(url, postBody, classType, null, apiKey, urlArguments);
-    }
-
-    public <T> T post(String url, Object postBody, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
         Invocation.Builder builder = client.target(url).request();
-        addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
+        addAuthenticationHeader(builder);
 
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -135,16 +129,8 @@ public class OctopusJWTUserRestClient {
     }
 
     public <T> T put(String url, Object putBody, Class<T> classType, URLArgument... urlArguments) {
-        return put(url, putBody, classType, null, null, urlArguments);
-    }
-
-    public <T> T put(String url, Object putBody, Class<T> classType, String apiKey, URLArgument... urlArguments) {
-        return put(url, putBody, classType, null, apiKey, urlArguments);
-    }
-
-    public <T> T put(String url, Object putBody, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
         Invocation.Builder builder = client.target(url).request();
-        addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
+        addAuthenticationHeader(builder);
 
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -159,16 +145,8 @@ public class OctopusJWTUserRestClient {
     }
 
     public boolean delete(String url, URLArgument... urlArguments) {
-        return delete(url, null, null, urlArguments);
-    }
-
-    public boolean delete(String url, String apiKey, URLArgument... urlArguments) {
-        return delete(url, null, apiKey, urlArguments);
-    }
-
-    public boolean delete(String url, JWTClaimsProvider jwtClaimsProvider, String apiKey, URLArgument... urlArguments) {
         Invocation.Builder builder = client.target(url).request();
-        addAuthenticationHeader(builder, apiKey, jwtClaimsProvider);
+        addAuthenticationHeader(builder);
 
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -183,4 +161,7 @@ public class OctopusJWTUserRestClient {
 
     }
 
+    public void setSystemAccount(String systemAccount) {
+        this.systemAccount = systemAccount;
+    }
 }
