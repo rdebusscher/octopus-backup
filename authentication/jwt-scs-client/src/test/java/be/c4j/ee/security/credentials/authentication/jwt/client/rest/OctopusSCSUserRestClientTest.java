@@ -18,7 +18,9 @@ package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
 import be.c4j.ee.security.credentials.authentication.jwt.client.rest.data.Data;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.test.util.BeanManagerFake;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import net.jadler.Jadler;
@@ -139,6 +141,33 @@ public class OctopusSCSUserRestClientTest {
                 .withStatus(401)
                 .withContentType(CommonContentTypes.APPLICATION_JSON.toString())
                 .withBody("{\"code\":\"ABC\", \"message\":\"DEF\"}");
+
+        client.get(defineEndpoint(), Data.class);
+
+    }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void get_WrongURL() {
+        when(jwtUserTokenMock.createJWTUserToken(null, null)).thenReturn(AUTH_TOKEN);
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .respond()
+                .withStatus(404);
+
+        client.get(defineEndpoint(), Data.class);
+
+    }
+
+    @Test(expected = OctopusUnexpectedException.class)
+    public void get_Unexpected() {
+        when(jwtUserTokenMock.createJWTUserToken(null, null)).thenReturn(AUTH_TOKEN);
+        client.init();
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .respond()
+                .withStatus(500);
 
         client.get(defineEndpoint(), Data.class);
 

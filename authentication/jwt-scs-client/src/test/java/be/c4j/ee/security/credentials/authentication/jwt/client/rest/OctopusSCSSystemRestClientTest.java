@@ -20,6 +20,7 @@ import be.c4j.ee.security.credentials.authentication.jwt.client.JWTSystemToken;
 import be.c4j.ee.security.credentials.authentication.jwt.client.rest.data.Data;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
 import be.c4j.test.util.BeanManagerFake;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
@@ -132,6 +133,42 @@ public class OctopusSCSSystemRestClientTest {
                 .withStatus(401)
                 .withContentType(CommonContentTypes.APPLICATION_JSON.toString())
                 .withBody("{\"code\":\"ABC\", \"message\":\"DEF\"}");
+
+        client.get(defineEndpoint(), Data.class);
+
+    }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void get_WrongURL() {
+        when(mappingSystemAccountToApiKeyMock.containsOnlyOneMapping()).thenReturn(true);
+        when(mappingSystemAccountToApiKeyMock.getOnlyAccount()).thenReturn(SYSTEM_ACCOUNT);
+        when(mappingSystemAccountToApiKeyMock.getApiKey(SYSTEM_ACCOUNT)).thenReturn(X_API_TOKEN);
+        when(jwtSystemTokenMock.createJWTSystemToken(SYSTEM_ACCOUNT)).thenReturn(AUTH_TOKEN);
+
+        client.init();
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .respond()
+                .withStatus(404);
+
+        client.get(defineEndpoint(), Data.class);
+
+    }
+
+    @Test(expected = OctopusUnexpectedException.class)
+    public void get_Unexpected() {
+        when(mappingSystemAccountToApiKeyMock.containsOnlyOneMapping()).thenReturn(true);
+        when(mappingSystemAccountToApiKeyMock.getOnlyAccount()).thenReturn(SYSTEM_ACCOUNT);
+        when(mappingSystemAccountToApiKeyMock.getApiKey(SYSTEM_ACCOUNT)).thenReturn(X_API_TOKEN);
+        when(jwtSystemTokenMock.createJWTSystemToken(SYSTEM_ACCOUNT)).thenReturn(AUTH_TOKEN);
+
+        client.init();
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .respond()
+                .withStatus(500);
 
         client.get(defineEndpoint(), Data.class);
 

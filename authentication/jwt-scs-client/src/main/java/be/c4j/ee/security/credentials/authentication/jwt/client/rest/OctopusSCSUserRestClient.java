@@ -19,13 +19,12 @@ package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvider;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
-import be.c4j.ee.security.exception.OctopusUnauthorizedException;
-import be.c4j.ee.security.filter.ErrorInfo;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -97,12 +96,7 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get();
-        // FIXME Status 404 -> Wrong URL
-        if (response.getStatus() == 401) {
-            ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
-            // TODO put something meaning full in the exception point like URL?
-            throw new OctopusUnauthorizedException(errorInfo.getMessage(), null);
-        }
+        handleErrorReturns(url, response, HttpMethod.GET);
         return response.readEntity(classType);
     }
 
@@ -122,11 +116,7 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(postBody, MediaType.APPLICATION_JSON_TYPE));
 
-        if (response.getStatus() == 401) {
-            ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
-            // TODO put something meaning full in the exception point like URL?
-            throw new OctopusUnauthorizedException(errorInfo.getMessage(), null);
-        }
+        handleErrorReturns(url, response, HttpMethod.POST);
         return response.readEntity(classType);
     }
 
@@ -146,11 +136,7 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .put(Entity.entity(putBody, MediaType.APPLICATION_JSON_TYPE));
 
-        if (response.getStatus() == 401) {
-            ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
-            // TODO put something meaning full in the exception point like URL?
-            throw new OctopusUnauthorizedException(errorInfo.getMessage(), null);
-        }
+        handleErrorReturns(url, response, HttpMethod.PUT);
         return response.readEntity(classType);
     }
 
@@ -170,11 +156,7 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .delete();
 
-        if (response.getStatus() == 401) {
-            ErrorInfo errorInfo = response.readEntity(ErrorInfo.class);
-            // TODO put something meaning full in the exception point like URL?
-            throw new OctopusUnauthorizedException(errorInfo.getMessage(), null);
-        }
+        handleErrorReturns(url, response, HttpMethod.DELETE);
         return true;
 
     }
