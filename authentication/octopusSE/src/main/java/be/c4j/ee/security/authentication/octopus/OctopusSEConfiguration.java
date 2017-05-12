@@ -41,7 +41,11 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
     }
 
     public String getOctopusSSOServer() {
-        return ConfigResolver.getPropertyValue("SSO.octopus.server", "");
+        String result = ConfigResolver.getPropertyValue("SSO.octopus.server");
+        if (result == null || result.trim().isEmpty()) {
+            throw new OctopusConfigurationException("Value for SSO.octopus.server parameter is empty.");
+        }
+        return result;
     }
 
     public String getUserInfoEndpoint() {
