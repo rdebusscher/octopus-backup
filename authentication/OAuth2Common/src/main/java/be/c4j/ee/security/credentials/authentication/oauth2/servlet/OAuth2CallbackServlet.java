@@ -18,7 +18,6 @@ package be.c4j.ee.security.credentials.authentication.oauth2.servlet;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.credentials.authentication.oauth2.DefaultOauth2ServletInfo;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2ProviderMetaDataControl;
-import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeCallbackHandler;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import com.github.scribejava.core.exceptions.OAuthException;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -39,8 +38,6 @@ import java.io.IOException;
 @WebServlet(urlPatterns = {"/oauth2callback"})
 public class OAuth2CallbackServlet extends HttpServlet {
 
-    public static final String FAKE_MARKER = "Fake";
-
     @Inject
     protected Logger logger;
 
@@ -54,9 +51,6 @@ public class OAuth2CallbackServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
-            if (handleFakeLogin(request, response)) {
-                return; // Fake login handled properly
-            }
 
             OAuth2CallbackProcessor processor;
             if (defaultOauth2ServletInfo.getProviders().size() == 1) {
@@ -86,15 +80,4 @@ public class OAuth2CallbackServlet extends HttpServlet {
 
     }
 
-    private boolean handleFakeLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        boolean result = false;
-        // Document this functionality properly.
-        if (request.getAttribute(FAKE_MARKER) != null) {
-            result = true;
-
-            FakeCallbackHandler callbackHandler = BeanProvider.getContextualReference(FakeCallbackHandler.class);
-            callbackHandler.doAuthenticate(request, response);
-        }
-        return result;
-    }
 }

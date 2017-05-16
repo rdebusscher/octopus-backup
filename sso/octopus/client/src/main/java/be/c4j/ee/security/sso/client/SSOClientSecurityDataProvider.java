@@ -20,6 +20,8 @@ import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.authentication.octopus.requestor.PermissionRequestor;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookup;
@@ -27,6 +29,7 @@ import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
+import be.c4j.ee.security.sso.client.fake.FakePermissionProvider;
 import be.c4j.ee.security.sso.realm.SSOAuthenticationInfoBuilder;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -41,6 +44,8 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import java.util.List;
+
+import static be.c4j.ee.security.OctopusConstants.TOKEN;
 
 
 @ApplicationScoped
@@ -81,9 +86,15 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
     public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
 
-        principals.oneByType(OctopusSSOUser.class); // FIXME Check if we get the correct
         UserPrincipal userPrincipal = (UserPrincipal) principals.getPrimaryPrincipal();
-        OctopusSSOUser ssoUser = userPrincipal.getUserInfo("token");
+
+        Object token = userPrincipal.getUserInfo(TOKEN);
+        AuthorizationInfoBuilder infoBuilder = new AuthorizationInfoBuilder();
+
+        if (!(token instanceof OctopusSSOUser)) {
+            throw  new OctopusUnexpectedException("UserPrincipal should be based OctopusSSOUser. Dit you you fakeLogin Module and forget to define Permissions for the fake user?");
+        }
+        OctopusSSOUser ssoUser = (OctopusSSOUser) token;
 
         String realToken = ssoUser.getAccessToken();
 
@@ -92,7 +103,6 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         }
 
         List<NamedDomainPermission> domainPermissions = permissionRequestor.retrieveUserPermissions(realToken);
-        AuthorizationInfoBuilder infoBuilder = new AuthorizationInfoBuilder();
         infoBuilder.addPermissions(domainPermissions);
 
         return infoBuilder.build();
@@ -112,8 +122,27 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         if (!permissions.isEmpty()) {
             return new StringPermissionLookup(permissions);
         }
-        return null;
 
+        if (isFakeLoginActive()) {
+
+            FakePermissionProvider fakePermissionProvider = BeanProvider.getContextualReference(FakePermissionProvider.class, true);
+            if (fakePermissionProvider != null) {
+                return new StringPermissionLookup(fakePermissionProvider.getApplicationPermissions());
+            }
+        }
+        throw new OctopusConfigurationException("Unable to create StringPermissionLookup, See ??? for solutions");
+
+    }
+
+    private boolean isFakeLoginActive() {
+        boolean result = false;
+        try {
+            Class.forName("be.c4j.ee.security.credentials.authentication.fake.FakeAuthenticationServlet");
+            result = true;
+        } catch (ClassNotFoundException e) {
+            ; // Nothing to do, fakeLogin Module isn't with classpath.
+        }
+        return result;
     }
 
 

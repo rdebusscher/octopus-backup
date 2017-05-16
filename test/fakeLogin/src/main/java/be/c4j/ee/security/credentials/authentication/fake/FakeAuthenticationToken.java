@@ -13,15 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.oauth2.fake;
+package be.c4j.ee.security.credentials.authentication.fake;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import org.apache.shiro.authc.AuthenticationToken;
 
 /**
  *
  */
-public interface FakeCallbackHandler {
-    void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+public class FakeAuthenticationToken implements AuthenticationToken, ValidatedAuthenticationToken {
+
+    private FakePrincipal fakePrincipal;
+
+    public FakeAuthenticationToken(FakePrincipal fakePrincipal) {
+        this.fakePrincipal = fakePrincipal;
+    }
+
+    @Override
+    public Object getPrincipal() {
+        return fakePrincipal;
+    }
+
+    @Override
+    public Object getCredentials() {
+        return null;
+    }
 }

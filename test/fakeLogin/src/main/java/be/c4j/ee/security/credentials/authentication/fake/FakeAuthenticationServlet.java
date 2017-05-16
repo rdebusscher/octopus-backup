@@ -16,7 +16,6 @@
 package be.c4j.ee.security.credentials.authentication.fake;
 
 import be.c4j.ee.security.config.OctopusJSFConfig;
-import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.fake.LoginAuthenticationTokenProvider;
@@ -38,13 +37,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * TODO Rename to OAuth2AuthenticationServlet
+ *
  */
 @WebServlet("/fakeLogin")
-public class AuthenticationServlet extends HttpServlet {
+public class FakeAuthenticationServlet extends HttpServlet {
 
     @Inject
     private OctopusJSFConfig octopusConfig;
+
+    @Inject
+    private LoginAuthenticationTokenProvider loginAuthenticationTokenProvider;
 
     private Boolean localhostOnly;
 
@@ -64,7 +66,6 @@ public class AuthenticationServlet extends HttpServlet {
             throw new AccessDeniedException(null);
         }
 
-        LoginAuthenticationTokenProvider loginAuthenticationTokenProvider = BeanProvider.getContextualReference(LoginAuthenticationTokenProvider.class);
         String loginData = request.getParameter("loginData");
 
         AuthenticationToken token = loginAuthenticationTokenProvider.determineAuthenticationToken(loginData);
@@ -89,7 +90,6 @@ public class AuthenticationServlet extends HttpServlet {
             }
         } catch (AuthenticationException e) {
             // DataSecurityProvider decided that google user has no access to application
-            request.getSession().setAttribute(OAuth2User.OAUTH2_USER_INFO, token);
             request.getSession().setAttribute("AuthenticationExceptionMessage", e.getMessage());
             try {
                 response.sendRedirect(request.getContextPath() + octopusConfig.getUnauthorizedExceptionPage());

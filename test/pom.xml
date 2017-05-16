@@ -37,7 +37,6 @@
 
     <modules>
         <module>fakeLogin</module>
-        <module>fakePermissions</module>
     </modules>
 
 </project>

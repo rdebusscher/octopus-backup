@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.fake;
+package be.c4j.ee.security.sso.client.fake;
 
-import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import be.c4j.ee.security.credentials.authentication.oauth2.fake.FakeUserInfo;
+import be.c4j.ee.security.permission.NamedDomainPermission;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import java.util.List;
 
 /**
  *
  */
-@ApplicationScoped
-public class OctopusFakeUserInfo implements FakeUserInfo {
 
-    @Inject
-    private OAuth2TokenStore tokenStore;
+public interface FakePermissionProvider {
 
-    @Override
-    public OAuth2User getUser(String token) {
-        return tokenStore.retrieveUser(token);
-    }
+    List<NamedDomainPermission> getApplicationPermissions();
 }
