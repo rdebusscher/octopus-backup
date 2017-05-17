@@ -24,13 +24,17 @@ import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.realm.*;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.systemaccount.SystemAccount;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.*;
 
 import javax.annotation.security.PermitAll;
+import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public final class AnnotationUtil {
@@ -110,6 +114,8 @@ public final class AnnotationUtil {
 
     /* Retrieve the supported annotation enforcing authorization for the method */
     public static AnnotationInfo getAllAnnotations(OctopusConfig config, Class<?> someClassType, Method someMethod) {
+
+        List<AnnotationsToFind> annotationsToFindList = BeanProvider.getContextualReferences(AnnotationsToFind.class, true);
         AnnotationInfo result = new AnnotationInfo();
 
         result.addMethodAnnotation(someMethod.getAnnotation(PermitAll.class));
@@ -131,6 +137,11 @@ public final class AnnotationUtil {
         if (config.getNamedRoleCheckClass() != null) {
             result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
         }
+        for (AnnotationsToFind annotationsToFind : annotationsToFindList) {
+            for (Class<? extends Annotation> annotationClass : annotationsToFind.getList()) {
+                result.addMethodAnnotation(someMethod.getAnnotation(annotationClass));
+            }
+        }
         result.addClassAnnotation(getAnnotation(someClassType, PermitAll.class));
         result.addClassAnnotation(getAnnotation(someClassType, RequiresAuthentication.class));
         result.addClassAnnotation(getAnnotation(someClassType, RequiresGuest.class));
@@ -147,6 +158,12 @@ public final class AnnotationUtil {
         if (config.getNamedRoleCheckClass() != null) {
             result.addClassAnnotation(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
         }
+        for (AnnotationsToFind annotationsToFind : annotationsToFindList) {
+            for (Class<? extends Annotation> annotationClass : annotationsToFind.getList()) {
+                result.addClassAnnotation(getAnnotation(someClassType, annotationClass));
+            }
+        }
+
 
         return result;
     }

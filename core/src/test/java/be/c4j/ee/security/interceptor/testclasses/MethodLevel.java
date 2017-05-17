@@ -120,5 +120,9 @@ public class MethodLevel {
     public void octopusRole() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_ROLE);
     }
+
+    @AdditionalAnnotation
+    @Deprecated  // This should not be picked up, testing for the AnnotationUtil.getAllAnnotations
+    public void additionalAnnotation() {}
 }
 

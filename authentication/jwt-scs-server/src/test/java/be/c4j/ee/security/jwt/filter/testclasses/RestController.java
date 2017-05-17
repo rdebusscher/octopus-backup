@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.jwt.filter;
+package be.c4j.ee.security.jwt.filter.testclasses;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import be.c4j.ee.security.jwt.filter.IgnoreOctopusSSORestFilter;
+import org.apache.shiro.authz.annotation.RequiresUser;
 
 /**
  *
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface IgnoreOctopusSSORestFilter {
+
+public class RestController {
+
+
+   public void noAnnotation() {}
+
+   @IgnoreOctopusSSORestFilter
+   public void ignoreAnnotation() {}
+
+   @RequiresUser
+   public void requiresUser() {}
 }

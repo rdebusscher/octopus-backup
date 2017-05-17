@@ -37,9 +37,8 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
- * FIXME I think we should move this to another module so that it can be used also in combination with OAuth2 filter for example
- * But Rest module is probably an issue as it redefines the _user_ filter andd w-this module will also be used
- * in combination with a regular JSF app (SCS use case)
+ * This cannot be moved to for example Oauth2-common as it is Java EE 6 based.
+ * ContainerRequestFilter only available in Java EE 7.
  */
 @Provider
 public class OctopusAnnotationContainerRequestFilter implements ContainerRequestFilter {
@@ -67,7 +66,6 @@ public class OctopusAnnotationContainerRequestFilter implements ContainerRequest
 
         AnnotationInfo info = AnnotationUtil.getAllAnnotations(config, classType, method);
 
-        // FIXME This isn't working yet.
         boolean skip = AnnotationUtil.hasAnnotation(info.getMethodAnnotations(), IgnoreOctopusSSORestFilter.class)
                 || AnnotationUtil.hasAnnotation(info.getClassAnnotations(), IgnoreOctopusSSORestFilter.class);
 

@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.jwt.filter;
+package be.c4j.ee.security.util;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 /**
- *
+ * Defines the additional annotations which are found by AnnotationUtil.getAllAnnotations.
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface IgnoreOctopusSSORestFilter {
+public interface AnnotationsToFind {
+    List<Class<? extends Annotation>> getList();
 }

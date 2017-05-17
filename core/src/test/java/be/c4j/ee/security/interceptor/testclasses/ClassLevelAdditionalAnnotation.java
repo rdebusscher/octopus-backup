@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.jwt.filter;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package be.c4j.ee.security.interceptor.testclasses;
 
 /**
  *
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface IgnoreOctopusSSORestFilter {
+@AdditionalAnnotation
+@Deprecated  // This should not be picked up, testing for the AnnotationUtil.getAllAnnotations
+public class ClassLevelAdditionalAnnotation {
+
+    public void additionalAnnotation() {}
 }

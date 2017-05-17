@@ -23,12 +23,15 @@ import be.c4j.ee.security.realm.OctopusPermissions;
 import be.c4j.ee.security.realm.OnlyDuringAuthentication;
 import be.c4j.ee.security.realm.OnlyDuringAuthorization;
 import be.c4j.ee.security.systemaccount.SystemAccount;
+import be.c4j.test.util.BeanManagerFake;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -36,6 +39,8 @@ import org.mockito.stubbing.Answer;
 import javax.annotation.security.PermitAll;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -49,6 +54,8 @@ public class AnnotationUtilTest {
     @Mock
     private OctopusConfig octopusConfigMock;
 
+    private BeanManagerFake beanManagerFake;
+
     @Before
     public void setup() {
         // Define the Named permission check class
@@ -58,11 +65,18 @@ public class AnnotationUtilTest {
                 return TestPermissionCheck.class;
             }
         });
+        beanManagerFake = new BeanManagerFake();
 
+    }
+
+    @After
+    public void teardown() {
+        beanManagerFake.deregistration();
     }
 
     @Test
     public void getAllAnnotations_ClassLevelCustomPermission() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new ClassLevelCustomPermission();
         Method method = target.getClass().getMethod("customPermission1");
 
@@ -79,7 +93,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_ClassLevelCustomVoter() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new ClassLevelCustomVoter();
         Method method = target.getClass().getMethod("customVoter1");
 
@@ -96,7 +110,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_ClassLevelPermitAll() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new ClassLevelPermitAll();
         Method method = target.getClass().getMethod("permitAll1");
 
@@ -112,7 +126,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_ClassLevelRequiresPermissions() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new ClassLevelRequiresPermissions();
         Method method = target.getClass().getMethod("requiresPermissions1");
 
@@ -130,7 +144,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_ClassLevelRequiresUser() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new ClassLevelRequiresUser();
         Method method = target.getClass().getMethod("requiresUser1");
 
@@ -145,7 +159,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_ClassLevelSystemAccount() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new ClassLevelSystemAccount();
         Method method = target.getClass().getMethod("systemAccount1");
 
@@ -163,7 +177,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelPermitAll() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("permitAll");
 
@@ -179,7 +193,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelNoAnnotation() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("noAnnotation");
 
@@ -191,7 +205,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelRequiresUser() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("requiresUser");
 
@@ -207,7 +221,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelOnlyDuringAuthentication() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("inAuthentication");
 
@@ -223,7 +237,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelOnlyDuringAuthorization() throws NoSuchMethodException {
-
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("inAuthorization");
 
@@ -239,6 +253,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelTestPermissionCheck() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("permission2");
 
@@ -255,6 +270,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelCustomVoterCheck() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("customVoter");
 
@@ -271,6 +287,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelRequiresPermissions() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("requiresPermission2");
 
@@ -287,6 +304,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelSystemAccount() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("systemAccountValue2");
 
@@ -303,6 +321,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelOctopusPermissions_1() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("octopusPermission1");
 
@@ -319,6 +338,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MethodLevelOctopusPermissions_2() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MethodLevel();
         Method method = target.getClass().getMethod("octopusPermission2");
 
@@ -335,6 +355,7 @@ public class AnnotationUtilTest {
 
     @Test
     public void getAllAnnotations_MultipleAtMethodLevel() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
         Object target = new MultipleAtMethodLevel();
         Method method = target.getClass().getMethod("multiple");
 
@@ -343,5 +364,42 @@ public class AnnotationUtilTest {
         assertThat(annotations.getMethodAnnotations()).hasSize(2);
 
         // I assume that the correct ones are retrieved
+    }
+
+    @Test
+    public void getAllAnnotations_MethodLevelAdditional() throws NoSuchMethodException {
+        AnnotationsToFind mock = Mockito.mock(AnnotationsToFind.class);
+        beanManagerFake.registerBean(mock, AnnotationsToFind.class);
+        beanManagerFake.endRegistration();
+
+        List<Class<? extends Annotation>> extraAnnotations = new ArrayList<Class<? extends Annotation>>();
+        extraAnnotations.add(AdditionalAnnotation.class);
+        when(mock.getList()).thenReturn(extraAnnotations);
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("additionalAnnotation");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+        Annotation annotation = annotations.getMethodAnnotations().iterator().next();
+        assertThat(annotation.annotationType()).isEqualTo(AdditionalAnnotation.class);
+    }
+
+    @Test
+    public void getAllAnnotations_ClassLevelAdditional() throws NoSuchMethodException {
+        AnnotationsToFind mock = Mockito.mock(AnnotationsToFind.class);
+        beanManagerFake.registerBean(mock, AnnotationsToFind.class);
+        beanManagerFake.endRegistration();
+
+        List<Class<? extends Annotation>> extraAnnotations = new ArrayList<Class<? extends Annotation>>();
+        extraAnnotations.add(AdditionalAnnotation.class);
+        when(mock.getList()).thenReturn(extraAnnotations);
+        Object target = new ClassLevelAdditionalAnnotation();
+        Method method = target.getClass().getMethod("additionalAnnotation");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, ClassLevelAdditionalAnnotation.class, method);
+        assertThat(annotations.getMethodAnnotations()).isEmpty();
+        assertThat(annotations.getClassAnnotations()).hasSize(1);
+        Annotation annotation = annotations.getClassAnnotations().iterator().next();
+        assertThat(annotation.annotationType()).isEqualTo(AdditionalAnnotation.class);
     }
 }

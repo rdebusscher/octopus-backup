@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.jwt.filter;
+package be.c4j.ee.security.interceptor.testclasses;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,5 +25,5 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface IgnoreOctopusSSORestFilter {
+public @interface AdditionalAnnotation {
 }
