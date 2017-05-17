@@ -101,7 +101,7 @@ include::oracleUser.adi[]
 
 include::fakeLogin.adi[]
 
-== JWT Modules
+== SCS Modules
 
 include::SCSModule.adi[]
 
