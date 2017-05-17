@@ -44,6 +44,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.subject.support.DefaultSubjectContext;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 
@@ -84,6 +85,13 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
     @Inject
     private MappingSystemAccountToApiKey mappingSystemAccountToApiKey;
+
+    @Override
+    public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
+        // Same as the noSessionCreate filter. Required also for the SessionHijacking Filter
+        request.setAttribute(DefaultSubjectContext.SESSION_CREATION_ENABLED, Boolean.FALSE);
+        return super.onPreHandle(request, response, mappedValue);
+    }
 
     @Override
     public void init() throws ShiroException {
