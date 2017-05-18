@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.keycloak;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -149,10 +150,9 @@ public class KeycloakAuthenticator {
         try {
             ServerRequest.invokeLogout(deployment, user.getAccessToken().getRefreshToken());
         } catch (IOException e) {
-            e.printStackTrace(); // FIXME
-            //throw new OctopusUnexpectedException(e); FIXME We need a new module so that SE thing can depend on this
+            throw new OctopusUnexpectedException(e);
         } catch (ServerRequest.HttpFailure httpFailure) {
-            httpFailure.printStackTrace();  // FIXME
+            throw new OctopusUnexpectedException(httpFailure);
         }
     }
 
