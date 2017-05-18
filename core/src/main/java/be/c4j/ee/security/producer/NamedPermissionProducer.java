@@ -33,7 +33,7 @@ import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 
 @ApplicationScoped
-public class NamedPermissionProducer {
+public class NamedPermissionProducer extends AbstractProducer {
 
     @Inject
     private OctopusConfig config;
@@ -69,7 +69,7 @@ public class NamedPermissionProducer {
             if (annotation != null) {
                 permissions = AnnotationUtil.getPermissionValues(annotation);
                 if (permissions.length > 1) {
-                    throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
+                    throw new AmbiguousResolutionException(String.format("Only one named permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
                 }
                 result = CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
                         .generatePermissionBeanName(permissions[0].name()), GenericPermissionVoter.class);
@@ -82,7 +82,7 @@ public class NamedPermissionProducer {
 
                 String[] stringPermissions = AnnotationUtil.getStringValues(annotation);
                 if (stringPermissions.length > 1) {
-                    throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
+                    throw new AmbiguousResolutionException(String.format("Only one named permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
                 }
 
                 // See remarks at init() about the usage of StringLookup, even if the developer hasn't defined one
@@ -95,9 +95,10 @@ public class NamedPermissionProducer {
         }
 
         if (result == null) {
+
             throw new UnsatisfiedResolutionException(
-                    "Injection points for GenericPermissionVoter needs an additional " + getInjectPointAnnotationText() +
-                            " annotation to determine the correct bean"
+                    String.format("Injection points for GenericPermissionVoter needs an additional %s annotation to determine the correct bean at %s"
+                            , getInjectPointAnnotationText(), defineInjectionPointInfo(injectionPoint))
             );
         }
 
@@ -117,7 +118,7 @@ public class NamedPermissionProducer {
             if (annotation != null) {
                 NamedPermission[] permissions = AnnotationUtil.getPermissionValues(annotation);
                 if (permissions.length > 1) {
-                    throw new AmbiguousResolutionException("Only one named permission can be specified.");
+                    throw new AmbiguousResolutionException(String.format("Only one named permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
                 }
 
                 // When we have NamedPermissionCheckClass, lookup is required.
@@ -131,7 +132,7 @@ public class NamedPermissionProducer {
 
                 String[] stringPermissions = AnnotationUtil.getStringValues(annotation);
                 if (stringPermissions.length > 1) {
-                    throw new AmbiguousResolutionException("Only one named permission can be specified."); // FIXME Specify at which InjectionPoint
+                    throw new AmbiguousResolutionException(String.format("Only one named permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
                 }
 
                 // See remarks at init() about the usage of StringLookup, even if the developer hasn't defined one
@@ -141,8 +142,8 @@ public class NamedPermissionProducer {
 
         if (result == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for NamedDomainPermission needs an additional " + getInjectPointAnnotationText() +
-                            " annotation to determine the correct bean"
+                    String.format("Injection points for NamedDomainPermission needs an additional %s annotation to determine the correct bean at %s"
+                            , getInjectPointAnnotationText(), defineInjectionPointInfo(injectionPoint))
             );
         }
 

@@ -36,7 +36,7 @@ import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 
 @ApplicationScoped
-public class NamedRoleProducer {
+public class NamedRoleProducer extends AbstractProducer {
 
     @Inject
     private OctopusConfig config;
@@ -66,7 +66,7 @@ public class NamedRoleProducer {
         if (annotation != null) {
             NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
             if (roles.length > 1) {
-                throw new AmbiguousResolutionException("Only one named role can be specified.");
+                throw new AmbiguousResolutionException(String.format("Only one role permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
             }
 
             result = CDIUtil.getContextualReferenceByName(BeanManagerProvider.getInstance().getBeanManager(), nameFactory
@@ -79,7 +79,7 @@ public class NamedRoleProducer {
             if (annotation != null) {
                 String[] roleNames = AnnotationUtil.getStringValues(annotation);
                 if (roleNames.length > 1) {
-                    throw new AmbiguousResolutionException("Only one role can be specified."); // FIXME Specify at which InjectionPoint
+                    throw new AmbiguousResolutionException(String.format("Only one role permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
                 }
 
 
@@ -97,8 +97,9 @@ public class NamedRoleProducer {
 
         if (result == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for GenericRoleVoter needs an additional " + getInjectPointAnnotationText() +
-                            " annotation to determine the correct bean");
+                    String.format("Injection points for GenericRoleVoter needs an additional %s annotation to determine the correct bean at %s"
+                            , getInjectPointAnnotationText(), defineInjectionPointInfo(injectionPoint))
+            );
         }
 
         return result;
@@ -127,7 +128,7 @@ public class NamedRoleProducer {
         if (annotation != null) {
             NamedRole[] roles = AnnotationUtil.getRoleValues(annotation);
             if (roles.length > 1) {
-                throw new AmbiguousResolutionException("Only one named role can be specified.");
+                throw new AmbiguousResolutionException(String.format("Only one role permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
             }
 
             // With getNamedRoleCheckClass defined, the roleLookup is also required
@@ -140,7 +141,7 @@ public class NamedRoleProducer {
             if (annotation != null) {
                 String[] roleNames = AnnotationUtil.getStringValues(annotation);
                 if (roleNames.length > 1) {
-                    throw new AmbiguousResolutionException("Only one role can be specified."); // FIXME Specify at which InjectionPoint
+                    throw new AmbiguousResolutionException(String.format("Only one role permission can be specified at %s", defineInjectionPointInfo(injectionPoint)));
                 }
 
                 if (lookup != null) {
@@ -154,8 +155,9 @@ public class NamedRoleProducer {
         }
         if (result == null) {
             throw new UnsatisfiedResolutionException(
-                    "Injection points for NamedApplicationRole needs an additional " + getInjectPointAnnotationText() +
-                            " annotation to determine the correct bean");
+                    String.format("Injection points for NamedApplicationRole needs an additional %s annotation to determine the correct bean at %s"
+                            , getInjectPointAnnotationText(), defineInjectionPointInfo(injectionPoint))
+            );
         }
 
         return result;

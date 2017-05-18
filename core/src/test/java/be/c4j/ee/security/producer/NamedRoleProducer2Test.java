@@ -33,10 +33,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.enterprise.inject.AmbiguousResolutionException;
-import javax.enterprise.inject.UnsatisfiedResolutionException;
 import javax.enterprise.inject.spi.Annotated;
-import javax.enterprise.inject.spi.InjectionPoint;
 import java.lang.annotation.Annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,12 +43,9 @@ import static org.mockito.Mockito.*;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class NamedRoleProducer2Test {
+public class NamedRoleProducer2Test extends AbstractProducerTest {
 
     private static final String TEST_ROLE = "testROLE";
-
-    @Mock
-    private InjectionPoint injectionPointMock;
 
     @Mock
     private Annotated annotatedMock;
@@ -85,11 +79,12 @@ public class NamedRoleProducer2Test {
         beanManagerFake.deregistration();
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void testGetVoter_missingAnnotation() throws IllegalAccessException {
 
         beanManagerFake.endRegistration();
 
+        checkUnsatisfiedResolutionException();
         producer.getVoter(injectionPointMock);
 
     }
@@ -158,7 +153,7 @@ public class NamedRoleProducer2Test {
     }
 
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getRole_multiple_Named() throws IllegalAccessException {
         when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(octopusRolesMock);
 
@@ -166,15 +161,17 @@ public class NamedRoleProducer2Test {
 
         beanManagerFake.endRegistration();
 
+        checkAmbigousResolutionException();
         producer.getRole(injectionPointMock);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getRole_missingAnnotation_named() throws IllegalAccessException {
         when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(null);
 
         beanManagerFake.endRegistration();
 
+        checkUnsatisfiedResolutionException();
         producer.getRole(injectionPointMock);
     }
 

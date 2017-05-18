@@ -35,10 +35,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.enterprise.inject.AmbiguousResolutionException;
-import javax.enterprise.inject.UnsatisfiedResolutionException;
 import javax.enterprise.inject.spi.Annotated;
-import javax.enterprise.inject.spi.InjectionPoint;
 import java.lang.annotation.Annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,12 +45,9 @@ import static org.mockito.Mockito.*;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class NamedRoleProducerTest {
+public class NamedRoleProducerTest extends AbstractProducerTest {
 
     private static final String TEST_ROLE = "testROLE";
-
-    @Mock
-    private InjectionPoint injectionPointMock;
 
     @Mock
     private Annotated annotatedMock;
@@ -115,22 +109,24 @@ public class NamedRoleProducerTest {
         assertThat(voter).isEqualTo(correctRoleVoter);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void testGetVoter_NoAnnotation() throws IllegalAccessException {
         registerOctopusConfig(TestRoleAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(null);
 
+        checkUnsatisfiedResolutionException();
         producer.getVoter(injectionPointMock);
 
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void testGetVoter_MultipleValues() throws IllegalAccessException {
         registerOctopusConfig(TestRoleAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(testRoleAnnotationCheckMock);
 
         when(testRoleAnnotationCheckMock.value()).thenReturn(new TestRoleAnnotation[]{TestRoleAnnotation.TEST, TestRoleAnnotation.SECOND});
 
+        checkAmbigousResolutionException();
         producer.getVoter(injectionPointMock);
     }
 
@@ -186,22 +182,24 @@ public class NamedRoleProducerTest {
         assertThat(argument.getValue().getRoleName()).isEqualTo(TEST_ROLE);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void testGetVoter_NoInfoAtAll() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(null);
 
+        checkUnsatisfiedResolutionException();
         producer.getVoter(injectionPointMock);
 
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void testGetVoter_WithRoles_MultipleValues() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(octopusRolesMock);
 
         when(octopusRolesMock.value()).thenReturn(new String[]{TEST_ROLE, "SecondPermission"});
 
+        checkAmbigousResolutionException();
         producer.getVoter(injectionPointMock);
     }
 
@@ -238,7 +236,7 @@ public class NamedRoleProducerTest {
         assertThat(role).isEqualTo(correctNamedRole);
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getRole_multiple() throws IllegalAccessException {
         registerOctopusConfig(TestRoleAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(testRoleAnnotationCheckMock);
@@ -247,20 +245,22 @@ public class NamedRoleProducerTest {
 
         beanManagerFake.endRegistration();
 
+        checkAmbigousResolutionException();
         producer.getRole(injectionPointMock);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getRole_missingAnnotation() throws IllegalAccessException {
         registerOctopusConfig(TestRoleAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestRoleAnnotationCheck.class)).thenReturn(null);
 
         beanManagerFake.endRegistration();
 
+        checkUnsatisfiedResolutionException();
         producer.getRole(injectionPointMock);
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getRole_multiple_Named() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(octopusRolesMock);
@@ -269,16 +269,18 @@ public class NamedRoleProducerTest {
 
         beanManagerFake.endRegistration();
 
+        checkAmbigousResolutionException();
         producer.getRole(injectionPointMock);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getRole_missingAnnotation_named() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusRoles.class)).thenReturn(null);
 
         beanManagerFake.endRegistration();
 
+        checkUnsatisfiedResolutionException();
         producer.getRole(injectionPointMock);
     }
 

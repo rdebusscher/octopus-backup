@@ -36,10 +36,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.enterprise.inject.AmbiguousResolutionException;
-import javax.enterprise.inject.UnsatisfiedResolutionException;
 import javax.enterprise.inject.spi.Annotated;
-import javax.enterprise.inject.spi.InjectionPoint;
 import java.lang.annotation.Annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,11 +46,9 @@ import static org.mockito.Mockito.*;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class NamedPermissionProducerTest {
+public class NamedPermissionProducerTest extends AbstractProducerTest {
 
     public static final String TEST_PERMISSION = "testPermission";
-    @Mock
-    private InjectionPoint injectionPointMock;
 
     @Mock
     private Annotated annotatedMock;
@@ -116,21 +111,24 @@ public class NamedPermissionProducerTest {
         assertThat(voter).isEqualTo(correctPermissionVoter);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getVoter_NoAnnotation() throws IllegalAccessException {
         registerOctopusConfig(TestPermissionAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestPermissionAnnotationCheck.class)).thenReturn(null);
 
+        checkUnsatisfiedResolutionException();
         producer.getVoter(injectionPointMock);
 
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getVoter_MultipleValues() throws IllegalAccessException {
         registerOctopusConfig(TestPermissionAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestPermissionAnnotationCheck.class)).thenReturn(testPermissionAnnotationCheckMock);
 
         when(testPermissionAnnotationCheckMock.value()).thenReturn(new TestPermissionAnnotation[]{TestPermissionAnnotation.TEST, TestPermissionAnnotation.SECOND});
+
+        checkAmbigousResolutionException();
 
         producer.getVoter(injectionPointMock);
     }
@@ -186,21 +184,24 @@ public class NamedPermissionProducerTest {
         assertThat(argument.getValue().getName()).isEqualTo(TEST_PERMISSION);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getVoter_NoInfoAtAll() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusPermissions.class)).thenReturn(null);
 
+        checkUnsatisfiedResolutionException();
         producer.getVoter(injectionPointMock);
 
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getVoter_WithOctopusPermission_MultipleValues() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusPermissions.class)).thenReturn(octopusPermissionsMock);
 
         when(octopusPermissionsMock.value()).thenReturn(new String[]{TEST_PERMISSION, "SecondPermission"});
+
+        checkAmbigousResolutionException();
 
         producer.getVoter(injectionPointMock);
     }
@@ -219,22 +220,24 @@ public class NamedPermissionProducerTest {
         assertThat(permission).isEqualTo(namedDomainPermission);
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getPermission_NoAnnotation() throws IllegalAccessException {
         registerOctopusConfig(TestPermissionAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestPermissionAnnotationCheck.class)).thenReturn(null);
 
+        checkUnsatisfiedResolutionException();
         producer.getPermission(injectionPointMock);
 
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getPermission_MultipleValues() throws IllegalAccessException {
         registerOctopusConfig(TestPermissionAnnotationCheck.class);
         when(annotatedMock.getAnnotation(TestPermissionAnnotationCheck.class)).thenReturn(testPermissionAnnotationCheckMock);
 
         when(testPermissionAnnotationCheckMock.value()).thenReturn(new TestPermissionAnnotation[]{TestPermissionAnnotation.TEST, TestPermissionAnnotation.SECOND});
 
+        checkAmbigousResolutionException();
         producer.getPermission(injectionPointMock);
     }
 
@@ -252,22 +255,24 @@ public class NamedPermissionProducerTest {
         assertThat(permission.getWildcardNotation()).isEqualTo("test:*:*");
     }
 
-    @Test(expected = UnsatisfiedResolutionException.class)
+    @Test
     public void getPermission_NoInfoAtAll() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusPermissions.class)).thenReturn(null);
 
+        checkUnsatisfiedResolutionException();
         producer.getPermission(injectionPointMock);
 
     }
 
-    @Test(expected = AmbiguousResolutionException.class)
+    @Test
     public void getPermission_WithOctopusPermission_MultipleValues() throws IllegalAccessException {
         registerOctopusConfig(null);
         when(annotatedMock.getAnnotation(OctopusPermissions.class)).thenReturn(octopusPermissionsMock);
 
         when(octopusPermissionsMock.value()).thenReturn(new String[]{TEST_PERMISSION, "SecondPermission"});
 
+        checkAmbigousResolutionException();
         producer.getPermission(injectionPointMock);
     }
 
