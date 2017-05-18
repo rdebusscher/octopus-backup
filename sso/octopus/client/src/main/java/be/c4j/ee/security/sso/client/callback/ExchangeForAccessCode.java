@@ -15,12 +15,12 @@
  */
 package be.c4j.ee.security.sso.client.callback;
 
+import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
-import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWT;
@@ -60,7 +60,7 @@ public class ExchangeForAccessCode {
     private OctopusConfig octopusConfig;
 
     @Inject
-    private OctopusSSOClientConfiguration config;
+    private OctopusSEConfiguration config;
 
     @Inject
     private JWSAlgorithmFactory jwsAlgorithmFactory;

@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.client.callback;
 
+import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
@@ -71,7 +72,7 @@ public class ExchangeForAccessCodeTest {
     private OctopusConfig octopusConfigMock;
 
     @Mock
-    private OctopusSSOClientConfiguration clientConfigurationMock;
+    private OctopusSEConfiguration octopusSEConfigurationMock;
 
     @Mock
     private HttpServletResponse httpServletResponseMock;
@@ -104,7 +105,7 @@ public class ExchangeForAccessCodeTest {
         SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextBytes(bytes);
 
-        when(clientConfigurationMock.getSSOClientSecret()).thenReturn(bytes);
+        when(octopusSEConfigurationMock.getSSOClientSecret()).thenReturn(bytes);
 
     }
 
@@ -114,8 +115,8 @@ public class ExchangeForAccessCodeTest {
         when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
         exchangeForAccessCode.init();
 
-        when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
-        when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+        when(octopusSEConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         OpenIdVariableClientData variableClientData = new OpenIdVariableClientData("http://some.server/oidc");
         AuthorizationCode authorizationCode = new AuthorizationCode("TheAuthorizationCode");
@@ -123,8 +124,8 @@ public class ExchangeForAccessCodeTest {
         OIDCTokens token = defineTokens(variableClientData, 2);
         OIDCTokenResponse oidcTokenResponse = new OIDCTokenResponse(token);
 
-        when(clientConfigurationMock.getOctopusSSOServer()).thenReturn("http://some.server/oidc");
-        when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+        when(octopusSEConfigurationMock.getOctopusSSOServer()).thenReturn("http://some.server/oidc");
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         Jadler.onRequest()
                 .havingPathEqualTo("/oidc/octopus/sso/token")
@@ -154,8 +155,8 @@ public class ExchangeForAccessCodeTest {
         when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
         exchangeForAccessCode.init();
 
-        when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
-        when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+        when(octopusSEConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         OpenIdVariableClientData variableClientData = new OpenIdVariableClientData("http://some.server/oidc");
         AuthorizationCode authorizationCode = new AuthorizationCode("TheAuthorizationCode");
@@ -163,8 +164,8 @@ public class ExchangeForAccessCodeTest {
         OIDCTokens token = defineTokens(variableClientData, -1);
         OIDCTokenResponse oidcTokenResponse = new OIDCTokenResponse(token);
 
-        when(clientConfigurationMock.getOctopusSSOServer()).thenReturn("http://some.server/oidc");
-        when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+        when(octopusSEConfigurationMock.getOctopusSSOServer()).thenReturn("http://some.server/oidc");
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         Jadler.onRequest()
                 .havingPathEqualTo("/oidc/octopus/sso/token")
@@ -194,8 +195,8 @@ public class ExchangeForAccessCodeTest {
         when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
         exchangeForAccessCode.init();
 
-        when(clientConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
-        when(clientConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+        when(octopusSEConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
 
         OpenIdVariableClientData variableClientData = new OpenIdVariableClientData("http://some.server/oidc");
         AuthorizationCode authorizationCode = new AuthorizationCode("TheAuthorizationCode");
