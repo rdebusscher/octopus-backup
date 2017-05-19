@@ -64,7 +64,6 @@ public class CasCallbackServlet extends HttpServlet {
         String ticket = request.getParameter(TICKET_PARAMETER);
 
         CasUser casUser = null;
-        HttpSession sess = request.getSession();
         try {
             casUser = casInfoProvider.retrieveUserInfo(ticket);
 
@@ -83,6 +82,7 @@ public class CasCallbackServlet extends HttpServlet {
             }
 
         } catch (AuthenticationException e) {
+            HttpSession sess = request.getSession();
             sess.setAttribute(CasUser.CAS_USER_INFO, casUser);
             sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
             // DataSecurityProvider decided that google user has no access to application
