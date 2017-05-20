@@ -19,6 +19,7 @@ package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvider;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
+import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
@@ -43,6 +44,9 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
 
     @Inject
     private JWTUserToken jwtUserToken;
+
+    @Inject
+    private SCSClientConfig scsClientConfig;
 
     @PostConstruct
     public void init() {
@@ -74,7 +78,10 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
 
     public void addAuthenticationHeader(Invocation.Builder builder, String apiKey, JWTClaimsProvider jwtClaimsProvider) {
         builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader(apiKey, jwtClaimsProvider));
-        builder.header(X_API_KEY, apiKey);
+        // TODO Should we output a warning in the log when we want to use an apikey and not encrypting the token. aoiKey has no sense then!
+        if (scsClientConfig.getJWEAlgorithm() != null) {
+            builder.header(X_API_KEY, apiKey);
+        }
     }
 
     private String getAuthenticationHeader(String apiKey, JWTClaimsProvider jwtClaimsProvider) {

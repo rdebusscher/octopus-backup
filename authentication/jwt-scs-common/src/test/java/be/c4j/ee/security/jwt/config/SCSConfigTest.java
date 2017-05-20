@@ -201,16 +201,6 @@ public class SCSConfigTest {
         assertThat(accountsMapFile).isEqualTo("mapping.properties");
     }
 
-    @Test(expected = OctopusConfigurationException.class)
-    public void getSystemAccountsMapFile_missingParameter() {
-        Map<String, String> values = new HashMap<String, String>();
-        values.put("jwk.file", "keys.jwk");
-        TestConfigSource.defineConfigValue(values);
-
-        SCSConfig.getSystemAccountsMapFile();
-
-    }
-
     @Test
     public void getSystemAccountsMapFile_optional() {
         Map<String, String> values = new HashMap<String, String>();

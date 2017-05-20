@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.jwt.encryption;
 
-import be.c4j.ee.security.jwt.config.JWKFileReader;
+import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
@@ -34,10 +34,10 @@ public class AESDecryptionHandler implements DecryptionHandler {
     private SCSConfig jwtServerConfig;
 
     @Override
-    public void init(SCSConfig SCSConfig, JWKFileReader jwkFileReader) {
+    public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
         this.jwtServerConfig = SCSConfig;
-        // We don't need the jwkFileReader here
+        // We don't need the jwkManager here
     }
 
     @Override

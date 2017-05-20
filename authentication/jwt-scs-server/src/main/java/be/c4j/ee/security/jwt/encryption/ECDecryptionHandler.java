@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.jwt.encryption;
 
-import be.c4j.ee.security.jwt.config.JWKFileReader;
+import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
@@ -33,13 +33,13 @@ import java.text.ParseException;
 public class ECDecryptionHandler implements DecryptionHandler {
 
     private SCSConfig jwtServerConfig;
-    private JWKFileReader jwkFileReader;
+    private JWKManager jwkManager;
 
     @Override
-    public void init(SCSConfig SCSConfig, JWKFileReader jwkFileReader) {
+    public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
         this.jwtServerConfig = SCSConfig;
-        this.jwkFileReader = jwkFileReader;
+        this.jwkManager = jwkManager;
     }
 
     @Override
@@ -48,7 +48,8 @@ public class ECDecryptionHandler implements DecryptionHandler {
 
         // Decrypt with private EC key
 
-        JWK jwk = jwkFileReader.readJWKFile(apiKey, jwtServerConfig.getJWKFile());
+        // TODO Check if the key exists
+        JWK jwk = jwkManager.getJWKForApiKey(apiKey);
 
         jweObject.decrypt(new ECDHDecrypter((ECKey) jwk));
 

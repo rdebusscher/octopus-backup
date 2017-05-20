@@ -35,6 +35,8 @@ public class MappingSystemAccountToApiKey {
     @Inject
     private SCSConfig SCSConfig;
 
+    private boolean systemAccountUsageActive;
+
     private Map<String, List<String>> systemAccountsMapping;
 
     @PostConstruct
@@ -43,8 +45,10 @@ public class MappingSystemAccountToApiKey {
 
         String accountsMapFile = SCSConfig.getSystemAccountsMapFile();
         if (accountsMapFile == null || accountsMapFile.trim().isEmpty()) {
-            throw new OctopusConfigurationException("A value for the parameter jwt.systemaccounts.map is required");
+            systemAccountUsageActive = false;
+            return;
         }
+        systemAccountUsageActive = true;
         // FIXME Duplicated in JWTHelper !!
         InputStream inputStream = MappingSystemAccountToApiKey.class.getClassLoader().getResourceAsStream(accountsMapFile);
         try {
@@ -71,6 +75,10 @@ public class MappingSystemAccountToApiKey {
         } catch (IOException e) {
             throw new OctopusUnexpectedException(e);
         }
+    }
+
+    public boolean isSystemAccountUsageActive() {
+        return systemAccountUsageActive;
     }
 
     public boolean containsOnlyOneMapping() {

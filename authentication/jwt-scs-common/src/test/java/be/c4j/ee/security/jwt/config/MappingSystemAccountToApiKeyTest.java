@@ -45,6 +45,7 @@ public class MappingSystemAccountToApiKeyTest {
 
         mapping.init();
 
+        assertThat(mapping.isSystemAccountUsageActive()).isTrue();
         assertThat(mapping.containsOnlyOneMapping()).isFalse();
         assertThat(mapping.getAccountList("key2")).containsExactly("account2", "account3");
     }
@@ -56,6 +57,7 @@ public class MappingSystemAccountToApiKeyTest {
 
         mapping.init();
 
+        assertThat(mapping.isSystemAccountUsageActive()).isTrue();
         assertThat(mapping.containsOnlyOneMapping()).isFalse();
         assertThat(mapping.getAccountList("key3")).isNull();
     }
@@ -67,6 +69,7 @@ public class MappingSystemAccountToApiKeyTest {
 
         mapping.init();
 
+        assertThat(mapping.isSystemAccountUsageActive()).isTrue();
         assertThat(mapping.containsOnlyOneMapping()).isFalse();
         assertThat(mapping.getApiKey("account2")).isEqualTo("key2");
     }
@@ -78,6 +81,7 @@ public class MappingSystemAccountToApiKeyTest {
 
         mapping.init();
 
+        assertThat(mapping.isSystemAccountUsageActive()).isTrue();
         assertThat(mapping.containsOnlyOneMapping()).isFalse();
         assertThat(mapping.getApiKey("account1")).isEqualTo("key1");
     }
@@ -89,6 +93,7 @@ public class MappingSystemAccountToApiKeyTest {
 
         mapping.init();
 
+        assertThat(mapping.isSystemAccountUsageActive()).isTrue();
         assertThat(mapping.containsOnlyOneMapping()).isFalse();
         assertThat(mapping.getApiKey("account4")).isNull();
     }
@@ -99,8 +104,18 @@ public class MappingSystemAccountToApiKeyTest {
 
         mapping.init();
 
+        assertThat(mapping.isSystemAccountUsageActive()).isTrue();
         assertThat(mapping.containsOnlyOneMapping()).isTrue();
         assertThat(mapping.getOnlyAccount()).isEqualTo("account4");
+    }
+
+    @Test
+    public void isSystemAccountUsageActive() {
+        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn(null);
+
+        mapping.init();
+
+        assertThat(mapping.isSystemAccountUsageActive()).isFalse();
     }
 
 }

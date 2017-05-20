@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
+import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
 import be.c4j.ee.security.credentials.authentication.jwt.client.rest.data.Data;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
@@ -56,6 +57,9 @@ public class OctopusSCSUserRestClientTest {
 
     @Mock
     private ClientCustomization clientCustomizationMock;
+
+    @Mock
+    private SCSClientConfig scsClientConfigMock;
 
     @InjectMocks
     private OctopusSCSUserRestClient client;

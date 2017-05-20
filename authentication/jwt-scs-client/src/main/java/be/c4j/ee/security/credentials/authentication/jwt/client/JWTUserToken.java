@@ -55,7 +55,7 @@ public class JWTUserToken {
     private UserPrincipal userPrincipal;
 
     @Inject
-    private SCSClientConfig SCSClientConfig;
+    private SCSClientConfig scsClientConfig;
 
     @Inject
     private EncryptionHandlerFactory encryptionHandlerFactory;
@@ -70,8 +70,8 @@ public class JWTUserToken {
     @PostConstruct
     public void init() {
         try {
-            signer = new MACSigner(SCSClientConfig.getHMACTokenSecret());
-            jwtOperation = SCSClientConfig.getJWTOperation();
+            signer = new MACSigner(scsClientConfig.getHMACTokenSecret());
+            jwtOperation = scsClientConfig.getJWTOperation();
         } catch (KeyLengthException e) {
             throw new OctopusConfigurationException(e.getMessage());
         }
@@ -82,7 +82,7 @@ public class JWTUserToken {
         // https://connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
         String payLoad = definePayload();
 
-        JWSHeader header = new JWSHeader(SCSClientConfig.getJwtSignature().getAlgorithm());
+        JWSHeader header = new JWSHeader(scsClientConfig.getJwtSignature().getAlgorithm());
 
         JWTClaimsSet.Builder claimSetBuilder = new JWTClaimsSet.Builder();
         claimSetBuilder.subject(payLoad);
@@ -92,7 +92,7 @@ public class JWTUserToken {
         // TODO use jwtUserConfig.getServerName
         // claimSetBuilder.audience()
 
-        claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(SCSClientConfig.getJWTTimeToLive(), issueTime));
+        claimSetBuilder.expirationTime(timeUtil.addSecondsToDate(scsClientConfig.getJWTTimeToLive(), issueTime));
 
         if (claimsProvider != null) {
             Map<String, Object> claims = claimsProvider.defineAdditionalClaims(userPrincipal);
@@ -124,7 +124,7 @@ public class JWTUserToken {
     private String encryptToken(String apiKey, SignedJWT signedJWT) {
         String result;
         try {
-            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(SCSClientConfig.getJWEAlgorithm());
+            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(scsClientConfig.getJWEAlgorithm());
             result = encryptionHandler.doEncryption(apiKey, signedJWT);
         } catch (JOSEException e) {
             throw new OctopusUnexpectedException(e);

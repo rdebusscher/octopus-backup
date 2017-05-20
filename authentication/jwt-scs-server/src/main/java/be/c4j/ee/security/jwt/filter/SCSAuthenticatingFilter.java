@@ -142,9 +142,15 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
         AuthenticationToken result = null;
 
+        // apiKey means -> SystemAccount OR Encrypted userAccount.
+
         if (apiKey != null) {
-            result = createSystemAccountToken(apiKey, token);
-        } else {
+            if (mappingSystemAccountToApiKey.isSystemAccountUsageActive()) {
+                result = createSystemAccountToken(apiKey, token);
+            }
+        }
+
+        if (result == null) {
             result = createJWTUserToken(apiKey, token);
         }
         return result;
@@ -217,7 +223,8 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
             // Parse token
             SignedJWT signedJWT;
-            if (jwtOperation == JWTOperation.JWT) {
+            // apiKey == null is this too strict ?? Meaning when using apiKey for a ClientCall must it be encrypted ??
+            if (jwtOperation == JWTOperation.JWT && apiKey == null) {
                 signedJWT = SignedJWT.parse(token);
             } else {
                 signedJWT = decryptToken(apiKey, token);

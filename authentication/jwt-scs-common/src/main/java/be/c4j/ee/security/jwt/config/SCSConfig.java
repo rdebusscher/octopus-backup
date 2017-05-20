@@ -115,9 +115,13 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
     @ConfigEntry
     public String getSystemAccountsMapFile() {
         String propertyValue = ConfigResolver.getPropertyValue("jwt.systemaccounts.map");
+        // TODO We can't require that jwt.systemaccounts.map is specified when jwk.file is defined.
+        // Use case where we want to have encryption of UserClientRest.
+        /*
         if (getJWKFile() != null && (propertyValue == null || propertyValue.trim().isEmpty())) {
             throw new OctopusConfigurationException("jwt.systemaccounts.map configuration property is required when jwk.file is set");
         }
+        */
         return propertyValue;
     }
 

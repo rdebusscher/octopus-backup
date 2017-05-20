@@ -32,13 +32,13 @@ import java.text.ParseException;
 import java.util.Scanner;
 
 /**
- * FIXME, We have also a JWKManager within JWT.
+ *
  */
 @ApplicationScoped
 public class JWKManager {
 
     @Inject
-    private SCSConfig jwtConfig;
+    private SCSConfig scsConfig;
 
     private JWKSet jwkSet;
 
@@ -49,7 +49,7 @@ public class JWKManager {
 
     private JWKSet readJWKSet() {
         JWKSet result;
-        String jwkFile = jwtConfig.getJWKFile();
+        String jwkFile = scsConfig.getJWKFile();
         if (jwkFile == null || jwkFile.trim().isEmpty()) {
             throw new OctopusConfigurationException("A value for the parameter jwk.file is required");
         }
