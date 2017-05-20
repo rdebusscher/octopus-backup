@@ -15,6 +15,9 @@
  */
 package be.c4j.ee.security.jwt.config;
 
+import be.c4j.ee.security.systemaccount.SystemAccountMapReader;
+import be.c4j.test.util.ReflectionUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,6 +40,11 @@ public class MappingSystemAccountToApiKeyTest {
 
     @InjectMocks
     private MappingSystemAccountToApiKey mapping;
+
+    @Before
+    public void setup() throws IllegalAccessException {
+        ReflectionUtil.injectDependencies(mapping, new SystemAccountMapReader());
+    }
 
     @Test
     public void getAccountList() {

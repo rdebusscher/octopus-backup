@@ -18,9 +18,8 @@ package be.c4j.ee.security.credentials.authentication.jwt.jwt;
 import be.c4j.ee.security.credentials.authentication.jwt.CheckJWTClaims;
 import be.c4j.ee.security.credentials.authentication.jwt.JWTUser;
 import be.c4j.ee.security.credentials.authentication.jwt.config.JWTConfig;
-import be.c4j.ee.security.exception.OctopusConfigurationException;
-import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
+import be.c4j.ee.security.systemaccount.SystemAccountMapReader;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import be.c4j.ee.security.token.IncorrectDataToken;
 import com.nimbusds.jose.JOSEException;
@@ -37,11 +36,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -55,6 +52,9 @@ public class JWTHelper {
     @Inject
     private JWTConfig jwtConfig;
 
+    @Inject
+    private SystemAccountMapReader systemAccountMapReader;
+
     private CheckJWTClaims checkJWTClaims;
 
     private Map<String, List<String>> systemAccountsMapping;
@@ -63,33 +63,8 @@ public class JWTHelper {
     public void init() {
         checkJWTClaims = BeanProvider.getContextualReference(CheckJWTClaims.class, true);
 
-        systemAccountsMapping = new HashMap<String, List<String>>();
-
         String accountsMapFile = jwtConfig.getSystemAccountsMapFile();
-
-        InputStream inputStream = JWKManager.class.getClassLoader().getResourceAsStream(accountsMapFile);
-        try {
-            if (inputStream == null) {
-                inputStream = new FileInputStream(accountsMapFile);
-            }
-
-            Properties properties = new Properties();
-            properties.load(inputStream);
-
-            String systemAccounts;
-            for (String key : properties.stringPropertyNames()) {
-                systemAccounts = properties.getProperty(key);
-                systemAccountsMapping.put(key, Arrays.asList(systemAccounts.split(",")));
-            }
-        } catch (IOException e) {
-            throw new OctopusConfigurationException(e.getMessage());
-        }
-
-        try {
-            inputStream.close();
-        } catch (IOException e) {
-            throw new OctopusUnexpectedException(e);
-        }
+        systemAccountsMapping = systemAccountMapReader.readMap(accountsMapFile);
 
     }
 
