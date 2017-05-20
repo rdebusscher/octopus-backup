@@ -197,7 +197,11 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
                 if (!accountList.contains(signedJWT.getJWTClaimsSet().getSubject())) {
                     throw new AuthenticationException("Invalid token");
                 }
-                // FIXME Check audience
+
+                List<String> audience = signedJWT.getJWTClaimsSet().getAudience();
+                if (!audience.contains(jwtServerConfig.getServerName())) {
+                    throw new AuthenticationException("Invalid token");
+                }
 
                 result = new SystemAccountAuthenticationToken(new SystemAccountPrincipal(signedJWT.getJWTClaimsSet().getSubject()));
 
