@@ -354,6 +354,30 @@ public class AnnotationUtilTest {
     }
 
     @Test
+    public void getAllAnnotations_MethodLevelCustomCheck() throws NoSuchMethodException {
+        when(octopusConfigMock.getCustomCheckClass()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return MyCheck.class;
+            }
+        });
+
+        beanManagerFake.endRegistration();
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("customExtended");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getClassAnnotations()).isEmpty();
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+
+        Annotation annotation = annotations.getMethodAnnotations().iterator().next();
+
+        assertThat(annotation).isInstanceOf(MyCheck.class);
+
+        assertThat(((MyCheck) annotation).info()).isEqualTo(MyCheckInfo.EXTENDED);
+    }
+
+    @Test
     public void getAllAnnotations_MultipleAtMethodLevel() throws NoSuchMethodException {
         beanManagerFake.endRegistration();
         Object target = new MultipleAtMethodLevel();
@@ -401,5 +425,54 @@ public class AnnotationUtilTest {
         assertThat(annotations.getClassAnnotations()).hasSize(1);
         Annotation annotation = annotations.getClassAnnotations().iterator().next();
         assertThat(annotation.annotationType()).isEqualTo(AdditionalAnnotation.class);
+    }
+
+    @Test
+    public void getStringValues_singleValue_arrayBased() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("getStringValue1");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getClassAnnotations()).isEmpty();
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+
+        String[] values = AnnotationUtil.getStringValues(annotations.getMethodAnnotations().iterator().next());
+        assertThat(values).containsOnly("value1");
+    }
+
+    @Test
+    public void getStringValues_multipleValue() throws NoSuchMethodException {
+        beanManagerFake.endRegistration();
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("getStringValue2");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getClassAnnotations()).isEmpty();
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+
+        String[] values = AnnotationUtil.getStringValues(annotations.getMethodAnnotations().iterator().next());
+        assertThat(values).containsOnly("value2", "value3");
+    }
+
+    @Test
+    public void getStringValues_singleValue_NoArrayBased() throws NoSuchMethodException {
+        when(octopusConfigMock.getCustomCheckClass()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return MyCheck.class;
+            }
+        });
+
+        beanManagerFake.endRegistration();
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("getStringValue1Bis");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getClassAnnotations()).isEmpty();
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+
+        String[] values = AnnotationUtil.getStringValues(annotations.getMethodAnnotations().iterator().next());
+        assertThat(values).containsOnly("value1Bis");
     }
 }

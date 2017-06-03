@@ -32,6 +32,12 @@ default : *(none)*
 
 Defines the annotation which can be used on method and class level to define the security requirements.
 
+==== customCheck.class
+
+default : *(none)*
+
+Defines the annotation class which can be used to use custom declared Permissions, mostly usefull in the case where you want to extend the named permission with some additional information.
+
 ==== namedRole.class
 
 default : *(none)*
@@ -43,6 +49,24 @@ Defines the Enum class which enumerates all named roles. It is the role counterp
 default : *(none)*
 
 Defines the annotations which can be used on method and class level to define the security requirements.
+
+==== voter.suffix.permission
+
+default : *PermissionVoter*
+
+The suffix used to determine the CDI named bean which are created dynamically for each Named Permission. See VoterNameFactory.
+
+==== voter.suffix.role
+
+default : *RoleVoter*
+
+The suffix used to determine the CDI named bean which are created dynamically for each Named Role. See VoterNameFactory.
+
+==== voter.suffix.check
+
+default : *AccessDecisionVoter*
+
+The suffix used to determine the CDI named bean for the Custom check functionality. See VoterNameFactory and Custom check feature description.
 
 ==== additionalShiroIniFileNames
 

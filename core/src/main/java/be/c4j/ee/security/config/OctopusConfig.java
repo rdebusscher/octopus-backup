@@ -41,6 +41,8 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
 
     private Class<? extends NamedRole> namedRoleClass;
 
+    private Class<? extends Annotation> customCheckClass;
+
     private List<Debug> debugValues;
 
     protected OctopusConfig() {
@@ -64,6 +66,11 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     @ConfigEntry
     public String getNamedPermissionCheck() {
         return ConfigResolver.getPropertyValue("namedPermissionCheck.class", "");
+    }
+
+    @ConfigEntry
+    public String getCustomCheck() {
+        return ConfigResolver.getPropertyValue("customCheck.class", "");
     }
 
     @ConfigEntry
@@ -155,6 +162,11 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
         return ConfigResolver.getPropertyValue("voter.suffix.role", "RoleVoter");
     }
 
+    @ConfigEntry
+    public String getCustomCheckSuffix() {
+        return ConfigResolver.getPropertyValue("voter.suffix.check", "AccessDecisionVoter");
+    }
+
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
         if (namedPermissionCheckClass == null && getNamedPermissionCheck().length() != 0) {
 
@@ -165,6 +177,18 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
             }
         }
         return namedPermissionCheckClass;
+    }
+
+    public Class<? extends Annotation> getCustomCheckClass() {
+        if (customCheckClass == null && getCustomCheck().length() != 0) {
+
+            try {
+                customCheckClass = (Class<? extends Annotation>) Class.forName(getCustomCheck());
+            } catch (ClassNotFoundException e) {
+                LOGGER.error("Class defined in configuration property customCheck is not found", e);
+            }
+        }
+        return customCheckClass;
     }
 
     public Class<? extends NamedPermission> getNamedPermissionClass() {

@@ -33,7 +33,7 @@ public class VoterNameFactory {
 
     public String generatePermissionBeanName(String permissionNames) {
         checkDependencies();
-        return generateName(permissionNames, octopusConfig.getPermissionVoterSuffix(), false);
+        return generateName(permissionNames, octopusConfig.getPermissionVoterSuffix(), NameType.PERMISSION);
     }
 
     /**
@@ -66,7 +66,7 @@ public class VoterNameFactory {
         }
     }
 
-    private String generateName(String permissionNames, String voterSuffix, boolean role) {
+    private String generateName(String permissionNames, String voterSuffix, NameType nameType) {
         String[] names = permissionNames.split(",");
         StringBuilder result = new StringBuilder();
         for (String permissionName : names) {
@@ -75,11 +75,21 @@ public class VoterNameFactory {
                 result.append(", ");
             }
 
-            if (role) {
-                handleRole(result, permissionName, voterSuffix);
-            } else {
-                handlePermission(result, permissionName, voterSuffix);
+            switch (nameType) {
+
+                case PERMISSION:
+                    handlePermission(result, permissionName, voterSuffix);
+                    break;
+                case ROLE:
+                    handleRole(result, permissionName, voterSuffix);
+                    break;
+                case CUSTOM_CHECK:
+                    handleCustomCheck(result, permissionName, voterSuffix);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Value " + nameType + " not supported");
             }
+
         }
         return result.toString();
     }
@@ -121,9 +131,18 @@ public class VoterNameFactory {
         }
     }
 
+    private void handleCustomCheck(StringBuilder result, String customCheckName, String nameSuffix) {
+        String voterName;
+
+        char[] name = customCheckName.trim().toCharArray();
+        name[0] = Character.toLowerCase(name[0]);
+        result.append(new String(name));
+        result.append(nameSuffix);
+    }
+
     public String generateRoleBeanName(String roleName) {
         checkDependencies();
-        return generateName(roleName, octopusConfig.getRoleVoterSuffix(), true);
+        return generateName(roleName, octopusConfig.getRoleVoterSuffix(), NameType.ROLE);
     }
 
     private String transformName(String roleName) {
@@ -142,5 +161,15 @@ public class VoterNameFactory {
 
     private String capitalize(String line) {
         return Character.toUpperCase(line.charAt(0)) + line.substring(1);
+    }
+
+    public String generateCustomCheckBeanName(String customCheckClass) {
+        checkDependencies();
+        return generateName(customCheckClass, octopusConfig.getCustomCheckSuffix(), NameType.CUSTOM_CHECK);
+    }
+
+
+    private static enum NameType {
+        PERMISSION, ROLE, CUSTOM_CHECK;
     }
 }

@@ -16,7 +16,9 @@
 package be.c4j.ee.security.interceptor;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,7 +28,6 @@ public class AnnotationInfo {
 
     private Set<Annotation> methodAnnotations = new HashSet<Annotation>();
     private Set<Annotation> classAnnotations = new HashSet<Annotation>();
-
 
     public void addMethodAnnotation(Annotation annotation) {
         methodAnnotations.add(annotation);
@@ -44,5 +45,22 @@ public class AnnotationInfo {
     public Set<Annotation> getClassAnnotations() {
         classAnnotations.remove(null);
         return classAnnotations;
+    }
+
+    public List<Annotation> getAnnotation(Class<? extends Annotation> annotationClass) {
+        List<Annotation> result = new ArrayList<Annotation>();
+        for (Annotation methodAnnotation : methodAnnotations) {
+            if (methodAnnotation != null && annotationClass.isAssignableFrom(methodAnnotation.getClass())) {
+                result.add(methodAnnotation);
+            }
+        }
+
+        for (Annotation classAnnotation : classAnnotations) {
+            if (classAnnotation != null && annotationClass.isAssignableFrom(classAnnotation.getClass())) {
+                result.add(classAnnotation);
+            }
+        }
+
+        return result;
     }
 }

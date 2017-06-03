@@ -27,6 +27,7 @@ public class OctopusInvocationContext implements InvocationContext {
 
     private Object target;
     private Object[] parameters;
+    private Map<String, Object> contextData = new HashMap<String, Object>();
 
     public OctopusInvocationContext(Object target, Object[] parameters) {
         this.target = target;
@@ -61,11 +62,16 @@ public class OctopusInvocationContext implements InvocationContext {
 
     @Override
     public Map<String, Object> getContextData() {
-        return new HashMap<String, Object>();
+        return contextData;
+    }
+
+    public void addContextData(String key, Object metaData) {
+        contextData.put(key, metaData);
     }
 
     @Override
     public Object proceed() throws Exception {
+        // TODO error message is not correct
         throw new UnsupportedOperationException("OctopusInvocationContext is no real InvocationContext but used for securing JSF Components");
     }
 }

@@ -46,6 +46,8 @@ public class MethodLevel {
     public static final String METHOD_LEVEL_OCTOPUS_PERMISSION1 = "MethodLevel#octopusPermission1";
     public static final String METHOD_LEVEL_OCTOPUS_PERMISSION2 = "MethodLevel#octopusPermission2";
     public static final String METHOD_LEVEL_OCTOPUS_ROLE = "MethodLevel#octopusRole";
+    public static final String METHOD_LEVEL_CUSTOM_CHECK_BASIC = "MethodLevel#customCheck_Basic";
+    public static final String METHOD_LEVEL_CUSTOM_CHECK_EXTENDED = "MethodLevel#customCheck_Extended";
 
     @PermitAll
     public void permitAll() {
@@ -123,6 +125,31 @@ public class MethodLevel {
 
     @AdditionalAnnotation
     @Deprecated  // This should not be picked up, testing for the AnnotationUtil.getAllAnnotations
-    public void additionalAnnotation() {}
+    public void additionalAnnotation() {
+    }
+
+    @MyCheck(value = "Permission1", info = MyCheckInfo.BASIC)
+    public void customBasic() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_CUSTOM_CHECK_BASIC);
+    }
+
+    @MyCheck(value = "Permission1", info = MyCheckInfo.EXTENDED)
+    public void customExtended() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_CUSTOM_CHECK_EXTENDED);
+    }
+
+    @OctopusPermissions("value1")
+    public void getStringValue1() {
+    }
+
+    @MyCheck(value = "value1Bis", info = MyCheckInfo.BASIC)
+    public void getStringValue1Bis() {
+    }
+
+    @OctopusPermissions({"value2", "value3"})
+    public void getStringValue2() {
+
+    }
+
 }
 

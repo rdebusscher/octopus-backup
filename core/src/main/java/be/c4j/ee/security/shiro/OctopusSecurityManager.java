@@ -18,6 +18,7 @@ package be.c4j.ee.security.shiro;
 import be.c4j.ee.security.access.AfterSuccessfulLoginHandler;
 import be.c4j.ee.security.event.RememberMeLogonEvent;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.ee.security.sso.SSOPrincipalProvider;
 import be.c4j.ee.security.twostep.TwoStepAuthenticationInfo;
 import be.c4j.ee.security.twostep.TwoStepSubject;
@@ -26,6 +27,7 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.Permission;
 import org.apache.shiro.mgt.SubjectFactory;
 import org.apache.shiro.subject.MutablePrincipalCollection;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -35,6 +37,8 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static be.c4j.ee.security.realm.AuthenticationInfoBuilder.DEFAULT_REALM;
@@ -49,6 +53,8 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
     private SubjectFactory twoStepSubjectFactory;
 
     private SSOPrincipalProvider ssoPrincipalProvider;
+
+    private OctopusRealm octopusRealm;
 
     public OctopusSecurityManager() {
         twoStepSubjectFactory = new TwoStepSubjectFactory();
@@ -185,5 +191,24 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
             BeanManagerProvider.getInstance().getBeanManager().fireEvent(new RememberMeLogonEvent(subject));
         }
 
+    }
+
+    @Override
+    protected void afterRealmsSet() {
+        super.afterRealmsSet();
+        octopusRealm = (OctopusRealm) getRealms().iterator().next();  // We use always only 1 realm, OctopusRealm
+    }
+
+    public Collection<Permission> getPermissions(Subject subject, Permission permission) {
+        // FIXME Need some cache !!!
+        Collection<Permission> result = new ArrayList<Permission>();
+
+        Collection<Permission> permissions = octopusRealm.getPermissions(subject.getPrincipals());
+        for (Permission currentPermission : permissions) {
+            if (currentPermission.implies(permission)) {
+                result.add(currentPermission);
+            }
+        }
+        return result;
     }
 }

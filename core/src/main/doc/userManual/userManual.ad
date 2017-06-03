@@ -44,6 +44,14 @@ include::authorization.adi[]
 
 include::url.adi[]
 
+== Authorization detailed descriptions
+
+TODO, This sections needs morr info
+
+=== Advanced Authorizations
+
+include::customCheck.adi[]
+
 == Exceptions
 
 include::exceptions.adi[]

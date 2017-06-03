@@ -31,6 +31,7 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.CredentialsException;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.Permission;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.codec.Hex;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -38,6 +39,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -206,6 +208,11 @@ public class OctopusRealm extends AuthorizingRealm {
                 }
             }
         }
+    }
+
+    public Collection<Permission> getPermissions(PrincipalCollection principal) {
+        AuthorizationInfo info = getAuthorizationInfo(principal);
+        return getPermissions(info);
     }
 
     public static class InAuthentication {

@@ -16,6 +16,7 @@
 package be.c4j.ee.security.interceptor;
 
 import be.c4j.ee.security.CustomAccessDecissionVoterContext;
+import be.c4j.ee.security.InvocationContextWrapper;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
@@ -35,6 +36,8 @@ import javax.interceptor.InvocationContext;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Interceptor
@@ -71,9 +74,12 @@ public class OctopusInterceptor implements Serializable {
 
         supportForAsynchronousEJB(context, method);
 
-        AccessDecisionVoterContext accessContext = new CustomAccessDecissionVoterContext(context);
-
         AnnotationInfo info = AnnotationUtil.getAllAnnotations(config, classType, method);
+        Map<String, Object> contextData = new HashMap<String, Object>();
+        contextData.put(AnnotationInfo.class.getName(), info);
+        InvocationContextWrapper wrapper = new InvocationContextWrapper(context, contextData);
+
+        AccessDecisionVoterContext accessContext = new CustomAccessDecissionVoterContext(wrapper);
 
         // We need to check at 2 levels, method and then if not present at class level
         Set<Annotation> annotations = info.getMethodAnnotations();

@@ -24,12 +24,10 @@ import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.realm.*;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.systemaccount.SystemAccount;
-import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.annotation.*;
 
 import javax.annotation.security.PermitAll;
-import javax.enterprise.inject.spi.BeanManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,7 +62,12 @@ public final class AnnotationUtil {
         for (Method method : someCustomNamedCheck.getClass().getDeclaredMethods()) {
             if ("value".equals(method.getName())) {
                 try {
-                    result = (String[]) method.invoke(someCustomNamedCheck, null);
+                    Object value = method.invoke(someCustomNamedCheck, null);
+                    if (value.getClass().isArray()) {
+                        result = (String[]) value;
+                    } else {
+                        result = new String[]{value.toString()};
+                    }
 
                 } catch (IllegalAccessException e) {
                     throw new OctopusUnexpectedException(e);
@@ -137,6 +140,9 @@ public final class AnnotationUtil {
         if (config.getNamedRoleCheckClass() != null) {
             result.addMethodAnnotation(someMethod.getAnnotation(config.getNamedRoleCheckClass()));
         }
+        if (config.getCustomCheckClass() != null) {
+            result.addMethodAnnotation(someMethod.getAnnotation(config.getCustomCheckClass()));
+        }
         for (AnnotationsToFind annotationsToFind : annotationsToFindList) {
             for (Class<? extends Annotation> annotationClass : annotationsToFind.getList()) {
                 result.addMethodAnnotation(someMethod.getAnnotation(annotationClass));
@@ -157,6 +163,9 @@ public final class AnnotationUtil {
         }
         if (config.getNamedRoleCheckClass() != null) {
             result.addClassAnnotation(getAnnotation(someClassType, config.getNamedRoleCheckClass()));
+        }
+        if (config.getCustomCheckClass() != null) {
+            result.addClassAnnotation(getAnnotation(someClassType, config.getCustomCheckClass()));
         }
         for (AnnotationsToFind annotationsToFind : annotationsToFindList) {
             for (Class<? extends Annotation> annotationClass : annotationsToFind.getList()) {

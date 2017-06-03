@@ -52,6 +52,7 @@ public class VoterNameFactoryTest {
 
         when(octopusConfigMock.getPermissionVoterSuffix()).thenReturn("PermissionVoter");
         when(octopusConfigMock.getRoleVoterSuffix()).thenReturn("RoleVoter");
+        when(octopusConfigMock.getCustomCheckSuffix()).thenReturn("AccessDecissionVoter");
 
     }
 
@@ -178,6 +179,16 @@ public class VoterNameFactoryTest {
 
         String beanName = factory.generateRoleBeanName("myRole");
         assertThat(beanName).isEqualTo("myroleRoleVoter");
+    }
+
+    @Test
+    public void generateCustomCheckBeanName() {
+
+        // Finish preparation
+        beanManagerFake.endRegistration();
+
+        String beanName = factory.generateCustomCheckBeanName("MyCheck");
+        assertThat(beanName).isEqualTo("myCheckAccessDecissionVoter");
     }
 
 }
