@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.client.access;
 
 import be.c4j.ee.security.access.AfterSuccessfulLoginHandler;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
+import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
@@ -35,6 +36,10 @@ public class SSOAfterSuccessfulLoginHandler implements AfterSuccessfulLoginHandl
 
     @Override
     public void onSuccessfulLogin(AuthenticationToken token, AuthenticationInfo info, Subject subject) {
+        if (token instanceof SystemAccountAuthenticationToken) {
+            // System accounts don't need to pass the check for the AccessPermission.
+            return;
+        }
         String accessPermission = ssoClientConfiguration.getAccessPermission();
         if (accessPermission != null && !accessPermission.isEmpty()) {
             subject.checkPermission(accessPermission);
