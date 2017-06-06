@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.client;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.util.ByteUtils;
@@ -43,6 +44,9 @@ public class JWSAlgorithmFactory {
             result = JWSAlgorithm.HS256;
         }
 
+        if (result == null) {
+            throw new OctopusConfigurationException("Secret is too short for any JWS algorythm.");
+        }
         return result;
     }
 }

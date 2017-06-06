@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.client;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import com.nimbusds.jose.JWSAlgorithm;
 import org.junit.Test;
 
@@ -53,6 +54,14 @@ public class JWSAlgorithmFactoryTest {
 
         assertThat(algorithm).isEqualTo(JWSAlgorithm.HS512);
     }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void determineOptimalAlgorithm_TooShort() {
+
+        factory.determineOptimalAlgorithm(defineSecret(184 / 8 + 1));
+
+    }
+
 
     private byte[] defineSecret(int byteLength) {
         byte[] bytes = new byte[byteLength];
