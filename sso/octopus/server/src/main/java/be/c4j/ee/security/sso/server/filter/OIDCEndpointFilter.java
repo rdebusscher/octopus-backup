@@ -299,7 +299,7 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
 
         if (!request.getRedirectionURI().toString().equals(clientInfo.getActualCallbackURL())) {
             String msg = "Unknown \"redirect_uri\" parameter value";
-            LOGGER.info(msg + " = " + clientId);
+            LOGGER.info(msg + " = " + request.getRedirectionURI());
             return new ErrorInfo(request, OAuth2Error.INVALID_CLIENT.appendDescription(": " + msg));
         }
 
