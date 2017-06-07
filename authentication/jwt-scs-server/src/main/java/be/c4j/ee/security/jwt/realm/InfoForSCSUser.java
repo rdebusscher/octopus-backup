@@ -18,6 +18,7 @@ package be.c4j.ee.security.jwt.realm;
 import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.jwt.SCSUser;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.OctopusDefinedAuthenticationInfo;
@@ -27,6 +28,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.List;
 
 /**
  *
@@ -57,10 +59,16 @@ public class InfoForSCSUser implements OctopusDefinedAuthenticationInfo, Octopus
             UserPrincipal user = (UserPrincipal) primaryPrincipal;
             Object token = user.getUserInfo("token");
             if (token instanceof SCSUser) {
-                SCSUser SCSUser = (SCSUser) token;
+                SCSUser scsUser = (SCSUser) token;
                 AuthorizationInfoBuilder authorizationInfoBuilder = new AuthorizationInfoBuilder();
-                authorizationInfoBuilder.addRolesByName(SCSUser.getRoles());
-                authorizationInfoBuilder.addStringPermissions(SCSUser.getPermissions());
+                authorizationInfoBuilder.addRolesByName(scsUser.getRoles());
+                authorizationInfoBuilder.addStringPermissions(scsUser.getPermissions());
+                List<NamedPermission> namedPermissions = scsUser.getNamedPermissions();
+                if (namedPermissions != null) {
+                    for (NamedPermission namedPermission : namedPermissions) {
+                        authorizationInfoBuilder.addPermission(namedPermission);
+                    }
+                }
 
                 return authorizationInfoBuilder.build();
             }

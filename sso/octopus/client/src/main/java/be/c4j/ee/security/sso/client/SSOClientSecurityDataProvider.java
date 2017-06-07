@@ -24,6 +24,7 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.realm.AuthorizationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
@@ -64,11 +65,19 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
 
     @PostConstruct
     public void init() throws ServletException {
+        // The PermissionJSONProvider is located in a JAR With CDI support.
+        // Developer must have to opportunity to define a custom version.
+        // So first look at CDI class. If not found, use the default.
+        PermissionJSONProvider permissionJSONProvider = BeanProvider.getContextualReference(PermissionJSONProvider.class, true);
+        if (permissionJSONProvider == null) {
+            permissionJSONProvider = new PermissionJSONProvider();
+        }
+
         ClientCustomization clientCustomization = BeanProvider.getContextualReference(ClientCustomization.class, true);
         if (clientCustomization == null) {
-            permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), null, null);
+            permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), null, null, permissionJSONProvider);
         } else {
-            permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), clientCustomization, clientCustomization.getConfiguration(PermissionRequestor.class));
+            permissionRequestor = new PermissionRequestor(new OctopusSEConfiguration(), clientCustomization, clientCustomization.getConfiguration(PermissionRequestor.class), permissionJSONProvider);
         }
 
     }
@@ -92,7 +101,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         AuthorizationInfoBuilder infoBuilder = new AuthorizationInfoBuilder();
 
         if (!(token instanceof OctopusSSOUser)) {
-            throw  new OctopusUnexpectedException("UserPrincipal should be based OctopusSSOUser. Dit you you fakeLogin Module and forget to define Permissions for the fake user?");
+            throw new OctopusUnexpectedException("UserPrincipal should be based OctopusSSOUser. Dit you you fakeLogin Module and forget to define Permissions for the fake user?");
         }
         OctopusSSOUser ssoUser = (OctopusSSOUser) token;
 

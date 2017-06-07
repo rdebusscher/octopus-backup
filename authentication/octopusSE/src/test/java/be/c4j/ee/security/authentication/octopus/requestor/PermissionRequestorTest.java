@@ -17,6 +17,7 @@ package be.c4j.ee.security.authentication.octopus.requestor;
 
 import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 import net.jadler.Jadler;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -48,7 +49,7 @@ public class PermissionRequestorTest {
         ClientConfig clientConfiguration = new ClientConfig();
         clientConfiguration.register(JacksonFeature.class);
 
-        permissionRequestor = new PermissionRequestor(octopusSEConfigurationMock, null, clientConfiguration);
+        permissionRequestor = new PermissionRequestor(octopusSEConfigurationMock, null, clientConfiguration, new PermissionJSONProvider());
         Jadler.initJadler();
     }
 

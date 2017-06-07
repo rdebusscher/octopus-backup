@@ -21,6 +21,7 @@ import be.c4j.ee.security.authentication.octopus.requestor.OctopusUserRequestor;
 import be.c4j.ee.security.authentication.octopus.requestor.PermissionRequestor;
 import be.c4j.ee.security.authentication.octopus.requestor.TokenRequestor;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
@@ -89,7 +90,7 @@ public class MainProgram {
         ClientConfig clientConfiguration = new ClientConfig();
         clientConfiguration.register(JacksonFeature.class);
 
-        PermissionRequestor permissionRequestor = new PermissionRequestor(configuration, null, clientConfiguration);
+        PermissionRequestor permissionRequestor = new PermissionRequestor(configuration, null, clientConfiguration, new PermissionJSONProvider());
         List<NamedDomainPermission> permissions = permissionRequestor.retrieveAllPermissions();
         System.out.println(permissions);
 

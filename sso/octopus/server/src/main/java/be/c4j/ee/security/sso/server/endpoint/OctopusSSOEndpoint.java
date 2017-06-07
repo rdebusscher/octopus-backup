@@ -20,6 +20,7 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
@@ -104,8 +105,19 @@ public class OctopusSSOEndpoint {
 
     private PrincipalUserInfoJSONProvider userInfoJSONProvider;
 
+    private PermissionJSONProvider permissionJSONProvider;
+
     @PostConstruct
     public void init() {
+        // The PermissionJSONProvider is located in a JAR With CDI support.
+        // Developer must have to opportunity to define a custom version.
+        // So first look at CDI class. If not found, use the default.
+
+        permissionJSONProvider = BeanProvider.getContextualReference(PermissionJSONProvider.class, true);
+        if (permissionJSONProvider == null) {
+            permissionJSONProvider = new PermissionJSONProvider();
+        }
+
         userInfoJSONProvider = BeanProvider.getContextualReference(PrincipalUserInfoJSONProvider.class, true);
         if (userInfoJSONProvider == null) {
             userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
@@ -277,7 +289,7 @@ public class OctopusSSOEndpoint {
     private Map<String, String> fromPermissionsToMap(List<NamedDomainPermission> permissions) {
         Map<String, String> result = new HashMap<String, String>();
         for (NamedDomainPermission permission : permissions) {
-            result.put(permission.getName(), permission.getWildcardNotation());
+            result.put(permission.getName(), permissionJSONProvider.writeValue(permission));
         }
         return result;
     }

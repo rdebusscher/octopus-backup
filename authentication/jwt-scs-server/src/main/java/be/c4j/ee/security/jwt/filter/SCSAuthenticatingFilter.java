@@ -28,6 +28,8 @@ import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandler;
 import be.c4j.ee.security.jwt.encryption.DecryptionHandlerFactory;
+import be.c4j.ee.security.permission.NamedPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
 import com.nimbusds.jose.JOSEException;
@@ -60,6 +62,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static be.c4j.ee.security.OctopusConstants.*;
 import static be.c4j.ee.security.shiro.OctopusSessionStorageEvaluator.NO_STORAGE;
@@ -86,6 +89,8 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
     @Inject
     private MappingSystemAccountToApiKey mappingSystemAccountToApiKey;
 
+    private PermissionJSONProvider permissionJSONProvider;
+
     @Override
     public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
         // Same as the noSessionCreate filter. Required also for the SessionHijacking Filter
@@ -100,6 +105,15 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
         jwtOperation = jwtServerConfig.getJWTOperation();
 
         jwtClaimsHandler = BeanProvider.getContextualReference(JWTClaimsHandler.class, true);
+
+        // The PermissionJSONProvider is located in a JAR With CDI support.
+        // Developer must have to opportunity to define a custom version.
+        // So first look at CDI class. If not found, use the default.
+        permissionJSONProvider = BeanProvider.getContextualReference(PermissionJSONProvider.class, true);
+        if (permissionJSONProvider == null) {
+            permissionJSONProvider = new PermissionJSONProvider();
+        }
+
 
     }
 
@@ -289,6 +303,19 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
         JSONArray permissions = getJSONArray(jsonObject, "permissions");
         user.setPermissions(convertToList(permissions));
+
+        JSONObject namedPermissions = (JSONObject) jsonObject.get("namedPermissions");
+        List<NamedPermission> namedDomainPermissions = convertToNamedPermissionList(namedPermissions);
+
+        user.setNamedPermissions(namedDomainPermissions);
+    }
+
+    private List<NamedPermission> convertToNamedPermissionList(JSONObject namedPermissions) {
+        List<NamedPermission> result = new ArrayList<NamedPermission>();
+        for (Map.Entry<String, Object> entry : namedPermissions.entrySet()) {
+            result.add(permissionJSONProvider.readValue(entry.getKey(), entry.getValue().toString()));
+        }
+        return result;
     }
 
     private JSONObject getOctopusUserJSONData(JWTClaimsSet claimsSet) throws net.minidev.json.parser.ParseException {

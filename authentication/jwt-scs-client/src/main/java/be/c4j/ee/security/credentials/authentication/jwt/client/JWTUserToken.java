@@ -23,6 +23,8 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 import be.c4j.ee.security.util.TimeUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
@@ -33,9 +35,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
-import org.apache.shiro.authz.permission.WildcardPermission;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -67,6 +69,8 @@ public class JWTUserToken {
 
     private JWSSigner signer;
 
+    private PermissionJSONProvider permissionJSONProvider;
+
     @PostConstruct
     public void init() {
         try {
@@ -75,6 +79,15 @@ public class JWTUserToken {
         } catch (KeyLengthException e) {
             throw new OctopusConfigurationException(e.getMessage());
         }
+
+        // The PermissionJSONProvider is located in a JAR With CDI support.
+        // Developer must have to opportunity to define a custom version.
+        // So first look at CDI class. If not found, use the default.
+        permissionJSONProvider = BeanProvider.getContextualReference(PermissionJSONProvider.class, true);
+        if (permissionJSONProvider == null) {
+            permissionJSONProvider = new PermissionJSONProvider();
+        }
+
     }
 
     public String createJWTUserToken(String apiKey, JWTClaimsProvider claimsProvider) {
@@ -153,18 +166,23 @@ public class JWTUserToken {
         if (info.getStringPermissions() != null) {
             permissionArray.addAll(info.getStringPermissions());
         }
+        result.put("permissions", permissionArray);
+
+        JSONObject namedPermissions = new JSONObject();
 
         if (info.getObjectPermissions() != null) {
             for (Permission permission : info.getObjectPermissions()) {
-                if (permission instanceof WildcardPermission) {
-                    // FIXME Is this OK, check if we can add other permissions and how we can handle them here.
-                    WildcardPermission wildcardPermission = (WildcardPermission) permission;
-                    permissionArray.add(wildcardPermission.toString());
+
+                if (permission instanceof NamedDomainPermission) {
+                    // FIXME Notify developer with exception that only NamedPermissions can be transferred
+                    NamedDomainPermission namedPermission = (NamedDomainPermission) permission;
+
+                    namedPermissions.put(namedPermission.getName(), permissionJSONProvider.writeValue(namedPermission));
                 }
             }
         }
 
-        result.put("permissions", permissionArray);
+        result.put("namedPermissions", namedPermissions);
 
         return result.toJSONString();
     }

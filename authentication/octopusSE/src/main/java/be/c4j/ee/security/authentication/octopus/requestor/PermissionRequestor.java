@@ -21,6 +21,7 @@ import be.c4j.ee.security.authentication.octopus.debug.DebugClientRequestFilter;
 import be.c4j.ee.security.authentication.octopus.debug.DebugClientResponseFilter;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.permission.NamedDomainPermission;
+import be.c4j.ee.security.permission.PermissionJSONProvider;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -43,8 +44,11 @@ public class PermissionRequestor extends AbstractRequestor {
 
     private Client client;
 
-    public PermissionRequestor(OctopusSEConfiguration configuration, ClientCustomization clientCustomization, Configuration clientConfiguration) {
+    private PermissionJSONProvider permissionJSONProvider;
+
+    public PermissionRequestor(OctopusSEConfiguration configuration, ClientCustomization clientCustomization, Configuration clientConfiguration, PermissionJSONProvider permissionJSONProvider) {
         super(configuration);
+        this.permissionJSONProvider = permissionJSONProvider;
         init(clientConfiguration, clientCustomization);
     }
 
@@ -120,7 +124,7 @@ public class PermissionRequestor extends AbstractRequestor {
     private List<NamedDomainPermission> toNamedDomainPermissions(Map<String, String> data) {
         List<NamedDomainPermission> permissions = new ArrayList<NamedDomainPermission>();
         for (Map.Entry<String, String> entry : data.entrySet()) {
-            permissions.add(new NamedDomainPermission(entry.getKey(), entry.getValue()));
+            permissions.add(permissionJSONProvider.readValue(entry.getKey(), entry.getValue()));
         }
         return permissions;
     }

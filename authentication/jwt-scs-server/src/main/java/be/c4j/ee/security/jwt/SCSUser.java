@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.jwt;
 
+import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 
@@ -33,6 +34,7 @@ public class SCSUser extends AbstractOctopusAuthenticationToken implements Valid
 
     private List<String> roles;
     private List<String> permissions;
+    private List<NamedPermission> namedPermissions;
 
     public SCSUser(String subject, String id) {
         name = subject;
@@ -79,6 +81,14 @@ public class SCSUser extends AbstractOctopusAuthenticationToken implements Valid
 
     public void setPermissions(List<String> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<NamedPermission> getNamedPermissions() {
+        return namedPermissions;
+    }
+
+    public void setNamedPermissions(List<NamedPermission> namedDomainPermissions) {
+        this.namedPermissions = namedDomainPermissions;
     }
 
     @Override

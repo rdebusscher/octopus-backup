@@ -420,6 +420,7 @@ public class SCSAuthenticatingFilterTest {
         jsonObject.put("id", 123);
         jsonObject.put("name", "JUnit");
         jsonObject.put("permissions", new JSONArray());
+        jsonObject.put("namedPermissions", new JSONObject());
         jsonObject.put("roles", new JSONArray());
         return jsonObject.toJSONString();
     }
