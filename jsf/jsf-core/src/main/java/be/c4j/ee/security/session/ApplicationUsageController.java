@@ -31,10 +31,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -46,6 +43,7 @@ public class ApplicationUsageController {
     private OctopusJSFConfig octopusJSFConfig;
 
     private Map<String, ApplicationUsageInfo> applicationUsage = new HashMap<String, ApplicationUsageInfo>();
+    // sessionId
 
     @Inject
     private Event<SessionTimeoutEvent> sessionTimeoutEvent;
@@ -175,6 +173,10 @@ public class ApplicationUsageController {
             result = applicationUsage.get(sessionId);
         }
         return result;
+    }
+
+    public Collection<ApplicationUsageInfo> getAllApplicationUsages() {
+        return applicationUsage.values();
     }
 
     // Since we don't use Java 8, yet :)
