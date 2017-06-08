@@ -87,5 +87,17 @@ This event is only activated when the configuration parameter **globalAuditActiv
 
 This is a CDI event used internally by Octopus to keep track of new session, log on, log off and session expiration.
 
-Please see the section ??? about the ApplicationUsageController to use the information on a high level.
+Please see the section about the ApplicationUsageController to use the information on a high level.
 
+=== ApplicationUsageController
+
+By injecting this CDI application scoped bean, one can get information about the users which are currently using the application.
+
+The +getAllApplicationUsages()+ method returns a list of +ApplicationUsageInfo+ items which contain the following information :
+
+. httpSession (HttpSession) : The Http Session linked with the user session.
+. userPrincipal (UserPrincipal) : The Octopus principal linked with the user session. If the access is anonymous, the userPrincipal.isAuthenticated returns false.
+. authenticationToken (AuthenticationToken) : The token used for the authentication of the user (if not anonymous)
+. principalName (String) : The name (not user name but 'full' name) of the authenticated user or _[anonymous]_
+. userAgent (String) : The user agent info related to the user session.
+. remoteHost (String) : The host info related to the user session.

@@ -25,6 +25,12 @@ With the configuration parameter, +session.hijacking.level+ we can control the l
 
 The _PARTIAL_ value is required if your end users switch for example from a wired to a wireless internet connection (used in some companies) and the IP address is different on both systems. Or you have a mobile JSF application (with PrimeFaces mobile for example) with end user connection can change (between WIFI and 3G for example)
 
+=== Single session
+
+By default, a user can only be logged in once into the application. If the same user, this is determined by the principalId of the AuthenticationInfo see ???, is already logged in, the other session is invalidated (and thus a logout is performed) automatically.
+
+This behaviour can be controlled by the configuration parameter +session.single+.
+
 === OWASP
 
 Additional information can be found here

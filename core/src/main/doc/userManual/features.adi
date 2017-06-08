@@ -9,7 +9,9 @@ This is the list with the most important features of Octopus
 . Type-safe definition of permissions.
 . Declarative declaration of JSF security (with tags, not using rendered attribute).
 . Support for salted hashed passwords and remember me functionality.
-. Custom voter can be created for more complex security requirements.
+. Custom voter and permission can be created for more complex security requirements.
+. A custom Auth2/OpenIdConnect server can be created easily
+. Support for Self-contained Systems (authentication/authorization redirect to a certain 'module' and adding authentication/authorization info into header of JAX-RS client calls.)
 . Pluggable authentication modules.
 . Support for OAuth2 providers.
 . Support for CAS Server.
