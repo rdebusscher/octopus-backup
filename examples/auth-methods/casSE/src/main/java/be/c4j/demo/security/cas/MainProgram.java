@@ -18,7 +18,7 @@ package be.c4j.demo.security.cas;
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
 import be.c4j.ee.security.authentication.cas.TicketRequestor;
 import be.c4j.ee.security.authentication.cas.info.CasInfoProvider;
-import be.c4j.ee.security.authentication.credentials.cas.CasUser;
+import be.c4j.ee.security.authentication.credentials.authentication.cas.CasUser;
 import org.apache.shiro.authc.UsernamePasswordToken;
 
 import java.util.Map;

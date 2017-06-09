@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.authentication.credentials.cas;
+package be.c4j.ee.security.authentication.credentials.authentication.cas;
 
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 
@@ -21,7 +21,9 @@ import java.security.Principal;
 import java.util.Map;
 
 /**
- *
+ * TODO Align package structure with Oauth2User, OctopusSSOUser, ...
+ * for now kept at the same location for backwards compatibility
+ * With 0.9.8 (when integrating Shiro) we will have more backwards breaking changes)
  */
 public class CasUser implements ValidatedAuthenticationToken, Principal {
 

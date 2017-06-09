@@ -17,7 +17,7 @@ package be.c4j.ee.security.authentication.cas.info;
 
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
 import be.c4j.ee.security.authentication.cas.exception.CasAuthenticationException;
-import be.c4j.ee.security.authentication.credentials.cas.CasUser;
+import be.c4j.ee.security.authentication.credentials.authentication.cas.CasUser;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.*;
 import org.slf4j.Logger;
