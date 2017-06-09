@@ -92,8 +92,12 @@ public class JWTUserToken {
 
     public String createJWTUserToken(String apiKey, JWTClaimsProvider claimsProvider) {
 
-        // https://connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
         String payLoad = definePayload();
+        if (payLoad == null) {
+            // Not authenticated
+            return null;
+        }
+        // https://connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
 
         JWSHeader header = new JWSHeader(scsClientConfig.getJwtSignature().getAlgorithm());
 
@@ -146,6 +150,10 @@ public class JWTUserToken {
     }
 
     private String definePayload() {
+        if (userPrincipal.getId() == null) {
+            // Not an authenticated user.
+            return null;
+        }
         JSONObject result = new JSONObject();
         result.put("id", userPrincipal.getId());
         if (userPrincipal.getExternalId() != null) {

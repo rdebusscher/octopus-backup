@@ -25,6 +25,9 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.test.util.BeanManagerFake;
 import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import net.jadler.Jadler;
+import net.jadler.Request;
+import net.jadler.stubbing.Responder;
+import net.jadler.stubbing.StubResponse;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.junit.After;
 import org.junit.Before;
@@ -37,9 +40,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Client;
+import java.nio.charset.Charset;
 
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -136,7 +141,7 @@ public class OctopusSCSUserRestClientTest {
     }
 
     @Test(expected = OctopusUnauthorizedException.class)
-    public void get_NotAuthenticated() {
+    public void get_NotAuthenticated_serverside() {
         when(jwtUserTokenMock.createJWTUserToken(null, null)).thenReturn(AUTH_TOKEN);
 
         Jadler.onRequest()
@@ -147,6 +152,35 @@ public class OctopusSCSUserRestClientTest {
                 .withBody("{\"code\":\"ABC\", \"message\":\"DEF\"}");
 
         client.get(defineEndpoint(), Data.class);
+
+    }
+
+    @Test
+    public void get_NotAuthenticated_clientside() {
+        when(jwtUserTokenMock.createJWTUserToken(null, null)).thenReturn(null);
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/endpoint")
+                .respondUsing(new Responder() {
+
+                    @Override
+                    public StubResponse nextResponse(final Request request) {
+                        if (request.getHeaders().getKeys().contains("authorization")) {
+                            fail("'authorization' header found");
+                        }
+                        return StubResponse.builder()
+                                .status(200)
+                                .header("Content-Type", CommonContentTypes.APPLICATION_JSON.toString())
+                                .body("{\"field\":\"value\"}", Charset.forName("UTF-8"))
+                                .build();
+                    }
+                });
+        Data data = client.get(defineEndpoint(), Data.class);
+        assertThat(data.getField()).isEqualTo("value");
+
+        Jadler.verifyThatRequest()
+                .havingHeaderEqualTo(ACCEPT, "application/json")
+                .receivedOnce();
 
     }
 

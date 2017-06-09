@@ -51,6 +51,7 @@ import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -238,6 +239,20 @@ public class JWTUserTokenTest {
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
 
         jwtUserToken.createJWTUserToken(null, null);
+
+    }
+
+    @Test
+    public void createJWTUserToken_NotAuthenticated() throws IllegalAccessException, ParseException {
+
+        UserPrincipal userPrincipal = new UserPrincipal();
+
+        AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
+
+        ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
+
+        String token = jwtUserToken.createJWTUserToken(null, null);
+        assertThat(token).isNull();
 
     }
 

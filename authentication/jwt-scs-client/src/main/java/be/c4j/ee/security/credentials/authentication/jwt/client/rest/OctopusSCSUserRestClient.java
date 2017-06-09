@@ -77,15 +77,22 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
     }
 
     public void addAuthenticationHeader(Invocation.Builder builder, String apiKey, JWTClaimsProvider jwtClaimsProvider) {
-        builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader(apiKey, jwtClaimsProvider));
-        // TODO Should we output a warning in the log when we want to use an apikey and not encrypting the token. aoiKey has no sense then!
+        String authenticationHeader = getAuthenticationHeader(apiKey, jwtClaimsProvider);
+        if (authenticationHeader != null) {
+            builder.header(AUTHORIZATION_HEADER, authenticationHeader);
+        }
+        // TODO Should we output a warning in the log when we want to use an apikey and not encrypting the token. apiKey has no sense then!
         if (scsClientConfig.getJWEAlgorithm() != null) {
             builder.header(X_API_KEY, apiKey);
         }
     }
 
     private String getAuthenticationHeader(String apiKey, JWTClaimsProvider jwtClaimsProvider) {
-        return BEARER + " " + jwtUserToken.createJWTUserToken(apiKey, jwtClaimsProvider);
+        String token = this.jwtUserToken.createJWTUserToken(apiKey, jwtClaimsProvider);
+        if (token == null) {
+            return null;
+        }
+        return BEARER + " " + token;
     }
 
     public <T> T get(String url, Class<T> classType, URLArgument... urlArguments) {
