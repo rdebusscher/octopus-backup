@@ -4,14 +4,16 @@
 . Octopus SSO (Server and client modules) (Java EE 7 only) - OAuth2 and OpenIdConnect compatible.
 . Principal and permission transfer within header to JAX-RS endpoint (Java EE 7 only) for Self Contained Systems support.
 . Octopus OAuth2 module (like Google, Twitter, ..) Java EE 6+.
-. Adding roles as groups of permissions concept and string based roles.
+. Adding roles as groups of permissions concept and string based roles. (support for NIST RBAC - Role based Access Control)
+. Support for advanced Authorization rules based on custom annoation and Developer extended Permission class(es).
 . TwoStep authentication with support for sending OTP value and TOTP (FreeOTP, Google Authenticator, ...).
 . Protection for Session fixation and hijacking.
 . Programmatic define permissions for URLs
-. Additional filter userRequired, _rate_
+. Additional filter _userRequired_, _rate_
 . Initial support for java SE (CAS SE, Password Grant OAuth2/OpenId Connect, ...)
 . Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
 . Redesigned fakeLogin module useable for all authentication mechanisms.
+. securedURLs.ini file is optional
 
 Breaking changes
 

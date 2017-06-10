@@ -48,6 +48,8 @@ include::url.adi[]
 
 TODO, This sections needs more info
 
+include::securedComponent.adi[]
+
 === Advanced Authorizations
 
 include::customCheck.adi[]

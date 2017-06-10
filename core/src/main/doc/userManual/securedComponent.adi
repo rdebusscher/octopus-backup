@@ -1,0 +1,16 @@
+Description of the *securedComponent* custom JSF tag.
+
+==== Attributes
+
+. permission : Defines the permission name(s) that will be used for the authorization requirements of the component. Multiple names separated by a ,
+. voter : Defines the voter name(s) that will be used for the authorization requirement of the component. Multiple names separated by a ,
+. role : Defines the role name(s) that will be used for the authorization requirement of the component. Multiple names separated by a ,
+. not (default : +false+): Is the result of the permission/voter/role check inverted? So when not is set to true the check is made that the user doesn't has the permission for example.
+. combined (default : +false+) : When multiple values are specified (for example multiple permission names), must the user have all the permission names (value true) or only one (value false, the default situation)
+. for : When the tag cannot be nested within the JSF component (Dor example within p:menuItem), it specifies the id for which JSF component this authorization requirements are for.
+
+==== Remarks
+
+. The attributes _permission_, _voter_ and _role_ can be used in combination.
+. The value of the _permission_ attribute can be a name (_translated by a _StringLookup_), domain name only (like _demo_ which gets translated to _demo:\*:\*) or a wildcard string (like demo:read:*)
+. The voter CDI class needs to be Named (javax.inject.Named) and this named can be specified in the voter attribute.

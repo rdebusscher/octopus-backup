@@ -79,6 +79,8 @@ It makes sure that all the pages within the +pages+ directory and subdirectory c
 
 +user+ is the predefined filter by Octopus/shiro that requires authentication.  Another predefined filter is called +anon+ for anonymous access.  See also ??? how you can define other filters based on named permissions and named roles.
 
+Since v0.9.7, the URLS are prepended with '/' if it is forgotten.
+
 === Login form
 
 Whenever a user navigates to an URL which needs authentication (and he isn't already authenticated) the login form is shown. In the scenario where Octopus/Shiro itself is responsible for verifying the credentials, see also _<<Authentication methods,AuthMethods>>_. By default this login page is the _/login.xhtml_ JSF page.

@@ -6,6 +6,8 @@ This is the list with the most important features of Octopus
 . Very flexible, can be easily integrated within your application
 . Highly configurable using a single property file.
 . Tightly integrated with CDI.
+. SSO server solution build on top of OpenIdConnect protocol
+. Authentication and Authorization transfer between Self Contained Systems / micro services
 . Type-safe definition of permissions.
 . Declarative declaration of JSF security (with tags, not using rendered attribute).
 . Support for salted hashed passwords and remember me functionality.
