@@ -23,6 +23,7 @@ Breaking changes
 . UserInfo keys are now Object and no longer Serializable. (AuthenticationInfoBuilder and UserPrincipal.userInfo for example)
 . Method OctopusSecurityContext.loginWithRedirect is moved to new OctopusJSFSecurityContext class.
 . CAS client is upgraded and support for SAML (with CAS server) is only available by adding org.jasig.cas.client:cas-client-support-saml
+. _be.c4j.ee.security.shiro.URLPermissionProtector_ is removed, please use CDI bean implementations of _be.c4j.ee.security.url.ProgrammaticURLProtectionProvider_
 
 === 0.9.6.4
 

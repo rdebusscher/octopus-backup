@@ -64,7 +64,6 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             processAdditionalIniFiles(ini);
 
             ini.addSection(IniFilterChainResolverFactory.URLS); // Create the empty section
-            addURLsWithNamedPermission(ini);
 
             Ini iniWithURLS = readURLPatterns();
 
@@ -235,11 +234,6 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
             target.put(url, value);
         }
-    }
-
-    private void addURLsWithNamedPermission(Ini someIni) {
-        URLPermissionProtector protector = BeanProvider.getContextualReference(URLPermissionProtector.class);
-        protector.configurePermissions(someIni.getSection(IniFilterChainResolverFactory.URLS));
     }
 
     @Override
