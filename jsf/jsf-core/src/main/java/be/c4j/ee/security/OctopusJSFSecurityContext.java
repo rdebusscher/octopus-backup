@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security;
 
+import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.context.OctopusSecurityContext;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.logout.LogoutHandler;
@@ -50,6 +51,9 @@ public class OctopusJSFSecurityContext extends OctopusSecurityContext {
     @Inject
     private LogoutHandler logoutHandler;
 
+    @Inject
+    private OctopusJSFConfig octopusConfig;
+
     public void loginWithRedirect(HttpServletRequest request, ExternalContext externalContext, AuthenticationToken token, String rootUrl) throws IOException {
 
         sessionUtil.invalidateCurrentSession(request);
@@ -66,7 +70,7 @@ public class OctopusJSFSecurityContext extends OctopusSecurityContext {
             UserPrincipal principal = (UserPrincipal) SecurityUtils.getSubject().getPrincipal();
             twoStepProvider.startSecondStep(request, principal);
 
-            externalContext.redirect(request.getContextPath() + "/secondStep.xhtml");  // FIXME Parameter
+            externalContext.redirect(request.getContextPath() + octopusConfig.getSecondStepPage());
         }
     }
 

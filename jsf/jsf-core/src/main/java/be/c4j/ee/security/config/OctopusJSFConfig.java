@@ -78,5 +78,9 @@ public class OctopusJSFConfig extends AbstractOctopusConfig implements ModuleCon
         return ConfigResolver.getPropertyValue("primefaces.mobile.exclusion", "false");
     }
 
+    @ConfigEntry
+    public String getSecondStepPage() {
+        return ConfigResolver.getPropertyValue("secondStepPage", "/secondStep.xhtml");
+    }
 
 }
