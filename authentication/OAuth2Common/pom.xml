@@ -44,13 +44,6 @@
 
         <dependency>
 
-            <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>octopus-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>octopus-oauth2-core</artifactId>
             <version>${project.parent.version}</version>
