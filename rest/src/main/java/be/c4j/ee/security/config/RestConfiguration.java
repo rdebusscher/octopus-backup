@@ -40,6 +40,9 @@ public class RestConfiguration implements ConfigurationPlugin {
 
         // Don't store principal into the session.
         mainSection.put("noStorageEvaluator", NoStorageEvaluator.class.getName());
+
+        mainSection.remove("securityManager.subjectDAO.sessionStorageEvaluator"); // We have to remove it first.
+        // Because the core sets this also and the next put just overwrite the key value but leaves the place. And thus this would lead to using the $noStorageEvaluator before it is defined.
         mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator", "$noStorageEvaluator");
         // this isn't good enough since it uses the session if it is available.
         // mainSection.put("securityManager.subjectDAO.sessionStorageEvaluator.sessionStorageEnabled", "false");
