@@ -82,6 +82,10 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
 
         Subject loggedIn;
         if (info instanceof TwoStepAuthenticationInfo) {
+            // If we have TwoStepAuthenticationInfo, we have fisnished the second step of the authentication.
+            UserPrincipal userPrincipal = (UserPrincipal) subject.getPrincipal();
+            userPrincipal.setNeedsTwoStepAuthentication(false);
+
             loggedIn = createSubject(token, info, subject);
 
             onSuccessfulLogin(token, info, loggedIn);

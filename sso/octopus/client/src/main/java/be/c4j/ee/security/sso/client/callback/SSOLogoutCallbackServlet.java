@@ -22,7 +22,6 @@ import be.c4j.ee.security.session.ApplicationUsageController;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,7 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
 
         applicationUsageController.invalidateSession(new ApplicationUsageController.UserSessionFinder() {
             @Override
-            public boolean isCorrectPrincipal(UserPrincipal userPrincipal) {
+            public boolean isCorrectPrincipal(UserPrincipal userPrincipal, String sessionId) {
                 boolean result = false;
                 Object token = userPrincipal.getUserInfo("token");
                 if (token instanceof OctopusSSOUser) {

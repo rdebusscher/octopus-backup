@@ -56,7 +56,7 @@ public class ApplicationUsageController {
                 break;
             case LOGON:
                 if (octopusJSFConfig.getSingleSession()) {
-                    logoutOtherSessions(event.getUserPrincipal());
+                    logoutOtherSessions(event.getUserPrincipal(), event.getSessionId());
                 }
 
                 ApplicationUsageInfo applicationUsageInfo = applicationUsage.get(event.getSessionId());
@@ -94,12 +94,12 @@ public class ApplicationUsageController {
         }
     }
 
-    private void logoutOtherSessions(final UserPrincipal userPrincipalFromNewLogin) {
+    private void logoutOtherSessions(final UserPrincipal userPrincipalFromNewLogin, final String sessionIdNewLogin) {
 
         invalidateSession(new UserSessionFinder() {
             @Override
-            public boolean isCorrectPrincipal(UserPrincipal userPrincipal) {
-                return userPrincipal.equals(userPrincipalFromNewLogin);
+            public boolean isCorrectPrincipal(UserPrincipal userPrincipal, String sessionId) {
+                return !sessionIdNewLogin.equals(sessionId) && userPrincipal.equals(userPrincipalFromNewLogin);
             }
         });
     }
@@ -154,7 +154,7 @@ public class ApplicationUsageController {
 
         for (Map.Entry<String, ApplicationUsageInfo> entry : applicationUsage.entrySet()) {
             if (entry.getValue().isAuthenticated()) {
-                if (userSessionFinder.isCorrectPrincipal(entry.getValue().getUserPrincipal())) {
+                if (userSessionFinder.isCorrectPrincipal(entry.getValue().getUserPrincipal(), entry.getValue().getSessionId())) {
                     toBeInvalidated.add(entry.getValue().getHttpSession());
                 }
             }
@@ -181,6 +181,6 @@ public class ApplicationUsageController {
 
     // Since we don't use Java 8, yet :)
     public interface UserSessionFinder {
-        boolean isCorrectPrincipal(UserPrincipal userPrincipal);
+        boolean isCorrectPrincipal(UserPrincipal userPrincipal, String sessionId);
     }
 }

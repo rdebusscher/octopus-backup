@@ -43,6 +43,10 @@ public class ApplicationUsageInfo {
         return httpSession;
     }
 
+    public String getSessionId() {
+        return httpSession.getId();
+    }
+
     public String getUserAgent() {
         return userAgent;
     }

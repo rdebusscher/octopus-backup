@@ -25,7 +25,6 @@ import be.c4j.ee.security.twostep.TwoStepProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -33,11 +32,8 @@ import javax.enterprise.inject.Specializes;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-
-import static org.apache.shiro.web.util.WebUtils.SAVED_REQUEST_KEY;
 
 /**
  *
@@ -56,7 +52,8 @@ public class OctopusJSFSecurityContext extends OctopusSecurityContext {
 
     public void loginWithRedirect(HttpServletRequest request, ExternalContext externalContext, AuthenticationToken token, String rootUrl) throws IOException {
 
-        sessionUtil.invalidateCurrentSession(request);
+        //sessionUtil.invalidateCurrentSession(request);
+        // This is already performed during the onLogin Event
 
         SecurityUtils.getSubject().login(token);
 
