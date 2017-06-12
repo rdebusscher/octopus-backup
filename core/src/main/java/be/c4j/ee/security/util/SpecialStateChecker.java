@@ -41,8 +41,4 @@ public final class SpecialStateChecker {
         return ThreadContext.get(OctopusAuthenticationListener.IN_AUTHENTICATION_EVENT_FLAG) instanceof OctopusAuthenticationListener.InAuthenticationEvent;
     }
 
-    public static boolean isInSystemAccountAuthentication() {
-        return ThreadContext.get(OctopusRealm.SYSTEM_ACCOUNT_AUTHENTICATION) instanceof OctopusRealm.InSystemAccountAuthentication;
-
-    }
 }

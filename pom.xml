@@ -110,7 +110,6 @@
         <module>starter</module>
         <module>starter_ee7</module>
         <module>permissionDemo</module>
-        <module>asyncManual</module>
         <module>examples</module>
 
     </modules>

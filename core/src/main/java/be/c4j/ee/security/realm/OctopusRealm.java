@@ -185,14 +185,9 @@ public class OctopusRealm extends AuthorizingRealm {
 
     @Override
     protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
-        ThreadContext.put(SYSTEM_ACCOUNT_AUTHENTICATION, new InSystemAccountAuthentication());
-        try {
             super.assertCredentialsMatch(token, info);
 
             defineTwoStepAuthentication(info);
-        } finally {
-            ThreadContext.remove(SYSTEM_ACCOUNT_AUTHENTICATION);
-        }
     }
 
     private void defineTwoStepAuthentication(AuthenticationInfo info) {
@@ -224,12 +219,6 @@ public class OctopusRealm extends AuthorizingRealm {
     public static class InAuthorization {
 
         private InAuthorization() {
-        }
-    }
-
-    public static final class InSystemAccountAuthentication {
-        // So that we only can create this class from this class.
-        private InSystemAccountAuthentication() {
         }
     }
 

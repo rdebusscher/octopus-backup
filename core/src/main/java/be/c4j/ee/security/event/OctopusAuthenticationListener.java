@@ -17,6 +17,7 @@ package be.c4j.ee.security.event;
 
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.octopus.ProcessAuthenticationToken;
+import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationListener;
@@ -44,7 +45,7 @@ public class OctopusAuthenticationListener implements AuthenticationListener {
 
     @Override
     public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
-        if (!(token instanceof ProcessAuthenticationToken)) {
+        if (!(token instanceof ProcessAuthenticationToken) && !(token instanceof SystemAccountAuthenticationToken)) {
             LogonEvent event = new LogonEvent(token, info);
             ThreadContext.put(IN_AUTHENTICATION_EVENT_FLAG, new InAuthenticationEvent());
             try {

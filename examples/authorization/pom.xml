@@ -37,6 +37,7 @@
 
     <modules>
         <module>customCheck</module>
+        <module>asyncManual</module>
     </modules>
 
     <build>

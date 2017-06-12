@@ -39,7 +39,6 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
     public MultipleCredentialsMatcher() {
         octopusDefinedMatchers = new ArrayList<CredentialsMatcher>();
         octopusDefinedMatchers.add(new OctopusSimpleCredentialsMatcher());
-        octopusDefinedMatchers.add(new SystemAccountCredentialMatcher());
         octopusDefinedMatchers.add(new GenericTwoStepCredentialsMatcher());
 
         applicationDefinedMatchers = new ArrayList<CredentialsMatcher>(); // TODO ApplicationDefined is not a good name, they are the moduleDefined ones.

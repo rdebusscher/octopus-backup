@@ -15,12 +15,13 @@
  */
 package be.c4j.ee.security.systemaccount;
 
+import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**
- * FIXME should we use ValidatedAuthenticationToken?
+ *
  */
-public class SystemAccountAuthenticationToken implements AuthenticationToken {
+public class SystemAccountAuthenticationToken implements AuthenticationToken, ValidatedAuthenticationToken {
 
     private SystemAccountPrincipal principal;
 
