@@ -35,6 +35,7 @@ public class OctopusSecurityContext implements Serializable {
 
     /* Support for Asynchronous calls*/
     public void prepareForAsyncUsage() {
+        // TODO Last tests with WildFly 10 suggests that this method is no longer needed, just as the binding of the Subject to the ThreadContext (OctopusInterceptor)
         subject = SecurityUtils.getSubject();
     }
 

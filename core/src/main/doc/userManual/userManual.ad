@@ -50,6 +50,8 @@ TODO, This sections needs more info
 
 include::securedComponent.adi[]
 
+include::asynchronous.adi[]
+
 === Advanced Authorizations
 
 include::customCheck.adi[]
