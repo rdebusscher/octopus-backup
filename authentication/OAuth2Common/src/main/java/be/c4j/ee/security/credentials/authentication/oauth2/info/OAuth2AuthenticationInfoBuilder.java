@@ -19,31 +19,29 @@ import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import org.apache.shiro.authc.AuthenticationInfo;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * FIXME Verify why this class is never used.
+ * Use this class witin be.c4j.ee.security.realm.SecurityDataProvider#getAuthenticationInfo(org.apache.shiro.authc.AuthenticationToken)
  */
-
 public class OAuth2AuthenticationInfoBuilder {
 
 
     private OAuth2User oauth2User;
 
-    private Map<Serializable, Serializable> userInfo = new HashMap<Serializable, Serializable>();
+    private Map<String, Object> userInfo = new HashMap<String, Object>();
 
     public OAuth2AuthenticationInfoBuilder(OAuth2User oauth2User) {
         this.oauth2User = oauth2User;
     }
 
-    public OAuth2AuthenticationInfoBuilder addUserInfo(Serializable key, Serializable value) {
+    public OAuth2AuthenticationInfoBuilder addUserInfo(String key, Object value) {
         userInfo.put(key, value);
         return this;
     }
 
-    public OAuth2AuthenticationInfoBuilder addUserInfo(Map<? extends Serializable, ? extends Serializable> values) {
+    public OAuth2AuthenticationInfoBuilder addUserInfo(Map<String, Object> values) {
         userInfo.putAll(values);
         return this;
     }
@@ -55,7 +53,7 @@ public class OAuth2AuthenticationInfoBuilder {
                 .name(oauth2User.getName())
                 .userName(oauth2User.getEmail());
         builder.addUserInfo(oauth2User.getUserInfo());
-
+        builder.addUserInfo(userInfo);
 
         return builder.build();
     }

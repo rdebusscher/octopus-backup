@@ -16,7 +16,7 @@
 package be.c4j.demo.security;
 
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
-import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
+import be.c4j.ee.security.credentials.authentication.oauth2.info.OAuth2AuthenticationInfoBuilder;
 import be.c4j.ee.security.realm.SecurityDataProvider;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -36,11 +36,9 @@ public class AppAuthentication implements SecurityDataProvider {
         if (token instanceof OAuth2User) {
             OAuth2User user = (OAuth2User) token;
 
-            AuthenticationInfoBuilder authenticationInfoBuilder = new AuthenticationInfoBuilder();
-            authenticationInfoBuilder.principalId(user.getId()).name(user.getFullName());
-            authenticationInfoBuilder.addUserInfo(user.getUserInfo());
+            OAuth2AuthenticationInfoBuilder builder = new OAuth2AuthenticationInfoBuilder(user);
 
-            return authenticationInfoBuilder.build();
+            return builder.build();
         }
         return null;
     }
