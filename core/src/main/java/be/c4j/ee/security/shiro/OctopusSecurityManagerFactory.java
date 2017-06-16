@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.shiro;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.web.config.WebIniSecurityManagerFactory;
@@ -34,6 +35,8 @@ public class OctopusSecurityManagerFactory extends WebIniSecurityManagerFactory 
 
     @Override
     protected SecurityManager createDefaultInstance() {
-        return new OctopusSecurityManager();
+        OctopusSecurityManager securityManager = new OctopusSecurityManager();
+        SecurityUtils.setSecurityManager(securityManager); // So that we can use security related stuff within @StartupEvent from Jerry
+        return securityManager;
     }
 }
