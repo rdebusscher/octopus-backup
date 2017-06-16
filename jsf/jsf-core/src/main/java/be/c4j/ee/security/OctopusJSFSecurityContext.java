@@ -25,6 +25,7 @@ import be.c4j.ee.security.twostep.TwoStepProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -52,10 +53,18 @@ public class OctopusJSFSecurityContext extends OctopusSecurityContext {
 
     public void loginWithRedirect(HttpServletRequest request, ExternalContext externalContext, AuthenticationToken token, String rootUrl) throws IOException {
 
-        //sessionUtil.invalidateCurrentSession(request);
-        // This is already performed during the onLogin Event
+        Subject subject = SecurityUtils.getSubject();
 
-        SecurityUtils.getSubject().login(token);
+        boolean sessionInvalidate = true;
+        if (subject.getPrincipal() != null && !subject.isAuthenticated()) {
+            // This is the case for the TwoStep scenario when OTP value is requested.
+            // In that case, we shouldn't invalidate the session since we already did it.
+            sessionInvalidate = false;
+        }
+        if (sessionInvalidate) {
+            sessionUtil.invalidateCurrentSession(request);
+        }
+        subject.login(token);
 
         if (SecurityUtils.getSubject().isAuthenticated()) {
             SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
