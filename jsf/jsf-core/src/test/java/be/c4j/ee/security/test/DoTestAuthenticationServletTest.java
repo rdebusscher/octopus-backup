@@ -99,7 +99,6 @@ public class DoTestAuthenticationServletTest {
 
         beanManagerFake.endRegistration();
 
-        StringBuffer requestURL = new StringBuffer("http://client.server/root/doTestAuthenticate");
         when(httpServletRequestMock.getParameter(OctopusConstants.OCTOPUS_AUTHENTICATED)).thenReturn("false");
         when(pageInfoMock.getUnauthenticatedPage()).thenReturn("unauthenticated.xhtml");
 
@@ -120,7 +119,6 @@ public class DoTestAuthenticationServletTest {
 
         beanManagerFake.endRegistration();
 
-        StringBuffer requestURL = new StringBuffer("http://client.server/root/doTestAuthenticate");
         when(httpServletRequestMock.getParameter(OctopusConstants.OCTOPUS_AUTHENTICATED)).thenReturn("true");
         when(pageInfoMock.getAuthenticatedPage()).thenReturn("authenticated.xhtml");
 

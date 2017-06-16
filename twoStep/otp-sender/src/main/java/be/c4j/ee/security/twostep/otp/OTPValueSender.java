@@ -22,5 +22,5 @@ import be.c4j.ee.security.model.UserPrincipal;
  */
 public interface OTPValueSender {
 
-    public void sendValue(UserPrincipal userPrincipal, String otpValue);
+    void sendValue(UserPrincipal userPrincipal, String otpValue);
 }

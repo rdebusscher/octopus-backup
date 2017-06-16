@@ -119,15 +119,14 @@ public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implement
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OctopusSSOUser{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", localId='").append(localId).append('\'');
-        sb.append(", lastName='").append(lastName).append('\'');
-        sb.append(", fullName='").append(fullName).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", firstName='").append(firstName).append('\'');
-        sb.append('}');
-        return sb.toString();
+        String sb = "OctopusSSOUser{" + "id='" + id + '\'' +
+                ", localId='" + localId + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                '}';
+        return sb;
     }
 
     @Override

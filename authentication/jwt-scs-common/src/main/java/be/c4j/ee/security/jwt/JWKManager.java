@@ -64,7 +64,7 @@ public class JWKManager {
         } catch (FileNotFoundException e) {
             throw new OctopusConfigurationException(String.format("JWK File not found at %s", jwkFile));
         } catch (ParseException e) {
-            throw new OctopusConfigurationException(String.format("Parsing the JWK file failed with ", e.getMessage()));
+            throw new OctopusConfigurationException(String.format("Parsing the JWK file failed with %s", e.getMessage()));
         }
 
         try {

@@ -169,7 +169,7 @@ public class VoterNameFactory {
     }
 
 
-    private static enum NameType {
-        PERMISSION, ROLE, CUSTOM_CHECK;
+    private enum NameType {
+        PERMISSION, ROLE, CUSTOM_CHECK
     }
 }

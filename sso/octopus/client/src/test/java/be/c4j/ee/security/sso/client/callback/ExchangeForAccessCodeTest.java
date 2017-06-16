@@ -20,7 +20,6 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
-import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.util.TimeUtil;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.PlainJWT;

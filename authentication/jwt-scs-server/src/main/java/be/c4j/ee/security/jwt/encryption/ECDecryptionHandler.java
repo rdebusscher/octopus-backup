@@ -32,13 +32,11 @@ import java.text.ParseException;
 
 public class ECDecryptionHandler implements DecryptionHandler {
 
-    private SCSConfig jwtServerConfig;
     private JWKManager jwkManager;
 
     @Override
     public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
-        this.jwtServerConfig = SCSConfig;
         this.jwkManager = jwkManager;
     }
 

@@ -84,7 +84,7 @@ public class CasInfoProvider {
             Map<String, Object> info = new HashMap<String, Object>();
             for (Map.Entry<String, Object> entry : attributes.entrySet()) {
                 if (entry.getValue() instanceof Serializable) {
-                    info.put(entry.getKey(), (Serializable) entry.getValue());
+                    info.put(entry.getKey(), entry.getValue());
                 }
             }
 

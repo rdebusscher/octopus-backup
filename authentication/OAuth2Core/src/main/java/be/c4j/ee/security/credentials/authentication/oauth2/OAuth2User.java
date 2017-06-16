@@ -194,19 +194,18 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OAuth2User{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", lastName='").append(lastName).append('\'');
-        sb.append(", fullName='").append(fullName).append('\'');
-        sb.append(", picture='").append(picture).append('\'');
-        sb.append(", gender='").append(gender).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append(", link='").append(link).append('\'');
-        sb.append(", firstName='").append(firstName).append('\'');
-        sb.append(", domain='").append(domain).append('\'');
-        sb.append(", verifiedEmail=").append(verifiedEmail);
-        sb.append('}');
-        return sb.toString();
+        String sb = "OAuth2User{" + "id='" + id + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", picture='" + picture + '\'' +
+                ", gender='" + gender + '\'' +
+                ", email='" + email + '\'' +
+                ", link='" + link + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", domain='" + domain + '\'' +
+                ", verifiedEmail=" + verifiedEmail +
+                '}';
+        return sb;
     }
 
     @Override

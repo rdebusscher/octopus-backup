@@ -75,7 +75,7 @@ public class PermissionRequestor extends AbstractRequestor {
         WebTarget target = client.target(configuration.getOctopusSSOServer() + "/" + configuration.getSSOEndpointRoot() + "/octopus/sso/user/permissions/" + configuration.getSSOApplication());
 
         Response response = target.request()
-                .header(AUTHORIZATION_HEADER, BEARER + " " + defineToken(accessToken))
+                .header(AUTHORIZATION_HEADER, BEARER + " " + accessToken)
                 .accept(MediaType.APPLICATION_JSON)
                 .get();
 
@@ -106,20 +106,6 @@ public class PermissionRequestor extends AbstractRequestor {
         }
         return permissions;
     }
-
-    private String defineToken(String token) {
-        String result;
-        /*
-        FIXME
-        if (encryptionHandler != null) {
-            result = encryptionHandler.encryptData(token, null);
-        } else {
-        */
-        result = token;
-        //}
-        return result;
-    }
-
 
     private List<NamedDomainPermission> toNamedDomainPermissions(Map<String, String> data) {
         List<NamedDomainPermission> permissions = new ArrayList<NamedDomainPermission>();

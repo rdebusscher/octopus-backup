@@ -157,12 +157,11 @@ public class OIDCAdapter {
     }
 
     protected String assembleCallbackUrl() {
-        StringBuilder result = new StringBuilder();
-        result.append(request.getScheme()).append("://");
-        result.append(request.getServerName()).append(':');
-        result.append(request.getServerPort());
-        result.append(request.getContextPath()).append("/keycloak");
-        return result.toString();
+        String result = request.getScheme() + "://" +
+                request.getServerName() + ':' +
+                request.getServerPort() +
+                request.getContextPath() + "/keycloak";
+        return result;
     }
 
     public void authenticate(String code) throws IOException {

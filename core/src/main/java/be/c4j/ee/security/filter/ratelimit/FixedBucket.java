@@ -95,13 +95,6 @@ public class FixedBucket {
     }
 
     /**
-     * Initializes the {@link FixedBucket} for use.
-     */
-    public void init() {
-
-    }
-
-    /**
      * {@inheritDoc}
      */
     public void setDuration(int durationInSeconds) {

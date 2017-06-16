@@ -30,7 +30,6 @@ import java.util.Map;
 
 import static be.c4j.ee.security.filter.shiro.OctopusPathMatchingFilterChainResolver.OCTOPUS_CHAIN_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**

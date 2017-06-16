@@ -190,7 +190,7 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
                 signedJWT = decryptToken(apiKey, token);
             }
 
-            JWSVerifier verifier = null;
+            JWSVerifier verifier;
             try {
                 verifier = new RSASSAVerifier((RSAKey) jwkManager.getJWKForApiKey(apiKey));
             } catch (JOSEException e) {
@@ -232,7 +232,7 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
     private SCSUser createJWTUserToken(String apiKey, String token) {
         SCSUser result = null;
         try {
-            JWSVerifier verifier = null;
+            JWSVerifier verifier;
             try {
                 verifier = new MACVerifier(jwtServerConfig.getHMACTokenSecret());
             } catch (JOSEException e) {

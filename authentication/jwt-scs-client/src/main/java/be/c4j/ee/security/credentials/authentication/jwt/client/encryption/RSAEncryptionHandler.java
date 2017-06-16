@@ -30,18 +30,17 @@ import com.nimbusds.jwt.SignedJWT;
 public class RSAEncryptionHandler implements EncryptionHandler {
 
 
-    private SCSConfig SCSConfig;
     private JWKManager jwkManager;
 
     @Override
     public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
-        this.SCSConfig = SCSConfig;
         this.jwkManager = jwkManager;
     }
 
     @Override
     public String doEncryption(String apiKey, SignedJWT signedJWT) throws JOSEException {
+        // TODO RSA1_5 is not save enough?
         JWEObject jweObject = new JWEObject(
                 new JWEHeader.Builder(JWEAlgorithm.RSA1_5, EncryptionMethod.A256CBC_HS512)
                         .contentType("JWT") // required to signal nested JWT

@@ -35,7 +35,6 @@ public class FixedBucketTest {
         int allowedRequests = 1;
         rateLimiter.setAllowedRequests(allowedRequests);
         rateLimiter.setTokenStore(createTokenStore());
-        rateLimiter.init();
 
         String key = "TestKey";
 
@@ -54,7 +53,6 @@ public class FixedBucketTest {
         int allowedRequests = 1;
         rateLimiter.setAllowedRequests(allowedRequests);
         rateLimiter.setTokenStore(createTokenStore());
-        rateLimiter.init();
 
         String key1 = "TestKey1";
         String key2 = "TestKey2";
@@ -76,7 +74,6 @@ public class FixedBucketTest {
         int allowedRequests = 50000;
         rateLimiter.setAllowedRequests(allowedRequests);
         rateLimiter.setTokenStore(createTokenStore());
-        rateLimiter.init();
 
         String key = "TestKey";
 
@@ -99,7 +96,6 @@ public class FixedBucketTest {
         int allowedRequests = 200;
         rateLimiter.setAllowedRequests(allowedRequests);
         rateLimiter.setTokenStore(createTokenStore());
-        rateLimiter.init();
 
         final String key = "TestKey";
 
@@ -155,7 +151,6 @@ public class FixedBucketTest {
         rateLimiter.setAllowedRequests(allowedRequests);
         rateLimiter.setTokenStore(createTokenStore());
         rateLimiter.setDuration(1);
-        rateLimiter.init();
 
         String key = "TestKey";
 

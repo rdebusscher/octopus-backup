@@ -30,13 +30,11 @@ import com.nimbusds.jwt.SignedJWT;
 public class ECEncryptionHandler implements EncryptionHandler {
 
 
-    private SCSConfig SCSConfig;
     private JWKManager jwkManager;
 
     @Override
     public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
-        this.SCSConfig = SCSConfig;
         this.jwkManager = jwkManager;
     }
 

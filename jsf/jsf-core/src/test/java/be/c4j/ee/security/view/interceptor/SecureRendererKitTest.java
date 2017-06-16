@@ -28,8 +28,6 @@ import org.primefaces.component.commandbutton.CommandButtonRenderer;
 import javax.faces.render.RenderKit;
 import javax.faces.render.Renderer;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 /**

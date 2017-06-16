@@ -73,10 +73,8 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
     private String retrieveToken(HttpServletRequest req) {
         SSOFlow ssoType = config.getSSOType();
 
-        String token = req.getParameter("access_token");
+        return req.getParameter("access_token");
 
-        String realToken = token;
-        return realToken;
     }
 
     private void showDebugInfo(String token) {

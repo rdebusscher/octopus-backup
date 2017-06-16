@@ -232,7 +232,7 @@ public class OctopusSSOEndpoint {
                 // due to octopusSSOUserConverter.fromIdToken(jwtClaimsSet); earlier, there was a conversion from jwtClaimsSet to JSonObject
                 // Which converted the Audience List to a single String.  If we don't put it in the correct type again, the new SignedJWT 3 statements further on
                 // Will fail on the audience and leave it out from the SignedJWT.
-                claimSetBuilder.claim(key, Arrays.asList(jsonObject.get(key)));
+                claimSetBuilder.claim(key, Collections.singletonList(jsonObject.get(key)));
             } else {
                 claimSetBuilder.claim(key, jsonObject.get(key));
             }

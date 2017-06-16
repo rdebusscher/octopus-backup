@@ -29,6 +29,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ApplicationScoped
@@ -88,9 +89,7 @@ public class AppAuthentication implements SecurityDataProvider {
 
     private List<Long> definePartitionList(Long... ids) {
         List<Long> result = new ArrayList<Long>();
-        for (Long id : ids) {
-            result.add(id);
-        }
+        Collections.addAll(result, ids);
         return result;
     }
 

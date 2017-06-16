@@ -64,11 +64,10 @@ public class CasConfigurationHelper {
     }
 
     private String assembleCallbackUrl(HttpServletRequest req) {
-        StringBuilder result = new StringBuilder();
-        result.append(req.getScheme()).append("://");
-        result.append(req.getServerName()).append(':');
-        result.append(req.getServerPort());
-        result.append(req.getContextPath()).append("/cas-callback");
-        return result.toString();
+        String result = req.getScheme() + "://" +
+                req.getServerName() + ':' +
+                req.getServerPort() +
+                req.getContextPath() + "/cas-callback";
+        return result;
     }
 }

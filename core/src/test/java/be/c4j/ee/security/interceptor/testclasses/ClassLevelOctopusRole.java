@@ -16,7 +16,6 @@
 package be.c4j.ee.security.interceptor.testclasses;
 
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
-import be.c4j.ee.security.realm.OctopusPermissions;
 import be.c4j.ee.security.realm.OctopusRoles;
 
 /**

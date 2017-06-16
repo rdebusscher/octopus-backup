@@ -15,15 +15,12 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.servlet;
 
-import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2Configuration;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2SessionAttributes;
 import be.c4j.ee.security.credentials.authentication.oauth2.csrf.CSRFTokenProducer;
 import be.c4j.ee.security.credentials.authentication.oauth2.provider.OAuth2ServiceProducer;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,12 +36,6 @@ public class OAuth2Servlet extends HttpServlet {
 
     @Inject
     private OAuth2SessionAttributes oAuth2SessionAttributes;
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-
-    }
 
     protected void redirectToAuthorizationURL(HttpServletRequest request, HttpServletResponse response, OAuth2ServiceProducer serviceProducer) throws IOException {
         String token = csrfTokenProducer.nextToken();

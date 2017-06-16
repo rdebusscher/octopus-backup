@@ -26,7 +26,6 @@ import be.c4j.ee.security.salt.HashEncoding;
 import be.c4j.ee.security.salt.OctopusHashedCredentialsMatcher;
 import be.c4j.ee.security.url.ProgrammaticURLProtectionProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
