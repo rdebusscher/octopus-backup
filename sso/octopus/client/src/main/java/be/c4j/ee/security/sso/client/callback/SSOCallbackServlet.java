@@ -43,6 +43,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -169,7 +170,7 @@ public class SSOCallbackServlet extends HttpServlet {
 
                 }
 
-            } catch (AuthenticationException e) {
+            } catch (UnauthorizedException e) {
                 handleException(httpServletRequest, httpServletResponse, e, user);
             }
 
@@ -255,6 +256,10 @@ public class SSOCallbackServlet extends HttpServlet {
 
     private void handleException(HttpServletRequest request, HttpServletResponse resp, Throwable e, OctopusSSOUser user) {
         HttpSession sess = request.getSession();
+        sess.invalidate();
+
+        // With a new HttpSession.
+        sess = request.getSession(true);
         sess.setAttribute(OctopusSSOUser.class.getSimpleName(), user);
         sess.setAttribute("AuthenticationExceptionMessage", e.getMessage());
         // The SSOAfterSuccessfulLoginHandler found that the user doesn't have the required access permission
@@ -265,7 +270,6 @@ public class SSOCallbackServlet extends HttpServlet {
             throw new OctopusUnexpectedException(ioException);
 
         }
-        sess.invalidate();
     }
 
 }
