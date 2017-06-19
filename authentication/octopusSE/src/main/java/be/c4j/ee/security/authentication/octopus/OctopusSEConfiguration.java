@@ -49,8 +49,7 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
     }
 
     public String getUserInfoEndpoint() {
-
-        return getOctopusSSOServer() + "/data/octopus/sso/user";
+        return getOctopusSSOServer() + "/" + getSSOEndpointRoot() + "/octopus/sso/user";
 
     }
 
@@ -61,7 +60,8 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
     }
 
     public String getSSOEndpointRoot() {
-        return ConfigResolver.getPropertyValue("SSO.endpoint.root", "data");
+        String ssoEndPointRoot = ConfigResolver.getPropertyValue("SSO.endpoint.root", "data");
+        return ssoEndPointRoot.replaceAll("^/+", "").replaceAll("/+$", "");
     }
 
     public String getSSOClientId() {

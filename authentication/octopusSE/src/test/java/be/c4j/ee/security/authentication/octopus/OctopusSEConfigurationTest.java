@@ -90,7 +90,7 @@ public class OctopusSEConfigurationTest {
     }
 
     @Test
-    public void testGetSSOClientId() {
+    public void getSSOClientId() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.clientId", "ClientId");
         TestConfigSource.defineConfigValue(parameters);
@@ -100,7 +100,7 @@ public class OctopusSEConfigurationTest {
     }
 
     @Test
-    public void testGetSSOClientId_multiApp() {
+    public void getSSOClientId_multiApp() {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("SSO.application", "app2");
         parameters.put("app1.SSO.clientId", "ClientId");
@@ -112,9 +112,23 @@ public class OctopusSEConfigurationTest {
     }
 
     @Test(expected = OctopusConfigurationException.class)
-    public void testGetSSOClientId_required() {
+    public void getSSOClientId_required() {
 
         configuration.getSSOClientId();
 
+    }
+
+    @Test
+    public void getSSOEndpointRoot() {
+        TestConfigSource.defineConfigValue("junit");
+        String endpointRoot = configuration.getSSOEndpointRoot();
+        assertThat(endpointRoot).isEqualTo("junit");
+    }
+
+    @Test
+    public void getSSOEndpointRoot_trimmed() {
+        TestConfigSource.defineConfigValue("/trimmed/only/begin/and/end//");
+        String endpointRoot = configuration.getSSOEndpointRoot();
+        assertThat(endpointRoot).isEqualTo("trimmed/only/begin/and/end");
     }
 }
