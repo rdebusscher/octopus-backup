@@ -80,6 +80,26 @@ public final class AnnotationUtil {
         return result;
     }
 
+    public static boolean hasAdvancedFlag(Annotation someAnnotation) {
+        boolean result = false;
+
+        for (Method method : someAnnotation.getClass().getDeclaredMethods()) {
+            if ("advanced".equals(method.getName())) {
+                try {
+                    Object value = method.invoke(someAnnotation, null);
+
+                    result = Boolean.valueOf(value.toString());
+                } catch (IllegalAccessException e) {
+                    throw new OctopusUnexpectedException(e);
+                } catch (InvocationTargetException e) {
+                    throw new OctopusUnexpectedException(e);
+                }
+            }
+        }
+
+        return result;
+    }
+
     public static <T extends NamedRole> T[] getRoleValues(Annotation someCustomRoleCheck) {
         T[] result = null;
         for (Method method : someCustomRoleCheck.getClass().getDeclaredMethods()) {

@@ -151,5 +151,9 @@ public class MethodLevel {
 
     }
 
+    @MyAdvancedCheck()
+    public void getDataWithAdvacedChecks() {
+    }
+
 }
 

@@ -93,17 +93,20 @@ public class SecurityCheckCustomCheck implements SecurityCheck {
             throw new OctopusConfigurationException(String.format("An AbstractGenericVoter CDI bean with name %s cannot be found. Custom check annotation feature requirement", beanName));
         }
 
-        SecurityManager securityManager = SecurityUtils.getSecurityManager();
-        if (securityManager instanceof OctopusSecurityManager) {
-            OctopusSecurityManager octopusSecurityManager = (OctopusSecurityManager) securityManager;
-            String[] permissionStringValue = AnnotationUtil.getStringValues(customCheck);
-            if (permissionStringValue == null || permissionStringValue.length != 1) {
-                throw new IllegalArgumentException(String.format("value member of %s annotation can only have a single String value", customCheck.annotationType().getName()));
+        if (!AnnotationUtil.hasAdvancedFlag(customCheck)) {
+
+            SecurityManager securityManager = SecurityUtils.getSecurityManager();
+            if (securityManager instanceof OctopusSecurityManager) {
+                OctopusSecurityManager octopusSecurityManager = (OctopusSecurityManager) securityManager;
+                String[] permissionStringValue = AnnotationUtil.getStringValues(customCheck);
+                if (permissionStringValue == null || permissionStringValue.length != 1) {
+                    throw new IllegalArgumentException(String.format("value member of %s annotation can only have a single String value", customCheck.annotationType().getName()));
+                }
+                Permission permission = permissionResolver.resolvePermission(permissionStringValue[0]);
+                context.addMetaData(Permission.class.getName(), octopusSecurityManager.getPermissions(subject, permission));
             }
-            Permission permission = permissionResolver.resolvePermission(permissionStringValue[0]);
-            context.addMetaData(Permission.class.getName(), octopusSecurityManager.getPermissions(subject, permission));
+            // TODO Probably throw some error when we have another SecurityManager
         }
-        // TODO Probably throw some error when we have another SecurityManager
 
         Set<SecurityViolation> violations = voter.checkPermission(context);
         result.addAll(violations);

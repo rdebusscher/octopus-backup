@@ -21,6 +21,7 @@ import be.c4j.ee.security.custom.AbstractGenericVoter;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
+import be.c4j.ee.security.interceptor.testclasses.MyAdvancedCheck;
 import be.c4j.ee.security.interceptor.testclasses.MyCheck;
 import be.c4j.ee.security.interceptor.testclasses.MyCheckInfo;
 import be.c4j.ee.security.permission.OctopusPermissionResolver;
@@ -167,6 +168,25 @@ public class SecurityCheckCustomCheckTest {
         assertThat(metaDataCaptor.getValue()).isEqualTo(permissions);
     }
 
+    @Test
+    public void performCheck_AnnotationAdvancedFlag() {
+        when(subjectMock.isAuthenticated()).thenReturn(true);
+
+        when(nameFactoryMock.generateCustomCheckBeanName(anyString())).thenReturn("customVoter");
+
+        beanManagerFake.registerBean("customVoter", customVoterMock);
+        when(customVoterMock.checkPermission(accessDecisionVoterContextMock)).thenReturn(new HashSet<SecurityViolation>());
+
+        SecurityUtils.setSecurityManager(securityManagerMock);
+
+
+        beanManagerFake.endRegistration();
+
+        SecurityCheckInfo checkInfo = check.performCheck(subjectMock, accessDecisionVoterContextMock, new MyAdvancedCheckLiteral());
+        assertThat(checkInfo).isNotNull();
+        assertThat(checkInfo.isAccessAllowed()).isTrue();
+    }
+
     @Test(expected = OctopusConfigurationException.class)
     public void performCheck_noVoter() {
         when(subjectMock.isAuthenticated()).thenReturn(true);
@@ -251,4 +271,15 @@ public class SecurityCheckCustomCheckTest {
             return new String[]{"value1", "value2"};
         }
     }
+
+    public class MyAdvancedCheckLiteral extends AnnotationLiteral<MyAdvancedCheck> implements MyAdvancedCheck {
+        private static final long serialVersionUID = -8623640277155878657L;
+
+
+        @Override
+        public boolean advanced() {
+            return true;
+        }
+    }
+
 }

@@ -475,4 +475,46 @@ public class AnnotationUtilTest {
         String[] values = AnnotationUtil.getStringValues(annotations.getMethodAnnotations().iterator().next());
         assertThat(values).containsOnly("value1Bis");
     }
+
+    @Test
+    public void getAdvancedFlag_notPresent() throws NoSuchMethodException {
+        when(octopusConfigMock.getCustomCheckClass()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return MyCheck.class;
+            }
+        });
+
+        beanManagerFake.endRegistration();
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("getStringValue1Bis");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getClassAnnotations()).isEmpty();
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+
+        boolean advanced = AnnotationUtil.hasAdvancedFlag(annotations.getMethodAnnotations().iterator().next());
+        assertThat(advanced).isFalse();
+    }
+
+    @Test
+    public void getAdvancedFlag_WithFlag() throws NoSuchMethodException {
+        when(octopusConfigMock.getCustomCheckClass()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return MyAdvancedCheck.class;
+            }
+        });
+
+        beanManagerFake.endRegistration();
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("getDataWithAdvacedChecks");
+
+        AnnotationInfo annotations = AnnotationUtil.getAllAnnotations(octopusConfigMock, MethodLevel.class, method);
+        assertThat(annotations.getClassAnnotations()).isEmpty();
+        assertThat(annotations.getMethodAnnotations()).hasSize(1);
+
+        boolean advanced = AnnotationUtil.hasAdvancedFlag(annotations.getMethodAnnotations().iterator().next());
+        assertThat(advanced).isTrue();
+    }
 }
