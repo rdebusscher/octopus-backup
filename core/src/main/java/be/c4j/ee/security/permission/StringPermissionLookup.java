@@ -16,10 +16,7 @@
 package be.c4j.ee.security.permission;
 
 import javax.enterprise.inject.Typed;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -54,6 +51,10 @@ public class StringPermissionLookup {
             result = new NamedDomainPermission(createNameForPermission(namedPermission), namedPermission);
         }
         return result;
+    }
+
+    public Collection<NamedDomainPermission> getAllPermissions() {
+        return map.values();
     }
 
     public static String createNameForPermission(String wildCardString) {
