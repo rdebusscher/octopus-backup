@@ -134,6 +134,11 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
         return result;
     }
 
+    public String getSSOEndpointRoot() {
+        String ssoEndPointRoot = ConfigResolver.getPropertyValue("SSO.endpoint.root", "data");
+        return ssoEndPointRoot.replaceAll("^/+", "").replaceAll("/+$", "");
+    }
+
     @ConfigEntry
     public String getOIDCEndpointRateLimit() {
         return ConfigResolver.getPropertyValue("SSO.rate.limit", "60/1m");
