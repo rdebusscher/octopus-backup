@@ -21,8 +21,12 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.util.TimeUtil;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -189,6 +193,53 @@ public class ExchangeForAccessCodeTest {
     }
 
     @Test
+    public void doExchange_clientAuthenticationJWTInvalidSigning() throws IOException, ParseException, JOSEException {
+        defineSecret(256 / 8 + 1);
+        when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
+        exchangeForAccessCode.init();
+
+        when(octopusSEConfigurationMock.getTokenEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/token");
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+
+        OpenIdVariableClientData variableClientData = new OpenIdVariableClientData("http://some.server/oidc");
+        AuthorizationCode authorizationCode = new AuthorizationCode("TheAuthorizationCode");
+
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] secret = new byte[32];
+        secureRandom.nextBytes(secret);
+
+        byte[] anotherSecret = new byte[32];
+        secureRandom.nextBytes(anotherSecret); // Deliberately another secret so that validation fails.
+        when(octopusSEConfigurationMock.getSSOIdTokenSecret()).thenReturn(anotherSecret);
+
+        OIDCTokens token = defineTokens(variableClientData, secret);
+        OIDCTokenResponse oidcTokenResponse = new OIDCTokenResponse(token);
+
+        when(octopusSEConfigurationMock.getSSOClientId()).thenReturn("junit_client");
+
+        Jadler.onRequest()
+                .havingPathEqualTo("/oidc/octopus/sso/token")
+                .respond()
+                .withContentType(CommonContentTypes.APPLICATION_JSON.toString())
+                .withBody(oidcTokenResponse.toJSONObject().toJSONString());
+
+        BearerAccessToken accessToken = exchangeForAccessCode.doExchange(httpServletResponseMock, variableClientData, authorizationCode);
+
+        assertThat(accessToken).isNull();
+
+        StringBaseMatcher bodyMatcher = new StringBaseMatcher();
+        Jadler.verifyThatRequest()
+                .havingMethodEqualTo("POST")
+                .havingBody(bodyMatcher)
+                .receivedOnce();
+
+        assertThat(bodyMatcher.getBody()).startsWith("client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&code=TheAuthorizationCode&grant_type=authorization_code&redirect_uri=http%3A%2F%2Fsome.server%2Foidc%2Foctopus%2Fsso%2FSSOCallback&client_assertion=eyJhbGciOiJIUzI1NiJ9.");
+
+        verify(callbackErrorHandlerMock).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+        assertThat(errorObjectArgumentCaptor.getValue().getDescription()).isEqualTo("JWT Signature Validation failed");
+    }
+
+    @Test
     public void doExchange_errorResponse() throws IOException, ParseException {
         defineSecret(256 / 8 + 1);
         when(jwsAlgorithmFactoryMock.determineOptimalAlgorithm(any(byte[].class))).thenReturn(JWSAlgorithm.HS256);
@@ -238,6 +289,26 @@ public class ExchangeForAccessCodeTest {
         AccessToken accessCode = new BearerAccessToken("TheAccessCode");
 
         return new OIDCTokens(plainJWT, accessCode, null);
+    }
+
+    private OIDCTokens defineTokens(OpenIdVariableClientData variableClientData, byte[] secret) throws ParseException, JOSEException {
+        TimeUtil timeUtil = new TimeUtil();
+
+        List<Audience> audiences = new ArrayList<Audience>();
+        audiences.add(new Audience("junit_client"));
+
+        IDTokenClaimsSet idTokenClaimSet = new IDTokenClaimsSet(new Issuer("http://some.server/oidc"),
+                new Subject("JUnit"), audiences, timeUtil.addSecondsToDate(2, new Date()), new Date());
+        idTokenClaimSet.setNonce(variableClientData.getNonce());
+
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+        SignedJWT signedJWT = new SignedJWT(header, idTokenClaimSet.toJWTClaimsSet());
+
+        signedJWT.sign(new MACSigner(secret));
+
+        AccessToken accessCode = new BearerAccessToken("TheAccessCode");
+
+        return new OIDCTokens(signedJWT, accessCode, null);
     }
 
     private class StringBaseMatcher extends BaseMatcher<String> {

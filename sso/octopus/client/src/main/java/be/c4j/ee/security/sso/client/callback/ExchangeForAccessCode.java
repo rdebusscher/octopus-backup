@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.client.callback;
 
 import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
+import be.c4j.ee.security.authentication.octopus.exception.OctopusRetrievalException;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
@@ -23,7 +24,9 @@ import be.c4j.ee.security.sso.client.JWSAlgorithmFactory;
 import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
@@ -47,6 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 /**
  *
@@ -85,9 +89,8 @@ public class ExchangeForAccessCode {
             AuthorizationCodeGrant grant = new AuthorizationCodeGrant(authorizationCode, redirectURI);
             URI tokenEndPoint = new URI(config.getTokenEndpoint());
 
-
             ClientAuthentication clientAuth = new ClientSecretJWT(new ClientID(config.getSSOClientId())
-                    , tokenEndPoint, algorithm, new Secret(new String(config.getSSOClientSecret())));  // TODO Verify the UTF encoding
+                    , tokenEndPoint, algorithm, new Secret(new String(config.getSSOClientSecret(), Charset.forName("UTF-8"))));
 
             TokenRequest tokenRequest = new TokenRequest(tokenEndPoint, clientAuth, grant, null);
 
@@ -101,6 +104,8 @@ public class ExchangeForAccessCode {
                 JWT idToken = oidcTokens.getIDToken();
 
                 result = oidcTokens.getBearerAccessToken();
+
+                verifyJWT(idToken);
 
                 IDTokenClaimsVerifier claimsVerifier = new IDTokenClaimsVerifier(new Issuer(config.getOctopusSSOServer()), new ClientID(config.getSSOClientId()), variableClientData.getNonce(), 0);
                 claimsVerifier.verify(idToken.getJWTClaimsSet(), null);
@@ -130,14 +135,42 @@ public class ExchangeForAccessCode {
             ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-016", "Validation of ID token JWT failed : " + e.getMessage());
             callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
         } catch (JOSEException e) {
+            // thrown by new ClientSecretJWT
             result = null;
 
-            ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-015", "HMAC calculation failed");
+            ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-019", "HMAC calculation failed");
             callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
+        } catch (OctopusRetrievalException e) {
+            result = null;
+
+            callbackErrorHandler.showErrorMessage(httpServletResponse, e.getErrorObject());
         } catch (IOException e) {
             throw new OctopusUnexpectedException(e);
         }
         return result;
+    }
+
+    private void verifyJWT(JWT idToken) throws OctopusRetrievalException {
+        // TODO If PlainJWT -> Reject!
+        // According to OpenIdSpec it must be JWS or JWE, so plain isn't supported
+        // But OctopusServer never generates one.
+        // TODO What happens if we point octopus-client to another OpenIdConnect Server?
+        if (idToken instanceof SignedJWT) {
+            SignedJWT signedJWT = (SignedJWT) idToken;
+
+            try {
+                boolean valid = signedJWT.verify(new MACVerifier(config.getSSOIdTokenSecret()));
+                if (!valid) {
+                    ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-015", "JWT Signature Validation failed");
+                    throw new OctopusRetrievalException(errorObject);
+
+                }
+            } catch (JOSEException e) {
+                ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-015", "JWT Signature Validation failed");
+                throw new OctopusRetrievalException(errorObject);
+            }
+
+        }
     }
 
     private void showDebugInfo(String token) {
