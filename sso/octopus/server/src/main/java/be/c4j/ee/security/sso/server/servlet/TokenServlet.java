@@ -26,7 +26,12 @@ import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.servlet.helper.OIDCTokenHelper;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -198,11 +203,22 @@ public class TokenServlet extends HttpServlet {
         AccessTokenResponse result;
 
         if (oidcStoreData.getIdTokenClaimsSet() != null) {
-            // FIXME Config
-            // FIXME We should also add the clientId to the token info, so that it can be used as id_token_hint for the logout request.
-            PlainJWT plainJWT = new PlainJWT(oidcStoreData.getIdTokenClaimsSet().toJWTClaimsSet());
 
-            OIDCTokens token = new OIDCTokens(plainJWT, oidcStoreData.getAccessToken(), null); // TODO refresh tokens
+            // RFC-6749 2. Must be signed ith JWS
+            // TODO Support JWE?
+            JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+            // TODO We should also add the clientId to the token info, so that it can be used as id_token_hint for the logout request.
+            SignedJWT signedJWT = new SignedJWT(header, oidcStoreData.getIdTokenClaimsSet().toJWTClaimsSet());
+
+            // Apply the HMAC
+            ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(oidcStoreData.getClientId().getValue());
+            try {
+                signedJWT.sign(new MACSigner(clientInfo.getIdTokenSecretByte()));
+            } catch (JOSEException e) {
+                throw new OctopusUnexpectedException(e);
+            }
+
+            OIDCTokens token = new OIDCTokens(signedJWT, oidcStoreData.getAccessToken(), null); // TODO refresh tokens
             result = new OIDCTokenResponse(token);
         } else {
             Tokens token = new Tokens(oidcStoreData.getAccessToken(), null); // TODO refresh tokens
