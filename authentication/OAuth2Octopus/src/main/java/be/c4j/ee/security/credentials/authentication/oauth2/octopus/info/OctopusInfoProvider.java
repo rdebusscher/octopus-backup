@@ -55,7 +55,7 @@ public class OctopusInfoProvider implements OAuth2InfoProvider {
 
     @PostConstruct
     public void init() {
-        userURL = octopusServerConfig.getOctopusServerRoot() + octopusServerConfig.getOctopusDataEndpointRoot() + "/octopus/sso/user";
+        userURL = octopusServerConfig.getOctopusServerRoot() + "/" + octopusServerConfig.getOctopusDataEndpointRoot() + "/octopus/sso/user";
     }
 
     @Override

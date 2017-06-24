@@ -41,7 +41,8 @@ public class OctopusServerConfig extends AbstractOctopusConfig implements Module
 
     @ConfigEntry
     public String getOctopusDataEndpointRoot() {
-        return ConfigResolver.getPropertyValue("octopus.data.endpoint.root", "/data");
+        String dataEndPointRoot = ConfigResolver.getPropertyValue("octopus.data.endpoint.root", "data");
+        return dataEndPointRoot.replaceAll("^/+", "").replaceAll("/+$", "");
     }
 
 }
