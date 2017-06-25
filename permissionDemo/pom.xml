@@ -33,7 +33,7 @@
     <!-- My mistake that it isn't 0.9.7  Was separately before but now integrated in multi module POM-->
     <version>1.1.1</version>
     <packaging>war</packaging>
-    <name>Permission demo</name>
+    <name>Permission demo (Java EE 7)</name>
 
     <dependencies>
 
