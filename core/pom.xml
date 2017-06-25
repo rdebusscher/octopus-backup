@@ -125,15 +125,24 @@
                 <version>2.5</version>
                 <executions>
                     <execution>
+                        <id>testJar</id>
                         <goals>
                             <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*Test.class</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>manifest</id>
+                        <goals>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <excludes>
-                        <exclude>**/*Test.class</exclude>
-                    </excludes>
                     <archive>
                         <manifestEntries>
                             <Release-Version>${project.parent.version}</Release-Version>
