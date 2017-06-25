@@ -82,10 +82,10 @@
         <deltaspike.version.demo>1.7.0</deltaspike.version.demo> <!-- used in de demos and examples -->
         <shiro.version>1.3.2</shiro.version>
         <myfaces.version>2.0.2</myfaces.version>
-        <jerry.version>0.4.0</jerry.version>
+        <jerry.version>0.4.1</jerry.version>
 
         <primefaces.version>4.0</primefaces.version>  <!-- building the framework -->
-        <primefaces.version.demo>5.0</primefaces.version.demo> <!-- used in de demos and examples -->
+        <primefaces.version.demo>6.1</primefaces.version.demo> <!-- used in de demos and examples -->
 
         <nimbus-jose-jwt.version>4.36.1</nimbus-jose-jwt.version>
         <oauth2-oidc-sdk.version>5.25</oauth2-oidc-sdk.version>
