@@ -25,7 +25,7 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
 import javax.enterprise.inject.Specializes;
 
 /**
- * FIXME documentation of the config parameters (also look into OctopusSEConfiguration because this clas is also used) !!
+ *
  */
 @Specializes
 public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
@@ -68,13 +68,6 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     public String getSSOApplicationSuffix() {
         return ConfigResolver.getPropertyValue("SSO.application.suffix", "");
     }
-
-    @ConfigEntry
-    // FIXME Review the API key story :)
-    public String getSSOApiKey() {
-        return ConfigResolver.getPropertyValue("SSO.apiKey", "");
-    }
-
 
     @ConfigEntry
     public String getSSOClientId() {

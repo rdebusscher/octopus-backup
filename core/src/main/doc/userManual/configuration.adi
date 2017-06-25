@@ -327,6 +327,48 @@ default : *(none)*
 
 The login URL (or part of it) of the remote authentication page. See the Octopus SSO documentation for the usage.
 
+==== SSO.flow (Octopus SSO Client)
+
+default : *(none)*
+
+Define the type of Grant (OAuth2) Allowed values are +code+ (Authentication code grant) and +token+ (Implicit grant)
+
+==== SSO.clientId (Octopus SSO Client)
+
+default : *(none)*
+
+Identification of the client aplication.
+
+==== SSO.clientSecret (Octopus SSO Client)
+
+default : *(none)*
+
+'Credential' for the client application. In combination with the clientId defines the clent application uniquely. This clientSecret is only used in direct process communication during the Authentication Code grant, never through the browser.
+
+==== SSO.idtokenSecret (Octopus SSO Client)
+
+default : *(none)*
+
+Base64 encode byte array used as secret in signing the JWT containing the idToken information send from the Octopus Server to the client.
+
+==== SSO.scopes (Octopus SSO Client)
+
+default : *(none)*
+
+Additional scopes which needs to be send to the octopus Server to indicate custom functionality.
+
+==== SSO.application.permission.access (Octopus SSO Client)
+
+default : *(none)*
+
+The permission name the user must have before he/she can access the application. This check is performed after the Ocotpus Server isgnals that a successfull authentication is performed for the user.
+
+==== SSO.endpoint.root (Octopus SSO Client)
+
+default : */data*
+
+The path where the OAuth2/OpenIdConnect endpoints are defined with the server application. This must match the value specified within the _@ApplicationPath_ on the JAX-RS application class (or within web.xml file)
+
 ==== CAS.protocol (CAS only)
 
 default : *CAS*

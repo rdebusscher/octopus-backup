@@ -1,0 +1,104 @@
+OpenIdConnect support
+
+With Octopus, it becomes very easy to create an OpenIdConnect compliant server which retrieves user authentication info from a developer defined source.
+
+For a general explanation about OpenIdConnect, please look at the internet where you can find various resources describing this protocol for authentication.
+
+Within octopus, there is an extension of OpenIdConnect developed so that authorization information, like permissions, are also transferred from the server to the client.
+
+Setup Server
+====
+
+Add the following maven dependency to your project (It is advised to create the OpenIdConnect server in a separate application, not to mix it with other functionality. Except maybe the management of users and their permissions)
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.sso</groupId>
+        <artifactId>octopus-server</artifactId>
+        <version>0.9.7</version>
+    </dependency>
+----
+
+There are a few options that you can change for the SSO Server, have a look at the configuration section to have a complete list of them.
+
+Probably the most important ones are the time the SSO cookie is valid ( _SSO.cookie.timetolive_ ) and for development purposes, if SSO cookie is supported for http connections ( _SSO.cookie.secure_). Be aware that when using the SSO feature *without* SSL (using http) the user credentials and SSO cookie can be easier captured. And thus this is not recommended for production purposes.
+
+1. Create an implementation of +be.c4j.ee.security.sso.server.client.ClientInfoRetriever+ and mark it as an, application scoped, CDI bean.
+
+This class will be consulted to retrieve information about the client application. When a client application wants to use the services (authenticate and retrieve authorization info) of the OpenIdConnect server, it must identify itself by means of a clientId. Based on this clientId, a few cryptographic values are retrieved which enables the possibility to verify the authenticity of the client application request.
+
+The method +retrieveInfo+ returns this information in the format of an instance of +be.c4j.ee.security.sso.server.client.ClientInfo+
+
+* String callbackURL : The callback URL of the client application which must match the value supplied by the client application.
+* boolean octopusClient : If marked the client as Octopus client, the callback URL is automatically appended with +/octopus/sso/SSOCallback+ which is the default location of the callback servlet defined in the Octopus client artifact.
+* boolean directAccessAllowed : Is direct access with username and passwords allowed (through the Rest client = the password grant type)
+* String idTokenSecret : Base64 encoded byte array used as the secret for the signing of the JWT containing the idToken. Must match the value used at the 'Client' side.'.
+* String clientSecret : Base64 encoded byte array used as the secret for retrieving accessToken (Authentication code grant) and for logging out.
+
+
+2. Since the Octopus OpenIdConnect server exposes a few JAX-RS endpoints, the JAX-RS endpoint controller servlet needs to be configured. Create the following class to configure the URL
+
+[source,java]
+----
+@ApplicationPath("/data")
+public class RestApplication extends Application {
+}
+----
+
+The default path is +/data+. If you specify here a different value, the value must me used as the parameter value for +SSO.endpoint.root+ used by the Octopus clients.
+
+
+3. The Permissions are retrieved by implementating the +be.c4j.ee.security.sso.server.endpoint.SSOPermissionProvider+ interface and define it as a CDI bean.
+
+Octopus Clients are calling the octopus SSO server for the permissions which are defined for the application or the permissions of the user within the application.
+
+Warning: This interface will be changed in a next version to support also the roles.
+
+Setup Client (Web)
+====
+
+When using the Octopus client, it becomes very easy to connect an application to the Octopus SSO server (OpenIdConnect compliant). The communication and exchange of the data are done automatically.  This is performed by the code within the following Maven artifact.
+
+[source,xml]
+----
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus.sso</groupId>
+            <artifactId>octopus-client</artifactId>
+            <version>0.9.7</version>
+        </dependency>
+----
+
+1. Following configuration parameters needs to be specified within the +octopusCOnfigguration.properties+ or equivalent file.
+
+
+----
+
+   SSO.octopus.server=http://localhost:8080/scs_sec
+
+   SSO.flow=code
+
+   SSO.clientId=demo-clientId
+   SSO.clientSecret=szxK-5_eJjs-aUj-64MpUZ-GPPzGLhYPLGl0wrYjYNVAGva2P0lLe6UGKGM7k8dWxsOVGutZWgvmY3l5oVPO3w
+   SSO.idTokenSecret=hLG4D27gj4PBnn0IynZ72sQiHtQsONyeQLmcbsZPxdkAerRw9iu6JBUVB85zCKklr6REI7ezIWnug3UtD4QwcA
+
+----
+
+* SSO.octopus.server : Root of the installation of the Octopus SSO Server, as described above.
+* SSO.flow : Grant type used for the exchange of information; code => Authorization code grant, token implicit flow
+* SSO.clientId : client id, used to identify the client application
+* SSO.clientSecret : Base64 encoded byte array used as 'password' to identify the client in combination with the clientId. The value must match the server value for the client.
+* SSO.idTokenSecret : Base64 encoded byte array used as the signing of the JWT containing the user Id token. The value must match the server value for the client.
+
+??? TODO Additional info
+
+The above configuration options are basically everything which is required to make it work.
+
+Additional features
+
+SSO.application.permission.access
+
+Setup Client (SE)
+====
+
+??? TODO Complete with the other info

@@ -36,6 +36,8 @@ include::SecurityDataProvider.adi[]
 
 include::authentication.adi[]
 
+include::openIDConnect.adi[]
+
 === Authorization
 
 include::authorization.adi[]

@@ -72,7 +72,6 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
         return ssoClientId;
     }
 
-    // FIXME Additional checks. When clientSecret defined, the, clientId is required !
     public byte[] getSSOClientSecret() {
         String ssoClientSecret = defineConfigValue("SSO.clientSecret");
         if (ssoClientSecret != null && !ssoClientSecret.trim().isEmpty()) {
