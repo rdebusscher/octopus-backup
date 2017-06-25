@@ -35,6 +35,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.Set;
 
 /**
@@ -69,15 +70,14 @@ public class TokenRequestor extends AbstractRequestor {
 
     public TokenResponse getToken(UsernamePasswordToken token) {
         TokenResponse result;
-        AuthorizationGrant passwordGrant = new ResourceOwnerPasswordCredentialsGrant(token.getUsername(), new Secret(new String(token.getPassword())));
+        AuthorizationGrant passwordGrant = new ResourceOwnerPasswordCredentialsGrant(token.getUsername(), new Secret(new String(token.getPassword())));  // TODO UTF-8 CHARSET? Password is char[]
         try {
             URI tokenEndPoint = new URI(configuration.getTokenEndpoint());
 
             TokenRequest tokenRequest;
             if (algorithm != null) {
-                // TODO Verify the UTF encoding
                 ClientAuthentication clientAuth = new ClientSecretJWT(new ClientID(configuration.getSSOClientId())
-                        , tokenEndPoint, algorithm, new Secret(new String(configuration.getSSOClientSecret())));
+                        , tokenEndPoint, algorithm, new Secret(new String(configuration.getSSOClientSecret(), Charset.forName("UTF-8"))));
                 tokenRequest = new TokenRequest(tokenEndPoint, clientAuth, passwordGrant, Scope.parse(configuration.getSSOScopes()));
             } else {
                 tokenRequest = new TokenRequest(tokenEndPoint, passwordGrant, Scope.parse(configuration.getSSOScopes()));
