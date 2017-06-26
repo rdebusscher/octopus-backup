@@ -54,7 +54,7 @@ public class SecurityCheckNamedRoleCheck implements SecurityCheck {
     public SecurityCheckInfo performCheck(Subject subject, AccessDecisionVoterContext accessContext, Annotation securityAnnotation) {
         SecurityCheckInfo result;
 
-        if (subject.getPrincipal() == null) {
+        if (!subject.isAuthenticated() && !subject.isRemembered()) {  // When login from remember me, the isAuthenticated return false
             result = SecurityCheckInfo.withException(
                     new OctopusUnauthorizedException("User required", infoProducer.getViolationInfo(accessContext))
             );
