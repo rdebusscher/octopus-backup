@@ -31,6 +31,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AbstractRequest;
@@ -176,8 +177,8 @@ public class AuthenticationServletTest {
         assertThat(callbackURL).endsWith("&state=stateValue");
 
         String authorizationCode = callbackURL.substring(31, callbackURL.indexOf('&'));
-        byte[] bytes = Base64.decode(authorizationCode);
-        assertThat(bytes.length >= 45 && bytes.length <= 48).isTrue(); // FIXME Don't know why the actual length isn't 48
+        byte[] bytes = new Base64URL(authorizationCode).decode();
+        assertThat(bytes.length).isEqualTo(48);
 
         verify(tokenStoreMock).addLoginFromClient(any(OctopusSSOUser.class), cookieTokenArgumentCaptor.capture(),
                 userAgentArgumentCaptor.capture(), remoteHostArgumentCaptor.capture(), oidcStoreDataArgumentCaptor.capture());
