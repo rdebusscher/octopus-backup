@@ -89,6 +89,11 @@ public class DoTestAuthenticationServlet extends HttpServlet {
                     redirectURL = String.format("%s://%s:%s%s/testAuthentication", uri.getScheme(), uri.getHost(), uri.getPort(), path.substring(0, idx));
                 }
             }
+            if (redirectURL == null) {
+                // This would mean that we are unable to retrieve path information of this servlet.
+                // But protects to sending a redirect to some unknown URL.
+                throw new OctopusUnexpectedException("Unable to determine the redirect URL within the 'doTestAuthenticationServlet'");
+            }
             httpServletResponse.sendRedirect(redirectURL + '?' + OctopusConstants.OCTOPUS_REFERER + '=' + URLEncoder.encode(httpServletRequest.getRequestURL().toString(), RedirectView.DEFAULT_ENCODING_SCHEME));
 
         } catch (URISyntaxException e) {
