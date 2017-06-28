@@ -33,7 +33,7 @@ import static javax.servlet.http.HttpServletResponse.SC_PRECONDITION_FAILED;
 /**
  *
  */
-@WebServlet("/testAuthentication")
+@WebServlet("/octopus/testAuthentication")
 public class TestAuthenticationServlet extends HttpServlet {
 
     @Inject
@@ -47,7 +47,11 @@ public class TestAuthenticationServlet extends HttpServlet {
             httpServletResponse.sendError(SC_PRECONDITION_FAILED, "Missing query parameter");
         } else {
             String referer = URLDecoder.decode(parameter, RedirectView.DEFAULT_ENCODING_SCHEME);
-            httpServletResponse.sendRedirect(referer + '?' + OctopusConstants.OCTOPUS_AUTHENTICATED + '=' + subject.isAuthenticated());
+            httpServletResponse.sendRedirect(referer + '?' + OctopusConstants.OCTOPUS_AUTHENTICATED + '=' + isKnown());
         }
+    }
+
+    private boolean isKnown() {
+        return subject.isRemembered() || subject.isAuthenticated();
     }
 }

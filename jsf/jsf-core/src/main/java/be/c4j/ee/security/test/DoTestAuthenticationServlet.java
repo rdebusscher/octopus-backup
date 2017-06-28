@@ -19,6 +19,7 @@ import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.util.URLUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.web.util.RedirectView;
 
@@ -41,6 +42,9 @@ public class DoTestAuthenticationServlet extends HttpServlet {
 
     @Inject
     private OctopusJSFConfig octopusConfig;
+
+    @Inject
+    private URLUtil urlUtil;
 
     private AuthenticatedPageInfo authenticatedPageInfo;
 
@@ -76,17 +80,24 @@ public class DoTestAuthenticationServlet extends HttpServlet {
         try {
             URI uri = new URI(octopusConfig.getLoginPage());
 
+            if (uri.getScheme() == null) {
+                String root = urlUtil.determineRoot(httpServletRequest);
+                uri = new URI(root + octopusConfig.getLoginPage());
+            }
             String redirectURL = null;
             String path = uri.getPath();
             int idx = -1;
             if (path != null) {
                 idx = path.indexOf("/", 1);
+                if (idx == -1) {
+                    idx = 0; // app deployed without root
+                }
             }
             if (idx != -1) {
                 if (uri.getPort() == -1) {
-                    redirectURL = String.format("%s://%s%s/testAuthentication", uri.getScheme(), uri.getHost(), path.substring(0, idx));
+                    redirectURL = String.format("%s://%s%s/octopus/testAuthentication", uri.getScheme(), uri.getHost(), path.substring(0, idx));
                 } else {
-                    redirectURL = String.format("%s://%s:%s%s/testAuthentication", uri.getScheme(), uri.getHost(), uri.getPort(), path.substring(0, idx));
+                    redirectURL = String.format("%s://%s:%s%s/octopus/testAuthentication", uri.getScheme(), uri.getHost(), uri.getPort(), path.substring(0, idx));
                 }
             }
             if (redirectURL == null) {

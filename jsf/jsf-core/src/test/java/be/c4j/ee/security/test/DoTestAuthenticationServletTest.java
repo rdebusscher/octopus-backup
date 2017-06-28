@@ -17,6 +17,7 @@ package be.c4j.ee.security.test;
 
 import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.ee.security.util.URLUtil;
 import be.c4j.test.util.BeanManagerFake;
 import org.junit.After;
 import org.junit.Before;
@@ -31,8 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -49,6 +49,9 @@ public class DoTestAuthenticationServletTest {
     @Mock
     private OctopusJSFConfig octopusConfigMock;
 
+    @Mock
+    private URLUtil urlUtilMock;
+
     @InjectMocks
     private DoTestAuthenticationServlet servlet;
 
@@ -56,7 +59,6 @@ public class DoTestAuthenticationServletTest {
     private ArgumentCaptor<String> redirectCapture;
 
     private BeanManagerFake beanManagerFake;
-
 
     @Before
     public void setup() throws IllegalAccessException {
@@ -81,14 +83,63 @@ public class DoTestAuthenticationServletTest {
         StringBuffer requestURL = new StringBuffer("http://client.server/root/doTestAuthenticate");
         when(httpServletRequestMock.getRequestURL()).thenReturn(requestURL);
         when(octopusConfigMock.getLoginPage()).thenReturn("http://auth.server/security/octopus/authenticate");
+        // The above simulates the SCS situation
 
         servlet.init();
         servlet.doGet(httpServletRequestMock, httpServletResponseMock);
 
         verify(httpServletResponseMock).sendRedirect(redirectCapture.capture());
 
-        assertThat(redirectCapture.getValue()).isEqualTo("http://auth.server/security/testAuthentication?OctopusReferer=http%3A%2F%2Fclient.server%2Froot%2FdoTestAuthenticate");
+        assertThat(redirectCapture.getValue()).isEqualTo("http://auth.server/security/octopus/testAuthentication?OctopusReferer=http%3A%2F%2Fclient.server%2Froot%2FdoTestAuthenticate");
+        verifyNoMoreInteractions(urlUtilMock);
+    }
 
+    @Test
+    public void doGet_FirstRequest_relativeLoginURL() throws ServletException, IOException {
+        AuthenticatedPageInfo pageInfoMock = Mockito.mock(AuthenticatedPageInfo.class);
+
+        beanManagerFake.registerBean(pageInfoMock, AuthenticatedPageInfo.class);
+
+        beanManagerFake.endRegistration();
+
+        StringBuffer requestURL = new StringBuffer("http://client.server/root/doTestAuthenticate");
+        when(httpServletRequestMock.getRequestURL()).thenReturn(requestURL);
+        when(octopusConfigMock.getLoginPage()).thenReturn("/login.xhtml");
+        // This is the situation for a regular app, non SCS
+
+        when(urlUtilMock.determineRoot(httpServletRequestMock)).thenReturn("http://client.server/root");
+
+        servlet.init();
+        servlet.doGet(httpServletRequestMock, httpServletResponseMock);
+
+        verify(httpServletResponseMock).sendRedirect(redirectCapture.capture());
+
+        assertThat(redirectCapture.getValue()).isEqualTo("http://client.server/root/octopus/testAuthentication?OctopusReferer=http%3A%2F%2Fclient.server%2Froot%2FdoTestAuthenticate");
+        verify(urlUtilMock).determineRoot(httpServletRequestMock);
+    }
+
+    @Test
+    public void doGet_FirstRequest_noRoot() throws ServletException, IOException {
+        AuthenticatedPageInfo pageInfoMock = Mockito.mock(AuthenticatedPageInfo.class);
+
+        beanManagerFake.registerBean(pageInfoMock, AuthenticatedPageInfo.class);
+
+        beanManagerFake.endRegistration();
+
+        StringBuffer requestURL = new StringBuffer("http://client.server/doTestAuthenticate");
+        when(httpServletRequestMock.getRequestURL()).thenReturn(requestURL);
+        when(octopusConfigMock.getLoginPage()).thenReturn("/login.xhtml");
+        // This is the situation for a regular app, non SCS
+
+        when(urlUtilMock.determineRoot(httpServletRequestMock)).thenReturn("http://client.server");
+
+        servlet.init();
+        servlet.doGet(httpServletRequestMock, httpServletResponseMock);
+
+        verify(httpServletResponseMock).sendRedirect(redirectCapture.capture());
+
+        assertThat(redirectCapture.getValue()).isEqualTo("http://client.server/octopus/testAuthentication?OctopusReferer=http%3A%2F%2Fclient.server%2FdoTestAuthenticate");
+        verify(urlUtilMock).determineRoot(httpServletRequestMock);
     }
 
     @Test

@@ -37,4 +37,14 @@ public class URLUtilTest {
         assertThat(root).isEqualTo("http://some.server/oidc");
     }
 
+    @Test
+    public void determineRoot_specialDeployment() throws URISyntaxException {
+        // When the app is deployed without a root
+        URLUtil util = new URLUtil();
+        URI base = new URI("http://some.server/login.xhtml");
+        String root = util.determineRoot(base);
+
+        assertThat(root).isEqualTo("http://some.server");
+    }
+
 }

@@ -37,4 +37,55 @@ The method +getGlobalFilters+ returns the filters we want to add to the configur
 
 With the help of the +addFiltersTo+ method we can determine which of the filters defined with the other method, we like to add to a certain URL.
 
+??? TODO Possibility to specify URL filter programmatically ProgrammaticURLProtectionProvider
 
+=== 'index' page dependeing on authenticated or not
+
+There are usecase where you have a public accessible part and protected part of your application. And it is handy that when the user is already authenticated (due to SSO or active session) views the main page of the protected area or the main page of the public part when not authenticated.
+
+This can be achieved by the 'test authentication' feature.
+
+The idea is that you define the /doTestAuthentication URL as 'homePage'. This URL (in fact it is a servlet) tests wether the current user is already authenticated or not. based on that info, it redirects to one of the 2 pages which are defined by the developer by means of implementing +AuthenticatedPageInfo+ as CDI bean.
+
+This features works with 'single' JSF applications but also with the Octopus SSO server.
+
+What needs to be done?
+
+The index.html redirection to the special servlet.
+
+[source,html]
+----
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="refresh" content="0; url=doTestAuthentication"/>
+</head>
+
+<body>
+
+</body>
+</html>
+----
+
+Implementation of the +AuthenticatedPageInfo+ interface as CDI bean so Octopus knows the final 'landing' pages.
+
+[source,java]
+----
+@ApplicationScoped
+public class TestAuthenticatedPageInfo implements AuthenticatedPageInfo {
+
+    @Override
+    public String getAuthenticatedPage() {
+        // The page when the user is authenticated
+        return "pages/main.xhtml";
+    }
+
+    @Override
+    public String getUnauthenticatedPage() {
+        // The page when the user is NOT YET authenticated
+        return "unauthenticated.xhtml";
+    }
+
+}
+----
