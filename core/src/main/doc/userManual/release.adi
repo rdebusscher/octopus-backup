@@ -24,6 +24,7 @@ Breaking changes
 . Method OctopusSecurityContext.loginWithRedirect is moved to new OctopusJSFSecurityContext class.
 . CAS client is upgraded and support for SAML (with CAS server) is only available by adding org.jasig.cas.client:cas-client-support-saml
 . _be.c4j.ee.security.shiro.URLPermissionProtector_ is removed, please use CDI bean implementations of _be.c4j.ee.security.url.ProgrammaticURLProtectionProvider_
+. No longer possible to use OAuth2 modules as SSO server.Use Octopus SSO verser (OIDC based) and delegate authentication to OAuth2. Use Octopus SSO server features to retrieve info.
 
 === 0.9.6.4
 
