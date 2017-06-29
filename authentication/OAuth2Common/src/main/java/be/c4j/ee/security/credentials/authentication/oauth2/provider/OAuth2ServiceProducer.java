@@ -15,9 +15,11 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.provider;
 
+import be.c4j.ee.security.util.URLUtil;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -26,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 @Typed
 public abstract class OAuth2ServiceProducer {
 
+    @Inject
+    private URLUtil urlUtil;
+
     /**
      * @param req
      * @param csrfToken value for the state parameter, allowed to be null in case you don't need it
@@ -33,12 +38,8 @@ public abstract class OAuth2ServiceProducer {
      */
     public abstract OAuth20Service createOAuthService(HttpServletRequest req, String csrfToken);
 
-    protected String assembleCallbackUrl(HttpServletRequest req) {
-        String result = req.getScheme() + "://" +
-                req.getServerName() + ':' +
-                req.getServerPort() +
-                req.getContextPath() + "/oauth2callback";
-        return result;
+    protected String assembleCallbackUrl(HttpServletRequest request) {
+        return urlUtil.determineRoot(request) + "/oauth2callback";
     }
 
 }

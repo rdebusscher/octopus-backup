@@ -22,6 +22,7 @@ import be.c4j.ee.security.credentials.authentication.keycloak.KeycloakUser;
 import be.c4j.ee.security.credentials.authentication.keycloak.OIDCAuthenticationException;
 import be.c4j.ee.security.credentials.authentication.keycloak.config.KeycloakConfiguration;
 import be.c4j.ee.security.session.SessionUtil;
+import be.c4j.ee.security.util.URLUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.web.util.SavedRequest;
@@ -58,16 +59,18 @@ public class OIDCAdapter {
     private OctopusJSFConfig octopusConfig;
     private KeycloakConfiguration keycloakConfiguration;
     private SessionUtil sessionUtil;
+    private URLUtil urlUtil;
 
     private ActiveSessionRegistry activeSessionRegistry;
 
-    public OIDCAdapter(KeycloakDeployment deployment, HttpServletRequest request, HttpServletResponse response, OctopusJSFConfig octopusConfig, KeycloakConfiguration keycloakConfiguration, ActiveSessionRegistry activeSessionRegistry, SessionUtil sessionUtil) {
+    public OIDCAdapter(KeycloakDeployment deployment, HttpServletRequest request, HttpServletResponse response, OctopusJSFConfig octopusConfig, KeycloakConfiguration keycloakConfiguration, ActiveSessionRegistry activeSessionRegistry, SessionUtil sessionUtil, URLUtil urlUtil) {
         this.deployment = deployment;
         this.request = request;
         this.response = response;
         this.octopusConfig = octopusConfig;
         this.keycloakConfiguration = keycloakConfiguration;
         this.sessionUtil = sessionUtil;
+        this.urlUtil = urlUtil;
         logger = LoggerFactory.getLogger(OIDCAdapter.class);
 
         this.activeSessionRegistry = activeSessionRegistry;
@@ -86,7 +89,7 @@ public class OIDCAdapter {
     }
 
     protected String getRedirectUri(String state) {
-        String url = assembleCallbackUrl();
+        String url = urlUtil.determineRoot(request) + "/keycloak";
         // log.debugf("callback uri: %s", url);
         /*
         if (!facade.getRequest().isSecure() && deployment.getSslRequired().isRequired(facade.getRequest().getRemoteAddr())) {
@@ -154,14 +157,6 @@ public class OIDCAdapter {
 
     private String attachOIDCScope(String scopeParam) {
         return scopeParam != null && !scopeParam.isEmpty() ? "openid " + scopeParam : "openid";
-    }
-
-    protected String assembleCallbackUrl() {
-        String result = request.getScheme() + "://" +
-                request.getServerName() + ':' +
-                request.getServerPort() +
-                request.getContextPath() + "/keycloak";
-        return result;
     }
 
     public void authenticate(String code) throws IOException {

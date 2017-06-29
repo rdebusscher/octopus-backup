@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.cas;
 
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
+import be.c4j.ee.security.util.URLUtil;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -33,6 +34,9 @@ public class CasConfigurationHelper {
 
     @Inject
     private CasSEConfiguration casConfiguration;
+
+    @Inject
+    private URLUtil urlUtil;
 
     private boolean loginUrlDefined = false;
     private String casService;
@@ -57,17 +61,9 @@ public class CasConfigurationHelper {
         }
         result.append("login?service=");
 
-        casService = assembleCallbackUrl(request);
+        casService = urlUtil.determineRoot(request) + "/cas-callback";
         result.append(casService);
 
         loginUrl = result.toString();
-    }
-
-    private String assembleCallbackUrl(HttpServletRequest req) {
-        String result = req.getScheme() + "://" +
-                req.getServerName() + ':' +
-                req.getServerPort() +
-                req.getContextPath() + "/cas-callback";
-        return result;
     }
 }
