@@ -22,6 +22,7 @@ import be.c4j.ee.security.realm.OctopusRoles;
 import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
+import be.c4j.ee.security.util.CDIUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
@@ -53,7 +54,7 @@ public class SecurityCheckOctopusRole implements SecurityCheck {
     @PostConstruct
     public void init() {
         // StringPermissionProvider is optional.
-        roleLookup = BeanProvider.getContextualReference(RoleLookup.class, true);
+        roleLookup = CDIUtil.getOptionalBean(RoleLookup.class);
 
         permissionCache = new HashMap<String, NamedApplicationRole>();
     }

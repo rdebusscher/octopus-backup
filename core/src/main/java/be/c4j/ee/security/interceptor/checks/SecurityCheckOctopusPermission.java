@@ -22,6 +22,7 @@ import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.realm.OctopusPermissions;
 import be.c4j.ee.security.util.AnnotationUtil;
+import be.c4j.ee.security.util.CDIUtil;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
@@ -52,8 +53,8 @@ public class SecurityCheckOctopusPermission implements SecurityCheck {
 
     @PostConstruct
     public void init() {
-        // StringPermissionProvider is optional.
-        stringPermissionLookup = BeanProvider.getContextualReference(StringPermissionLookup.class, true);
+        // StringPermissionProvider is optional, created by a Producer.
+        stringPermissionLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
 
         permissionCache = new HashMap<String, NamedDomainPermission>();
     }

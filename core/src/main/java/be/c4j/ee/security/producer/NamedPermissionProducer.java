@@ -53,7 +53,7 @@ public class NamedPermissionProducer extends AbstractProducer {
         stringLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
         if (stringLookup == null) {
             // Developer hasn't defined a producer for it, so let create an instance with no mapped permissions.
-            // Se they need to use always wildcardStrings!!
+            // So they need to use always wildcardStrings!!
             stringLookup = new StringPermissionLookup();
         }
     }

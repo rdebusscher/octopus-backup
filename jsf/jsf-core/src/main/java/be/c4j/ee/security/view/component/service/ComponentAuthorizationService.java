@@ -57,7 +57,7 @@ public class ComponentAuthorizationService {
     public void init() {
         beanManager = BeanManagerProvider.getInstance().getBeanManager();
         // StringPermissionLookup is Optional
-        stringLookup = BeanProvider.getContextualReference(StringPermissionLookup.class, true);
+        stringLookup = CDIUtil.getOptionalBean(StringPermissionLookup.class);
     }
 
     public boolean hasAccess(SecuredComponentData secureComponentData) {

@@ -86,7 +86,6 @@ public final class CDIUtil {
 
     }
 
-    // FIXME Check everywhere where the beans which should be created by a producer method are always looked up through this method !!
     public static <T> T getOptionalBean(Class<T> targetClass) {
         T result;
         try {
