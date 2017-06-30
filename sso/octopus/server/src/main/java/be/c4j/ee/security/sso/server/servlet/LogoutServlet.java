@@ -158,7 +158,6 @@ public class LogoutServlet extends HttpServlet {
 
                 ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(loggedInClient.getClientId().getValue());
                 // FIXME use clientInfo.isOctopusClient
-                // FIXME Use encryptionHandler in some cases!
                 String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + loggedInClient.getAccessToken().getValue();
                 sendLogoutRequestToClient(url);
             }
@@ -177,7 +176,9 @@ public class LogoutServlet extends HttpServlet {
             //con.setRequestProperty("User-Agent", USER_AGENT);
 
             int responseCode = con.getResponseCode();
-            // FIXME Log issues
+            if (responseCode != 200) {
+                logger.warn(String.format("Sending logout request to %s failed with status :  %s, message : %s", url, responseCode, con.getResponseMessage()));
+            }
         } catch (IOException e) {
             logger.warn(String.format("Sending logout request to %s failed with %s", url, e.getMessage()));
         }

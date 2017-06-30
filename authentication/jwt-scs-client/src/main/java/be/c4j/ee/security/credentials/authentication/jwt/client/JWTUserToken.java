@@ -38,6 +38,7 @@ import net.minidev.json.JSONObject;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
+import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -52,6 +53,9 @@ import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
  */
 @ApplicationScoped
 public class JWTUserToken {
+
+    @Inject
+    private Logger logger;
 
     @Inject
     private UserPrincipal userPrincipal;
@@ -182,10 +186,12 @@ public class JWTUserToken {
             for (Permission permission : info.getObjectPermissions()) {
 
                 if (permission instanceof NamedDomainPermission) {
-                    // FIXME Notify developer with exception that only NamedPermissions can be transferred
+                    // TODO Support for PermissionJSONProvider
                     NamedDomainPermission namedPermission = (NamedDomainPermission) permission;
 
                     namedPermissions.put(namedPermission.getName(), permissionJSONProvider.writeValue(namedPermission));
+                } else {
+                    logger.warn(String.format("Cannot transfer Permission of type %s within JWT to endpoint", permission.getClass().getName()));
                 }
             }
         }

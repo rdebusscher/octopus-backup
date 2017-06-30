@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.server.servlet;
 
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.exception.OctopusIllegalActionException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.SSOProducerBean;
@@ -30,7 +31,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.verifier.InvalidClientException;
@@ -123,7 +123,6 @@ public class TokenServlet extends HttpServlet {
         UsernamePasswordToken token = new UsernamePasswordToken(grant.getUsername(), grant.getPassword().getValue());
 
         try {
-            // FIXME Other SE clients to check
             SecurityUtils.getSubject().login(token);
 
             result = createTokensForPasswordGrant(httpServletRequest, tokenRequest);
@@ -135,6 +134,8 @@ public class TokenServlet extends HttpServlet {
             throw new OctopusUnexpectedException(e);
         }
 
+        // TODO, We should do a logout here I guess. Since we don't need anything from the session.
+        //The tokenstore has the AccessCode which can be used to retrieve info about the user.
         return result;
     }
 
@@ -171,8 +172,11 @@ public class TokenServlet extends HttpServlet {
         String userAgent = httpServletRequest.getHeader("User-Agent");
         String remoteHost = httpServletRequest.getRemoteAddr();
 
-        // FIXME verify that ssoUser.getCookieToken() == null
-        tokenStore.addLoginFromClient(ssoUser, null, userAgent, remoteHost, oidcStoreData);
+        if (ssoUser.getCookieToken() == null) {
+            tokenStore.addLoginFromClient(ssoUser, null, userAgent, remoteHost, oidcStoreData);
+        } else {
+            throw new OctopusIllegalActionException("Cannot allow password grant when SSO cookie is found");
+        }
 
         return defineResponse(oidcStoreData);
     }
@@ -230,7 +234,7 @@ public class TokenServlet extends HttpServlet {
     }
 
     private void showDebugInfo(OctopusSSOUser user) {
-        // FIXME Correct logging
+        // TODO verify usage of String.format and + in logging.
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
             logger.info(String.format("User %s is authenticated and cookie written if needed.", user.getFullName()));
         }

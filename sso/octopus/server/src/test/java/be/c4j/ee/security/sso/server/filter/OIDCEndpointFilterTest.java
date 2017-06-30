@@ -273,7 +273,7 @@ public class OIDCEndpointFilterTest {
         try {
             httpRequest = new HTTPRequest(HTTPRequest.Method.valueOf("POST"), new URL("http://some.server/oidc"));
             ClientAuthentication clientAuth = new ClientSecretJWT(new ClientID(ssoClientId)
-                    , tokenEndPoint, JWSAlgorithm.HS256, new Secret(ssoClientSecret));
+                    , tokenEndPoint, JWSAlgorithm.HS256, new Secret(ssoClientSecret));  // TODO Is the String usage correct?
 
             httpRequest.setContentType(CommonContentTypes.APPLICATION_URLENCODED);
             clientAuth.applyTo(httpRequest);

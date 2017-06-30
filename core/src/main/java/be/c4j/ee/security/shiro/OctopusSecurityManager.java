@@ -136,7 +136,7 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
         if (userPrincipal == null) {
             result = getSubjectFactory().createSubject(context);
         } else {
-            // FIXME the different realm names isn't solved yet :)
+            // TODO the different realm names isn't solved yet :)
             if (principals instanceof MutablePrincipalCollection && ssoPrincipalProvider != null) {
                 ((MutablePrincipalCollection) principals).add(ssoPrincipalProvider.createSSOPrincipal(userPrincipal), DEFAULT_REALM);
             }
@@ -171,7 +171,7 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
         for (AfterSuccessfulLoginHandler handler : handlers) {
             handler.onSuccessfulLogin(token, info, subject);
         }
-        super.onSuccessfulLogin(token, info, subject); // FIXME Convert the rememberMe to AfterSuccessfulLoginHandler
+        super.onSuccessfulLogin(token, info, subject); // TODO Convert the rememberMe to AfterSuccessfulLoginHandler
 
     }
 
@@ -204,7 +204,7 @@ public class OctopusSecurityManager extends DefaultWebSecurityManager {
     }
 
     public Collection<Permission> getPermissions(Subject subject, Permission permission) {
-        // FIXME Need some cache !!!
+        // TODO Need some cache !!!
         Collection<Permission> result = new ArrayList<Permission>();
 
         Collection<Permission> permissions = octopusRealm.getPermissions(subject.getPrincipals());

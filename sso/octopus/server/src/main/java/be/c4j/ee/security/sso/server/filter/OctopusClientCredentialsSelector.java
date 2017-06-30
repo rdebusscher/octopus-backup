@@ -51,7 +51,7 @@ public class OctopusClientCredentialsSelector implements ClientCredentialsSelect
         // For Octopus SSO, there the secret is a Base64 encoded array
         result.add(new Secret(new String(clientInfo.getClientSecretByte(), Charset.forName("UTF-8"))));
         // For Octopus as OAuth2 (like Google) provider replacement. There It is the plain text
-        result.add(new Secret(clientInfo.getClientSecret()));
+        result.add(new Secret(clientInfo.getClientSecret()));  // TODO ? Is this correct
         return result;
 
     }

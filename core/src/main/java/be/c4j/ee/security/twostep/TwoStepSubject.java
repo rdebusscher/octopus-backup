@@ -83,7 +83,7 @@ public class TwoStepSubject extends WebDelegatingSubject {
         }
         this.principals = principals;
         this.authenticated = subject.isAuthenticated();  // This is the only change !!
-        // FIXME We have now a lot of overwritten Shiro code for small changed.
+        // TODO We have now a lot of overwritten Shiro code for small changed.
         // Consider integrating Shiro into Octopus.
         if (token instanceof HostAuthenticationToken) {
             host = ((HostAuthenticationToken) token).getHost();

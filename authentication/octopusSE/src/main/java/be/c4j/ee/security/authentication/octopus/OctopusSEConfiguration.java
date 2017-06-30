@@ -139,7 +139,6 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
     }
 
     public static void prepareConfiguration() {
-        // FIXME Document
         new OctopusSEConfiguration().defineConfigurationSources();
     }
 }

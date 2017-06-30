@@ -202,6 +202,7 @@ public class OctopusSSOEndpoint {
 
         Response.ResponseBuilder builder = Response.status(Response.Status.OK);
 
+        // Is this endpoint specified in OpenIdConnect and is NONE allowed?
         if (endpointEncoding == UserEndpointEncoding.NONE) {
             builder.type(CommonContentTypes.APPLICATION_JSON.toString());
             builder.entity(userInfo.toJSONObject().toJSONString());
@@ -210,6 +211,8 @@ public class OctopusSSOEndpoint {
         if (endpointEncoding == UserEndpointEncoding.JWS) {
             buildResponsePayload(builder, uriDetails, oidcStoreData, userInfo);
         }
+
+        // TODO Support for JWE
 
         return builder.build();
 

@@ -18,9 +18,12 @@ package be.c4j.demo.security.demo.view;
 import be.c4j.demo.security.demo.model.Employee;
 import be.c4j.demo.security.demo.service.EmployeeService;
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.util.CDIUtil;
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.api.scope.ViewAccessScoped;
 
+import javax.enterprise.inject.spi.BeanManager;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -96,7 +99,8 @@ public class EmployeeBean implements Serializable {
     private void readObject(ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        // FIXME principal =
+        BeanManager bm = BeanManagerProvider.getInstance().getBeanManager();
+        principal = CDIUtil.getContextualReferenceByName(bm, "userPrincipal", UserPrincipal.class);
         employeeService = BeanProvider.getContextualReference(EmployeeService.class);
     }
 

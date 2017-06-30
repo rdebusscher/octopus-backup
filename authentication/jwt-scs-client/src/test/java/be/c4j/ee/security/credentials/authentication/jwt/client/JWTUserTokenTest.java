@@ -32,6 +32,7 @@ import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.codec.Base64;
@@ -43,6 +44,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -169,10 +171,10 @@ public class JWTUserTokenTest {
         SignedJWT.parse(token);  // If token can be parsed, the it is A JWT and this is enough (JWT wise)
 
         String[] split = token.split("\\.");
-        String payload = new String(Base64.decode(split[1]));
+        String payload = new Base64URL(split[1]).decodeToString();
         assertThat(payload).startsWith("{\"sub\":\"{\\\"permissions\\\":[\\\"stringPermission\\\"],\\\"roles\\\":[],\\\"name\\\":\\\"Octopus\\\",\\\"externalId\\\":\\\"123\\\",\\\"namedPermissions\\\":{\\\"namedPermission\\\":\\\"test:*:*\\\"},\\\"id\\\":\\\"serialId\\\",\\\"userName\\\":\\\"JUnit\\\"}\",\"exp\":");
 
-        assertThat(payload).contains("\"Key\":\"JUnit");  // FIXME There are some additional characters at the end ??
+        assertThat(payload).endsWith("\"Key\":\"JUnit\"}");
 
     }
 
