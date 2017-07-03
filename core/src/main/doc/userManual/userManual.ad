@@ -127,6 +127,10 @@ include::security.adi[]
 
 include::others.adi[]
 
+== Good to know
+
+include::goodToKnow.adi[]
+
 == Appendix
 
 include::appendix.adi[]

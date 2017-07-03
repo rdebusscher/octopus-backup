@@ -1,0 +1,37 @@
+Things which are good to know to avoid some nasty issues.
+
+
+=== Usage of DeltaSpike JSF Exception handling by events
+
+With Deltaspike you can create a JSF Exception handler easily by consuming an +ExceptionEvent+
+
+[source,java]
+----
+@ExceptionHandler
+public class GenericBusinessExceptionHandler {
+
+    /**
+     * Called when some exception happened during execution of a EJB method.
+     * @param event
+     */
+    public void handleEJBException(@Handles ExceptionEvent<EJBException> event) {
+        Exception byException = event.getException().getCausedByException();
+        ....
+    }
+}
+----
+
+In the situation one of the authorization checkers finds that a user doesn't has the required permission, it throws an +OctopusUnauthorizedException+. Although this exception isn't thrown within the method itself, it can be wrapped within an +EJBException+.
+
+In that case, this handler shouldn't handle the exception in a generic way, because it needs to be handled by the +AuthorizationExceptionHandler+ of Octopus.
+
+Therefor, following code needs to be executed in order that Octopus shows the unauthorized page.
+
+[source,java]
+----
+    if (byException instanceof OctopusUnauthorizedException) {
+        // Let octopus handle this one. Has to do with permissions
+        event.abort();
+        return;
+    }
+----
