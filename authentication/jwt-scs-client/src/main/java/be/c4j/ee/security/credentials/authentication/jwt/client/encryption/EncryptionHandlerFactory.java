@@ -32,7 +32,7 @@ public class EncryptionHandlerFactory {
 
 
     @Inject
-    private SCSConfig SCSConfig;
+    private SCSConfig scsConfig;
 
     @Inject
     private JWKManager jwkManager;
@@ -47,7 +47,7 @@ public class EncryptionHandlerFactory {
                 result = handlerInstances.get(jweAlgorithm);
                 if (result == null) {
                     result = new AESEncryptionHandler();
-                    result.init(SCSConfig, jwkManager);
+                    result.init(scsConfig, jwkManager);
                     handlerInstances.put(jweAlgorithm, result);
                 }
                 break;
@@ -55,7 +55,7 @@ public class EncryptionHandlerFactory {
                 result = handlerInstances.get(jweAlgorithm);
                 if (result == null) {
                     result = new ECEncryptionHandler();
-                    result.init(SCSConfig, jwkManager);
+                    result.init(scsConfig, jwkManager);
                     handlerInstances.put(jweAlgorithm, result);
                 }
                 break;
@@ -63,7 +63,7 @@ public class EncryptionHandlerFactory {
                 result = handlerInstances.get(jweAlgorithm);
                 if (result == null) {
                     result = new RSAEncryptionHandler();
-                    result.init(SCSConfig, jwkManager);
+                    result.init(scsConfig, jwkManager);
                     handlerInstances.put(jweAlgorithm, result);
                 }
                 break;

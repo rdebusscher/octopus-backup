@@ -35,7 +35,7 @@ public class SCSClientConfig {
     private static final String INVALID_VALUE_JWT_TOKEN_TIME_TO_LIVE = "Invalid value specified for parameter jwt.token.timeToLive, needs to be a positive integer value";
 
     @Inject
-    private SCSConfig SCSConfig;
+    private SCSConfig scsConfig;
 
     @ConfigEntry
     public int getJWTTimeToLive() {
@@ -55,22 +55,22 @@ public class SCSClientConfig {
     // methods delegating to SCSConfig
     @ConfigEntry(noLogging = true)
     public String getHMACTokenSecret() {
-        return SCSConfig.getHMACTokenSecret();
+        return scsConfig.getHMACTokenSecret();
     }
 
     @ConfigEntry
     public JWTOperation getJWTOperation() {
-        return SCSConfig.getJWTOperation();
+        return scsConfig.getJWTOperation();
     }
 
     @ConfigEntry
     public JWEAlgorithm getJWEAlgorithm() {
-        return SCSConfig.getJWEAlgorithm();
+        return scsConfig.getJWEAlgorithm();
     }
 
     @ConfigEntry
     public JWTSignature getJwtSignature() {
-        JWTSignature signature = SCSConfig.getJwtSignature();
+        JWTSignature signature = scsConfig.getJwtSignature();
         if (signature == null) {
             throw new OctopusConfigurationException("No Algorithm specified for the JWT signature; parameter jwt.algorithm incorrect");
         }
@@ -80,7 +80,7 @@ public class SCSClientConfig {
 
     @ConfigEntry
     public String getServerName() {
-        return SCSConfig.getServerName();
+        return scsConfig.getServerName();
     }
 
 }

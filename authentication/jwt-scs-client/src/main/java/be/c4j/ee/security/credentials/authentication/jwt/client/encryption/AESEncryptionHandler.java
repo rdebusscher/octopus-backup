@@ -29,12 +29,12 @@ import com.nimbusds.jwt.SignedJWT;
 public class AESEncryptionHandler implements EncryptionHandler {
 
 
-    private SCSConfig SCSConfig;
+    private SCSConfig scsConfig;
 
     @Override
     public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
-        this.SCSConfig = SCSConfig;
+        this.scsConfig = SCSConfig;
         // We don't need the jwkManager for AES
     }
 
@@ -48,7 +48,7 @@ public class AESEncryptionHandler implements EncryptionHandler {
                 new Payload(signedJWT));
 
         // Perform encryption
-        Base64 aesSecret = new Base64(SCSConfig.getAESTokenSecret());
+        Base64 aesSecret = new Base64(scsConfig.getAESTokenSecret());
         jweObject.encrypt(new AESEncrypter(aesSecret.decode()));
 
         // Serialise to JWE compact form

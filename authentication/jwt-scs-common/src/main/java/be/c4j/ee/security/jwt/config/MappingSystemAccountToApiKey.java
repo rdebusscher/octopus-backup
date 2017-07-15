@@ -31,7 +31,7 @@ import java.util.Map;
 public class MappingSystemAccountToApiKey {
 
     @Inject
-    private SCSConfig SCSConfig;
+    private SCSConfig scsConfig;
 
     @Inject
     private SystemAccountMapReader systemAccountMapReader;
@@ -44,7 +44,7 @@ public class MappingSystemAccountToApiKey {
     public void init() {
         systemAccountsMapping = new HashMap<String, List<String>>();
 
-        String accountsMapFile = SCSConfig.getSystemAccountsMapFile();
+        String accountsMapFile = scsConfig.getSystemAccountsMapFile();
         if (accountsMapFile == null || accountsMapFile.trim().isEmpty()) {
             systemAccountUsageActive = false;
             return;
