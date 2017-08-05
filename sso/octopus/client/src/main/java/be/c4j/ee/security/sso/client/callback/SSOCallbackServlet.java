@@ -16,7 +16,6 @@
 package be.c4j.ee.security.sso.client.callback;
 
 import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
-import be.c4j.ee.security.authentication.octopus.exception.OctopusRetrievalException;
 import be.c4j.ee.security.authentication.octopus.requestor.OctopusUserRequestor;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
@@ -24,25 +23,15 @@ import be.c4j.ee.security.session.SessionUtil;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.SSOFlow;
-import be.c4j.ee.security.sso.client.OpenIdVariableClientData;
 import be.c4j.ee.security.sso.client.config.OctopusSSOClientConfiguration;
 import be.c4j.ee.security.sso.rest.DefaultPrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.oauth2.sdk.util.URLUtils;
-import com.nimbusds.openid.connect.sdk.AuthenticationErrorResponse;
 import com.nimbusds.openid.connect.sdk.AuthenticationResponse;
-import com.nimbusds.openid.connect.sdk.AuthenticationResponseParser;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
@@ -55,9 +44,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
 
 /**
  *
@@ -103,12 +89,11 @@ public class SSOCallbackServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-        // FIXME Split up this method in the 3 parts.
-        HttpSession session = httpServletRequest.getSession(true);
 
-        OpenIdVariableClientData variableClientData = (OpenIdVariableClientData) session.getAttribute(OpenIdVariableClientData.class.getName());
+        SSOCallbackServletHandler handler = new SSOCallbackServletHandler(httpServletRequest, httpServletResponse, callbackErrorHandler);
 
-        AuthenticationResponse authenticationResponse = verifyRequestStructural(httpServletRequest, httpServletResponse, variableClientData);
+        // Get the authentication response and do some basic checks about it.
+        AuthenticationResponse authenticationResponse = handler.getAuthenticationResponse();
 
         if (authenticationResponse == null) {
             return;
@@ -117,21 +102,14 @@ public class SSOCallbackServlet extends HttpServlet {
         AuthenticationSuccessResponse successResponse = (AuthenticationSuccessResponse) authenticationResponse;
 
         BearerAccessToken accessToken = null;
+
         if (config.getSSOType() == SSOFlow.AUTHORIZATION_CODE) {
-
-            AuthorizationCode authorizationCode = successResponse.getAuthorizationCode();
-            // Check if we received an Authorization code.
-            ResponseType responseType = successResponse.impliedResponseType();
-            if (responseType.impliesImplicitFlow()) {
-                ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-013", "Missing Authorization code");
-                callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
-                return;
-            }
-
-            accessToken = exchangeForAccessCode.doExchange(httpServletResponse, variableClientData, authorizationCode);
+            //get AccessToken from AuthorizationCode
+            accessToken = handler.getAccessTokenFromAuthorizationCode(successResponse, exchangeForAccessCode);
         }
 
         if (config.getSSOType() == SSOFlow.IMPLICIT) {
+            // We received an AccessToken because of the implicit flow.
             // TODO Is this cast always safe ??
             accessToken = (BearerAccessToken) successResponse.getAccessToken();
 
@@ -146,111 +124,31 @@ public class SSOCallbackServlet extends HttpServlet {
             return;
         }
 
+        // Retrieve user info from the accessToken
+        OctopusSSOUser user = handler.retrieveUser(octopusUserRequestor, accessToken);
+
+        if (user == null) {
+            // There was an issue retrieving the user.
+            return;
+        }
         try {
-            OctopusSSOUser user;
+
+            sessionUtil.invalidateCurrentSession(httpServletRequest);
+
+            // Do the login
+            SecurityUtils.getSubject().login(user);
+
+            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
             try {
-                user = octopusUserRequestor.getOctopusSSOUser(variableClientData, accessToken);
-            } catch (OctopusRetrievalException e) {
-                callbackErrorHandler.showErrorMessage(httpServletResponse, e.getErrorObject());
-                return;
+                httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : httpServletRequest.getContextPath());
+            } catch (IOException e) {
+                // OWASP A6 : Sensitive Data Exposure
+                throw new OctopusUnexpectedException(e);
             }
 
-            try {
-
-                sessionUtil.invalidateCurrentSession(httpServletRequest);
-
-                SecurityUtils.getSubject().login(user);
-
-                SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(httpServletRequest);
-                try {
-                    httpServletResponse.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : httpServletRequest.getContextPath());
-                } catch (IOException e) {
-                    // OWASP A6 : Sensitive Data Exposure
-                    throw new OctopusUnexpectedException(e);
-
-                }
-
-            } catch (UnauthorizedException e) {
-                handleException(httpServletRequest, httpServletResponse, e, user);
-            }
-
-        } catch (URISyntaxException e) {
-            throw new OctopusUnexpectedException(e);
-        } catch (ParseException e) {
-            ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-017", "User Info endpoint response validation failure : " + e.getMessage());
-            callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
-
-        } catch (java.text.ParseException e) {
-            ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-018", "User Info endpoint response JWT validation failure : " + e.getMessage());
-            callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
-        } catch (JOSEException e) {
-            throw new OctopusUnexpectedException(e);
+        } catch (UnauthorizedException e) {
+            handleException(httpServletRequest, httpServletResponse, e, user);
         }
-
-    }
-
-    private AuthenticationResponse verifyRequestStructural(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, OpenIdVariableClientData variableClientData) {
-        ErrorObject errorObject = null;
-
-        if (variableClientData == null) {
-            errorObject = new ErrorObject("OCT-SSO-CLIENT-012", "Request did not originate from this session");
-            callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
-            return null;
-
-        }
-        String query = httpServletRequest.getQueryString();
-        AuthenticationResponse authenticationResponse = null;
-        State receivedState;
-        try {
-            URI responseURL = new URI("?" + query);
-
-            authenticationResponse = AuthenticationResponseParser.parse(responseURL);
-        } catch (URISyntaxException e) {
-            errorObject = new ErrorObject("OCT-SSO-CLIENT-001", e.getMessage());
-        } catch (ParseException e) {
-            errorObject = new ErrorObject("OCT-SSO-CLIENT-002", e.getMessage());
-        }
-
-        if (authenticationResponse instanceof AuthenticationErrorResponse) {
-            AuthenticationErrorResponse errorResponse = (AuthenticationErrorResponse) authenticationResponse;
-            errorObject = errorResponse.getErrorObject();
-            receivedState = errorResponse.getState();
-        } else {
-            if (authenticationResponse == null) {
-                receivedState = findStateFromParameters(query);
-            } else {
-                receivedState = authenticationResponse.getState();
-            }
-        }
-
-        if (errorObject == null) {
-            errorObject = checkState(variableClientData, receivedState);
-        }
-
-        if (errorObject != null) {
-            callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
-            return null;
-        }
-        return authenticationResponse;
-    }
-
-
-    private State findStateFromParameters(String query) {
-        State result = null;
-        Map<String, String> params = URLUtils.parseParameters(query);
-        if (params.containsKey("state")) {
-            result = State.parse(params.get("state"));
-        }
-        return result;
-    }
-
-    private ErrorObject checkState(OpenIdVariableClientData variableClientData, State state) {
-        ErrorObject result = null;
-
-        if (!variableClientData.getState().equals(state)) {
-            result = new ErrorObject("OCT-SSO-CLIENT-011", "Request has an invalid 'state' value");
-        }
-        return result;
 
     }
 
