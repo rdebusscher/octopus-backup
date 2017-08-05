@@ -43,7 +43,8 @@ import java.io.IOException;
 import static be.c4j.ee.security.OctopusConstants.*;
 
 /**
- *
+ * TODO User endpoint must use https. Config parameter to disable this check (as sometime OIDC based server used purely internally.)
+ * But when disabled, put a warning message in the log.
  */
 public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Initializable {
 
@@ -98,12 +99,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
 
         if (user != null) {
             // We have found a User for the token.
-            // So we can assume that the encryptionHandler isn't used (can be the case when using implicit flow)
-            // TODO Verify the usecase of encryptionHandler
             accessToken = token;
-
-        } else {
-            // FIXME Support RSA keys !!
         }
 
         if (user == null) {
