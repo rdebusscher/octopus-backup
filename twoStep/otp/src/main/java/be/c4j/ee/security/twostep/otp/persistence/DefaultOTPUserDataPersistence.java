@@ -38,12 +38,12 @@ public class DefaultOTPUserDataPersistence implements OTPUserDataPersistence {
 
     private Map<Serializable, OTPUserData> storage;
 
-    private SecureRandom secureRandom;
+    protected SecureRandom secureRandom;
 
     @PostConstruct
     public void init() {
         if (this.getClass().equals(DefaultOTPUserDataPersistence.class)) {
-            // Only executed when no @Specialized bean in defined.
+            // Only executed when no @Specialized bean is defined.
             logger.warn("Please provide your own CDI @Specialized bean of DefaultOTPUserDataPersistence for production purposes.");
             logger.warn("The DefaultOTPUserDataPersistence should not be used in production as it doesn't keep OTP secrets between restarts");
             storage = new HashMap<Serializable, OTPUserData>();
@@ -64,8 +64,15 @@ public class DefaultOTPUserDataPersistence implements OTPUserDataPersistence {
         return result;
     }
 
-    private byte[] defineSecretFor(UserPrincipal userPrincipal) {
-        byte[] result = new byte[8];  // FIXME
+    /**
+     * When developer specializes this CDI bean, it is encouraged to overwrite this method.
+     *
+     * @param userPrincipal
+     * @return
+     */
+    protected byte[] defineSecretFor(UserPrincipal userPrincipal) {
+        byte[] result = new byte[8];  // TODO Since this is not production usage class, I guess we don't need to make this configurable.
+        // Don't forget to mention it in the docs.
         secureRandom.nextBytes(result);
         return result;
     }

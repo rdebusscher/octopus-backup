@@ -107,6 +107,10 @@ include::keycloak.adi[]
 
 include::cas.adi[]
 
+=== OTP
+
+TODO : Document how to use OTP features and the different ways of integrating.
+
 === Using Oracle Users for authentication
 
 include::oracleUser.adi[]
