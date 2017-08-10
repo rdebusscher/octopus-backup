@@ -60,6 +60,15 @@ public class SaltHashingUtil {
         return Base64.decode(secretBase64);
     }
 
+    public String base64Encode(byte[] value) {
+        return Base64.encodeToString(value);
+    }
+
+    /**
+     *
+     * @deprecated use base64Encode
+     */
+    @Deprecated
     public String Base64Encode(byte[] salt) {
         return Base64.encodeToString(salt);
     }
