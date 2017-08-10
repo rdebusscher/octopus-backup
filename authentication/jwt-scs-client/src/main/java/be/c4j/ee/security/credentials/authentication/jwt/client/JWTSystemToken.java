@@ -42,7 +42,7 @@ import java.util.Date;
 public class JWTSystemToken {
 
     @Inject
-    private SCSClientConfig SCSClientConfig;
+    private SCSClientConfig scsClientConfig;
 
     @Inject
     private JWKManager jwkManager;
@@ -60,7 +60,7 @@ public class JWTSystemToken {
 
     @PostConstruct
     public void init() {
-        jwtOperation = SCSClientConfig.getJWTOperation();
+        jwtOperation = scsClientConfig.getJWTOperation();
 
     }
 
@@ -73,12 +73,12 @@ public class JWTSystemToken {
 
         JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder();
         claimsSetBuilder.subject(systemAccount);
-        claimsSetBuilder.audience(SCSClientConfig.getServerName());
+        claimsSetBuilder.audience(scsClientConfig.getServerName());
 
         Date issueTime = new Date();
         claimsSetBuilder.issueTime(issueTime);
 
-        claimsSetBuilder.expirationTime(timeUtil.addSecondsToDate(SCSClientConfig.getJWTTimeToLive(), issueTime));
+        claimsSetBuilder.expirationTime(timeUtil.addSecondsToDate(scsClientConfig.getJWTTimeToLive(), issueTime));
         // TODO Extension to add custom claims. Is this needed ?
         //claimsSetBuilder.claim("clientAddress", "127.0.0.1");
 
@@ -110,7 +110,7 @@ public class JWTSystemToken {
     private String encryptToken(String apiKey, SignedJWT signedJWT) {
         String result;
         try {
-            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(SCSClientConfig.getJWEAlgorithm());
+            EncryptionHandler encryptionHandler = encryptionHandlerFactory.getEncryptionHandler(scsClientConfig.getJWEAlgorithm());
             result = encryptionHandler.doEncryption(apiKey, signedJWT);
         } catch (JOSEException e) {
             throw new OctopusUnexpectedException(e);

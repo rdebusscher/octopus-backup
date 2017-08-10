@@ -47,7 +47,7 @@ public class ECEncryptionHandler implements EncryptionHandler {
                 new Payload(signedJWT));
 
         // Perform encryption
-        JWK jwk = jwkManager.getJWKForApiKey(apiKey);
+        JWK jwk = jwkManager.getJWKForApiKey(apiKey + "_enc");  // TODO Document. We can't use the KeyUse, since JwkSet just finds the first key with loking up a key by id
         jweObject.encrypt(new ECDHEncrypter((ECKey) jwk));
 
         // Serialise to JWE compact form

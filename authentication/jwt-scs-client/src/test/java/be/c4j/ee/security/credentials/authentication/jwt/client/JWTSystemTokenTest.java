@@ -16,17 +16,20 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client;
 
 import be.c4j.ee.security.credentials.authentication.jwt.client.config.SCSClientConfig;
+import be.c4j.ee.security.credentials.authentication.jwt.client.encryption.EncryptionHandlerFactory;
 import be.c4j.ee.security.jwt.JWKManager;
+import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
+import be.c4j.ee.security.jwt.config.SCSConfig;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.ReflectionUtil;
-import com.nimbusds.jose.Algorithm;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.SignedJWT;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +61,10 @@ public class JWTSystemTokenTest {
     private static final String SERVER = "JUnit";
 
     @Mock
-    private SCSClientConfig SCSClientConfigMock;
+    private SCSClientConfig scsClientConfigMock;
+
+    @Mock
+    private SCSConfig scsConfigMock;
 
     @Mock
     private JWKManager jwkManagerMock;
@@ -72,17 +78,21 @@ public class JWTSystemTokenTest {
     @Before
     public void setup() throws IllegalAccessException {
 
-        ReflectionUtil.injectDependencies(jwtSystemToken, new TimeUtil());
+
+        EncryptionHandlerFactory encryptionHandlerFactory = new EncryptionHandlerFactory();
+        ReflectionUtil.injectDependencies(encryptionHandlerFactory, scsConfigMock, jwkManagerMock);
+
+        ReflectionUtil.injectDependencies(jwtSystemToken, new TimeUtil(), encryptionHandlerFactory);
     }
 
     @Test
     public void createJWTSystemToken() throws ParseException, JOSEException {
 
-        when(SCSClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
+        when(scsClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWT);
         jwtSystemToken.init();
 
-        when(SCSClientConfigMock.getJWTTimeToLive()).thenReturn(2);
-        when(SCSClientConfigMock.getServerName()).thenReturn(SERVER);
+        when(scsClientConfigMock.getJWTTimeToLive()).thenReturn(2);
+        when(scsClientConfigMock.getServerName()).thenReturn(SERVER);
         RSAKey rsaJWK = makeRSA(2018, KeyUse.SIGNATURE, new Algorithm("PS512"), API_KEY);
         when(jwkManagerMock.getJWKForApiKey(API_KEY)).thenReturn(rsaJWK);
 
@@ -91,6 +101,54 @@ public class JWTSystemTokenTest {
         String token = this.jwtSystemToken.createJWTSystemToken(SYSTEM_ACCOUNT);
 
         SignedJWT signedJWT = SignedJWT.parse(token);
+
+        // Create verifier using the RSA key
+        JWSVerifier verifier = new RSASSAVerifier(rsaJWK.toPublicJWK());
+
+        assertThat(signedJWT.verify(verifier)).isTrue();
+
+        // Ok, token is not tampered with.
+
+        assertThat(signedJWT.getHeader().getKeyID()).isEqualTo(API_KEY); // KeyId (apiKey) is in the header
+
+        assertThat(signedJWT.getJWTClaimsSet().getSubject()).isEqualTo(SYSTEM_ACCOUNT); // SystemAccount == Subject
+
+        assertThat(signedJWT.getJWTClaimsSet().getAudience()).containsExactly(SERVER);
+
+        assertThat(signedJWT.getJWTClaimsSet().getExpirationTime()).isAfter(new Date());
+
+    }
+
+
+    @Test
+    public void createJWESystemToken() throws ParseException, JOSEException {
+
+        when(scsClientConfigMock.getJWTOperation()).thenReturn(JWTOperation.JWE);
+        jwtSystemToken.init();
+
+        when(scsClientConfigMock.getJWTTimeToLive()).thenReturn(2);
+        when(scsClientConfigMock.getServerName()).thenReturn(SERVER);
+        RSAKey rsaJWK = makeRSA(2018, KeyUse.SIGNATURE, new Algorithm("PS512"), API_KEY);
+        when(jwkManagerMock.getJWKForApiKey(API_KEY)).thenReturn(rsaJWK);
+
+        RSAKey rsaEncJWK = makeRSA(2018, KeyUse.ENCRYPTION, new Algorithm("PS512"), API_KEY);
+        when(jwkManagerMock.getJWKForApiKey(API_KEY + "_enc")).thenReturn(rsaEncJWK);
+
+        when(mappingSystemAccountToApiKeyMock.getApiKey(SYSTEM_ACCOUNT)).thenReturn(API_KEY);
+
+        when(scsClientConfigMock.getJWEAlgorithm()).thenReturn(JWEAlgorithm.RSA);
+
+        String token = this.jwtSystemToken.createJWTSystemToken(SYSTEM_ACCOUNT);
+
+        EncryptedJWT encryptedJWT = EncryptedJWT.parse(token);
+
+        // Create verifier using the RSA key
+        JWEDecrypter decrypter = new RSADecrypter(rsaEncJWK.toRSAPrivateKey());
+        encryptedJWT.decrypt(decrypter);
+
+        // After decrypting, we can get the payload which is a SignedJWT.
+        Payload payload = encryptedJWT.getPayload();
+        SignedJWT signedJWT = payload.toSignedJWT();
 
         // Create verifier using the RSA key
         JWSVerifier verifier = new RSASSAVerifier(rsaJWK.toPublicJWK());

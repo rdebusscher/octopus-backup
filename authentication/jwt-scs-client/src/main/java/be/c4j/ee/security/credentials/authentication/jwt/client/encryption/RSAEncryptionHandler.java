@@ -40,15 +40,14 @@ public class RSAEncryptionHandler implements EncryptionHandler {
 
     @Override
     public String doEncryption(String apiKey, SignedJWT signedJWT) throws JOSEException {
-        // TODO RSA1_5 is not save enough?
         JWEObject jweObject = new JWEObject(
-                new JWEHeader.Builder(JWEAlgorithm.RSA1_5, EncryptionMethod.A256CBC_HS512)
+                new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256CBC_HS512)
                         .contentType("JWT") // required to signal nested JWT
                         .build(),
                 new Payload(signedJWT));
 
         // Perform encryption
-        JWK jwk = jwkManager.getJWKForApiKey(apiKey);
+        JWK jwk = jwkManager.getJWKForApiKey(apiKey+"_enc");  // TODO Document. We can't use the KeyUse, since JwkSet just finds the first key with loking up a key by id
         jweObject.encrypt(new RSAEncrypter((RSAKey) jwk));
 
         // Serialise to JWE compact form
