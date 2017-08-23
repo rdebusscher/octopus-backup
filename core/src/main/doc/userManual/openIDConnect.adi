@@ -1,4 +1,4 @@
-OpenIdConnect support
+==== OpenIdConnect support
 
 With Octopus, it becomes very easy to create an OpenIdConnect compliant server which retrieves user authentication info from a developer defined source.
 
@@ -6,8 +6,7 @@ For a general explanation about OpenIdConnect, please look at the internet where
 
 Within octopus, there is an extension of OpenIdConnect developed so that authorization information, like permissions, are also transferred from the server to the client.
 
-Setup Server
-====
+===== Setup Server
 
 Add the following maven dependency to your project (It is advised to create the OpenIdConnect server in a separate application, not to mix it with other functionality. Except maybe the management of users and their permissions)
 
@@ -55,8 +54,7 @@ Octopus Clients are calling the octopus SSO server for the permissions which are
 
 Warning: This interface will be changed in a next version to support also the roles.
 
-Setup Client (Web)
-====
+===== Setup Client (Web)
 
 When using the Octopus client, it becomes very easy to connect an application to the Octopus SSO server (OpenIdConnect compliant). The communication and exchange of the data are done automatically.  This is performed by the code within the following Maven artifact.
 
@@ -94,11 +92,10 @@ When using the Octopus client, it becomes very easy to connect an application to
 
 The above configuration options are basically everything which is required to make it work.
 
-Additional features
+===== Additional features
 
 SSO.application.permission.access
 
-Setup Client (SE)
-====
+===== Setup Client (SE)
 
 ??? TODO Complete with the other info

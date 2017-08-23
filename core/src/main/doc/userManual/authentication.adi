@@ -115,6 +115,7 @@ Specific extensions are designed to work with these system and examples are desc
 TODO
 
 Important, don't forget to call +CasSEConfiguration.prepareConfiguration()+ to initialize the configuration system properly.
+
 ===== KeyCloak
 
 ===== Password grant type of Octopus Server (OAuth2 compatible)

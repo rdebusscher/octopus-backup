@@ -121,6 +121,7 @@ yyyyy = Payload or Claims
 
 [options="header"]
 |=======================
+|key | Description
 |iat | Issued At (timestamp, not used by default by Octopus)
 |exp | Expiration time (timestamp, not used by default by Octopus)
 |sub | subject (will be the name of the system account)
@@ -145,7 +146,7 @@ It can therefor implement the interface +be.c4j.ee.security.credentials.authenti
 public interface CheckJWTClaims {
 
     void areClaimsValid(HttpServletRequest request, Map<String, Object> headerParams, Map<String, Object> claims);
-----
+-----
 
 The parameter contains the HTTPServletRequest, header parameters and claims of the JWT. In case, the requirements aren't met for the developer, it can throw an +be.c4j.ee.security.credentials.authentication.jwt.ClaimCredentialsException+. The authentication process will then fail.
 
