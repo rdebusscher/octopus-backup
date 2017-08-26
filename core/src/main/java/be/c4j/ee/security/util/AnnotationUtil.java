@@ -121,7 +121,19 @@ public final class AnnotationUtil {
     public static Combined getPermissionCombination(Annotation customAnnotation) {
         String value = null;
         for (Method method : customAnnotation.getClass().getDeclaredMethods()) {
+            // The initial element(method) which was used
             if ("combine".equals(method.getName())) {
+                try {
+                    value = method.invoke(customAnnotation, null).toString();
+
+                } catch (IllegalAccessException e) {
+                    throw new OctopusUnexpectedException(e);
+                } catch (InvocationTargetException e) {
+                    throw new OctopusUnexpectedException(e);
+                }
+            }
+            // But the securedComponent used combined attribute. So that is why octopusPermissions and OctopusRoles also uses combined.
+            if ("combined".equals(method.getName())) {
                 try {
                     value = method.invoke(customAnnotation, null).toString();
 

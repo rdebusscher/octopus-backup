@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.interceptor.testclasses;
 
+import be.c4j.ee.security.Combined;
 import be.c4j.ee.security.custom.CustomVoterCheck;
 import be.c4j.ee.security.interceptor.CallFeedbackCollector;
 import be.c4j.ee.security.realm.OctopusPermissions;
@@ -45,6 +46,8 @@ public class MethodLevel {
     public static final String METHOD_LEVEL_SYSTEM_ACCOUNT2 = "MethodLevel#systemAccount2";
     public static final String METHOD_LEVEL_OCTOPUS_PERMISSION1 = "MethodLevel#octopusPermission1";
     public static final String METHOD_LEVEL_OCTOPUS_PERMISSION2 = "MethodLevel#octopusPermission2";
+    public static final String METHOD_LEVEL_OCTOPUS_PERMISSION3 = "MethodLevel#octopusPermission3";
+    public static final String METHOD_LEVEL_OCTOPUS_PERMISSION4 = "MethodLevel#octopusPermission4";
     public static final String METHOD_LEVEL_OCTOPUS_ROLE = "MethodLevel#octopusRole";
     public static final String METHOD_LEVEL_CUSTOM_CHECK_BASIC = "MethodLevel#customCheck_Basic";
     public static final String METHOD_LEVEL_CUSTOM_CHECK_EXTENDED = "MethodLevel#customCheck_Extended";
@@ -116,6 +119,16 @@ public class MethodLevel {
     @OctopusPermissions("octopus:action:*")
     public void octopusPermission2() {
         CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION2);
+    }
+
+    @OctopusPermissions({"octopus:action:*", "permissionName"})
+    public void octopusPermission3() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION3);
+    }
+
+    @OctopusPermissions(value = {"octopus:action:*", "permissionName"}, combined = Combined.AND)
+    public void octopusPermission4() {
+        CallFeedbackCollector.addCallFeedback(METHOD_LEVEL_OCTOPUS_PERMISSION4);
     }
 
     @OctopusRoles("role1")

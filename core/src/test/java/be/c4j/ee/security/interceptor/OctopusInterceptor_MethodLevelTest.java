@@ -441,7 +441,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
             assertThat(permission).isEqualTo(NAMED_OCTOPUS);
 
         } catch (OctopusUnauthorizedException e) {
-
+            // FIXME (and for all the other tests in this class) we need to check if the fail is ok.
+            // We only test positive cases
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).isEmpty();
         }
@@ -470,6 +471,58 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
 
         } catch (OctopusUnauthorizedException e) {
 
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusPermission3() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("octopusPermission3");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_PERMISSION3);
+
+            assertThat(permission).isIn(NAMED_OCTOPUS, OCTOPUS);
+
+        } catch (OctopusUnauthorizedException e) {
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).isEmpty();
+        }
+    }
+
+    @Test
+    public void testInterceptShiroSecurity_OctopusPermission4() throws Exception {
+
+        Object target = new MethodLevel();
+        Method method = target.getClass().getMethod("octopusPermission4");
+        InvocationContext context = new TestInvocationContext(target, method);
+
+        finishCDISetup();
+
+        securityCheckOctopusPermission.init();
+
+        try {
+            octopusInterceptor.interceptShiroSecurity(context);
+            // Should never be the case with the current setup of permissions
+            List<String> feedback = CallFeedbackCollector.getCallFeedback();
+            assertThat(feedback).hasSize(1);
+            assertThat(feedback).contains(MethodLevel.METHOD_LEVEL_OCTOPUS_PERMISSION3);
+
+            assertThat(permission).isEqualTo(OCTOPUS);
+
+
+        } catch (OctopusUnauthorizedException e) {
             List<String> feedback = CallFeedbackCollector.getCallFeedback();
             assertThat(feedback).isEmpty();
         }

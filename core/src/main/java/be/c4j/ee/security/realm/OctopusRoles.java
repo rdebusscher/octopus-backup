@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.Combined;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,4 +30,6 @@ import java.lang.annotation.Target;
 public @interface OctopusRoles {
 
     String[] value();
+
+    Combined combined() default Combined.OR;
 }

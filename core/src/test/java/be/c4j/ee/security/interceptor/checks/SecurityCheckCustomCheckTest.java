@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.interceptor.checks;
 
+import be.c4j.ee.security.Combined;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.custom.AbstractGenericVoter;
@@ -269,6 +270,11 @@ public class SecurityCheckCustomCheckTest {
         @Override
         public String[] value() {
             return new String[]{"value1", "value2"};
+        }
+
+        @Override
+        public Combined combined() {
+            return Combined.OR;
         }
     }
 
