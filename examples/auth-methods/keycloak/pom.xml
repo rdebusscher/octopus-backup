@@ -85,13 +85,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- FIXME Check if we can remove it (but should be ok) -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -121,4 +114,17 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>glassfish</id>
+            <dependencies>
+                <dependency>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                    <version>1.1.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

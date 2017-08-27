@@ -8,7 +8,10 @@ This is the list of (Application) servers which are tested at this moment
 
 .Java EE 7
 . Glassfish 4 / Payara
-. Wildfly 8/9
+. Wildfly 8/9/10
+
+.Java EE 8 (Use Java EE 7 version of the Octopus Artifacts)
+. Glassfish 5 (only build version tested for the moment)
 
 List of application servers which will be supported before we reach the 1.0 version
 
@@ -17,3 +20,16 @@ List of application servers which will be supported before we reach the 1.0 vers
 . Websphere (Liberty) 8.5.5.5.
 
 It is possible that it already works or will be working with other versions as it is based on standards.
+
+All Glassfish servers needs also the commons-logging dependency in order to work
+
+[source,xml]
+----
+
+    <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+    
+----
