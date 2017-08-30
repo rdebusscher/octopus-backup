@@ -64,7 +64,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
     private PermissionRequestor permissionRequestor;
 
     @PostConstruct
-    public void init() throws ServletException {
+    public void init() {
         // The PermissionJSONProvider is located in a JAR With CDI support.
         // Developer must have to opportunity to define a custom version.
         // So first look at CDI class. If not found, use the default.

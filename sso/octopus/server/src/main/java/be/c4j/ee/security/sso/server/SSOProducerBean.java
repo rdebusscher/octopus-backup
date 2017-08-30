@@ -30,7 +30,6 @@ import javax.inject.Inject;
 public class SSOProducerBean {
 
     @Inject
-    @RequestScoped
     private Subject subject;
 
     @Produces
