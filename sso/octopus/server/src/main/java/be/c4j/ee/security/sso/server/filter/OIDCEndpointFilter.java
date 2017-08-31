@@ -89,6 +89,10 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         String requestURI = httpServletRequest.getRequestURI();
+        if (requestURI.contains(";")) {
+            // Strip off any additional info (like jsessionid encoded in URL)
+            requestURI = requestURI.substring(0, requestURI.indexOf(';'));
+        }
 
         ErrorInfo errorInfo = null;
         EndpointType endpointType = null;
@@ -100,6 +104,10 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
         if (requestURI.endsWith("token")) {
             errorInfo = checksForTokenEndpoint(httpServletRequest);
             endpointType = EndpointType.TOKEN;
+        }
+
+        if (endpointType == null) {
+            throw new OctopusUnexpectedException("Enpoint URL not recognized by the OIDCEndpointFilter " + requestURI);
         }
 
         boolean result;
