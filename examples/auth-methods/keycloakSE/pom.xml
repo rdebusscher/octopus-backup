@@ -22,13 +22,13 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus.examples</groupId>
         <artifactId>auth-methods-examples</artifactId>
-        <version>0.9.6.5-SNAPSHOT</version>
+        <version>0.9.6.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>keycloak-se</artifactId>
 
-    <version>0.9.6.5-SNAPSHOT</version>
+    <version>0.9.6.5</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>keycloak-se</artifactId>
-            <version>0.9.6.5-SNAPSHOT</version>
+            <version>0.9.6.5</version>
         </dependency>
 
         <dependency>
