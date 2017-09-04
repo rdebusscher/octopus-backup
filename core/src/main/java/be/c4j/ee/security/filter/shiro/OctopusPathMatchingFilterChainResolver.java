@@ -62,6 +62,7 @@ public class OctopusPathMatchingFilterChainResolver extends PathMatchingFilterCh
                             "Utilizing corresponding filter chain...");
                 }
 
+                // This is the only change we have made in this method.
                 request.setAttribute(OCTOPUS_CHAIN_NAME, pathPattern);
                 return filterChainManager.proxy(originalChain, pathPattern);
             }
