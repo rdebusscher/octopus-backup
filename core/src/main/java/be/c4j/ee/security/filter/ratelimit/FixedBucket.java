@@ -90,7 +90,6 @@ public class FixedBucket {
         if (current <= allowedRequests) {
             result = TokenInstance.USABLE;
         }
-        System.out.println(current);
 
         return result;
     }
