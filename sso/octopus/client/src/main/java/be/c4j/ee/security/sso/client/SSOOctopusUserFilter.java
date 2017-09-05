@@ -41,8 +41,6 @@ import java.net.URISyntaxException;
  */
 public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializable {
 
-    private ThreadLocal<OpenIdVariableClientData> variableClientDataThreadLocal;
-
     private String loginURL;
 
     private String partialLoginURL; // Partial in the sense that the openIdConnect query parameters aren't present.
@@ -56,8 +54,6 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
     @Override
     public void init() throws ShiroException {
         BeanProvider.injectFields(this);
-
-        variableClientDataThreadLocal = new ThreadLocal<OpenIdVariableClientData>();
     }
 
     @Override
@@ -70,39 +66,24 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
     }
 
     @Override
-    public void prepareLoginURL(ServletRequest request, ServletResponse response) {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    protected void redirectToLogin(ServletRequest req, ServletResponse res) throws IOException {
+        OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(urlUtil.determineRoot((HttpServletRequest) req));
+        determineActualLoginURL(variableClientData);
+        storeClientData((HttpServletRequest) req, variableClientData);
+        super.redirectToLogin(req, res);
+        loginURL = partialLoginURL;
+    }
 
-        HttpSession session = httpServletRequest.getSession(true);
+    private void storeClientData(HttpServletRequest request, OpenIdVariableClientData variableClientData) {
+        HttpSession session = request.getSession(true);
 
         if (session.getAttribute(OpenIdVariableClientData.class.getName()) == null) {
-            // TODO when we integrate Shiro, We have to come up with a solution for this
-            // Basically, it boils down to some initialization which is executed before the redirect to the login page is performed.
-            // Maybe just an implementation of some interface which will be called.
-            OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(urlUtil.determineRoot((HttpServletRequest) request));
-            variableClientDataThreadLocal.set(variableClientData);
 
             session.setAttribute(OpenIdVariableClientData.class.getName(), variableClientData);
         }
     }
 
-    @Override
-    protected void cleanup(ServletRequest request, ServletResponse response, Exception existing) throws ServletException, IOException {
-        super.cleanup(request, response, existing);
-
-        variableClientDataThreadLocal.remove();  // To be on the safe side that the ThreadLocal is cleanup properly.
-        // TODO When shiro integrated we probably don't need this anymore as we don't use the ThreadLocal anymore.
-    }
-
-    @Override
-    protected void redirectToLogin(ServletRequest req, ServletResponse res) throws IOException {
-        determineActualLoginURL();
-        super.redirectToLogin(req, res);
-        loginURL = partialLoginURL;
-    }
-
-    private void determineActualLoginURL() {
-        OpenIdVariableClientData variableClientData = variableClientDataThreadLocal.get();
+    private void determineActualLoginURL(OpenIdVariableClientData variableClientData) {
 
         AuthenticationRequest req;
         try {
