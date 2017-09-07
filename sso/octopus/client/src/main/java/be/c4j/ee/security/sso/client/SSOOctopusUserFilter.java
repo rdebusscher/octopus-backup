@@ -27,7 +27,6 @@ import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -51,9 +50,12 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
     @Inject
     private URLUtil urlUtil;
 
+    private ClientCallbackHelper clientCallbackHelper;
+
     @Override
     public void init() throws ShiroException {
         BeanProvider.injectFields(this);
+        clientCallbackHelper = BeanProvider.getContextualReference(ClientCallbackHelper.class, true);
     }
 
     @Override
@@ -67,9 +69,19 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
 
     @Override
     protected void redirectToLogin(ServletRequest req, ServletResponse res) throws IOException {
-        OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(urlUtil.determineRoot((HttpServletRequest) req));
+        HttpServletRequest httpServletRequest = (HttpServletRequest) req;
+        String rootURL;
+        if (clientCallbackHelper == null) {
+            rootURL = urlUtil.determineRoot(httpServletRequest);
+        } else {
+            rootURL = clientCallbackHelper.determineCallbackRoot(httpServletRequest);
+        }
+
+        OpenIdVariableClientData variableClientData = new OpenIdVariableClientData(rootURL);
+
         determineActualLoginURL(variableClientData);
-        storeClientData((HttpServletRequest) req, variableClientData);
+        storeClientData(httpServletRequest, variableClientData);
+
         super.redirectToLogin(req, res);
         loginURL = partialLoginURL;
     }

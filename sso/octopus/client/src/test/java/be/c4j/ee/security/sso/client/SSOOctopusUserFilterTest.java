@@ -40,8 +40,7 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -64,6 +63,9 @@ public class SSOOctopusUserFilterTest {
     @Mock
     private HttpSession httpSessionMock;
 
+    @Mock
+    private ClientCallbackHelper clientCallbackHelperMock;
+
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
 
@@ -78,10 +80,8 @@ public class SSOOctopusUserFilterTest {
 
         beanManagerFake.registerBean(octopusSSOClientConfigurationMock, OctopusSSOClientConfiguration.class);
         beanManagerFake.registerBean(urlUtilMock, URLUtil.class);
-        beanManagerFake.endRegistration();
 
         when(httpServletRequestMock.getSession(true)).thenReturn(httpSessionMock);
-        when(urlUtilMock.determineRoot(any(HttpServletRequest.class))).thenReturn("http://client.app/base");
 
         userFilter.init();
         userFilter.prepareLoginURL(httpServletRequestMock, null);
@@ -95,6 +95,7 @@ public class SSOOctopusUserFilterTest {
 
     @Test
     public void redirectToLogin() throws IllegalAccessException, NoSuchFieldException, IOException {
+        beanManagerFake.endRegistration();
 
         when(octopusSSOClientConfigurationMock.getSSOClientId()).thenReturn("clientId");
         when(octopusSSOClientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
@@ -109,6 +110,8 @@ public class SSOOctopusUserFilterTest {
             }
         });
 
+        when(urlUtilMock.determineRoot(any(HttpServletRequest.class))).thenReturn("http://client.app/base");
+
         userFilter.redirectToLogin(httpServletRequestMock, httpServletResponseMock);
 
         verify(httpServletResponseMock).sendRedirect(stringArgumentCaptor.capture());
@@ -118,6 +121,44 @@ public class SSOOctopusUserFilterTest {
         assertThat(loginUrl).startsWith("http://sso.server.org/root?response_type=code&client_id=clientId&redirect_uri=http%3A%2F%2Fclient.app%2Fbase%2Foctopus%2Fsso%2FSSOCallback&scope=openid+octopus&");
         assertThat(loginUrl).contains("&state=");
         assertThat(loginUrl).contains("&nonce=");
+
+        verify(urlUtilMock).determineRoot(any(HttpServletRequest.class));
+
+    }
+
+    @Test
+    public void redirectToLogin_manualDetermined() throws IllegalAccessException, NoSuchFieldException, IOException {
+        // TODO Doesn't work. why ?
+        beanManagerFake.registerBean(clientCallbackHelperMock, ClientCallbackHelper.class);
+        beanManagerFake.endRegistration();
+        ReflectionUtil.injectDependencies(userFilter, clientCallbackHelperMock);
+
+        when(octopusSSOClientConfigurationMock.getSSOClientId()).thenReturn("clientId");
+        when(octopusSSOClientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
+        when(octopusSSOClientConfigurationMock.getSSOScopes()).thenReturn("");
+
+        ReflectionUtil.setFieldValue(userFilter, "partialLoginURL", "http://sso.server.org/root");
+
+        when(httpServletResponseMock.encodeRedirectURL(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArgument(0);
+            }
+        });
+
+        when(clientCallbackHelperMock.determineCallbackRoot(any(HttpServletRequest.class))).thenReturn("http://manual.url/root");
+
+        userFilter.redirectToLogin(httpServletRequestMock, httpServletResponseMock);
+
+        verify(httpServletResponseMock).sendRedirect(stringArgumentCaptor.capture());
+
+        String loginUrl = stringArgumentCaptor.getValue();
+
+        assertThat(loginUrl).startsWith("http://sso.server.org/root?response_type=code&client_id=clientId&redirect_uri=http%3A%2F%2Fmanual.url%2Froot%2Foctopus%2Fsso%2FSSOCallback&scope=openid+octopus&");
+        assertThat(loginUrl).contains("&state=");
+        assertThat(loginUrl).contains("&nonce=");
+
+        verify(urlUtilMock, never()).determineRoot(any(HttpServletRequest.class));
 
     }
 
