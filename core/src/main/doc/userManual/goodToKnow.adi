@@ -35,3 +35,24 @@ Therefor, following code needs to be executed in order that Octopus shows the un
         return;
     }
 ----
+
+=== SSO.octopus.server config value
+
+The config parameter _SSO.octopus.server_ from the SSO Client module should not contain the default ports for HTTP (80) or (HTTPS)
+
+The following config value
+
+----
+   SSO.octopus.server=http://test-env.prov.foo.com:80/security
+----
+
+will result in the following error
+
+----
+OCT-SSO-CLIENT-016 : Validation of ID token JWT failed : Unexpected JWT issuer: http://test-env.prov.foo.com/security
+----
+
+
+This is because the issuer property of the IDToken JWT sent to the client, contains the application root URL value and is verified against the _SSO.octopus.server_ parameter by the client application.
+
+But the issuer contains not the default ports and thus the comparison fails.

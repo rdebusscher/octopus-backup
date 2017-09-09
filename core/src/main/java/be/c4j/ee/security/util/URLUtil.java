@@ -27,11 +27,21 @@ import java.net.URI;
 public class URLUtil {
 
     public String determineRoot(HttpServletRequest req) {
-        // FIXME Duplicate with OAuth2ServiceProducer
         String result = req.getScheme() + "://" +
                 req.getServerName() + ':' +
-                req.getServerPort() +
+                getServerPort(req) +
                 req.getContextPath();
+        return result;
+    }
+
+    private String getServerPort(HttpServletRequest req) {
+        String result = String.valueOf(req.getServerPort());
+        if ("80".equals(result)) {
+            result = "";
+        }
+        if ("443".equals(result)) {
+            result = "";
+        }
         return result;
     }
 
