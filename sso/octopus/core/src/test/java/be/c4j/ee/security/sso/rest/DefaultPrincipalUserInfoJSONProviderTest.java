@@ -40,12 +40,31 @@ public class DefaultPrincipalUserInfoJSONProviderTest {
     }
 
     @Test
+    public void writeValue_WithEnum() {
+
+        TestData2 data = new TestData2();
+        data.setId(123L);
+        data.setTestEnum(TestEnum.ENUM2);
+
+        String value = principalUserInfoJSONProvider.writeValue(data);
+        assertThat(value).isEqualTo("{\"id\":123,\"testEnum\":\"ENUM2\"}");
+    }
+
+    @Test
     public void readValue() {
 
         TestData data = principalUserInfoJSONProvider.readValue("{\"property2\":123,\"property1\":\"JUnit\",\"property3\":true}", TestData.class);
         assertThat(data.getProperty1()).isEqualTo("JUnit");
         assertThat(data.getProperty2()).isEqualTo(123L);
         assertThat(data.isProperty3()).isEqualTo(Boolean.TRUE);
+    }
+
+    @Test
+    public void readValue_withEnum() {
+
+        TestData2 data = principalUserInfoJSONProvider.readValue("{\"id\":321,\"testEnum\":\"ENUM1\"}", TestData2.class);
+        assertThat(data.getId()).isEqualTo(321L);
+        assertThat(data.getTestEnum()).isEqualTo(TestEnum.ENUM1);
     }
 
 
@@ -77,6 +96,31 @@ public class DefaultPrincipalUserInfoJSONProviderTest {
         public void setProperty3(boolean property3) {
             this.property3 = property3;
         }
+    }
+
+    public static class TestData2 {
+        private Long id;
+        private TestEnum testEnum;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public TestEnum getTestEnum() {
+            return testEnum;
+        }
+
+        public void setTestEnum(TestEnum testEnum) {
+            this.testEnum = testEnum;
+        }
+    }
+
+    public enum TestEnum {
+        ENUM1, ENUM2
     }
 
 }

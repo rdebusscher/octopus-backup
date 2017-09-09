@@ -51,6 +51,8 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
             value = bean.getProperty(name).get(data);
             if (Property.isBasicPropertyType(value)) {
                 result.put(name, value);
+            } else if (value.getClass().isEnum()) {
+                result.put(name, value);
             } else {
                 result.put(name, writeValue(value));  // Recursive call
             }
@@ -100,6 +102,12 @@ public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJS
                 property.set(result, intValue.longValue());
             } else {
                 property.set(result, value);
+            }
+        } else if (actualType.isEnum()) {
+            for (Object o : actualType.getEnumConstants()) {
+                if (o.toString().equals(value)) {
+                    property.set(result, o);
+                }
             }
         } else {
             property.set(result, readValue(value.toString(), actualType));
