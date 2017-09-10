@@ -17,13 +17,19 @@ package be.c4j.ee.security.sso;
 
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
+import be.c4j.ee.security.sso.testclasses.WithDefaultConstructor;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import net.minidev.json.JSONObject;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.org.lidalia.slf4jext.Level;
+import uk.org.lidalia.slf4jtest.TestLogger;
+import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,7 +39,9 @@ import java.util.Map;
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -46,6 +54,11 @@ public class OctopusSSOUserConverterTest {
 
     @InjectMocks
     private OctopusSSOUserConverter octopusSSOUserConverter;
+
+    @After
+    public void clearLoggers() {
+        TestLoggerFactory.clear();
+    }
 
     @Test
     public void asClaims() {
@@ -170,4 +183,55 @@ public class OctopusSSOUserConverterTest {
 
     }
 
+    @Test
+    public void fromUserInfo_NoDefaultConstructor() throws IllegalAccessException {
+        TestLogger logger = TestLoggerFactory.getTestLogger(OctopusSSOUserConverter.class);
+        ReflectionUtil.injectDependencies(octopusSSOUserConverter, logger);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", "IdValue");
+        jsonObject.put(LOCAL_ID, "LocalIdValue");
+
+        jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
+
+        jsonObject.put("noDefaultConstructor", "be.c4j.ee.security.sso.testclasses.NoDefaultConstructor@JUnit");
+        UserInfo userInfo = new UserInfo(jsonObject);
+
+        OctopusSSOUser ssoUser = octopusSSOUserConverter.fromUserInfo(userInfo, jsonProviderMock);
+
+        assertThat(ssoUser.getId()).isEqualTo("IdValue");
+        assertThat(ssoUser.getLocalId()).isEqualTo("LocalIdValue");
+
+        assertThat(ssoUser.getUserInfo()).containsEntry("noDefaultConstructor", "be.c4j.ee.security.sso.testclasses.NoDefaultConstructor@JUnit");
+
+        assertThat(logger.getLoggingEvents()).hasSize(1);
+        assertThat(logger.getLoggingEvents().get(0).getLevel()).isEqualTo(Level.WARN);
+        assertThat(logger.getLoggingEvents().get(0).getMessage()).isEqualTo("Reading serialized userInfo data failed for OctopusSSOUser as class be.c4j.ee.security.sso.testclasses.NoDefaultConstructor doesn't have a default constructor");
+
+        verify(jsonProviderMock, never()).readValue(anyString(), any(Class.class));
+    }
+
+    @Test
+    public void fromUserInfo_WithDefaultConstructor() throws IllegalAccessException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", "IdValue");
+        jsonObject.put(LOCAL_ID, "LocalIdValue");
+
+        jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
+
+        jsonObject.put("withDefaultConstructor", "be.c4j.ee.security.sso.testclasses.WithDefaultConstructor@JUnit");
+        UserInfo userInfo = new UserInfo(jsonObject);
+
+        when(jsonProviderMock.readValue("JUnit", WithDefaultConstructor.class)).thenReturn(new WithDefaultConstructor("JUnit"));
+
+        OctopusSSOUser ssoUser = octopusSSOUserConverter.fromUserInfo(userInfo, jsonProviderMock);
+
+        assertThat(ssoUser.getId()).isEqualTo("IdValue");
+        assertThat(ssoUser.getLocalId()).isEqualTo("LocalIdValue");
+
+        assertThat(ssoUser.getUserInfo()).containsKey("withDefaultConstructor");
+        WithDefaultConstructor data = ssoUser.getUserInfo("withDefaultConstructor");
+        assertThat(data.getFoo()).isEqualTo("JUnit");
+
+    }
 }

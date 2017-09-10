@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 
 /**
- *
+ * TODO On Java EE 8, use JSON-B for this.
  */
 @ApplicationScoped
 public class OctopusSSOUserConverter {
@@ -134,6 +135,21 @@ public class OctopusSSOUserConverter {
             logger.warn(String.format("Reading serialized userInfo data failed for OctopusSSOUser as class %s can't be located", parts[0]));
         }
 
+        if (!checkDefaultConstructor(result)) {
+            logger.warn(String.format("Reading serialized userInfo data failed for OctopusSSOUser as class %s doesn't have a default constructor", parts[0]));
+            result = null;
+        }
+
+        return result;
+    }
+
+    private boolean checkDefaultConstructor(Class<?> aClass) {
+        boolean result = false;
+        for (Constructor<?> constructor : aClass.getConstructors()) {
+            if (constructor.getParameterTypes().length == 0) {
+                result = true;
+            }
+        }
         return result;
     }
 

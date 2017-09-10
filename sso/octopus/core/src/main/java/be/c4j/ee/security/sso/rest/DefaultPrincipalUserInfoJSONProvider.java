@@ -32,6 +32,7 @@ import static net.minidev.json.JSONStyle.FLAG_IGNORE_NULL;
 
 /**
  * TODO, this doesn't support serialization of values in super classes.
+ * TODO On Java EE 8, use JSON-B for this.
  */
 @Vetoed
 public class DefaultPrincipalUserInfoJSONProvider implements PrincipalUserInfoJSONProvider {
