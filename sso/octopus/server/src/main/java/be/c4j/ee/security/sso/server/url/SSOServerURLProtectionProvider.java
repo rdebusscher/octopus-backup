@@ -44,6 +44,7 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
         result.put("/octopus/sso/authenticate", "oidcFilter");
         result.put("/octopus/sso/token", String.format("rate[%s], oidcFilter", configuration.getOIDCEndpointRateLimit()));
         result.put("/octopus/testAuthentication", "anon");  // But the SSOCookieRemembermeManager does his job :)
+        result.put("/octopus/alive", "rate[20/1s], anon");  // 20 checks / sec !!
         result.put("/octopus/**", "none");
 
         return result;

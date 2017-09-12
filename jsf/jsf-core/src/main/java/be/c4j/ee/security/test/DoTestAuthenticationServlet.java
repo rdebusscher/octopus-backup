@@ -35,7 +35,9 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 /**
- *
+ * TODO Review location JSF-core or sso-client?
+ * Needs OctopusJSFConfig see needs to be in JSF area but is it usefull in a standalone app?
+ * OctopusSSOClientConfiguration extends OctopusJSFConfig
  */
 @WebServlet("/doTestAuthentication")
 public class DoTestAuthenticationServlet extends HttpServlet {
