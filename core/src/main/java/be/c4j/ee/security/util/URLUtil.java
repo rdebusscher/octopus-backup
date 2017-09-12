@@ -28,18 +28,18 @@ public class URLUtil {
 
     public String determineRoot(HttpServletRequest req) {
         String result = req.getScheme() + "://" +
-                req.getServerName() + ':' +
+                req.getServerName() +
                 getServerPort(req) +
                 req.getContextPath();
         return result;
     }
 
     private String getServerPort(HttpServletRequest req) {
-        String result = String.valueOf(req.getServerPort());
-        if ("80".equals(result)) {
+        String result = ':' + String.valueOf(req.getServerPort());
+        if (":80".equals(result)) {
             result = "";
         }
-        if ("443".equals(result)) {
+        if (":443".equals(result)) {
             result = "";
         }
         return result;
