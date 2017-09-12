@@ -163,7 +163,7 @@ public class AuthenticationServletTest {
         when(httpServletRequestMock.getHeader("User-Agent")).thenReturn("UserAgentValue");
         when(httpServletRequestMock.getRemoteAddr()).thenReturn("remoteAddressValue");
 
-        List<Audience> aud = new ArrayList<Audience>();
+        List<Audience> aud = Audience.create("aud");
         IDTokenClaimsSet expectedClaimSet = new IDTokenClaimsSet(new Issuer("issuer"), new Subject("sub"), aud, new Date(), new Date());
         when(oidcTokenHelperMock.defineIDToken(httpServletRequestMock, ssoUser, authenticationRequestMock, "JUnit_client"))
                 .thenReturn(expectedClaimSet);
@@ -193,7 +193,7 @@ public class AuthenticationServletTest {
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
         IDTokenClaimsSet claimsSet = oidcStoreDataArgumentCaptor.getValue().getIdTokenClaimsSet();
-        assertThat(claimsSet).isSameAs(expectedClaimSet);
+        assertThat(claimsSet).isNotSameAs(expectedClaimSet);  // Since it is serialized/Deserialized
 
         verify(httpSessionMock).invalidate();
     }
@@ -257,7 +257,7 @@ public class AuthenticationServletTest {
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
         IDTokenClaimsSet claimsSet = oidcStoreDataArgumentCaptor.getValue().getIdTokenClaimsSet();
-        assertThat(claimsSet).isSameAs(expectedClaimSet);
+        assertThat(claimsSet).isNotSameAs(expectedClaimSet);  // Since it is serialized/Deserialized
 
         verify(httpSessionMock).invalidate();
     }
@@ -365,7 +365,7 @@ public class AuthenticationServletTest {
         assertThat(oidcStoreDataArgumentCaptor.getValue().getClientId().getValue()).isEqualTo("JUnit_client");
 
         IDTokenClaimsSet claimsSet = oidcStoreDataArgumentCaptor.getValue().getIdTokenClaimsSet();
-        assertThat(claimsSet).isSameAs(expectedClaimSet);
+        assertThat(claimsSet).isNotSameAs(expectedClaimSet);  // Since it is serialized/Deserialized
 
         verify(httpSessionMock).invalidate();
     }

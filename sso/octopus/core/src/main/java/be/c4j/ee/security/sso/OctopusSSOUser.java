@@ -19,12 +19,14 @@ import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
+import java.io.Serializable;
+
 /**
  * Principal created when using the SSO feature. This is an additional Principal (next to UserPrincipal) hich is also avau-ilable
  * in the PrincipalCollection. <br/>
  * The userInfo map is not serialized.
  */
-public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
+public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken, Serializable {
 
     private String id;
     private String localId;

@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.server.store;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.Set;
  *
  */
 
-public class TokenStoreInfo {
+public class TokenStoreInfo implements Serializable {
 
 
     private OctopusSSOUser octopusSSOUser;

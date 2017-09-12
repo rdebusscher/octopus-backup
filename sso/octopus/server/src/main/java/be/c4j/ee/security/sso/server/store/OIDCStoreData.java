@@ -15,27 +15,31 @@
  */
 package be.c4j.ee.security.sso.server.store;
 
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.util.TimeUtil;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import net.minidev.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  *
  */
 
-public class OIDCStoreData {
+public class OIDCStoreData implements Serializable {
 
     private ClientID clientId;
     private Scope scope;
 
     private AuthorizationCode authorizationCode;
     private BearerAccessToken accessToken;
-    private IDTokenClaimsSet idTokenClaimsSet;
+    private JSONObject idTokenClaimsSet;
 
     private Date expiresOn;
 
@@ -73,11 +77,24 @@ public class OIDCStoreData {
     }
 
     public IDTokenClaimsSet getIdTokenClaimsSet() {
-        return idTokenClaimsSet;
+        try {
+            if (idTokenClaimsSet != null) {
+                return IDTokenClaimsSet.parse(idTokenClaimsSet.toJSONString());
+            } else {
+                return null;
+            }
+        } catch (ParseException e) {
+            throw new OctopusUnexpectedException(e);
+        }
     }
 
     public void setIdTokenClaimsSet(IDTokenClaimsSet idTokenClaimsSet) {
-        this.idTokenClaimsSet = idTokenClaimsSet;
+        // IDTokenClaimsSet is not Serializable,
+        if (idTokenClaimsSet != null) {
+            this.idTokenClaimsSet = idTokenClaimsSet.toJSONObject();
+        } else {
+            this.idTokenClaimsSet = null;
+        }
     }
 
     public Date getExpiresOn() {

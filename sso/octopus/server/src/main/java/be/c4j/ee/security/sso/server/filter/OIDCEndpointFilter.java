@@ -147,6 +147,7 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
                 break;
             case TOKEN:
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setHeader("Content-Type", "application/json");
                 TokenErrorResponse tokenErrorResponse = new TokenErrorResponse(errorInfo.getErrorObject());
                 try {
                     response.getWriter().println(tokenErrorResponse.toJSONObject().toJSONString());
