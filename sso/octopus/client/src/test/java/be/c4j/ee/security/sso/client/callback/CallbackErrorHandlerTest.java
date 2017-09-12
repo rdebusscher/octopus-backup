@@ -22,8 +22,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -45,15 +47,14 @@ public class CallbackErrorHandlerTest {
     @Mock
     private PrintWriter printWriterMock;
 
+    @Mock
+    private Logger loggerMock;
+
+    @InjectMocks
     private CallbackErrorHandler callbackErrorHandler;
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
-
-    @Before
-    public void setup() {
-        callbackErrorHandler = new CallbackErrorHandler();
-    }
 
     @Test
     public void showErrorMessage() throws IOException {

@@ -111,7 +111,12 @@ public class ExchangeForAccessCode {
                 claimsVerifier.verify(idToken.getJWTClaimsSet(), null);
             } else {
                 TokenErrorResponse errorResponse = (TokenErrorResponse) tokenResponse;
-                callbackErrorHandler.showErrorMessage(httpServletResponse, errorResponse.getErrorObject());
+                ErrorObject errorObject = errorResponse.getErrorObject();
+                if (errorObject.getCode() == null || errorObject.getDescription() == null) {
+                    errorObject.setDescription(errorObject.getDescription() + " -- TokenErrorResponse for authorization code " + authorizationCode);
+                }
+
+                callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);
             }
 
         } catch (URISyntaxException e) {
