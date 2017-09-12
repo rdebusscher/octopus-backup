@@ -113,7 +113,7 @@ public class ExchangeForAccessCode {
                 TokenErrorResponse errorResponse = (TokenErrorResponse) tokenResponse;
                 ErrorObject errorObject = errorResponse.getErrorObject();
                 if (errorObject.getCode() == null || errorObject.getDescription() == null) {
-                    errorObject.setDescription(errorObject.getDescription() + " -- TokenErrorResponse for authorization code " + authorizationCode);
+                    errorObject = errorObject.setDescription(errorObject.getDescription() + " -- TokenErrorResponse for authorization code " + authorizationCode);
                 }
 
                 callbackErrorHandler.showErrorMessage(httpServletResponse, errorObject);

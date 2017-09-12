@@ -94,7 +94,7 @@ public class SSOCallbackServletHandler {
             AuthenticationErrorResponse errorResponse = (AuthenticationErrorResponse) authenticationResponse;
             errorObject = errorResponse.getErrorObject();
             if (errorObject.getCode() == null || errorObject.getDescription() == null) {
-                errorObject.setDescription(errorObject.getDescription() + " -- AuthenticationErrorResponse for url" + query);
+                errorObject = errorObject.setDescription(errorObject.getDescription() + " -- AuthenticationErrorResponse for url" + query);
             }
             receivedState = errorResponse.getState();
         } else {
