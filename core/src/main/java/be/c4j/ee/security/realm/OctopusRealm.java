@@ -32,11 +32,15 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.CredentialsException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.codec.Hex;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -44,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class OctopusRealm extends AuthorizingRealm {
+
+    private static final Logger log = LoggerFactory.getLogger(OctopusRealm.class);
 
     public static final String IN_AUTHENTICATION_FLAG = "InAuthentication";
     public static final String IN_AUTHORIZATION_FLAG = "InAuthorization";
@@ -141,7 +147,7 @@ public class OctopusRealm extends AuthorizingRealm {
     }
 
     private void verifyHashEncoding(AuthenticationInfo info) {
-        if (!config.getHashAlgorithmName().isEmpty()) {
+        if (!config.getHashAlgorithmName().isEmpty() && info != null) {
             Object credentials = info.getCredentials();
 
             if (credentials instanceof String || credentials instanceof char[]) {
@@ -185,9 +191,9 @@ public class OctopusRealm extends AuthorizingRealm {
 
     @Override
     protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
-            super.assertCredentialsMatch(token, info);
+        super.assertCredentialsMatch(token, info);
 
-            defineTwoStepAuthentication(info);
+        defineTwoStepAuthentication(info);
     }
 
     private void defineTwoStepAuthentication(AuthenticationInfo info) {
@@ -208,6 +214,48 @@ public class OctopusRealm extends AuthorizingRealm {
     public Collection<Permission> getPermissions(PrincipalCollection principal) {
         AuthorizationInfo info = getAuthorizationInfo(principal);
         return getPermissions(info);
+    }
+
+    public void setAuthorizationCachedData(UserPrincipal userPrincipal, AuthorizationInfo authorizationInfo) {
+        Cache<Object, AuthorizationInfo> cache = getAuthorizationCache();
+        if (cache == null) {
+            if (cache == null && isAuthorizationCachingEnabled()) {
+                cache = createAuthorizationCache();
+            }
+        }
+        if (cache != null) {
+            // If we have a cache at this moment, store the data in the cache.
+            cache.put(userPrincipal, authorizationInfo);
+        }
+    }
+
+    private Cache<Object, AuthorizationInfo> createAuthorizationCache() {
+
+        if (getAuthorizationCache() == null) {
+            // Check to be on the safe side :)
+
+            if (log.isDebugEnabled()) {
+                log.debug("No authorizationCache instance set.  Checking for a cacheManager...");
+            }
+
+            CacheManager cacheManager = getCacheManager();
+
+            if (cacheManager != null) {
+                String cacheName = getAuthorizationCacheName();
+                if (log.isDebugEnabled()) {
+                    log.debug("CacheManager [" + cacheManager + "] has been configured.  Building " +
+                            "authorization cache named [" + cacheName + "]");
+                }
+                setAuthorizationCache(cacheManager.<Object, AuthorizationInfo>getCache(cacheName));
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("No cache or cacheManager properties have been set.  Authorization cache cannot " +
+                            "be obtained.");
+                }
+            }
+        }
+
+        return getAuthorizationCache();
     }
 
     public static class InAuthentication {

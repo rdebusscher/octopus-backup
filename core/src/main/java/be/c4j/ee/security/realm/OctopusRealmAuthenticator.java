@@ -72,6 +72,12 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
                 UserPrincipal userPrincipal = authenticationInfo.getPrincipals().oneByType(UserPrincipal.class);
                 if (userPrincipal != null) {
                     userPrincipal.addUserInfo(AUTHORIZATION_INFO, authorizationInfo);
+                    // authorizationInfoRequired -> When PrincipalAuthorizationInfoAvailibility implementing bean found
+                    // By default only when jwt-scs-client is added to the project
+                    // Can also be used (a possibility need to investigate another options) for Octopus SSO client to make sure that with every logon
+                    // of the user, the latest permissions are retrieved from the octopus SSO server.
+                    // TODO Document this
+                    octopusRealm.setAuthorizationCachedData(userPrincipal, authorizationInfo);
                 }
 
             } finally {
