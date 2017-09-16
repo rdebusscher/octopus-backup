@@ -155,7 +155,12 @@ public class OctopusSSOUserConverter {
 
 
     private static String getString(JSONObject jsonObject, String key) {
-        return jsonObject.get(key).toString();
+        Object keyValue = jsonObject.get(key);
+        if (keyValue != null) {
+            return keyValue.toString();
+        } else {
+            return "";
+        }
     }
 
 }
