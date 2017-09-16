@@ -60,7 +60,7 @@ public class ExceptionFilter extends AdviceFilter {
                 throw new OctopusUnexpectedException("Something went wrong");
             }
         }
-        super.cleanup(request, response, exception);
+        super.cleanup(request, response, null);
     }
 
     private Throwable getUnexpectedException(Throwable exception) {

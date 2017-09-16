@@ -55,6 +55,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class OctopusUserRequestorTest {
 
+    private static final String APPLICATION_JWT = "application/jwt";
+
     @Mock
     private OctopusSEConfiguration configurationMock;
 
@@ -116,7 +118,7 @@ public class OctopusUserRequestorTest {
                 .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
                 .respond()
                 .withBody(signedJWT.serialize())
-                .withContentType("application/jwt"); // TODO Constant
+                .withContentType(APPLICATION_JWT);
 
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
@@ -162,7 +164,7 @@ public class OctopusUserRequestorTest {
                 .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
                 .respond()
                 .withBody(signedJWT.serialize())
-                .withContentType("application/jwt");
+                .withContentType(APPLICATION_JWT);
 
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
@@ -211,7 +213,7 @@ public class OctopusUserRequestorTest {
                 .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
                 .respond()
                 .withBody(jwtString.toString())
-                .withContentType("application/jwt");
+                .withContentType(APPLICATION_JWT);
 
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
@@ -258,7 +260,7 @@ public class OctopusUserRequestorTest {
                 .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
                 .respond()
                 .withBody(signedJWT.serialize())
-                .withContentType("application/jwt");
+                .withContentType(APPLICATION_JWT);
 
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
@@ -284,7 +286,7 @@ public class OctopusUserRequestorTest {
                 .respond()
                 .withStatus(400)
                 .withBody("{}")
-                .withContentType("application/jwt");
+                .withContentType(APPLICATION_JWT);
 
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");

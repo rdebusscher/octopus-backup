@@ -32,6 +32,7 @@
     <artifactId>octopus-jsf-keycloak</artifactId>
     <version>0.9.7-SNAPSHOT</version>
 
+    <!-- FIXME Why is this separate ???-->
     <name>Keycloak Logout handler for JSF</name>
 
     <dependencies>

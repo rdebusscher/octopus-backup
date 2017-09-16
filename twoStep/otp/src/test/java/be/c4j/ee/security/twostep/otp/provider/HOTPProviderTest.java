@@ -55,7 +55,7 @@ public class HOTPProviderTest {
     }
 
     private OTPUserData getUserData(byte[] key, long base) {
-        return new OTPUserData(key, 0L);
+        return new OTPUserData(key, base);
     }
 
     @Test

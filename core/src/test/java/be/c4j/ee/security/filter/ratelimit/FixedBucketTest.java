@@ -78,8 +78,8 @@ public class FixedBucketTest {
         String key = "TestKey";
 
         Token token;
-
-        for (int i = 0, n = allowedRequests; i < n; ++i) {
+        int n = allowedRequests;
+        for (int i = 0; i < n; ++i) {
             token = rateLimiter.getToken(key);
             assertThat(token.isUsable()).as("We have a usable token back for the first request").isTrue();
         }
@@ -99,13 +99,12 @@ public class FixedBucketTest {
 
         final String key = "TestKey";
 
-        int clientCount = allowedRequests;
-        Runnable[] clients = new Runnable[clientCount];
-        final boolean[] isUsable = new boolean[clientCount];
+        Runnable[] clients = new Runnable[allowedRequests];
+        final boolean[] isUsable = new boolean[allowedRequests];
 
         final CountDownLatch startGate = new CountDownLatch(1);
 
-        final CountDownLatch endGate = new CountDownLatch(clientCount);
+        final CountDownLatch endGate = new CountDownLatch(allowedRequests);
 
 
         for (int i = 0, n = isUsable.length; i < n; ++i) {

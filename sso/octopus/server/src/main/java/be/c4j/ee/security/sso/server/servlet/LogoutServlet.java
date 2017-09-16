@@ -22,7 +22,6 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
-import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import com.nimbusds.jose.JOSEException;
@@ -60,9 +59,6 @@ public class LogoutServlet extends HttpServlet {
 
     @Inject
     private OctopusSSOUser octopusSSOUser;
-
-    @Inject
-    private SSOServerConfiguration ssoServerConfiguration;
 
     @Inject
     private OctopusJSFConfig jsfConfiguration;

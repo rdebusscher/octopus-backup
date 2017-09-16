@@ -17,7 +17,6 @@ package be.c4j.ee.security.sso.client.callback;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import com.nimbusds.oauth2.sdk.ErrorObject;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;

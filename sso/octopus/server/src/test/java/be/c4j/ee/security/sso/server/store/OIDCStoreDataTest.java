@@ -29,7 +29,6 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class OIDCStoreDataTest {
 
     @Test
     public void getterSetter() {
-        List<Audience> audience= Audience.create("JUnit client");
+        List<Audience> audience = Audience.create("JUnit client");
 
         audience.add(new Audience("JUnit client"));
 
@@ -84,7 +83,7 @@ public class OIDCStoreDataTest {
 
     @Test
     public void getterSetter_noIdTokenClaimSet() {
-        List<Audience> audience= Audience.create("JUnit client");
+        List<Audience> audience = Audience.create("JUnit client");
 
         audience.add(new Audience("JUnit client"));
 

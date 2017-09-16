@@ -171,7 +171,7 @@ public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
                 .delete();
 
         handleErrorReturns(url, response, HttpMethod.DELETE);
-        return true;
+        return true;// TODO, should we return void
 
     }
 

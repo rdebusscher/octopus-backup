@@ -74,11 +74,11 @@ public class SecurityViolationInfoProducer {
     }
 
     protected AuthorizationViolation defineCustomViolation(AccessDecisionVoterContext accessDecisionVoterContext, Permission violatedPermission) {
-        return null;
+        return null; // TODO Find out what the intention was. This doesn't seems very usefull
     }
 
     protected AuthorizationViolation defineCustomViolation(AccessDecisionVoterContext accessDecisionVoterContext, SecurityViolation violation) {
-        return null;
+        return null; // TODO Find out what the intention was. This doesn't seems very usefull
     }
 
     protected String getExceptionPointInfo(InvocationContext invocationContext) {

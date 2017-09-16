@@ -15,10 +15,6 @@
  */
 package be.c4j.ee.security;
 
-/**
- *
- */
-
 import org.apache.deltaspike.security.api.authorization.AccessDecisionState;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.deltaspike.security.spi.authorization.EditableAccessDecisionVoterContext;

@@ -31,5 +31,5 @@ All Glassfish servers needs also the commons-logging dependency in order to work
         <artifactId>commons-logging</artifactId>
         <version>1.1.1</version>
     </dependency>
-    
+
 ----

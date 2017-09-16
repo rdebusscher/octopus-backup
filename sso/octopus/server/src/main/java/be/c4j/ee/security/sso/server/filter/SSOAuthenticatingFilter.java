@@ -103,7 +103,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         }
 
         if (user == null) {
-            logger.info("No user information found for token " + accessToken);
+            logger.info("No user information found for token " + token);
         } else {
             // Put the scope on the request so that the endpoint can use this information
             OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAccessToken(accessToken);

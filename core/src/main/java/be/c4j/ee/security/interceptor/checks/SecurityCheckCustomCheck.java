@@ -84,8 +84,6 @@ public class SecurityCheckCustomCheck implements SecurityCheck {
     private Set<SecurityViolation> performCustomCheck(Subject subject, Annotation customCheck, EditableAccessDecisionVoterContext context) {
         Set<SecurityViolation> result = new HashSet<SecurityViolation>();
 
-        BeanManager beanmanager = BeanManagerProvider.getInstance().getBeanManager();
-
         String beanName = nameFactory.generateCustomCheckBeanName(customCheck.annotationType().getSimpleName());
 
         AbstractGenericVoter voter = (AbstractGenericVoter) BeanProvider.getContextualReference(beanName, true);

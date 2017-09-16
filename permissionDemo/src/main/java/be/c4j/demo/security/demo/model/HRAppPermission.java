@@ -72,9 +72,7 @@ public class HRAppPermission implements NamedPermission {
     }
 
     public String getDomainPermissionRepresentation() {
-        StringBuilder result = new StringBuilder();
-        result.append(domain).append(':').append(actions).append(':').append(target);
-        return result.toString();
+        return domain + ':' + actions + ':' + target;
     }
 
     @Override

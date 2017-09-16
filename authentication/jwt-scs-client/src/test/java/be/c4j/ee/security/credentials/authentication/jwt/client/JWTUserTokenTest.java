@@ -44,7 +44,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
@@ -247,8 +246,6 @@ public class JWTUserTokenTest {
     public void createJWTUserToken_NotAuthenticated() throws IllegalAccessException, ParseException {
 
         UserPrincipal userPrincipal = new UserPrincipal();
-
-        AuthorizationInfoBuilder builder = new AuthorizationInfoBuilder();
 
         ReflectionUtil.injectDependencies(jwtUserToken, userPrincipal);
 

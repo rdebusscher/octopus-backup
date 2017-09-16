@@ -101,12 +101,14 @@ public class KeycloakServlet extends HttpServlet {
 
         OIDCActions oidcActions = new OIDCActions(oidcDeployment, request, response, activeSessionRegistry);
         handleRequest(oidcActions);
+        // TODO Handle the return case false meaning action did not result in some code execution.
     }
 
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         OIDCActions oidcActions = new OIDCActions(oidcDeployment, request, response, activeSessionRegistry);
         handleRequest(oidcActions);
+        // TODO Handle the return case false meaning action did not result in some code execution.
     }
 
     protected boolean handleRequest(OIDCActions oidcActions) {

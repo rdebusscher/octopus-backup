@@ -16,7 +16,7 @@
 package be.c4j.ee.security.filter.ratelimit;
 
 /**
- * Interface defining an extensible enumeration for return values from {@link FixedBucket#getToken(Key)}
+ * Interface defining an extensible enumeration for return values from {@link FixedBucket#getToken(String)}
  * <p>
  * Modified from https://github.com/jabley/rate-limit created by James Abley (2009) Apache License, Version 2.0
  */

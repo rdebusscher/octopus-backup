@@ -25,7 +25,6 @@ import be.c4j.ee.security.util.CDIUtil;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import be.c4j.ee.security.view.component.secured.SecuredComponentDataParameter;
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;

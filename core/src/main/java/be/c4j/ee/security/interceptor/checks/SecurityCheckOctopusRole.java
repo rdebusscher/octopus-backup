@@ -23,7 +23,6 @@ import be.c4j.ee.security.role.NamedApplicationRole;
 import be.c4j.ee.security.role.RoleLookup;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.subject.Subject;

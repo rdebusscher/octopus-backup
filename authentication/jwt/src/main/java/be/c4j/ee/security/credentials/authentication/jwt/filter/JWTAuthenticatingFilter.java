@@ -90,6 +90,6 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter implements Ini
         if (e != null) {
             throw e; // Propagate the error further so that UserRest filter can properly handle it.
         }
-        return super.onLoginFailure(token, e, request, response);
+        return super.onLoginFailure(token, null, request, response);
     }
 }

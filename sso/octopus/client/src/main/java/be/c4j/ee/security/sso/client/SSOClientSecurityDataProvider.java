@@ -43,7 +43,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import java.util.List;
 
 import static be.c4j.ee.security.OctopusConstants.TOKEN;

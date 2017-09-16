@@ -60,7 +60,7 @@ public class NamedPermissionProducer extends AbstractProducer {
 
     @Produces
     public GenericPermissionVoter getVoter(InjectionPoint injectionPoint) {
-        NamedPermission[] permissions = null;
+        NamedPermission[] permissions;
 
         GenericPermissionVoter result = null;
 
