@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.*;
@@ -48,7 +49,11 @@ public class AESEncryptionHandler implements EncryptionHandler {
                 new Payload(signedJWT));
 
         // Perform encryption
-        Base64 aesSecret = new Base64(scsConfig.getAESTokenSecret());
+        String aesTokenSecret = scsConfig.getAESTokenSecret();
+        if (aesTokenSecret == null || aesTokenSecret.trim().isEmpty()) {
+            throw new OctopusConfigurationException("Parameter jwt.aes.secret is required");
+        }
+        Base64 aesSecret = new Base64(aesTokenSecret);
         jweObject.encrypt(new AESEncrypter(aesSecret.decode()));
 
         // Serialise to JWE compact form

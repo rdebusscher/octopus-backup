@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.jwt.encryption;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.JOSEException;
@@ -45,7 +46,11 @@ public class AESDecryptionHandler implements DecryptionHandler {
         JWEObject jweObject = JWEObject.parse(token);
 
         // Decrypt with shared key
-        Base64 aesSecret = new Base64(jwtServerConfig.getAESTokenSecret());
+        String aesTokenSecret = jwtServerConfig.getAESTokenSecret();
+        if (aesTokenSecret == null || aesTokenSecret.trim().isEmpty()) {
+            throw new OctopusConfigurationException("Parameter jwt.aes.secret is required");
+        }
+        Base64 aesSecret = new Base64(aesTokenSecret);
 
         jweObject.decrypt(new AESDecrypter(aesSecret.decode()));
 

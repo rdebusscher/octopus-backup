@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.jwt.encryption;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.JOSEException;
@@ -47,6 +48,11 @@ public class RSADecryptionHandler implements DecryptionHandler {
         // Decrypt with private RSA  key
 
         JWK jwk = jwkManager.getJWKForApiKey(apiKey);
+
+        if (jwk == null) {
+            // TODO This is not the correct response. Someone with an arbitrary api key can generate a stacktrace
+            throw new OctopusConfigurationException(String.format("No RSA key found for %s", apiKey));
+        }
 
         jweObject.decrypt(new RSADecrypter((RSAKey) jwk));
 

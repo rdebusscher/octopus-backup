@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
 import com.nimbusds.jose.*;
@@ -47,7 +48,11 @@ public class RSAEncryptionHandler implements EncryptionHandler {
                 new Payload(signedJWT));
 
         // Perform encryption
-        JWK jwk = jwkManager.getJWKForApiKey(apiKey+"_enc");  // TODO Document. We can't use the KeyUse, since JwkSet just finds the first key with loking up a key by id
+        String apiKeyEncryption = apiKey + "_enc";
+        JWK jwk = jwkManager.getJWKForApiKey(apiKeyEncryption);  // TODO Document. We can't use the KeyUse, since JwkSet just finds the first key with loking up a key by id
+        if (jwk == null) {
+            throw new OctopusConfigurationException(String.format("No RSA key found for %s", apiKeyEncryption));
+        }
         jweObject.encrypt(new RSAEncrypter((RSAKey) jwk));
 
         // Serialise to JWE compact form
