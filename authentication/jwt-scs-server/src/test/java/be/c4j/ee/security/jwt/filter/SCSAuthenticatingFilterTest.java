@@ -351,7 +351,7 @@ public class SCSAuthenticatingFilterTest {
 
 
         when(decryptionHandlerFactoryMock.getDecryptionHandler(JWEAlgorithm.AES)).thenReturn(decryptionHandlerMock);
-        when(decryptionHandlerMock.doDecryption(null, "TheEncrypted")).thenReturn(createSignedJWT(secret));
+        when(decryptionHandlerMock.doDecryption("null_enc", "TheEncrypted")).thenReturn(createSignedJWT(secret));
 
         AuthenticationToken token = SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
         assertThat(token).isNotNull();
@@ -384,7 +384,7 @@ public class SCSAuthenticatingFilterTest {
 
 
         when(decryptionHandlerFactoryMock.getDecryptionHandler(JWEAlgorithm.AES)).thenReturn(decryptionHandlerMock);
-        when(decryptionHandlerMock.doDecryption(null, "TheEncrypted")).thenThrow(new ParseException("X", 1));
+        when(decryptionHandlerMock.doDecryption("null_enc", "TheEncrypted")).thenThrow(new ParseException("X", 1));
 
         SCSAuthenticatingFilter.createToken(httpServletRequestMock, httpServletResponseMock);
 

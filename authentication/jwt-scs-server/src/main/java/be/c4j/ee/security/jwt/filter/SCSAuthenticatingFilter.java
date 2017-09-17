@@ -285,8 +285,7 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
         try {
 
             DecryptionHandler handler = decryptionHandlerFactory.getDecryptionHandler(jwtServerConfig.getJWEAlgorithm());
-
-            result = handler.doDecryption(apiKey, token);
+            result = handler.doDecryption(apiKey + "_enc", token);
 
         } catch (JOSEException e) {
             throw new OctopusUnexpectedException(e);
