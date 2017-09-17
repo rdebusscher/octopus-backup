@@ -96,6 +96,7 @@ public class OctopusUserRequestor extends AbstractRequestor {
             SignedJWT signedJWT = (SignedJWT) successInfoResponse.getUserInfoJWT();
 
             // TODO Support for encryption
+            // See also OctopusSSOEndpoint.getUserInfo()
             boolean valid = signedJWT.verify(new MACVerifier(configuration.getSSOIdTokenSecret()));  // TODO Configurable !!
             if (!valid) {
                 ErrorObject errorObject = new ErrorObject("OCT-SSO-CLIENT-015", "JWT Signature Validation failed");

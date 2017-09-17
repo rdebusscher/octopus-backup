@@ -143,4 +143,16 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
     public String getOIDCEndpointRateLimit() {
         return ConfigResolver.getPropertyValue("SSO.rate.limit", "60/1m");
     }
+
+    @ConfigEntry
+    public UserEndpointEncoding getUserEndpointEncoding() {
+        String encoding = ConfigResolver.getPropertyValue("SSO.user.endpoint.encoding", "NONE");
+        UserEndpointEncoding result = null;
+        try {
+            result = UserEndpointEncoding.valueOf(encoding);
+        } catch (IllegalArgumentException e) {
+            throw new OctopusConfigurationException("Valid values for parameter SSO.user.endpoint.encoding are NONE, JWT and JWE");
+        }
+        return result;
+    }
 }

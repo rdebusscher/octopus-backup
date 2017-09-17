@@ -21,6 +21,8 @@ import be.c4j.ee.security.sso.OctopusSSOUserConverter;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
+import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
+import be.c4j.ee.security.sso.server.config.UserEndpointEncoding;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.util.SecretUtil;
@@ -71,6 +73,9 @@ public class OctopusSSOEndpointTest {
     private OctopusConfig octopusConfigMock;
 
     @Mock
+    private SSOServerConfiguration ssoServerConfigurationMock;
+
+    @Mock
     private SSOPermissionProvider ssoPermissionProviderMock;
 
     @Mock
@@ -103,6 +108,7 @@ public class OctopusSSOEndpointTest {
         beanManagerFake.endRegistration();
 
         octopusSSOEndpoint.init();
+        when(ssoServerConfigurationMock.getUserEndpointEncoding()).thenReturn(UserEndpointEncoding.NONE);
 
         ssoUser = new OctopusSSOUser();
         ReflectionUtil.injectDependencies(octopusSSOEndpoint, new OctopusSSOUserConverter(), new TimeUtil(), ssoUser);

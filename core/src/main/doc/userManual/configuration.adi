@@ -321,6 +321,14 @@ t : Time period (amount and unit where unit can be _s_ (second), _m_ (minute) an
 
 The difference between 1/1s and 60/1m is that on average there is 1 call allowed each second but 60/1m allows for a short momentary burst. (for example 7 request in 1 second, as long as we don't exceed the 60 requests during the last minute.)
 
+==== SSO.user.endpoint.encoding (Octopus SSO Server)
+
+default : *NONE*
+
+With which encoding the idToken returned from the User endpoint is returned. Possible values are NONE, JWT and JWE (not yet supported in 0.9.7)
+
+When the scope contains _octopus_, the default is set to JWT. The signing is performed with the HMAC returned by the clientInfo.getIdTokenSecret method.
+
 ==== SSO.octopus.server (Octopus SSO Client)
 
 default : *(none)*

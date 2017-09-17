@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.server.endpoint;
 import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.PermissionJSONProvider;
@@ -169,7 +170,12 @@ public class OctopusSSOEndpoint {
             throw new OctopusUnexpectedException(e);
         }
 
-        UserEndpointEncoding endpointEncoding = UserEndpointEncoding.NONE;  // FIXME Config
+        UserEndpointEncoding endpointEncoding = ssoServerConfiguration.getUserEndpointEncoding();
+
+        if (endpointEncoding == UserEndpointEncoding.JWE) {
+            throw new OctopusConfigurationException("SSO server user endpoint coding JWE is not yet suported");
+            // TODO Support for JWE
+        }
 
         UserInfo userInfo = octopusSSOUserConverter.fromIdToken(jwtClaimsSet);
 
@@ -211,8 +217,6 @@ public class OctopusSSOEndpoint {
         if (endpointEncoding == UserEndpointEncoding.JWS) {
             buildResponsePayload(builder, uriDetails, oidcStoreData, userInfo);
         }
-
-        // TODO Support for JWE
 
         return builder.build();
 
