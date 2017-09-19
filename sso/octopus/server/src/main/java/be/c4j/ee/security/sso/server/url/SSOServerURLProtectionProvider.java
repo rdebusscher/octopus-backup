@@ -17,6 +17,7 @@ package be.c4j.ee.security.sso.server.url;
 
 import be.c4j.ee.security.sso.server.config.SSOServerConfiguration;
 import be.c4j.ee.security.url.ProgrammaticURLProtectionProvider;
+import be.c4j.ee.security.url.URLProtectionProviderOrder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ import java.util.Map;
  *
  */
 @ApplicationScoped
+@URLProtectionProviderOrder(100)
 public class SSOServerURLProtectionProvider implements ProgrammaticURLProtectionProvider {
 
     @Inject
@@ -38,6 +40,8 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
         // For the rest endpoints retrieving user info / permissions
         result.put("/" + configuration.getSSOEndpointRoot() + "/octopus/sso/permissions/*", "noSessionCreation, anon");
         result.put("/" + configuration.getSSOEndpointRoot() + "/octopus/**", "noSessionCreation, ssoFilter, user");
+        // Is the user filter needed??, ssoFilter makes that there needs to be a valid 'user' by means of a token.
+
         // URL related to OpenId Connect
         result.put("/octopus/sso/logout", "userRequired");  // So we need a user (from cookie) to be able to logout
 

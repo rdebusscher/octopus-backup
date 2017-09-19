@@ -157,6 +157,10 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         Collections.sort(plugins, new ConfigurationPluginComparator());
     }
 
+    private void orderURLProtectionProviders(List<ProgrammaticURLProtectionProvider> providers) {
+        Collections.sort(providers, new URLProtectionProviderComparator());
+    }
+
     private void addAuthenticationListener(Ini ini) {
         Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
         mainSection.put("OctopusAuthenticator", OctopusRealmAuthenticator.class.getName());
@@ -186,6 +190,8 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             LOGGER.warn("securedURLs.ini file contains /** definition and thus blocks programmatic URL definition (by system or developer)");
         }
         List<ProgrammaticURLProtectionProvider> urlProtectionProviders = BeanProvider.getContextualReferences(ProgrammaticURLProtectionProvider.class, true);
+
+        orderURLProtectionProviders(urlProtectionProviders);
 
         for (ProgrammaticURLProtectionProvider urlProtectionProvider : urlProtectionProviders) {
             for (Map.Entry<String, String> entry : urlProtectionProvider.getURLEntriesToAdd().entrySet()) {
