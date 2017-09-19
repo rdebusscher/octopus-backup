@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.filter;
 
+import be.c4j.ee.security.config.Debug;
+import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.config.SessionHijackingLevel;
 import be.c4j.ee.security.session.ApplicationUsageController;
@@ -24,6 +26,8 @@ import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
 import org.apache.shiro.web.servlet.AdviceFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -37,14 +41,19 @@ public class SessionHijackingFilter extends AdviceFilter implements Initializabl
 
     public static final String OCTOPUS_SESSION_HIJACKING_ATTEMPT = "OctopusSessionHijackingAttempt";
 
+    private Logger logger = LoggerFactory.getLogger(SessionHijackingFilter.class);
+
     private ApplicationUsageController applicationUsageController;
 
     private OctopusJSFConfig jsfConfig;
+
+    private OctopusConfig octopusConfig;
 
     @Override
     public void init() throws ShiroException {
         applicationUsageController = BeanProvider.getContextualReference(ApplicationUsageController.class);
         jsfConfig = BeanProvider.getContextualReference(OctopusJSFConfig.class);
+        octopusConfig = BeanProvider.getContextualReference(OctopusConfig.class);
     }
 
     @Override
@@ -76,6 +85,11 @@ public class SessionHijackingFilter extends AdviceFilter implements Initializabl
                 servletResponse.getWriter().write("Refused by the Session Hijacking Protection");
 
                 info.getHttpSession().setAttribute(OCTOPUS_SESSION_HIJACKING_ATTEMPT, Boolean.TRUE);
+
+                if (octopusConfig.showDebugFor().contains(Debug.SESSION_HIJACKING)) {
+                    String remoteHost = request.getRemoteAddr();
+                    logger.info(String.format("Refused by the Session Hijacking Protection \nUser agent %s - %s\nRemote host %s  - %s", info.getUserAgent(), userAgent, info.getRemoteHost(), remoteHost));
+                }
             }
         }
 
