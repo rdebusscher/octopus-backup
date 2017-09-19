@@ -25,6 +25,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.util.Initializable;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.ServletRequest;
@@ -39,6 +40,9 @@ import java.net.URISyntaxException;
  *
  */
 public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializable {
+
+    @Inject
+    private Logger logger;
 
     private String loginURL;
 
@@ -89,10 +93,16 @@ public class SSOOctopusUserFilter extends OctopusUserFilter implements Initializ
     private void storeClientData(HttpServletRequest request, OpenIdVariableClientData variableClientData) {
         HttpSession session = request.getSession(true);
 
-        if (session.getAttribute(OpenIdVariableClientData.class.getName()) == null) {
+        if (session.getAttribute(OpenIdVariableClientData.class.getName()) != null) {
+            logger.warn("State and Nonce value for OpenIdConnect already present within session");
+        }
+        // TODO The idea was that within a session, there could be only 1 logon attempt.
+        // But there where some issue reported in more complex situations so this check is disabled for the moment.
+        // The above warning is added as compensation so that there is a trace how many times it happen.
+        //if (session.getAttribute(OpenIdVariableClientData.class.getName()) == null) {
 
             session.setAttribute(OpenIdVariableClientData.class.getName(), variableClientData);
-        }
+        //}
     }
 
     private void determineActualLoginURL(OpenIdVariableClientData variableClientData) {

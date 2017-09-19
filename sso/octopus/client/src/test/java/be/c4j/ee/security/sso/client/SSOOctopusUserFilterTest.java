@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,6 +67,9 @@ public class SSOOctopusUserFilterTest {
     @Mock
     private ClientCallbackHelper clientCallbackHelperMock;
 
+    @Mock
+    private Logger loggerMock;
+
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
 
@@ -80,6 +84,7 @@ public class SSOOctopusUserFilterTest {
 
         beanManagerFake.registerBean(octopusSSOClientConfigurationMock, OctopusSSOClientConfiguration.class);
         beanManagerFake.registerBean(urlUtilMock, URLUtil.class);
+        beanManagerFake.registerBean(loggerMock, Logger.class);
 
         when(httpServletRequestMock.getSession(true)).thenReturn(httpSessionMock);
 
