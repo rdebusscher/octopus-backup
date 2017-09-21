@@ -107,7 +107,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
         String realToken = ssoUser.getAccessToken();
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("Retrieving authorization info for user %s from Octopus SSO Server", ssoUser.getFullName()));
+            logger.info(String.format("(SSO Client) Retrieving authorization info for user %s from Octopus SSO Server", ssoUser.getFullName()));
         }
 
         List<NamedDomainPermission> domainPermissions = permissionRequestor.retrieveUserPermissions(realToken);
@@ -122,7 +122,7 @@ public class SSOClientSecurityDataProvider implements SecurityDataProvider {
     public StringPermissionLookup createLookup() {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("Retrieving all permissions for application %s", config.getSSOApplication()));
+            logger.info(String.format("(SSO Client) Retrieving all permissions for application %s", config.getSSOApplication()));
         }
 
         List<NamedDomainPermission> permissions = permissionRequestor.retrieveAllPermissions();

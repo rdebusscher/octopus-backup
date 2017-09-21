@@ -275,6 +275,10 @@ public class OctopusSSOEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @RequiresUser
     public Map<String, String> getUserPermissions(@PathParam("applicationName") String application, @Context HttpServletRequest httpServletRequest) {
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("(SSO Server) Return all permissions for user %s within application %s", ssoUser.getUserName(), application));
+        }
+
         Scope scope = (Scope) httpServletRequest.getAttribute(Scope.class.getName());
         if (scope != null && scope.contains("octopus")) {
             return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
@@ -288,6 +292,9 @@ public class OctopusSSOEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @PermitAll
     public Map<String, String> getPermissions(@PathParam("applicationName") String application) {
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("(SSO Server) Return all permissions for application %s", application));
+        }
         // Return the list of all permissions !!!
         // For the moment anon access!!
         return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForApplication(application));

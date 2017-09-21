@@ -121,7 +121,7 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
         }
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated from Authorization Header (cookie token = %s)", user.getFullName(), user.getCookieToken()));
+            logger.info(String.format("(SSO Server) User %s is authenticated from Authorization Header (cookie token = %s)", user.getFullName(), user.getCookieToken()));
         }
     }
 

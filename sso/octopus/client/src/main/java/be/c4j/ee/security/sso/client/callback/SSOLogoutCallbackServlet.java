@@ -80,7 +80,7 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
     private void showDebugInfo(String token) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            LOGGER.info(String.format("SSO Server requested logout of User (token = %s)", token));
+            LOGGER.info(String.format("(SSO Client) Server requested logout of User (token = %s)", token));
         }
     }
 }
