@@ -186,7 +186,7 @@ public class SSOCookieRememberMeManager extends CookieRememberMeManager implemen
         }
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated from SSO Cookie %s (=cookie token)", user.getFullName(), user.getCookieToken()));
+            logger.info(String.format("(SSO Server) User %s is authenticated from SSO Cookie %s (=cookie token)", user.getFullName(), user.getCookieToken()));
         }
     }
 

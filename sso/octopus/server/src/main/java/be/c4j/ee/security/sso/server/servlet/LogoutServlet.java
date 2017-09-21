@@ -199,7 +199,7 @@ public class LogoutServlet extends HttpServlet {
     private void showDebugInfo(OctopusSSOUser user) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is logged out (cookie token = %s)", user.getFullName(), user.getCookieToken()));
+            logger.info(String.format("(SSO Server) User %s is logged out (cookie token = %s)", user.getFullName(), user.getCookieToken()));
         }
     }
 }

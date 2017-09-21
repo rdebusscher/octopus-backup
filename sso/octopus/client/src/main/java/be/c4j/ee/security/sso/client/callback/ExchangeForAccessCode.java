@@ -181,7 +181,7 @@ public class ExchangeForAccessCode {
     private void showDebugInfo(String token) {
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("Call SSO Server for User info (token = %s)", token));
+            logger.info(String.format("(SSO Client) Call SSO Server for User info (token = %s)", token));
         }
 
     }

@@ -189,6 +189,10 @@ public class TokenServlet extends HttpServlet {
             return null;
         }
 
+        if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
+            logger.info(String.format("(SSO Server) Exchange Authorization code in an Access token ( %s -> %s )", codeGrant.getAuthorizationCode(), oidcStoreData.getAccessToken().getValue()));
+        }
+
         return defineResponse(oidcStoreData);
     }
 
@@ -236,7 +240,7 @@ public class TokenServlet extends HttpServlet {
     private void showDebugInfo(OctopusSSOUser user) {
         // TODO verify usage of String.format and + in logging.
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("User %s is authenticated and cookie written if needed.", user.getFullName()));
+            logger.info(String.format("(SSO Server) User %s is authenticated and cookie written if needed.", user.getFullName()));
         }
     }
 }

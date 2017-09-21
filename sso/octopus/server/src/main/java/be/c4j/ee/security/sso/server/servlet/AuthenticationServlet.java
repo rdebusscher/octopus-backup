@@ -134,7 +134,7 @@ public class AuthenticationServlet extends HttpServlet {
 
     private void showDebugInfo(OctopusSSOUser user) {
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            LOGGER.info(String.format("User %s is authenticated and cookie written if needed.", user.getFullName()));
+            LOGGER.info(String.format("(SSO Server) User %s is authenticated and cookie written if needed.", user.getFullName()));
         }
     }
 
