@@ -153,9 +153,11 @@ public class LogoutServlet extends HttpServlet {
             } else {
 
                 ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(loggedInClient.getClientId().getValue());
-                // FIXME use clientInfo.isOctopusClient
-                String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + loggedInClient.getAccessToken().getValue();
-                sendLogoutRequestToClient(url);
+                if (clientInfo.isOctopusClient()) {
+                    // TODO When it is not an Onctopus client, we don't know the URL. forsee this in a future release
+                    String url = clientInfo.getCallbackURL() + "/octopus/sso/SSOLogoutCallback?access_token=" + loggedInClient.getAccessToken().getValue();
+                    sendLogoutRequestToClient(url);
+                }
             }
         }
     }

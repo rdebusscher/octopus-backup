@@ -134,6 +134,7 @@ public class LogoutServletTest {
 
         clientInfo = new ClientInfo();
         clientInfo.setCallbackURL("other.client.org");
+        clientInfo.setOctopusClient(true);
         when(clientInfoRetrieverMock.retrieveInfo("anotherClient")).thenReturn(clientInfo);
 
         when(octopusJSFConfigMock.getLogoutPage()).thenReturn("/logout.html");
