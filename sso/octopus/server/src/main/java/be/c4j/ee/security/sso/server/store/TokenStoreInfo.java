@@ -54,11 +54,16 @@ public class TokenStoreInfo implements Serializable {
         return octopusSSOUser;
     }
 
-    public Set<String> getClientIds() {
+    private Set<String> getClientIds() {
         Set<String> result = new HashSet<String>();
 
         for (OIDCStoreData oidcStoreDatum : oidcStoreData) {
-            result.add(oidcStoreDatum.getClientId().getValue());
+            ClientID clientId = oidcStoreDatum.getClientId();
+            if (clientId != null) {
+                result.add(clientId.getValue());
+            } else {
+                result.add(null);
+            }
         }
         return result;
     }
@@ -81,7 +86,6 @@ public class TokenStoreInfo implements Serializable {
     }
 
     private boolean areClientIdsEqual(ClientID clientID, OIDCStoreData oidcStoreDatum) {
-        // FIXME TEst cases
         boolean result = false;
         if (clientID == null && oidcStoreDatum.getClientId() == null) {
             result = true;
