@@ -88,6 +88,9 @@ Defines the type of debug information which needs to be logged. These are the su
 *INI*: Log the dynamically generated Shiro ini file.
 *SSO_FLOW*: Prints out the basic steps within the SSO flow between Client and Server.
 *SSO_REST*: Prints out the contents of the Rest calls between the SSO Client and SSO Server.
+*SESSION_HIJACKING*: When session hijacking is detetcted, shows the values for user-agent and remote host wihtin log.
+
+Not suitable in production as log contains sensitive information. Only for figuring out issues with your setup/environment
 
 ==== aliasNameLoginBean (JSF Only)
 
