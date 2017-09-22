@@ -68,8 +68,7 @@ public class CasUser implements ValidatedAuthenticationToken, Principal {
 
     @Override
     public Object getPrincipal() {
-    /* FIXME email ? */
-        return new CasPrincipal(userName, null);
+        return new CasPrincipal(userName, email);
     }
 
     @Override

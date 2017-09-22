@@ -109,8 +109,8 @@ public class SSOCallbackServlet extends HttpServlet {
         }
 
         if (config.getSSOType() == SSOFlow.IMPLICIT) {
-            // We received an AccessToken because of the implicit flow.
-            // TODO Is this cast always safe ??
+            // We received an (Bearer)AccessToken because of the implicit flow.
+            // Accesstoken is here always Bearer Access token!! Typecast is safe
             accessToken = (BearerAccessToken) successResponse.getAccessToken();
 
             if (accessToken == null) {

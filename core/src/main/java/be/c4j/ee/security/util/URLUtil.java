@@ -47,7 +47,7 @@ public class URLUtil {
 
     /**
      * baseURI is the contextRoot appended with the ApplicationPath
-     * FIXME Document that when creating a Octopus SSO Server application Path can only be a 1 'level' (like /data, but not /octopus/data)
+     * TODO Document that when creating a Octopus SSO Server application Path can only be a 1 'level' (like /data, but not /octopus/data)
      *
      * @param baseURI
      * @return

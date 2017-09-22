@@ -99,7 +99,7 @@ public class SSOCookieRememberMeManager extends CookieRememberMeManager implemen
         OctopusSSOUser ssoUser = accountPrincipals.oneByType(OctopusSSOUser.class);
         if (ssoUser != null) {
 
-            // FIXME Don't create a new Cookie token when authenticated from the cookie
+            // This cookieToken is only created the first time, not when authenticated from the cookie itself.
             String cookieToken = UUID.randomUUID().toString();
             ssoUser.setCookieToken(cookieToken);
 

@@ -144,6 +144,10 @@ public class OctopusSSOEndpoint {
         //
 
         OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAccessToken(accessToken);
+        if (oidcStoreData == null) {
+            // TODO is this possible? ssoFilter makes sure that the access token is allowed and valid.
+            // Could we have an issue here with the tokenStore (and clustered envionments?
+        }
         IDTokenClaimsSet idTokenClaimsSet = oidcStoreData.getIdTokenClaimsSet();
 
         JWTClaimsSet jwtClaimsSet;
