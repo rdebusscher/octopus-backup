@@ -66,8 +66,8 @@ public class OctopusAnnotationContainerRequestFilter implements ContainerRequest
 
         AnnotationInfo info = AnnotationUtil.getAllAnnotations(config, classType, method);
 
-        boolean skip = AnnotationUtil.hasAnnotation(info.getMethodAnnotations(), IgnoreOctopusSSORestFilter.class)
-                || AnnotationUtil.hasAnnotation(info.getClassAnnotations(), IgnoreOctopusSSORestFilter.class);
+        boolean skip = AnnotationUtil.hasAnnotation(info.getMethodAnnotations(), IgnoreOctopusSCSRestFilter.class)
+                || AnnotationUtil.hasAnnotation(info.getClassAnnotations(), IgnoreOctopusSCSRestFilter.class);
 
         // Developer can indicate that the Authorization checks shouldn't happen here :
         // - JAX-RS endpoint is defined as an EJB

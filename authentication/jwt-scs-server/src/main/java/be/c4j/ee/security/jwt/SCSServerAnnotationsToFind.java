@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.jwt;
 
-import be.c4j.ee.security.jwt.filter.IgnoreOctopusSSORestFilter;
+import be.c4j.ee.security.jwt.filter.IgnoreOctopusSCSRestFilter;
 import be.c4j.ee.security.util.AnnotationsToFind;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,7 +32,7 @@ public class SCSServerAnnotationsToFind implements AnnotationsToFind {
     @Override
     public List<Class<? extends Annotation>> getList() {
         List<Class<? extends Annotation>> result = new ArrayList<Class<? extends Annotation>>();
-        result.add(IgnoreOctopusSSORestFilter.class);
+        result.add(IgnoreOctopusSCSRestFilter.class);
         return result;
     }
 }

@@ -15,7 +15,7 @@
  */
 package be.c4j.ee.security.jwt.filter.testclasses;
 
-import be.c4j.ee.security.jwt.filter.IgnoreOctopusSSORestFilter;
+import be.c4j.ee.security.jwt.filter.IgnoreOctopusSCSRestFilter;
 import org.apache.shiro.authz.annotation.RequiresUser;
 
 /**
@@ -27,7 +27,7 @@ public class RestController {
 
    public void noAnnotation() {}
 
-   @IgnoreOctopusSSORestFilter
+   @IgnoreOctopusSCSRestFilter
    public void ignoreAnnotation() {}
 
    @RequiresUser

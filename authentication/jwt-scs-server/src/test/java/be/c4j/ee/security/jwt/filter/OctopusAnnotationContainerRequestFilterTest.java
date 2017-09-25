@@ -166,7 +166,7 @@ public class OctopusAnnotationContainerRequestFilterTest {
         beanManagerFake.endRegistration();
 
         List<Class<? extends Annotation>> extraAnnotations = new ArrayList<Class<? extends Annotation>>();
-        extraAnnotations.add(IgnoreOctopusSSORestFilter.class);
+        extraAnnotations.add(IgnoreOctopusSCSRestFilter.class);
         when(mock.getList()).thenReturn(extraAnnotations);
 
     }
