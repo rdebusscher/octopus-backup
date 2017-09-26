@@ -78,7 +78,7 @@ public class JWETesterRSA {
             System.out.println("expiration = " + jwt.getJWTClaimsSet().getExpirationTime());
             System.out.println("custom = " + jwt.getJWTClaimsSet().getClaim("custom"));
 
-        };
+        }
 
     }
 

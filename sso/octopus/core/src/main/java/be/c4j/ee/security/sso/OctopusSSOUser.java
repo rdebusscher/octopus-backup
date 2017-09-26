@@ -25,13 +25,15 @@ import java.io.Serializable;
  * Principal created when using the SSO feature. This is an additional Principal (next to UserPrincipal) hich is also avau-ilable
  * in the PrincipalCollection. <br/>
  * The userInfo map is not serialized.
+ * <p>
+ * TODO, Should be a *Token, but need to introduce this in a backwards compatible way (at least for a few versions)
  */
 public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken, Serializable {
 
     private String id;
     private String localId;
     private String userName;
-    private BearerAccessToken bearerAccessToken;  // Client side only. For server side tokens are kep at OIDCStoreData
+    private BearerAccessToken bearerAccessToken;  // Client side only. For server side tokens are kept at OIDCStoreData
     private String cookieToken;
 
     private String lastName;
@@ -121,14 +123,13 @@ public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implement
 
     @Override
     public String toString() {
-        String sb = "OctopusSSOUser{" + "id='" + id + '\'' +
+        return "OctopusSSOUser{" + "id='" + id + '\'' +
                 ", localId='" + localId + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 '}';
-        return sb;
     }
 
     @Override

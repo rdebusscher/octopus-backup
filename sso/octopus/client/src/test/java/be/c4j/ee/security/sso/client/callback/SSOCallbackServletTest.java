@@ -206,6 +206,7 @@ public class SSOCallbackServletTest {
         OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
         when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
 
+        // For AUTHORIZATION_CODE we need parameter code
         when(httpServletRequestMock.getQueryString()).thenReturn("code=TheAuthorizationCode&state=" + clientData.getState().getValue());
 
         when(clientConfigurationMock.getSSOType()).thenReturn(SSOFlow.AUTHORIZATION_CODE);
@@ -237,5 +238,40 @@ public class SSOCallbackServletTest {
 
     }
 
-    // FIXME The other scenarios.
+    @Test
+    public void doGet_ValidAccessToken() throws ServletException, IOException, java.text.ParseException, JOSEException, OctopusRetrievalException, ParseException, URISyntaxException {
+        // Implicit flow
+        when(httpServletRequestMock.getSession(true)).thenReturn(httpSessionMock);
+        OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
+        when(httpSessionMock.getAttribute(OpenIdVariableClientData.class.getName())).thenReturn(clientData);
+
+        // For IMPLICIT we need access_token
+        when(httpServletRequestMock.getQueryString()).thenReturn("access_token=TheToken&token_type=Bearer&state=" + clientData.getState().getValue());
+
+        when(clientConfigurationMock.getSSOType()).thenReturn(SSOFlow.IMPLICIT);
+
+        BearerAccessToken accessToken = new BearerAccessToken("TheToken");
+        OctopusSSOUser ssoUser = new OctopusSSOUser();
+        when(octopusUserRequestorMock.getOctopusSSOUser(clientData, accessToken)).thenReturn(ssoUser);
+
+        ThreadContext.bind(subjectMock);
+        when(subjectMock.getSession(false)).thenReturn(sessionMock);
+        when(subjectMock.getSession()).thenReturn(sessionMock);
+        when(httpServletRequestMock.getRequestURI()).thenReturn("http://host.to.saved.request/root");
+        SavedRequest savedRequest = new SavedRequest(httpServletRequestMock);
+        when(sessionMock.getAttribute(SAVED_REQUEST_KEY)).thenReturn(savedRequest);
+
+        callbackServlet.doGet(httpServletRequestMock, httpServletResponseMock);
+
+        verify(sessionUtilMock).invalidateCurrentSession(httpServletRequestMock);
+
+        verify(httpServletResponseMock).sendRedirect(stringArgumentCaptor.capture());
+        assertThat(stringArgumentCaptor.getValue()).startsWith("http://host.to.saved.request/root?access_token=TheToken&token_type=Bearer&state=");
+        // The query part is added to requestURL because it was mocked earlier like that to have a correct behaviour for other parts (state is variable !)
+
+        verify(callbackErrorHandlerMock, never()).showErrorMessage(any(HttpServletResponse.class), errorObjectArgumentCaptor.capture());
+
+    }
+
+    // TODO other scenarios.
 }

@@ -39,8 +39,6 @@ import java.util.Map;
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**

@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * TODO Document
+ * Endpoint (servlet) to verify if the Octopus SSO server is running.
  */
 @WebServlet("/octopus/alive")
 public class OctopusServerAlive extends HttpServlet {

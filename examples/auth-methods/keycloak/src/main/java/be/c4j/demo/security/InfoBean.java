@@ -15,6 +15,7 @@
  */
 package be.c4j.demo.security;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.credentials.authentication.keycloak.KeycloakUser;
 import be.c4j.ee.security.model.UserPrincipal;
 
@@ -42,7 +43,8 @@ public class InfoBean {
     }
 
     public String getInfoValue(String key) {
-        return userPrincipal.getUserInfo(key);
+        Object info = userPrincipal.getUserInfo(key);
+        return info == null ? null : info.toString();
     }
 
     public List<Serializable> getKeys() {
@@ -50,7 +52,7 @@ public class InfoBean {
     }
 
     public String getAccessToken() {
-        KeycloakUser token = userPrincipal.getUserInfo("authenticationToken");
+        KeycloakUser token = userPrincipal.getUserInfo(OctopusConstants.TOKEN);
         return token.getAccessToken().getToken();
     }
 }

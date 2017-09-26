@@ -22,7 +22,7 @@ import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import java.util.List;
 
 /**
- *
+ * TODO, Should be a *Token, but need to introduce this in a backwards compatible way (at least for a few versions)
  */
 public class SCSUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 

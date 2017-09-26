@@ -30,7 +30,10 @@
     <ui:define name="body">
         Secured page. <br/>
         Access token : #{infoBean.accessToken} <br/>
-        TODO Show info
+        <br/>
+        <ui:repeat value="#{infoBean.keys}" var="_key">
+            #{_key} : #{infoBean.getInfoValue(_key)} <br/>
+        </ui:repeat>
     </ui:define>
 </ui:composition>
 </body>

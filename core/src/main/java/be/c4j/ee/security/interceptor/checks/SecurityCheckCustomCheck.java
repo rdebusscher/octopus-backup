@@ -24,7 +24,6 @@ import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.permission.OctopusPermissionResolver;
 import be.c4j.ee.security.shiro.OctopusSecurityManager;
 import be.c4j.ee.security.util.AnnotationUtil;
-import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
@@ -35,7 +34,6 @@ import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;

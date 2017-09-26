@@ -130,7 +130,6 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
         // Must be environment specific !!! (dev, test, ...) so that jwt tokens can't be used cross environment.
         // TODO Maybe a bit strange that we have the parameter named sso.xxx .
         // It is only required within the jwt part of Octopus SSO feature.
-        String propertyValue = ConfigResolver.getPropertyValue("SSO.octopus.server.name", "octopus");
-        return propertyValue;
+        return ConfigResolver.getPropertyValue("SSO.octopus.server.name", "octopus");
     }
 }

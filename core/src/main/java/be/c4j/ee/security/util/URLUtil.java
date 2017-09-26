@@ -27,11 +27,10 @@ import java.net.URI;
 public class URLUtil {
 
     public String determineRoot(HttpServletRequest req) {
-        String result = req.getScheme() + "://" +
+        return req.getScheme() + "://" +
                 req.getServerName() +
                 getServerPort(req) +
                 req.getContextPath();
-        return result;
     }
 
     private String getServerPort(HttpServletRequest req) {

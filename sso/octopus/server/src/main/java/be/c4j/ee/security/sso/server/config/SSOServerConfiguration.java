@@ -147,7 +147,7 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
     @ConfigEntry
     public UserEndpointEncoding getUserEndpointEncoding() {
         String encoding = ConfigResolver.getPropertyValue("SSO.user.endpoint.encoding", "NONE");
-        UserEndpointEncoding result = null;
+        UserEndpointEncoding result;
         try {
             result = UserEndpointEncoding.valueOf(encoding);
         } catch (IllegalArgumentException e) {

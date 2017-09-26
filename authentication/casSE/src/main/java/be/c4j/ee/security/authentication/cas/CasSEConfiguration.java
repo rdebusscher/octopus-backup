@@ -59,7 +59,6 @@ public class CasSEConfiguration extends AbstractOctopusConfig {
     }
 
     public static void prepareConfiguration() {
-        // FIXME Document
         new CasSEConfiguration().defineConfigurationSources();
     }
 }

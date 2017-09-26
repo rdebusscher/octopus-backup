@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * TODO, Should be a *Token, but need to introduce this in a backwards compatible way (at least for a few versions)
  */
 public class KeycloakUser extends AbstractOctopusAuthenticationToken {
 
@@ -161,7 +161,7 @@ public class KeycloakUser extends AbstractOctopusAuthenticationToken {
 
     @Override
     public String toString() {
-        String sb = "KeycloakUser{" + "id='" + id + '\'' +
+        return "KeycloakUser{" + "id='" + id + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", picture='" + picture + '\'' +
@@ -169,7 +169,6 @@ public class KeycloakUser extends AbstractOctopusAuthenticationToken {
                 ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 '}';
-        return sb;
     }
 
     @Override

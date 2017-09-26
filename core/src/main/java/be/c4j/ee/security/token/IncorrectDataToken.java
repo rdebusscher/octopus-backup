@@ -40,8 +40,6 @@ public class IncorrectDataToken implements AuthenticationToken {
 
     @Override
     public String toString() {
-        String sb = "IncorrectDataToken{" + "message='" + message + '\'' +
-                '}';
-        return sb;
+        return "IncorrectDataToken{ message='" + message + '\'' + '}';
     }
 }

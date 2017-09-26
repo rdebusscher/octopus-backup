@@ -40,9 +40,8 @@ public class TOTPQRCodeRenderer extends CoreRenderer {
     }
 
     private String createURI(TOTPQRCodeComponent qrCode) {
-        String result = "otpauth://totp/" + qrCode.getIssuer() + ':' + qrCode.getAccount() +
+        return "otpauth://totp/" + qrCode.getIssuer() + ':' + qrCode.getAccount() +
                 "?secret=" + qrCode.getSecret();
-        return result;
     }
 
     private void renderScript(FacesContext context, String clientId, String uri) throws IOException {

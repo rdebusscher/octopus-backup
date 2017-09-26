@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * TODO, Should be a *Token, but need to introduce this in a backwards compatible way (at least for a few versions)
  */
 public class OAuth2User extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
@@ -194,7 +194,7 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
 
     @Override
     public String toString() {
-        String sb = "OAuth2User{" + "id='" + id + '\'' +
+        return "OAuth2User{" + "id='" + id + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", picture='" + picture + '\'' +
@@ -205,7 +205,6 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
                 ", domain='" + domain + '\'' +
                 ", verifiedEmail=" + verifiedEmail +
                 '}';
-        return sb;
     }
 
     @Override
