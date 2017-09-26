@@ -42,7 +42,6 @@ import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -131,14 +130,10 @@ public class OctopusRealm extends AuthorizingRealm {
 
         }
 
-        // TODO Document this action
         if (authenticationInfo != null && authenticationInfo.getPrincipals() != null) {
             Object principal = authenticationInfo.getPrincipals().getPrimaryPrincipal();
             if (principal instanceof UserPrincipal) {
                 UserPrincipal user = (UserPrincipal) principal;
-                if (user.getInfo().containsKey(OctopusConstants.TOKEN)) {
-                    user.addUserInfo(OctopusConstants.UPSTREAM_TOKEN, (Serializable) user.getUserInfo(OctopusConstants.TOKEN));
-                }
                 user.addUserInfo(OctopusConstants.TOKEN, token);
             }
         }

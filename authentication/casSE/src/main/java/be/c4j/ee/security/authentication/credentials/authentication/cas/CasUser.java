@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.authentication.credentials.authentication.cas;
 
+import be.c4j.ee.security.OctopusConstants;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 
 import java.security.Principal;
@@ -59,6 +60,9 @@ public class CasUser implements ValidatedAuthenticationToken, Principal {
     }
 
     public Map<String, Object> getUserInfo() {
+        if (!userInfo.containsKey(OctopusConstants.UPSTREAM_TOKEN)) {
+            userInfo.put(OctopusConstants.UPSTREAM_TOKEN, ticket);
+        }
         return userInfo;
     }
 

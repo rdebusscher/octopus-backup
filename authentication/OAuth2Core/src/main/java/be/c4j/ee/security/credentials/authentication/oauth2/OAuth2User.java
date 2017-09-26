@@ -184,7 +184,7 @@ public class OAuth2User extends AbstractOctopusAuthenticationToken implements Va
         result.put(OctopusConstants.DOMAIN, domain);
         result.put(OctopusConstants.LOCALE, locale);
         if (token != null) {
-            result.put(OctopusConstants.TOKEN, token.getAccessToken());
+            result.put(OctopusConstants.UPSTREAM_TOKEN, token.getAccessToken());
             result.put(OctopusConstants.OAUTH2_TOKEN, token);
         }
         result.putAll(userInfo);

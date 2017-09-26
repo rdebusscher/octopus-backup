@@ -151,7 +151,7 @@ public class KeycloakUser extends AbstractOctopusAuthenticationToken {
         result.put(OctopusConstants.GENDER, gender);
         result.put(OctopusConstants.LOCALE, locale);
         if (accessToken != null) {
-            result.put(OctopusConstants.TOKEN, accessToken.getToken());
+            result.put(OctopusConstants.UPSTREAM_TOKEN, accessToken.getToken());
         }
 
         result.putAll(userInfo);
