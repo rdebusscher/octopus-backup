@@ -1,16 +1,90 @@
+?? Seems duplicate from other sections, l
+
 With the SCS modules (SCS User Server and SCS User client module) you are able to call a REST (JAX-RS) endpoint available within an Octopus controlled application and pass along the creadentials of the logged on user in the header.
 
 The JAX-RS controller can use then this information to determine who and what right the caller has.
 
 These modules are ideal to be used in Self Contained Systems to allow data exchange between the different modules.
 
-=== JST User Client modules
+=== SCS User Client modules
 
-??? TODO
+The client here is the one who makes the call to some endpoint to retrieve or send data.
 
-=== JST User Server modules
+==== Setup
 
-??? TODO
+Add the SCS client module as dependency to your project.
 
-Automatically checks the Security annotations on the JAX-RS endpoint methods.
-This can be bypassed by using the @IgnoreOctopusSSORestFilter
+[source,xml]
+----
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+            <artifactId>jwt-scs-client</artifactId>
+            <version>0.9.7</version>
+        </dependency>
+----
+
+==== Usage
+
+Use the +OctopusSCSUserRestClient+ CDI bean (by injecting it in to class where you need to make the cal to the Rest endpoint.
+
+This is all what is needed to transfer the current user information (identification + permissions) to the end point.
+
+Since the information is wrapped within a JWT and placed in the header, the following parameters are used for the configuration of the JWT.
+(For the more detailed description of each of the parameters, hava a look at the configuration section (todo link))
+
+. jwt.token.timeToLive
+. jwt.hmac.secret
+. jwt.algorithms
+. jwt.aes.secret
+. jwk.file
+
+In case you want to make the call with some system account, you can use the +OctopusSCSSystemRestClient+ CDI bean.
+
+With the method _setSystemAccount(String)_, you are able to define which system account needs to be used.
+
+Based on the information found within the properties file defined by the parameter +jwt.systemaccounts.map+, the keyId of an RSA is found and read from the _jwk.file_ location.
+
+
+=== SCS User Server modules
+
+On the server side, the execution of a JAXRS endpoint method is only possible when the call comes from the SCS User client.
+This is achieved by creating an User principal based on the JWT fro the header and verifiying if the user (or system account) has the required permissions.
+
+==== Setup
+
+Add the SCS server module as dependency to your project.
+
+[source,xml]
+----
+     <dependency>
+         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+         <artifactId>jwt-scs-server</artifactId>
+         <version>0.9.7</version>
+     </dependency>
+----
+
+==== Usage
+
+Any endpoint is automatically protected now, and regular annotations can be used to protected the method/endpoint.
+
+[source,xml]
+----
+    @Path("/hello")
+    public class UserController {
+
+
+        @GET
+        @OctopusPermissions("User:Read:*")
+        public List<User> retrieveAllUsers() {
+            ...
+        }
+
+----
+
+If your project contains also some endpoints which needs to be accessible by client which don't originate from Octopus SCS user, you can disable the security checks
+
+Put the annotation +@IgnoreOctopusSCSRestFilter+ on the method or class.
+
+The creation of the user principal is still performed, but there are no enforcements of permissions by default.
+
+Another scenario where you need the annotation, is when the JAXRS endpoint is defined within a EJB bean. Otherwise you have the verification twice which is a bit overkill.

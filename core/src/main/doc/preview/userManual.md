@@ -328,6 +328,10 @@ Java EE 7
 
 2.  Wildfly 8/9
 
+Java EE 8
+
+1. Glassfish 5.0
+
 List of application servers which will be supported before we reach the
 1.0 version
 

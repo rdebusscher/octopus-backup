@@ -4,7 +4,7 @@ Description of the filters we can use in the *securedURL.ini* file.
 
 In theory, all Shiro defined filters can be used. But only these seems us useful.
 
-*anon*    Added by default so that any URL whic doesn't match another pattern is mapped to this anonymous filter meaning that every access is allowed.
+*anon*    Added by default so that any URL which doesn't match another pattern is mapped to this anonymous filter meaning that every access is allowed.
 
 *user*    We need an authenticated use before the URL can be accessed.
 

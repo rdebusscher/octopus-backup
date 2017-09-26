@@ -6,11 +6,11 @@ It emphasises the Type safety approach by supporting named permissions defined b
 The basis of the Octopus framework can be found in 2 blog posts.
 
 The first one is written by balusc, http://balusc.blogspot.nl/2013/01/apache-shiro-is-it-ready-for-java-ee-6.html[Apache Shiro, is it ready for Java EE 6?] about the possibilities of using *Apache Shiro* with JSF 2.
-This text convinced me to use the Apache Shiro framework as a base for the Octopus Framework. Especially the permission based nature of it was very important.
+This text convinced me to use the Apache Shiro framework as a base for the Octopus Framework. Especially the permission-based nature of it was very important.
 
 The second blog was written by Rudy De Busscher (www.c4j.be), http://jsfcorner.blogspot.be/2011/03/jsf-security.html[JSF Security] where the possibility of securing JSF components with the use of the security code available in the *Apache MyFaces Extension CDI* (or CODI) is described.
 
-Based on the information in those 2 sources, combined with CDI based configuration and type safe definitions of Named permissions with enums, Octopus was born.
+Based on the information in those 2 sources, combined with CDI based configuration and type-safe definitions of Named permissions with enums, Octopus was born.
 
 The framework concentrates on using the authentication and authorization information, not retrieving this information from any source.
-Therefor it integrates with a wide range of systems where the information can be retrieved from like a Database, LDAP and Token based systems as there are OAuth2 providers (Google, LinkedIn, ...), CAS Server, SAML identity providers, Keycloak, etc...
+Therefor it integrates with a wide range of systems where the information can be retrieved from like a Database, LDAP and Token-based systems as there are OAuth2 providers (Google, LinkedIn, ...), CAS Server, SAML identity providers, Keycloak, etc...

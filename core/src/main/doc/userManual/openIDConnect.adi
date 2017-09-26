@@ -1,6 +1,6 @@
 ==== OpenIdConnect support
 
-With Octopus, it becomes very easy to create an OpenIdConnect compliant server which retrieves user authentication info from a developer defined source.
+With Octopus, it becomes very easy to create an OpenIdConnect compliant server which retrieves user authentication info from a developer-defined source.
 
 For a general explanation about OpenIdConnect, please look at the internet where you can find various resources describing this protocol for authentication.
 
@@ -48,7 +48,7 @@ public class RestApplication extends Application {
 The default path is +/data+. If you specify here a different value, the value must me used as the parameter value for +SSO.endpoint.root+ used by the Octopus clients.
 
 
-3. The Permissions are retrieved by implementating the +be.c4j.ee.security.sso.server.endpoint.SSOPermissionProvider+ interface and define it as a CDI bean.
+3. The Permissions are retrieved by implementing the +be.c4j.ee.security.sso.server.endpoint.SSOPermissionProvider+ interface and define it as a CDI bean.
 
 Octopus Clients are calling the octopus SSO server for the permissions which are defined for the application or the permissions of the user within the application.
 
@@ -94,7 +94,8 @@ The above configuration options are basically everything which is required to ma
 
 ===== Additional features
 
-SSO.application.permission.access
+* SSO.application.permission.access
+* With the endpoint +/octopus/alive+ one can verify if the application (Octopus SSO Server) is up and running. Within a Self Contained Systems environment, it can be handy to check if a certain System is available. This endpoint is protected with a rate limit filter of 20 request / second.
 
 ===== Setup Client (SE)
 

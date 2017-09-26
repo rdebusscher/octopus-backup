@@ -30,14 +30,14 @@ This method is called whenever the framework needs to verify some authentication
 
 *UsernamePasswordToken* (subclass of +AuthenticationToken+) is defined by Apache Shiro and the +getUsername()+ method returns a _String_ containing the user name specified in the login Form.
 
-For the return Object, you can use the +AuthenticationInfoBuilder+ to create it for you.
+For the returned Object, you can use the +AuthenticationInfoBuilder+ to create it for you.
 
 .AuthenticationInfoBuilder methods
 . principalId(Serializable) : Each user must be uniquely identified. It will also used by Apache Shiro when the authorization is requested.
 . name(String) : The description for the user, like his full name.  This can be used to put on it the screen.
 . userName(String) : The user name if you need this for features like re-authentication, auditing and proxy users of Oracle database. (Optional)
 . password(Object) : The password for the user name or the hash when hashed passwords are used. See also ??? password mechanism ??? for a more complete explanation, like salted hashed passwords. (required in certain cases)
-. externalPasswordCheck() : Defines that we as a developer can't supply the correct password for the username, for example the case when we use LDAP.
+. externalPasswordCheck() : Defines that we as a developer can't supply the correct password for the username, for example, the case when we use LDAP.
 . realmName(String) : name for the realm. Multiple realms are not yet supported by Octopus. (optional)
 . salt(Object) : The salt for the hashed password, see _<<Hashed password,hashPassword>> (optional)
 . addUserInfo(Serializable, Serializable) : Add additional information about the user that can be used by custom permission voters. (optional)
@@ -47,7 +47,7 @@ For the return Object, you can use the +AuthenticationInfoBuilder+ to create it 
 ==== getAuthorizationInfo()
 [[getAuthorizationInfo]]
 
-The method is called when Octopus needs to known the permissions for a certain user/principal. The parameter of the method contains the principal information for which we need to supply the permission info.
+The method is called when Octopus needs to know the permissions for a certain user/principal. The parameter of the method contains the principal information for which we need to supply the permission info.
 
 The call to the method +principals.getPrimaryPrincipal()+ returns an instance of +UserPrincipal+, an Octopus class which contains for example the *id* assigned to the user by using the +principalId()+ method from the _AuthenticationInfoBuilder_. It is the link between the 2 method calls.
 

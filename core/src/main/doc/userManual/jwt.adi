@@ -14,13 +14,13 @@ We need the following dependencies in the project setup:
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>octopus-rest</artifactId>
-        <version>0.9.6.4</version>
+        <version>0.9.7</version>
     </dependency>
 
     <dependency>
         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
         <artifactId>jwt</artifactId>
-        <version>0.9.6.4</version>
+        <version>0.9.7</version>
     </dependency>
 
 ----

@@ -5,15 +5,15 @@
 . Principal and permission transfer within header to JAX-RS endpoint (Java EE 7 only) for Self Contained Systems support.
 . Octopus OAuth2 module (like Google, Twitter, ..) Java EE 6+.
 . Adding roles as groups of permissions concept and string based roles. (support for NIST RBAC - Role based Access Control)
-. Support for advanced Authorization rules based on custom annoation and Developer extended Permission class(es).
+. Support for advanced Authorization rules based on custom annotation and Developer extended Permission class(es).
 . TwoStep authentication with support for sending OTP value and TOTP (FreeOTP, Google Authenticator, ...).
 . Protection for Session fixation and hijacking.
-. Programmatic define permissions for URLs
-. Additional filter _userRequired_, _rate_
-. Initial support for java SE (CAS SE, Password Grant OAuth2/OpenId Connect, ...)
+. Programmatic define permissions for URLs.
+. Additional filter _userRequired_, _rate_, ...
+. Initial support for java SE (CAS SE, Password Grant OAuth2/OpenId Connect, ...).
 . Concept ValidatedAuthenticationToken which needs no CredentialsMatcher.
 . Redesigned fakeLogin module useable for all authentication mechanisms.
-. securedURLs.ini file is optional
+. securedURLs.ini file is optional.
 
 Breaking changes
 
@@ -26,11 +26,15 @@ Breaking changes
 . _be.c4j.ee.security.shiro.URLPermissionProtector_ is removed, please use CDI bean implementations of _be.c4j.ee.security.url.ProgrammaticURLProtectionProvider_
 . No longer possible to use OAuth2 modules as SSO server.Use Octopus SSO verser (OIDC based) and delegate authentication to OAuth2. Use Octopus SSO server features to retrieve info.
 
+=== 0.9.6.5
+
+. Support of System accounts within @Startup methods.
+
 === 0.9.6.4
 
 . Additional CDI bean which allows to add entries for the userInfo map of UserPrincipal (SSO client module)
 . @CheckResult interceptor for verifying permission based on method result.
-. Support for Keycloak as authentication provider.
+. Support for Keycloak as the authentication provider.
 . none filter to block all access to the URL pattern
 . Some fixes (Exception handling) related to OAuth2
 
@@ -38,7 +42,7 @@ Breaking changes
 
 . Support for authentication based on JWT tokens on the header of HTTPRequest.
 . Support for DynamicColumn of PrimeFaces DataTable.
-. For REST calls, authentication info is never stored also when session is available.
+. For REST calls, authentication info is never stored also when the session is available.
 
 === 0.9.6.2
 
@@ -66,14 +70,14 @@ Breaking changes
 . Possibility to define Octopus configuration outside of WAR.
 . Possibility to define additional shiro.ini files.
 . Using system accounts (process related and not user related), mainly for background processes.
-. Security Annotations rework (not completely backwards compatible)
+. Security Annotations rework (not completely backward compatible)
 . Auditing access.
 . Named permission and role filter where only one of the permissions/roles need to be satisfied. (instead of all)
 
 
 Breaking changes
 
-. Security annotations on method level overrides those on class level.
+. Security annotations on method level override those on class level.
 . Test module received a different artifact
 +
                     <groupId>be.c4j.ee.security.octopus</groupId>

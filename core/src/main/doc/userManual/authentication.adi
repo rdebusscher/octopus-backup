@@ -2,10 +2,10 @@
 
 This chapter describes the details for integrating the authentication part into your application.
 
-There are several authentication methods supported in Octopus. We can categorize them in 3 groups.
+There are several authentication methods supported in Octopus. We can categorize them into 3 groups.
 
-. Octopus is able to verify if the user supplied credentials (user name - password combination) is valid. For example Database and File based storages.
-. Octopus passes the user supplied credentials (user name - password combination) to an external source for verification. For example LDAP.
+. Octopus is able to verify if the user-supplied credentials (user name - password combination) is valid. For example Database and File based storages.
+. Octopus passes the user-supplied credentials (user name - password combination) to an external source for verification. For example LDAP.
 . Authentication is 'externalised' and application is contacted with a token. Examples are Google OAuths, CAS, SAML, Keycloak, Octopus SSO, etc.
 
 *Octopus verifies*
@@ -18,7 +18,7 @@ In case we can't supply Octopus/Apache Shiro the password, but user has entered 
 
 *External authentication*
 
-When the user enters the credentials in an external system and the verification also happens there, we need special handling for receiving the token which identifies the authenticated user. In those cases there is also a special _Matcher_.
+When the user enters the credentials in an external system and the verification also happens there, we need special handling for receiving the token which identifies the authenticated user. In those cases, there is also a special _Matcher_.
 
 *Summary*
 
@@ -99,9 +99,9 @@ public class AppAuthentication implements SecurityDataProvider {
 
 ==== Using external checking
 
-When you as developer can't supply Octopus with the username and password information, there exists 2 other mechanism. See also _<<Authentication methods,AuthMethods>>_.
+When you as developer can't supply Octopus with the username and password information, there exists 2 other mechanisms. See also _<<Authentication methods,AuthMethods>>_.
 
-For example when the password is only available in an external system, like LDAP, you need to use the +externalPasswordCheck()+ method and a specific +Matcher+ to validate the username and password.
+For example, when the password is only available in an external system, like LDAP, you need to use the +externalPasswordCheck()+ method and a specific +Matcher+ to validate the username and password.
 An example can be found ???here???
 
 You can go even further and the complete authentication (checking if the user specified the correct user name and password combination) can be handled externally by a third party system using OAuth2, CAS, SAML, etc ...

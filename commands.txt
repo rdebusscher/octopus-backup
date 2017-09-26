@@ -32,3 +32,12 @@ mvn apache-rat:check
 Update source headers
 ---------------------
 mvn license:format -Plicense
+
+Generate PDF doc
+----------------
+
+cd core
+mvn compile -Pdocumentation
+
+cd target/docs
+pandoc -f html -t markdown_strict  -o userManual.md userManual.html

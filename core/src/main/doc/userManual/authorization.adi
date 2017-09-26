@@ -14,7 +14,7 @@ Some details about the +getAuthorizationInfo()+ method is described in the secti
 
 The authorization info is cached since authorization information is necessary every time a check is required to see if the user is allowed to perform some action. So every request the user makes, multiple checks can be needed and thus caching is indispensable.
 
-The unique id we have supplied during authentication, is supplied  as parameter of the +getAuthorizationInfo()+ method. The following code snippet can be used to retrieve this unique id out of the *principals* parameter.
+The unique id we have supplied during authentication is supplied as the parameter of the +getAuthorizationInfo()+ method. The following code snippet can be used to retrieve this unique id out of the *principals* parameter.
 
 [source,java]
 ----

@@ -1,24 +1,24 @@
 
-This is the list with the most important features of Octopus
+This is the list of the most important features of Octopus
 
-. Permission based framework for Java EE (6 and 7).
+. Permission-based framework for Java EE (6, 7 and 8).
 . Secures URL, JSF components and CDI and EJB method calls.
-. Very flexible, can be easily integrated within your application
+. Very flexible, can be easily integrated into your application
 . Highly configurable using a single property file.
 . Tightly integrated with CDI.
 . SSO server solution build on top of OpenIdConnect protocol
-. Authentication and Authorization transfer between Self Contained Systems / micro services
+. Authentication and Authorization data transfer between Self Contained Systems / micro services
 . Type-safe definition of permissions.
 . Declarative declaration of JSF security (with tags, not using rendered attribute).
 . Support for salted hashed passwords and remember me functionality.
 . Custom voter and permission can be created for more complex security requirements.
-. A custom Auth2/OpenIdConnect server can be created easily
-. Support for Self-contained Systems (authentication/authorization redirect to a certain 'module' and adding authentication/authorization info into header of JAX-RS client calls.)
+. A custom OAuth2/OpenIdConnect server can be created easily
+. Support for Self-contained Systems (authentication/authorization redirect to a certain 'module' and adding authentication/authorization info into the header of JAX-RS client calls.)
 . Pluggable authentication modules.
 . Support for OAuth2 providers.
 . Support for CAS Server.
 . Support for Keycloak server.
 . Securing JAX-RS Controller.
-. Single sign on principles for the the OAuth2 application.
+. Single sign-on principles for the OAuth2 application.
 . Provides an offline fake provider for OAuth2.
 

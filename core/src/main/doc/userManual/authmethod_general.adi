@@ -1,0 +1,42 @@
+The authenticated user, the Principal, can be retrieved in various ways. With Octopus, it is always an instance of UserPrincipal.
+
+Direct from the Shiro utility methods.
+
+[source,java]
+----
+
+   Object principal = SecurityUtils.getSubject().getPrincipal();
+   UserPrincipal userPrincipal = (UserPrincipal) principal;
+
+----
+
+Injected into a CDI maintaned class.
+
+[source,java]
+----
+    @Inject
+    private UserPrincipal userPrincipal;
+----
+
+The properties +id+, +name+ and +username+ can be retrieved from the instance.
+
+Other properties like +first name+, +last name+, +email+, etc are retrieved from the userInfo map and needs to be supplied by the developer (through the AuthenticationInfoBuilder) or are provided by the external authentication systems like OAuth2, OpenIdConnect, Keycloak and CAS.
+
+The key values are defined by the OctopusConstants values
+
+. OctopusConstants.FIRST_NAME
+. OctopusConstants.LAST_NAME
+. OctopusConstants.FULL_NAME
+. OctopusConstants.EMAIL
+. OctopusConstants.MOBILE_NUMBER
+
+The +userInfo+ map contains also the token which is used to grant the user access to the application. This is always of type +AuthenticationToken+ but dependending on the system used, it can be (not an exhaustive list)
+
+. UsernamePasswordToken
+. OAuth2User
+. KeycloackUser
+. OctopusSSOUser
+
+This information can be retrieved with the key value _OctopusConstants.TOKEN_.
+
+When an external system is used for the authentication (like OAuth2, OpenIdConnect, Keycloak and CAS) the token octopus received from that system can be retrieved with the key value _OctopusConstants.UPSTREAM_TOKEN_. This is most of the time a Serialised JWT.
