@@ -16,12 +16,15 @@
 package be.c4j.ee.security.credentials.authentication.cas;
 
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
+import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.util.URLUtil;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  *
@@ -62,7 +65,12 @@ public class CasConfigurationHelper {
         result.append("login?service=");
 
         casService = urlUtil.determineRoot(request) + "/cas-callback";
-        result.append(casService);
+
+        try {
+            result.append(URLEncoder.encode(casService, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new OctopusUnexpectedException(e);
+        }
 
         loginUrl = result.toString();
     }
