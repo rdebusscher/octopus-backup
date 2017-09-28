@@ -53,10 +53,17 @@ public class CasUserFilter extends OctopusUserFilter implements Initializable {
             Subject subject = getSubject(request, response);
             // If principal is not null, then the user is known and should be allowed access.
             boolean accessAllowed = subject.getPrincipal() != null && subject.isAuthenticated();
+            /*
+            FIXME Disabled as not working in a load balanced environment.
+            // TODO And what was the idea to have an additional check when user is already allowed.
+            // This userFilter is also used to retrieve octopus SSO User info when SSO server delegates to CAS.
+            // So we need a 'simple' user filter or JAX-RS specific one.
+            // Fix in 0.9.8.
             if (accessAllowed) {
                 // TODO I think this kind of logic needs also be used in other UserFilters like OAuth2UserFilter
                 accessAllowed = activeSessionRegistry.isSessionActive(subject.getPrincipal());
             }
+            */
 
             return accessAllowed;
         }
