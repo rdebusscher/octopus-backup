@@ -25,7 +25,7 @@ Add the SCS client module as dependency to your project.
 
 ==== Usage
 
-Use the +OctopusSCSUserRestClient+ CDI bean (by injecting it in to class where you need to make the cal to the Rest endpoint.
+Use the +OctopusSCSUserRestClient+ CDI bean (by injecting it in to class where you need to make the call to the Rest endpoint.
 
 This is all what is needed to transfer the current user information (identification + permissions) to the end point.
 
@@ -67,9 +67,9 @@ Add the SCS server module as dependency to your project.
 
 Any endpoint is automatically protected now, and regular annotations can be used to protected the method/endpoint.
 
-[source,xml]
+[source,java]
 ----
-    @Path("/hello")
+    @Path("/user")
     public class UserController {
 
 
