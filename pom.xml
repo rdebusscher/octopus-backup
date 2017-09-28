@@ -271,12 +271,59 @@
                             <className>**/model/UserPrincipal</className>
                             <differenceType>7005</differenceType>
                             <method>*</method>
+                            <to>*</to>
                         </difference>
                         <difference>
                             <className>**/realm/AuthenticationInfoBuilder</className>
                             <differenceType>7005</differenceType>
                             <method>*</method>
+                            <to>*</to>
                         </difference>
+                        <!-- Use ProgrammaticURLProtectionProvider  -->
+                        <difference>
+                            <className>**/URLPermissionProtector</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <!--OAuth2 module no longer as SSO  -->
+                        <difference>
+                            <className>**/OAuth2User</className>
+                            <differenceType>7002</differenceType>
+                            <method>*</method>
+                        </difference>
+                        <difference>
+                            <className>**/OAuth2User</className>
+                            <differenceType>6011</differenceType>
+                            <field>LOCAL_ID</field>
+                        </difference>
+                        <difference>
+                            <className>**/OAuth2User</className>
+                            <differenceType>7005</differenceType>
+                            <method>*</method>
+                            <to>*</to>
+                        </difference>
+
+                        <!-- Removed classes related to fakeLogin module -->
+                        <difference>
+                            <className>**/fake/AuthenticationServlet</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <className>**/fake/OAuth2TokenStore</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <className>**/fake/OctopusFakeOAuth2Authentication</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <className>**/fake/OctopusFakeUserInfo</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <className>**/fake/OctopusHandleFakeCallback</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+
                     </ignored>
                     <!-- internal classes -->
                     <excludes>
@@ -288,7 +335,42 @@
                         <exclude>**/CDIUtil</exclude>
                         <exclude>**/PermissionListenerHandler$ComponentAroundTagHandler</exclude>
                         <exclude>**/OctopusConfigurationException
-                        </exclude>  <!-- Moved to another jar but in same pake, so no issue -->
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/NamedDomainPermission
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/NamedPermission
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/FixedBucket</exclude>
+                        <exclude>**/SpecialStateChecker</exclude>
+                        <exclude>**/SystemAccountCredentialMatcher
+                        </exclude> <!-- Now using ValidatedAuthenticationToken -->
+                        <exclude>**/OctopusRealm$InSystemAccountAuthentication
+                        </exclude> <!-- Now using ValidatedAuthenticationToken -->
+                        <exclude>**/OctopusJSFConfig</exclude>
+                        <exclude>**/OIDCAdapter</exclude>
+                        <exclude>**/KeycloakLogoutHandler</exclude>
+                        <exclude>**/credentials/authentication/oauth2/**</exclude>
+                        <exclude>**/CasAuthenticationException
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/CasUser
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/CasUser$CasPrincipal
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/CasConfiguration
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/CasInfoProvider
+                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
+                        <exclude>**/JWKManagerEC
+                        </exclude>  <!-- example classes -->
+                        <exclude>**/JWKManagerRSA
+                        </exclude>  <!-- example classes -->
+                        <exclude>**/JWTTesterEC
+                        </exclude>  <!-- example classes -->
+                        <exclude>**/JWTTesterRSA
+                        </exclude>  <!-- example classes -->
+                        <exclude>**/MainProgram
+                        </exclude>  <!-- example classes -->
+
                     </excludes>
                 </configuration>
             </plugin>
