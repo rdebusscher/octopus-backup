@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus.sso</groupId>
         <artifactId>octopus-sso</artifactId>
-        <version>0.9.7-SNAPSHOT</version>
+        <version>0.9.7</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <artifactId>octopus-server</artifactId>
-    <version>0.9.7-SNAPSHOT</version>
+    <version>0.9.7</version>
 
     <name>Octopus SSO server</name>
 
