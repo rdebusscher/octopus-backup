@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>authentication</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
     <artifactId>keycloak-se</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.7.1-SNAPSHOT</version>
 
     <name>Keycloak For Java SE</name>
 

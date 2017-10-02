@@ -22,7 +22,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>examples</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -31,7 +31,7 @@
 
     <groupId>be.c4j.ee.security.octopus.examples</groupId>
     <artifactId>test-examples</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.7.1-SNAPSHOT</version>
 
     <name>test module Examples</name>
 

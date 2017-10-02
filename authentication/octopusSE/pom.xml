@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>authentication</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
     <artifactId>octopus-se</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.7.1-SNAPSHOT</version>
 
     <name>Octopus Server integration for non Web based clients</name>
 
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>be.c4j.ee.security.octopus.sso</groupId>
             <artifactId>octopus-sso-core</artifactId>
-            <version>0.9.7</version>
+            <version>0.9.7.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

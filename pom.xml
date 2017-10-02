@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>be.c4j.ee.security</groupId>
     <artifactId>parent</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.7.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Permission based security for Java EE application</name>
@@ -248,130 +248,7 @@
                 <artifactId>clirr-maven-plugin</artifactId>
                 <version>2.8</version>
                 <configuration>
-                    <ignored>
-                        <difference>
-                            <className>**/audit/OctopusAuditEvent</className>
-                            <differenceType>7004</differenceType>
-                            <method>*</method>
-                        </difference>
-                        <!-- indicated with release notes preLogoutAction method -->
-                        <difference>
-                            <className>**/logout/LogoutHandler</className>
-                            <differenceType>7002</differenceType>
-                            <method>*</method>
-                        </difference>
-                        <!-- methods from public to private but as an error -->
-                        <difference>
-                            <className>**/salt/SaltHashingUtil</className>
-                            <differenceType>7009</differenceType>
-                            <method>*</method>
-                        </difference>
-                        <!-- User info changes, indicated with release notes -->
-                        <difference>
-                            <className>**/model/UserPrincipal</className>
-                            <differenceType>7005</differenceType>
-                            <method>*</method>
-                            <to>*</to>
-                        </difference>
-                        <difference>
-                            <className>**/realm/AuthenticationInfoBuilder</className>
-                            <differenceType>7005</differenceType>
-                            <method>*</method>
-                            <to>*</to>
-                        </difference>
-                        <!-- Use ProgrammaticURLProtectionProvider  -->
-                        <difference>
-                            <className>**/URLPermissionProtector</className>
-                            <differenceType>8001</differenceType>
-                        </difference>
-                        <!--OAuth2 module no longer as SSO  -->
-                        <difference>
-                            <className>**/OAuth2User</className>
-                            <differenceType>7002</differenceType>
-                            <method>*</method>
-                        </difference>
-                        <difference>
-                            <className>**/OAuth2User</className>
-                            <differenceType>6011</differenceType>
-                            <field>LOCAL_ID</field>
-                        </difference>
-                        <difference>
-                            <className>**/OAuth2User</className>
-                            <differenceType>7005</differenceType>
-                            <method>*</method>
-                            <to>*</to>
-                        </difference>
-
-                        <!-- Removed classes related to fakeLogin module -->
-                        <difference>
-                            <className>**/fake/AuthenticationServlet</className>
-                            <differenceType>8001</differenceType>
-                        </difference>
-                        <difference>
-                            <className>**/fake/OAuth2TokenStore</className>
-                            <differenceType>8001</differenceType>
-                        </difference>
-                        <difference>
-                            <className>**/fake/OctopusFakeOAuth2Authentication</className>
-                            <differenceType>8001</differenceType>
-                        </difference>
-                        <difference>
-                            <className>**/fake/OctopusFakeUserInfo</className>
-                            <differenceType>8001</differenceType>
-                        </difference>
-                        <difference>
-                            <className>**/fake/OctopusHandleFakeCallback</className>
-                            <differenceType>8001</differenceType>
-                        </difference>
-
-                    </ignored>
-                    <!-- internal classes -->
-                    <excludes>
-                        <exclude>**/AbstractOAuth2AuthcFilter</exclude>
-                        <exclude>**/CasCredentialsMatcher</exclude>
-                        <exclude>**/ExternalPasswordAuthenticationInfo</exclude>
-                        <exclude>**/AbstractOctopusConfig</exclude>
-                        <exclude>**/OctopusConfigSource</exclude>
-                        <exclude>**/CDIUtil</exclude>
-                        <exclude>**/PermissionListenerHandler$ComponentAroundTagHandler</exclude>
-                        <exclude>**/OctopusConfigurationException
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/NamedDomainPermission
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/NamedPermission
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/FixedBucket</exclude>
-                        <exclude>**/SpecialStateChecker</exclude>
-                        <exclude>**/SystemAccountCredentialMatcher
-                        </exclude> <!-- Now using ValidatedAuthenticationToken -->
-                        <exclude>**/OctopusRealm$InSystemAccountAuthentication
-                        </exclude> <!-- Now using ValidatedAuthenticationToken -->
-                        <exclude>**/OctopusJSFConfig</exclude>
-                        <exclude>**/OIDCAdapter</exclude>
-                        <exclude>**/KeycloakLogoutHandler</exclude>
-                        <exclude>**/credentials/authentication/oauth2/**</exclude>
-                        <exclude>**/CasAuthenticationException
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/CasUser
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/CasUser$CasPrincipal
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/CasConfiguration
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/CasInfoProvider
-                        </exclude>  <!-- Moved to another jar but in same package, so no issue -->
-                        <exclude>**/JWKManagerEC
-                        </exclude>  <!-- example classes -->
-                        <exclude>**/JWKManagerRSA
-                        </exclude>  <!-- example classes -->
-                        <exclude>**/JWTTesterEC
-                        </exclude>  <!-- example classes -->
-                        <exclude>**/JWTTesterRSA
-                        </exclude>  <!-- example classes -->
-                        <exclude>**/MainProgram
-                        </exclude>  <!-- example classes -->
-
-                    </excludes>
+                    <!-- Resetted the ignore and excluded for the next release -->
                 </configuration>
             </plugin>
         </plugins>
