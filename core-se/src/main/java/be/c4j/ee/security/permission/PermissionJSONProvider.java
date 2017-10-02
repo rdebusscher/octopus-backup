@@ -15,9 +15,12 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.PublicAPI;
+
 /**
  *
  */
+@PublicAPI
 public class PermissionJSONProvider {
 
     public String writeValue(NamedDomainPermission permission) {

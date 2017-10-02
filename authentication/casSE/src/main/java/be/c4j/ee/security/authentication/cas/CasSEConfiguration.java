@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.authentication.cas;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -23,6 +24,7 @@ import org.apache.deltaspike.core.api.config.ConfigResolver;
  *
  *
  */
+@PublicAPI
 public class CasSEConfiguration extends AbstractOctopusConfig {
 
     private String casService;

@@ -16,6 +16,7 @@
 package be.c4j.ee.security.exception;
 
 import be.c4j.ee.security.OctopusInvocationContext;
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.violation.AuthorizationViolation;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import be.c4j.ee.security.exception.violation.MethodParameterTypeViolation;
@@ -35,6 +36,7 @@ import java.util.List;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class SecurityViolationInfoProducer {
 
     public String getViolationInfo(AccessDecisionVoterContext accessContext) {

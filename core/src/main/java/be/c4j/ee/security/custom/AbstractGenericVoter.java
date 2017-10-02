@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.custom;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.util.MethodParameterCheckUtil;
@@ -31,6 +32,7 @@ import java.util.Set;
 /**
  *
  */
+@PublicAPI
 public abstract class AbstractGenericVoter extends AbstractAccessDecisionVoter {
 
     @Inject

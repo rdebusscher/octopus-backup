@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.authentication.octopus;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
@@ -27,7 +28,7 @@ import java.util.List;
 /**
  *
  */
-
+@PublicAPI
 public class OctopusSEConfiguration extends AbstractOctopusConfig {
 
     private List<Debug> debugValues;

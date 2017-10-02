@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.context;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.SystemAccountActivationException;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;
@@ -29,6 +30,7 @@ import java.io.Serializable;
  *
  */
 @Dependent  // Because we keep the Shiro Subject for the asynchronous use case.
+@PublicAPI
 public class OctopusSecurityContext implements Serializable {
 
     private Subject subject;

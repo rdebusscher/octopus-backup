@@ -15,9 +15,12 @@
  */
 package be.c4j.ee.security.sso.server.client;
 
+import be.c4j.ee.security.PublicAPI;
+
 /**
  *
  */
+@PublicAPI
 public interface ClientInfoRetriever {
 
     ClientInfo retrieveInfo(String clientId);

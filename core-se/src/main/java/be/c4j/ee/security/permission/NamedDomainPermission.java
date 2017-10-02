@@ -15,12 +15,14 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.apache.shiro.authz.permission.DomainPermission;
 
 import java.util.List;
 import java.util.Set;
 
+@PublicAPI
 public class NamedDomainPermission extends DomainPermission implements NamedPermission {
 
     private String name;

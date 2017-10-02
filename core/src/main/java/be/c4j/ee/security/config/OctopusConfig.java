@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
+@PublicAPI
 public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     private Class<? extends Annotation> namedPermissionCheckClass;

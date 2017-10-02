@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -23,6 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
+@PublicAPI
 public class OctopusJSFConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     private SessionHijackingLevel sessionHijackingLevel;

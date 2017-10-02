@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.test;
+package be.c4j.ee.security;
 
-import be.c4j.ee.security.PublicAPI;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- *
+ * Indicates classes annotated with this are safe to use in your applications.
+ * Annotated classes should kept binary compatible between releases (exceptions can occur)
  */
-@PublicAPI
-public interface AuthenticatedPageInfo {
-
-    String getAuthenticatedPage();
-
-    String getUnauthenticatedPage();
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PublicAPI {
 }

@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.result;
 
+import be.c4j.ee.security.PublicAPI;
+
 import javax.interceptor.InterceptorBinding;
 import java.lang.annotation.*;
 
@@ -25,5 +27,6 @@ import java.lang.annotation.*;
 @InterceptorBinding
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@PublicAPI
 public @interface CheckResult {
 }

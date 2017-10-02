@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTSystemToken;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
@@ -39,6 +40,7 @@ import static be.c4j.ee.security.OctopusConstants.*;
  *
  */
 @Dependent  // As we can set the systemAccount differently
+@PublicAPI
 public class OctopusSCSSystemRestClient extends AbstractSCSRestClient {
 
 

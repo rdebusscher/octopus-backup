@@ -16,6 +16,7 @@
 package be.c4j.ee.security.authentication.credentials.authentication.cas;
 
 import be.c4j.ee.security.OctopusConstants;
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 
 import java.security.Principal;
@@ -26,6 +27,7 @@ import java.util.Map;
  * for now kept at the same location for backwards compatibility
  * With 0.9.8 (when integrating Shiro) we will have more backwards breaking changes)
  */
+@PublicAPI
 public class CasUser implements ValidatedAuthenticationToken, Principal {
 
     public static final String CAS_USER_INFO = "CASUserInfo";

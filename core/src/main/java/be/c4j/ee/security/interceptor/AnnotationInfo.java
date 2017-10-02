@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.interceptor;
 
+import be.c4j.ee.security.PublicAPI;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,6 +26,7 @@ import java.util.Set;
 /**
  *
  */
+@PublicAPI
 public class AnnotationInfo {
 
     private Set<Annotation> methodAnnotations = new HashSet<Annotation>();

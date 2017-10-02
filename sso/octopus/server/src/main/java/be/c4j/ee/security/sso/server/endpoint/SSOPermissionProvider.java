@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.endpoint;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 
@@ -23,6 +24,7 @@ import java.util.List;
 /**
  *
  */
+@PublicAPI
 public interface SSOPermissionProvider {
 
     List<NamedDomainPermission> getPermissionsForApplication(String applicationName);

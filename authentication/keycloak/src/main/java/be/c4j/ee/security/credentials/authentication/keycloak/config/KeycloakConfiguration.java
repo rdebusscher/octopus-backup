@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.keycloak.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
@@ -33,6 +34,7 @@ import java.io.InputStream;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class KeycloakConfiguration extends AbstractOctopusConfig implements ModuleConfig {
 
     private static final Object LOCK = new Object();

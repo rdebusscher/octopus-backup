@@ -15,11 +15,14 @@
  */
 package be.c4j.ee.security.sso.client;
 
+import be.c4j.ee.security.PublicAPI;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
  *
  */
+@PublicAPI
 public interface ClientCallbackHelper {
 
     String determineCallbackRoot(HttpServletRequest httpServletRequest);

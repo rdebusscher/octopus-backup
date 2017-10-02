@@ -15,9 +15,12 @@
  */
 package be.c4j.ee.security.exception.violation;
 
+import be.c4j.ee.security.PublicAPI;
+
 /**
  *
  */
+@PublicAPI
 public class BasicAuthorizationViolation implements AuthorizationViolation {
 
     private String reason;

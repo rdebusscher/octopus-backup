@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.twostep.otp.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
@@ -28,6 +29,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class OTPConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     @PostConstruct

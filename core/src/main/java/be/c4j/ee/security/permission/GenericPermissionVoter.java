@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import java.util.Set;
 
 @Typed
+@PublicAPI
 public class GenericPermissionVoter extends AbstractAccessDecisionVoter {
 
     @Inject

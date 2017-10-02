@@ -15,12 +15,15 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt;
 
+import be.c4j.ee.security.PublicAPI;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
  *
  */
+@PublicAPI
 public interface CheckJWTClaims {
 
     /**

@@ -16,6 +16,7 @@
 package be.c4j.ee.security.realm;
 
 import be.c4j.ee.security.Combined;
+import be.c4j.ee.security.PublicAPI;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,6 +28,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
+@PublicAPI
 public @interface OctopusRoles {
 
     String[] value();

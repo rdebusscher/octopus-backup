@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.url;
 
+import be.c4j.ee.security.PublicAPI;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,6 +27,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@PublicAPI
 public @interface URLProtectionProviderOrder {
 
     int value();

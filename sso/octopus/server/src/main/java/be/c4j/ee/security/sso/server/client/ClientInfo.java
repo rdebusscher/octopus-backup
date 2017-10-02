@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.client;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import com.nimbusds.jose.util.Base64;
 
@@ -24,6 +25,7 @@ import java.net.URISyntaxException;
 /**
  *
  */
+@PublicAPI
 public class ClientInfo {
 
     private String callbackURL;

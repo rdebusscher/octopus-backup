@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.PublicAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Typed
+@PublicAPI
 public class PermissionLookup<T extends Enum<T>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PermissionLookup.class);

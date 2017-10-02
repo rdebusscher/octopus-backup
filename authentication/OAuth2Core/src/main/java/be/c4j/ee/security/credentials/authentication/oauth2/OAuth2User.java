@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.OctopusConstants;
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -27,6 +28,7 @@ import java.util.Map;
 /**
  * TODO, Should be a *Token, but need to introduce this in a backwards compatible way (at least for a few versions)
  */
+@PublicAPI
 public class OAuth2User extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken {
 
     public static final String OAUTH2_USER_INFO = "oAuth2UserInfo";

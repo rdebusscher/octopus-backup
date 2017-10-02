@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.view.component;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.view.component.secured.SecuredComponent;
 import be.c4j.ee.security.view.component.secured.SecuredComponentData;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ import java.util.List;
 /**
  *
  */
+@PublicAPI
 public final class ComponentUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentUtil.class);

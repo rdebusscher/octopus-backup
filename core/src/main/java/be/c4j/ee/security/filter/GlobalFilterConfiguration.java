@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.filter;
 
+import be.c4j.ee.security.PublicAPI;
 import org.apache.shiro.web.servlet.AdviceFilter;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Map;
 /**
  *
  */
+@PublicAPI
 public interface GlobalFilterConfiguration {
 
     Map<String, Class<? extends AdviceFilter>> getGlobalFilters();

@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.authentication.ExternalPasswordAuthenticationInfo;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.model.UserPrincipal;
@@ -32,6 +33,7 @@ import java.util.Map;
  *
  */
 @Typed
+@PublicAPI
 public class AuthenticationInfoBuilder {
 
     public static final String DEFAULT_REALM = "OctopusApp";

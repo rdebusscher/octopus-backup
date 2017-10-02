@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
 
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvider;
 import be.c4j.ee.security.credentials.authentication.jwt.client.JWTUserToken;
@@ -40,6 +41,7 @@ import static be.c4j.ee.security.OctopusConstants.*;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
 
     @Inject

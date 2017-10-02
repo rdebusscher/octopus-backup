@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.messages;
 
+import be.c4j.ee.security.PublicAPI;
 import org.apache.deltaspike.core.api.message.MessageContext;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.util.StringUtils;
@@ -31,6 +32,7 @@ import java.io.Serializable;
  *
  */
 @Dependent
+@PublicAPI
 public class FacesMessages implements Serializable {
 
     private String template;

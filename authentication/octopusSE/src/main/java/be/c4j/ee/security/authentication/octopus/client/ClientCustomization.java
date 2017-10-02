@@ -15,13 +15,15 @@
  */
 package be.c4j.ee.security.authentication.octopus.client;
 
+import be.c4j.ee.security.PublicAPI;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Configuration;
 
 /**
  * For the customization of the JAX-RS client.
  */
-
+@PublicAPI
 public interface ClientCustomization {
 
     void customize(Client client, Class<?> clientUsageClass);

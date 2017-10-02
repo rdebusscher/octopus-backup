@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.octopus.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
@@ -27,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class OctopusServerConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     @PostConstruct

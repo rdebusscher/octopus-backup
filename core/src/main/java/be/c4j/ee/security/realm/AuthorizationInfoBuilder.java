@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
@@ -37,6 +38,7 @@ import java.util.Set;
  *
  */
 @Typed
+@PublicAPI
 public class AuthorizationInfoBuilder {
 
     private RoleLookup roleLookup;

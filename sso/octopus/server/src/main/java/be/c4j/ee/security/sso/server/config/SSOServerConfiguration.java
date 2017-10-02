@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.server.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
@@ -28,6 +29,7 @@ import java.util.regex.Pattern;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class SSOServerConfiguration extends AbstractOctopusConfig {
 
     private static final int COOKIE_TIME_TO_LIVE = 10;

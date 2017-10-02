@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.authentication.cas.CASProtocol;
 import be.c4j.ee.security.authentication.cas.CasSEConfiguration;
 import be.c4j.ee.security.config.OctopusJSFConfig;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
  *
  */
 @Specializes
+@PublicAPI
 public class CasConfiguration extends OctopusJSFConfig {
 
     @Inject

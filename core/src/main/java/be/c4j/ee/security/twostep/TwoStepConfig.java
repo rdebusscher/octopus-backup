@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.twostep;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
@@ -29,6 +30,7 @@ import java.util.List;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class TwoStepConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     private boolean twoStepAuthenticationProviderFound;

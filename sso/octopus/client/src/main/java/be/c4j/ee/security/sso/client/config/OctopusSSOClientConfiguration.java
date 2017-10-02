@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso.client.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.sso.SSOFlow;
@@ -28,6 +29,7 @@ import javax.enterprise.inject.Specializes;
  *
  */
 @Specializes
+@PublicAPI
 public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     private String logoutPage;

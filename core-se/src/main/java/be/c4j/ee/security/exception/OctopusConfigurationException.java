@@ -15,11 +15,13 @@
  */
 package be.c4j.ee.security.exception;
 
+import be.c4j.ee.security.PublicAPI;
 import org.apache.shiro.authc.AuthenticationException;
 
 /**
  * TODO Review if it is correct that it extends AuthenticationException
  */
+@PublicAPI
 public class OctopusConfigurationException extends AuthenticationException {
 
     public OctopusConfigurationException(String message) {

@@ -15,12 +15,14 @@
  */
 package be.c4j.ee.security.url;
 
+import be.c4j.ee.security.PublicAPI;
+
 import java.util.Map;
 
 /**
  * Allows to add URLs with filters pragmatically.
  */
-
+@PublicAPI
 public interface ProgrammaticURLProtectionProvider {
 
 

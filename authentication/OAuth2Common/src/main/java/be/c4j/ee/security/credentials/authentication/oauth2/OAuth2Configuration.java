@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -27,6 +28,7 @@ import javax.inject.Inject;
  *
  */
 @Specializes
+@PublicAPI
 public class OAuth2Configuration extends OctopusJSFConfig {
 
     @Inject

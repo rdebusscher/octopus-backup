@@ -15,11 +15,13 @@
  */
 package be.c4j.ee.security.realm;
 
+import be.c4j.ee.security.PublicAPI;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 
+@PublicAPI
 public interface SecurityDataProvider {
 
     // Breaking change in 0.9.5 (Parameter UsernamePasswordToken -> AuthenticationToken)

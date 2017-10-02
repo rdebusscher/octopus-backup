@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.systemaccount;
 
+import be.c4j.ee.security.PublicAPI;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,6 +27,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@PublicAPI
 public @interface SystemAccount {
     String[] value();
 }

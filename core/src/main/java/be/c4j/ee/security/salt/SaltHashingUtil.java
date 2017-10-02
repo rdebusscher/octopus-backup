@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.salt;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusConfig;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -27,6 +28,7 @@ import javax.inject.Inject;
 import java.security.SecureRandom;
 
 @ApplicationScoped
+@PublicAPI
 public class SaltHashingUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SaltHashingUtil.class);

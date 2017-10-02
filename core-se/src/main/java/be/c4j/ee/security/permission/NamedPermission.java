@@ -15,6 +15,9 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.PublicAPI;
+
+@PublicAPI
 public interface NamedPermission {
     String name();
 }

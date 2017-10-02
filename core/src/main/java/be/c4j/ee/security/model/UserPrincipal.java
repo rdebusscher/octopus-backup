@@ -16,6 +16,7 @@
 package be.c4j.ee.security.model;
 
 import be.c4j.ee.security.OctopusConstants;
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusIllegalActionException;
 
 import javax.enterprise.inject.Typed;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Typed
+@PublicAPI
 public class UserPrincipal implements Principal, Serializable {
 
     private Serializable id;

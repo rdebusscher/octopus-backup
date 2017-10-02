@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.result;
 
+import be.c4j.ee.security.PublicAPI;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 
 import java.lang.annotation.ElementType;
@@ -27,6 +28,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@PublicAPI
 public @interface CheckResultVoter {
 
     Class<? extends AbstractAccessDecisionVoter>[] value();

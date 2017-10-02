@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.sso;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
 import be.c4j.ee.security.token.AbstractOctopusAuthenticationToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -28,6 +29,7 @@ import java.io.Serializable;
  * <p>
  * TODO, Should be a *Token, but need to introduce this in a backwards compatible way (at least for a few versions)
  */
+@PublicAPI
 public class OctopusSSOUser extends AbstractOctopusAuthenticationToken implements ValidatedAuthenticationToken, Serializable {
 
     private String id;

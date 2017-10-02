@@ -15,11 +15,14 @@
  */
 package be.c4j.ee.security.exception.violation;
 
+import be.c4j.ee.security.PublicAPI;
+
 import java.util.List;
 
 /**
  *
  */
+@PublicAPI
 public class MethodParameterTypeViolation extends BasicAuthorizationViolation {
 
     private String reason;

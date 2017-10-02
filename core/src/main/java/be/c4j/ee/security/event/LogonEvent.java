@@ -15,10 +15,12 @@
  */
 package be.c4j.ee.security.event;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 
+@PublicAPI
 public class LogonEvent {
 
     private AuthenticationToken token;

@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.twostep.totp.config;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.twostep.otp.config.OTPConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
@@ -26,6 +27,7 @@ import javax.enterprise.inject.Specializes;
  *
  */
 @Specializes
+@PublicAPI
 public class TOTPConfig extends OTPConfig {
 
     @Override

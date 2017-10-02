@@ -15,11 +15,14 @@
  */
 package be.c4j.ee.security.exception.violation;
 
+import be.c4j.ee.security.PublicAPI;
+
 import java.util.List;
 
 /**
  * When custom AbstractGenericVoter can work with different types of method parameters. But none of the expected Types is found.
  */
+@PublicAPI
 public class OverloadingMethodParameterTypeViolation extends BasicAuthorizationViolation {
 
     private String reason;

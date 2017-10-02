@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.exception;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.violation.BasicAuthorizationViolation;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 import org.apache.shiro.authc.AccountException;
@@ -26,6 +27,7 @@ import java.util.Set;
 /**
  *
  */
+@PublicAPI
 public class OctopusUnauthorizedException extends UnauthorizedException {
 
     private String message;

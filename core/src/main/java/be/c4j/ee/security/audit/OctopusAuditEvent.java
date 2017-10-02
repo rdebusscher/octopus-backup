@@ -15,9 +15,12 @@
  */
 package be.c4j.ee.security.audit;
 
+import be.c4j.ee.security.PublicAPI;
+
 /**
  *
  */
+@PublicAPI
 public class OctopusAuditEvent {
 
     private String requestURI;

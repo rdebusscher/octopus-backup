@@ -18,6 +18,7 @@ package be.c4j.ee.security;
 /**
  *
  */
+@PublicAPI
 public enum Combined {
     AND, OR;
 

@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.shiro;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.access.AfterSuccessfulLoginHandler;
 import be.c4j.ee.security.event.RememberMeLogonEvent;
 import be.c4j.ee.security.model.UserPrincipal;
@@ -46,6 +47,7 @@ import static be.c4j.ee.security.realm.AuthenticationInfoBuilder.DEFAULT_REALM;
 /**
  *
  */
+@PublicAPI
 public class OctopusSecurityManager extends DefaultWebSecurityManager {
 
     private static final Logger log = LoggerFactory.getLogger(OctopusSecurityManager.class);

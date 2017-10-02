@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.realm.event;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.model.UserPrincipal;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.Map;
 /**
  *
  */
+@PublicAPI
 public class ClearAuthorizationCacheEvent {
     private UserPrincipal userPrincipal;
 

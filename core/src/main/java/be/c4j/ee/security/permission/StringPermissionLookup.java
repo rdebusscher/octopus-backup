@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.permission;
 
+import be.c4j.ee.security.PublicAPI;
+
 import javax.enterprise.inject.Typed;
 import java.util.*;
 
@@ -22,6 +24,7 @@ import java.util.*;
  *
  */
 @Typed
+@PublicAPI
 public class StringPermissionLookup {
 
     private Map<String, NamedDomainPermission> map;

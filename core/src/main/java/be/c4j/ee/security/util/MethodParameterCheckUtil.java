@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.util;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
 
@@ -28,6 +29,7 @@ import java.util.List;
  *
  */
 @ApplicationScoped
+@PublicAPI
 public class MethodParameterCheckUtil {
 
     @Inject
