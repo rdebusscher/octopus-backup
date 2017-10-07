@@ -56,3 +56,12 @@ OCT-SSO-CLIENT-016 : Validation of ID token JWT failed : Unexpected JWT issuer: 
 This is because the issuer property of the IDToken JWT sent to the client, contains the application root URL value and is verified against the _SSO.octopus.server_ parameter by the client application.
 
 But the issuer contains not the default ports and thus the comparison fails.
+
+
+=== JCE requirement
+
+By default, Octopus doesn't need the JCE policy files of Oracle to allow certain key sizes.
+
+Of course it is adviced to install this so that keys with greater sized can be used and thus have a 'safer' environment.
+
+The _JWTSystemTokenTest_ requires the presence of the JCE in order to pass.

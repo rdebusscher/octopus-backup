@@ -120,6 +120,7 @@ public class JWTSystemTokenTest {
     }
 
 
+    // This test needs the JCE package installed within the JRE http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
     @Test
     public void createJWESystemToken() throws ParseException, JOSEException {
 
