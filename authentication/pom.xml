@@ -51,6 +51,7 @@
         <module>keycloakSE</module>
         <module>keycloak</module>
         <module>octopusSE</module>
+        <module>soteria</module>
     </modules>
 
 </project>

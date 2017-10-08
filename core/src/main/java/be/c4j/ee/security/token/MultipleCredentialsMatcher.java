@@ -18,6 +18,7 @@ package be.c4j.ee.security.token;
 import be.c4j.ee.security.authentication.ExternalPasswordAuthenticationInfo;
 import be.c4j.ee.security.shiro.OctopusSimpleCredentialsMatcher;
 import be.c4j.ee.security.shiro.ValidatedAuthenticationToken;
+import be.c4j.ee.security.soteria.SecurityAPICredentialMatcher;
 import be.c4j.ee.security.twostep.GenericTwoStepCredentialsMatcher;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -40,6 +41,7 @@ public class MultipleCredentialsMatcher implements CredentialsMatcher {
         octopusDefinedMatchers = new ArrayList<CredentialsMatcher>();
         octopusDefinedMatchers.add(new OctopusSimpleCredentialsMatcher());
         octopusDefinedMatchers.add(new GenericTwoStepCredentialsMatcher());
+        octopusDefinedMatchers.add(new SecurityAPICredentialMatcher());
 
         applicationDefinedMatchers = new ArrayList<CredentialsMatcher>(); // TODO ApplicationDefined is not a good name, they are the moduleDefined ones.
     }

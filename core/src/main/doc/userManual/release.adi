@@ -1,3 +1,8 @@
+=== 0.9.7.1
+
+. Support for IdentityStores from Java EE Security API (Java EE 8) but also useable on Java EE 7 servers.
+. @PublicAPI to indicates classes which should be stable between releases (Safe to use by developers)
+
 === 0.9.7
 
 . String based Permissions.

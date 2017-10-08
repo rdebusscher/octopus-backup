@@ -34,7 +34,6 @@ public final class OctopusConstants {
     public static final String EXTERNAL_ID = "externalId";
     public static final String LOCAL_ID = "localId";  // TODO is there a difference and how correctly used (LocalId vs ExternalId)
 
-
     public static final String PICTURE = "picture";
     public static final String GENDER = "gender";
     public static final String LOCALE = "locale";
@@ -49,6 +48,8 @@ public final class OctopusConstants {
 
     public static final String X_API_KEY = "x-api-key";
     public static final String BEARER = "Bearer";
+
+    public static final String CALLER_GROUPS = "callerGroups";
 
     private OctopusConstants() {
     }

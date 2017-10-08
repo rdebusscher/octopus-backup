@@ -1,0 +1,34 @@
+==== Java EE Security API support
+
+Within JSR-375, Java EE Security API, there are concepts defined for authentication and authorization. Although the specification is targetted at Java EE 8, it can be used on Java EE 7 compatible application servers.
+
+The support for authorization is very limited within that JSR, but if you are interested in using the +IdentityStore+s in combination with Octopus, the _security API_ Octopus module is what you need.
+
+As already mentioned, Java EE Security API code runs on Java EE 7 servers, so this Octopus module can be used on Java EE 7 and above compatible servers. It isn't using JASPIC, so there is no need for the special configuration files on the EE 7 servers.
+
+===== Setup
+
+Add the following maven dependency to your project, in addition to the other Octopus artifacts you normally add.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>security-api</artifactId>
+        <version>0.9.7.1</version>
+    </dependency>
+----
+
+Add the _IdentityStore_ (or stores) definitions to any CDI bean. That way all beans will be properly created. And since the authentication and authorization data are handled by these _IdentityStore_s, there is no need for implementing the _SecurityDataProvider_. This is handled by the Octopus module.
+
+===== Tips
+
+When using on a Java EE 7 server
+
+* Don't forget to include the API (javax.security.enterprise-api) and implementation (like Soteria) to the application since they have the _IdentityStore_ logic.
+* There is no need for the special configuration files (jboss-web.xml, glassfish-web.xml, ibm-application-bnd.xml) since Ocoptus module isn't depending on JASPIC
+
+When using on a Java EE 8 server
+
+* Don't include the Java EE Security API artifacts, they are already on the server.
+
