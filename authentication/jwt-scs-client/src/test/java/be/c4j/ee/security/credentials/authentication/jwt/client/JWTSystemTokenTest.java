@@ -22,6 +22,7 @@ import be.c4j.ee.security.jwt.config.JWEAlgorithm;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
 import be.c4j.ee.security.jwt.config.SCSConfig;
+import be.c4j.ee.security.util.StringUtil;
 import be.c4j.ee.security.util.TimeUtil;
 import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.*;
@@ -82,7 +83,7 @@ public class JWTSystemTokenTest {
         EncryptionHandlerFactory encryptionHandlerFactory = new EncryptionHandlerFactory();
         ReflectionUtil.injectDependencies(encryptionHandlerFactory, scsConfigMock, jwkManagerMock);
 
-        ReflectionUtil.injectDependencies(jwtSystemToken, new TimeUtil(), encryptionHandlerFactory);
+        ReflectionUtil.injectDependencies(jwtSystemToken, new TimeUtil(), new StringUtil(), encryptionHandlerFactory);
     }
 
     @Test

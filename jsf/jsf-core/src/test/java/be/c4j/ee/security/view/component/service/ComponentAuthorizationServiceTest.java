@@ -255,7 +255,7 @@ public class ComponentAuthorizationServiceTest {
     }
 
     @Test
-    public void hasAccess_StringPermission_Mapping() {
+    public void hasAccess_StringPermission_Mapping() throws IllegalAccessException {
         StringPermissionLookupFixture.registerLookup(beanManagerFake);
 
         finishSetup();
@@ -269,7 +269,7 @@ public class ComponentAuthorizationServiceTest {
     }
 
     @Test
-    public void hasAccess_StringPermission_Mapping_NoAccess() {
+    public void hasAccess_StringPermission_Mapping_NoAccess() throws IllegalAccessException {
         StringPermissionLookupFixture.registerLookup(beanManagerFake);
 
         finishSetup();

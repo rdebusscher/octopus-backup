@@ -16,6 +16,10 @@
 package be.c4j.ee.security.credentials.authentication.jwt.client.encryption;
 
 import be.c4j.ee.security.jwt.config.JWEAlgorithm;
+import be.c4j.ee.security.util.StringUtil;
+import be.c4j.test.util.BeanManagerFake;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +30,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncryptionHandlerFactoryTest {
 
+    private BeanManagerFake beanManagerFake;
+
+    @Before
+    public void setup() {
+        beanManagerFake = new BeanManagerFake();
+        beanManagerFake.registerBean(new StringUtil(), StringUtil.class);
+
+        beanManagerFake.endRegistration();
+    }
+
+    @After
+    public void teardown() {
+        beanManagerFake.deregistration();
+    }
 
     @Test
     public void getEncryptionHandler_AES() {

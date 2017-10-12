@@ -24,6 +24,7 @@ import be.c4j.ee.security.permission.PermissionLookupFixture;
 import be.c4j.ee.security.permission.StringPermissionLookup;
 import be.c4j.ee.security.realm.OctopusRealm;
 import be.c4j.ee.security.twostep.TwoStepConfig;
+import be.c4j.ee.security.util.StringUtil;
 import be.c4j.test.util.ReflectionUtil;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
@@ -426,6 +427,7 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         List<NamedDomainPermission> allPermissions = new ArrayList<NamedDomainPermission>();
         allPermissions.add(new NamedDomainPermission("permissionName", NAMED_OCTOPUS));
         StringPermissionLookup lookup = new StringPermissionLookup(allPermissions);
+        ReflectionUtil.injectDependencies(lookup, new StringUtil());
         beanManagerFake.registerBean(lookup, StringPermissionLookup.class);
 
         finishCDISetup();

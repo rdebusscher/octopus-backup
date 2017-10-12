@@ -18,6 +18,7 @@ package be.c4j.ee.security.credentials.authentication.keycloak.config;
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -25,6 +26,7 @@ import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.KeycloakDeploymentBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,12 +41,15 @@ public class KeycloakConfiguration extends AbstractOctopusConfig implements Modu
 
     private static final Object LOCK = new Object();
 
+    @Inject
+    private StringUtil stringUtil;
+
     private KeycloakDeployment oidcDeployment;
 
     @ConfigEntry
     public String getLocationKeycloakFile() {
         String propertyValue = ConfigResolver.getPropertyValue("keycloak.file");
-        if (propertyValue == null || propertyValue.trim().isEmpty()) {
+        if (stringUtil.isEmpty(propertyValue)) {
             throw new OctopusConfigurationException("keycloak.file configuration property is required");
         }
         return propertyValue;

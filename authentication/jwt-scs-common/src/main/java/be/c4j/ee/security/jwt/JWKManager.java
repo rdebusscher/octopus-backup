@@ -18,6 +18,7 @@ package be.c4j.ee.security.jwt;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.jwt.config.SCSConfig;
+import be.c4j.ee.security.util.StringUtil;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 
@@ -40,6 +41,9 @@ public class JWKManager {
     @Inject
     private SCSConfig scsConfig;
 
+    @Inject
+    private StringUtil stringUtil;
+
     private JWKSet jwkSet;
 
     @PostConstruct
@@ -50,7 +54,7 @@ public class JWKManager {
     private JWKSet readJWKSet() {
         JWKSet result;
         String jwkFile = scsConfig.getJWKFile();
-        if (jwkFile == null || jwkFile.trim().isEmpty()) {
+        if (stringUtil.isEmpty(jwkFile)) {
             throw new OctopusConfigurationException("A value for the parameter jwk.file is required");
         }
 

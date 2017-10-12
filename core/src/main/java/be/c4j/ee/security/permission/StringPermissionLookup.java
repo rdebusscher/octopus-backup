@@ -16,8 +16,10 @@
 package be.c4j.ee.security.permission;
 
 import be.c4j.ee.security.PublicAPI;
+import be.c4j.ee.security.util.StringUtil;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import java.util.*;
 
 /**
@@ -26,6 +28,9 @@ import java.util.*;
 @Typed
 @PublicAPI
 public class StringPermissionLookup {
+
+    @Inject
+    private StringUtil stringUtil;
 
     private Map<String, NamedDomainPermission> map;
 
@@ -42,7 +47,7 @@ public class StringPermissionLookup {
     }
 
     public NamedDomainPermission getPermission(String namedPermission) {
-        if (namedPermission == null || namedPermission.trim().isEmpty()) {
+        if (stringUtil.isEmpty(namedPermission)) {
             throw new IllegalArgumentException("namedPermission value can't be null or empty.");
         }
         // namedPermission : a String indicating a named permission defined by the constructor, or a wildcardString

@@ -18,11 +18,13 @@ package be.c4j.ee.security.credentials.authentication.jwt.config;
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  *
@@ -31,10 +33,13 @@ import javax.enterprise.context.ApplicationScoped;
 @PublicAPI
 public class JWTConfig extends AbstractOctopusConfig implements ModuleConfig {
 
+    @Inject
+    private StringUtil stringUtil;
+
     @ConfigEntry
     public String getLocationJWKFile() {
         String propertyValue = ConfigResolver.getPropertyValue("jwk.file");
-        if (propertyValue == null || propertyValue.trim().isEmpty()) {
+        if (stringUtil.isEmpty(propertyValue)) {
             throw new OctopusConfigurationException("jwk.file configuration property is required");
         }
         return propertyValue;
@@ -49,7 +54,7 @@ public class JWTConfig extends AbstractOctopusConfig implements ModuleConfig {
     @ConfigEntry
     public String getSystemAccountsMapFile() {
         String propertyValue = ConfigResolver.getPropertyValue("jwt.systemaccounts.map");
-        if (isSystemAccountsOnly() && (propertyValue == null || propertyValue.trim().isEmpty())) {
+        if (isSystemAccountsOnly() && stringUtil.isEmpty(propertyValue)) {
             throw new OctopusConfigurationException("jwt.systemaccounts.map configuration property is required when jwt.systemaccounts.only is set");
         }
         return propertyValue;

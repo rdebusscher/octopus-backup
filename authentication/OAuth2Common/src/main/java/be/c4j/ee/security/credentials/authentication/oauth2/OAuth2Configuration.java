@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
@@ -34,6 +35,9 @@ public class OAuth2Configuration extends OctopusJSFConfig {
     @Inject
     private OAuth2ProviderMetaDataControl oAuth2ProviderMetaDataControl;
 
+    @Inject
+    private StringUtil stringUtil;
+
     @Override
     public String getLoginPage() {
         return "DYNAMIC OAUTH2 BASED";
@@ -50,7 +54,7 @@ public class OAuth2Configuration extends OctopusJSFConfig {
             result.append(ConfigResolver.getPropertyValue(configParameter, ""));
         } else {
             String userProviderSelection = getUserProviderSelection();
-            if (userProviderSelection == null || userProviderSelection.isEmpty()) {
+            if (stringUtil.isEmpty(userProviderSelection)) {
                 for (OAuth2ProviderMetaData oAuth2ProviderMetaData : oAuth2ProviderMetaDataControl.getProviderInfos()) {
                     result.append(oAuth2ProviderMetaData.getName()).append(" : ");
                     result.append(ConfigResolver.getPropertyValue(oAuth2ProviderMetaData.getName() + '.' + configParameter, ""));

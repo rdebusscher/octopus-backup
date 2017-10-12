@@ -16,7 +16,9 @@
 package be.c4j.ee.security.view.component.secured;
 
 import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.util.StringUtil;
 import be.c4j.ee.security.view.component.OctopusComponentUsageException;
+import be.c4j.test.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,9 +51,11 @@ public class OctopusHandlerHelperTest {
     private OctopusHandlerHelper handlerHelper;
 
     @Before
-    public void setup() {
+    public void setup() throws IllegalAccessException {
         when(voterNameFactoryMock.generatePermissionBeanName("myPermission")).thenReturn("myPermissionVoter");
         when(voterNameFactoryMock.generateRoleBeanName("theRole")).thenReturn("theRoleVoter");
+
+        ReflectionUtil.injectDependencies(handlerHelper, new StringUtil());
     }
 
     @Test

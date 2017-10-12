@@ -20,6 +20,7 @@ import be.c4j.ee.security.twostep.otp.config.OTPConfig;
 import be.c4j.ee.security.twostep.otp.provider.DOTPProvider;
 import be.c4j.ee.security.twostep.otp.provider.HOTPProvider;
 import be.c4j.ee.security.twostep.otp.provider.TOTPProvider;
+import be.c4j.ee.security.util.StringUtil;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -38,6 +39,9 @@ public class OTPProviderFactory {
     @Inject
     private OTPConfig otpConfig;
 
+    @Inject
+    private StringUtil stringUtil;
+
     private OTPProvider otpProvider;
 
     public OTPProvider retrieveOTPProvider() {
@@ -53,7 +57,7 @@ public class OTPProviderFactory {
         Properties result = null;
         InputStream inputStream;
         String otpConfigFile = otpConfig.getOTPConfigFile();
-        if (otpConfigFile == null || otpConfigFile.isEmpty()) {
+        if (stringUtil.isEmpty(otpConfigFile)) {
             OctopusOTPAlgorithm algorithm = getOctopusOTPAlgorithm();
             if (algorithm != null) {
                 switch (algorithm) {

@@ -31,6 +31,8 @@ import java.util.List;
 @PublicAPI
 public class OctopusSEConfiguration extends AbstractOctopusConfig {
 
+    // TODO We could use StringUtil here. But we don't have @Inject and thus StringUtil is not in core-se but in core.
+
     private List<Debug> debugValues;
 
     public String getSSOApplication() {

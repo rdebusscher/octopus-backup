@@ -18,7 +18,9 @@ package be.c4j.ee.security.sso.client.config;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.sso.SSOFlow;
 import be.c4j.ee.security.util.SecretUtil;
+import be.c4j.ee.security.util.StringUtil;
 import be.c4j.test.TestConfigSource;
+import be.c4j.test.util.ReflectionUtil;
 import com.nimbusds.jose.util.Base64;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.junit.After;
@@ -40,9 +42,11 @@ public class OctopusSSOClientConfigurationTest {
     private SecretUtil secretUtil;
 
     @Before
-    public void setup() {
+    public void setup() throws IllegalAccessException {
         secretUtil = new SecretUtil();
         secretUtil.init();
+
+        ReflectionUtil.injectDependencies(configuration, new StringUtil());
     }
 
     @After

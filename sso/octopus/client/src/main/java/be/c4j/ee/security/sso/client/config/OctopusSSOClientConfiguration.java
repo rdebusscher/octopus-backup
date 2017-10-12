@@ -19,11 +19,13 @@ import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusJSFConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.sso.SSOFlow;
+import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import com.nimbusds.jose.util.Base64;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.inject.Specializes;
+import javax.inject.Inject;
 
 /**
  *
@@ -34,6 +36,8 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
 
     private String logoutPage;
 
+    @Inject
+    private StringUtil stringUtil;
 
     @Override
     public String getLoginPage() {
@@ -54,7 +58,7 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry
     public String getOctopusSSOServer() {
         String result = ConfigResolver.getPropertyValue("SSO.octopus.server");
-        if (result == null || result.trim().isEmpty()) {
+        if (stringUtil.isEmpty(result)) {
             throw new OctopusConfigurationException("Value for SSO.octopus.server parameter is empty.");
         }
         return result;
@@ -74,7 +78,7 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry
     public String getSSOClientId() {
         String ssoClientId = defineConfigValue("SSO.clientId");
-        if (ssoClientId.trim().isEmpty()) {
+        if (stringUtil.isEmpty(ssoClientId)) {
             throw new OctopusConfigurationException("Value for {SSO.application}SSO.clientId parameter is empty");
         }
         return ssoClientId;
@@ -83,7 +87,7 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry(noLogging = true)
     public byte[] getSSOClientSecret() {
         String ssoClientSecret = defineConfigValue("SSO.clientSecret");
-        if (getSSOType() == SSOFlow.AUTHORIZATION_CODE && (ssoClientSecret == null || ssoClientSecret.trim().isEmpty())) {
+        if (getSSOType() == SSOFlow.AUTHORIZATION_CODE && stringUtil.isEmpty(ssoClientSecret)) {
             throw new OctopusConfigurationException("Value for {SSO.application}SSO.clientSecret parameter is empty");
         }
         if (ssoClientSecret != null && !ssoClientSecret.trim().isEmpty()) {
@@ -100,7 +104,7 @@ public class OctopusSSOClientConfiguration extends OctopusJSFConfig {
     @ConfigEntry(noLogging = true)
     public byte[] getSSOIdTokenSecret() {
         String tokenSecret = defineConfigValue("SSO.idTokenSecret");
-        if (tokenSecret.trim().isEmpty()) {
+        if (stringUtil.isEmpty(tokenSecret)) {
             throw new OctopusConfigurationException("Value for {SSO.application}SSO.idTokenSecret parameter is empty");
         }
 

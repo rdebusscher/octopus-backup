@@ -16,6 +16,7 @@
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
+import be.c4j.ee.security.util.StringUtil;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -46,6 +47,9 @@ public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable
     @Inject
     private OAuth2ProviderMetaDataControl oAuth2ProviderMetaDataControl;
 
+    @Inject
+    private StringUtil stringUtil;
+
     private String userProviderSelection;
 
     private List<SelectItem> providerSelection;
@@ -66,7 +70,7 @@ public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable
     @Override
     public String getServletPath() {
         String result = null;
-        if (userProviderSelection == null || userProviderSelection.isEmpty()) {
+        if (stringUtil.isEmpty(userProviderSelection)) {
             if (providerInfos.size() > 1) {
                 result = oAuth2Configuration.getOAuth2ProviderSelectionPage();
             } else {

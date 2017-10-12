@@ -23,6 +23,7 @@ import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.JWTOperation;
 import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
+import be.c4j.ee.security.util.StringUtil;
 import be.c4j.ee.security.util.TimeUtil;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -56,6 +57,9 @@ public class JWTSystemToken {
     @Inject
     private TimeUtil timeUtil;
 
+    @Inject
+    private StringUtil stringUtil;
+
     private JWTOperation jwtOperation;
 
     @PostConstruct
@@ -67,7 +71,7 @@ public class JWTSystemToken {
     public String createJWTSystemToken(String systemAccount) {
 
         String apiKey = mappingSystemAccountToApiKey.getApiKey(systemAccount);
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (stringUtil.isEmpty(apiKey)) {
             throw new OctopusConfigurationException(String.format("No api-key found in the jwt.systemaccounts.map for '%s'", systemAccount));
         }
 

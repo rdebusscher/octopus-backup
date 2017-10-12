@@ -18,11 +18,13 @@ package be.c4j.ee.security.jwt.encryption;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.jwt.config.SCSConfig;
+import be.c4j.ee.security.util.StringUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.crypto.AESDecrypter;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.SignedJWT;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import java.text.ParseException;
 
@@ -34,11 +36,15 @@ public class AESDecryptionHandler implements DecryptionHandler {
 
     private SCSConfig jwtServerConfig;
 
+    private StringUtil stringUtil;
+
     @Override
     public void init(SCSConfig SCSConfig, JWKManager jwkManager) {
 
         this.jwtServerConfig = SCSConfig;
         // We don't need the jwkManager here
+
+        stringUtil = BeanProvider.getContextualReference(StringUtil.class);
     }
 
     @Override
@@ -47,7 +53,7 @@ public class AESDecryptionHandler implements DecryptionHandler {
 
         // Decrypt with shared key
         String aesTokenSecret = jwtServerConfig.getAESTokenSecret();
-        if (aesTokenSecret == null || aesTokenSecret.trim().isEmpty()) {
+        if (stringUtil.isEmpty(aesTokenSecret)) {
             throw new OctopusConfigurationException("Parameter jwt.aes.secret is required");
         }
         Base64 aesSecret = new Base64(aesTokenSecret);

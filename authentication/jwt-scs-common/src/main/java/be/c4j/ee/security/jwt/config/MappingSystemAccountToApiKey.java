@@ -16,6 +16,7 @@
 package be.c4j.ee.security.jwt.config;
 
 import be.c4j.ee.security.systemaccount.SystemAccountMapReader;
+import be.c4j.ee.security.util.StringUtil;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -36,6 +37,9 @@ public class MappingSystemAccountToApiKey {
     @Inject
     private SystemAccountMapReader systemAccountMapReader;
 
+    @Inject
+    private StringUtil stringUtil;
+
     private boolean systemAccountUsageActive;
 
     private Map<String, List<String>> systemAccountsMapping;
@@ -45,7 +49,7 @@ public class MappingSystemAccountToApiKey {
         systemAccountsMapping = new HashMap<String, List<String>>();
 
         String accountsMapFile = scsConfig.getSystemAccountsMapFile();
-        if (accountsMapFile == null || accountsMapFile.trim().isEmpty()) {
+        if (stringUtil.isEmpty(accountsMapFile)) {
             systemAccountUsageActive = false;
             return;
         }

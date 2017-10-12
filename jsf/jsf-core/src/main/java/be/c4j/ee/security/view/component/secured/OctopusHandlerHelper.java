@@ -16,6 +16,7 @@
 package be.c4j.ee.security.view.component.secured;
 
 import be.c4j.ee.security.config.VoterNameFactory;
+import be.c4j.ee.security.util.StringUtil;
 import be.c4j.ee.security.view.component.ComponentUtil;
 import be.c4j.ee.security.view.component.OctopusComponentUsageException;
 import be.c4j.ee.security.view.component.service.ComponentAuthorizationService;
@@ -39,9 +40,12 @@ public class OctopusHandlerHelper {
     @Inject
     private VoterNameFactory voterNameFactory;
 
+    @Inject
+    private StringUtil stringUtil;
+
     public SecuredComponentData gatherSecurityInfo(UIComponent component, UIComponent parent) {
         String voter = getVoterName(component);
-        if (voter.trim().isEmpty()) {
+        if (stringUtil.isEmpty(voter)) {
             throw new OctopusComponentUsageException("securedComponent needs one of the properties voter, permission or role specified");
         }
 

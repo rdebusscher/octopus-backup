@@ -18,11 +18,13 @@ package be.c4j.ee.security.jwt.config;
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  *
@@ -30,6 +32,9 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @PublicAPI
 public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
+
+    @Inject
+    private StringUtil stringUtil;
 
     private JWTOperation jwtOperation;
     private JWEAlgorithm jweAlgorithm;
@@ -46,15 +51,15 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
     }
 
     private void checkParameterValues() {
-        if (jweAlgorithm == JWEAlgorithm.AES && (getAESTokenSecret() == null || getAESTokenSecret().trim().isEmpty())) {
+        if (jweAlgorithm == JWEAlgorithm.AES && stringUtil.isEmpty(getAESTokenSecret())) {
             throw new OctopusConfigurationException("Parameter jwt.aes.secret is required when jwt.algorithms contains AES");
         }
 
-        if (jweAlgorithm == JWEAlgorithm.EC && (getJWKFile() == null || getJWKFile().trim().isEmpty())) {
+        if (jweAlgorithm == JWEAlgorithm.EC && stringUtil.isEmpty(getJWKFile())) {
             throw new OctopusConfigurationException("Parameter jwk.file is required when jwt.algorithms contains EC");
         }
 
-        if (jweAlgorithm == JWEAlgorithm.RSA && (getJWKFile() == null || getJWKFile().trim().isEmpty())) {
+        if (jweAlgorithm == JWEAlgorithm.RSA && stringUtil.isEmpty(getJWKFile())) {
             throw new OctopusConfigurationException("Parameter jwk.file is required when jwt.algorithms contains RSA");
         }
     }
@@ -91,7 +96,7 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
     @ConfigEntry(noLogging = true)
     public String getHMACTokenSecret() {
         String propertyValue = ConfigResolver.getPropertyValue("jwt.hmac.secret");
-        if (propertyValue == null || propertyValue.trim().isEmpty()) {
+        if (stringUtil.isEmpty(propertyValue)) {
             throw new OctopusConfigurationException("Parameter jwt.hmac.secret is required");
             // It is required if we use the transfer of Octopus User in REST Call (
             // If we use the System option (SystemAccount version with process to Process communication) this is not needed
