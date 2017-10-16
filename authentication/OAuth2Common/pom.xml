@@ -35,6 +35,27 @@
     <name>OAuth2 common (for all OAuth2 providers) classes</name>
 
     <dependencies>
+
+        <dependency>
+            <!-- required for one of the tests because javaee-api:6.0 is crippled -->
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+            <version>${myfaces.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-el_1.0_spec</artifactId>
+            <version>1.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -53,6 +74,24 @@
             <groupId>be.c4j.ee.security.octopus</groupId>
             <artifactId>octopus-jsf-core</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core-se</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

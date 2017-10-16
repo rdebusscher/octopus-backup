@@ -17,6 +17,7 @@ package be.c4j.ee.security.credentials.authentication.oauth2;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusJSFConfig;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -45,7 +46,11 @@ public class OAuth2Configuration extends OctopusJSFConfig {
 
     @ConfigEntry(noLogging = true)
     public String getClientId() {
-        return defineConfigValue("OAuth2.clientId");
+        String result = defineConfigValue("OAuth2.clientId");
+        if (stringUtil.isEmpty(result)) {
+            throw new OctopusConfigurationException("Parameter value OAuth2.clientId can't be null");
+        }
+        return result;
     }
 
     private String defineConfigValue(String configParameter) {
@@ -69,7 +74,11 @@ public class OAuth2Configuration extends OctopusJSFConfig {
 
     @ConfigEntry(noLogging = true)
     public String getClientSecret() {
-        return defineConfigValue("OAuth2.clientSecret");
+        String result = defineConfigValue("OAuth2.clientSecret");
+        if (stringUtil.isEmpty(result)) {
+            throw new OctopusConfigurationException("Parameter value OAuth2.clientSecret can't be null");
+        }
+        return result;
     }
 
     @ConfigEntry
