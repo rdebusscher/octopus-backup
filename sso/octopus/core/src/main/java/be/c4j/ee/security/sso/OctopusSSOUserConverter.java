@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso;
 
 import be.c4j.ee.security.OctopusConstants;
+import be.c4j.ee.security.sso.config.OctopusSSOConfiguration;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.rest.reflect.Property;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -26,10 +27,7 @@ import org.slf4j.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
@@ -41,6 +39,10 @@ import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 public class OctopusSSOUserConverter {
 
     private static final String MARKER_CUSTOM_CLASS = "@@";
+
+    @Inject
+    private OctopusSSOConfiguration ssoConfiguration;
+
     @Inject
     private Logger logger;
 
@@ -69,6 +71,11 @@ public class OctopusSSOUserConverter {
         info.remove(OctopusConstants.UPSTREAM_TOKEN);
         info.remove(AUTHORIZATION_INFO);
 
+        List<String> keysToFilter = getKeysToFilter();
+        for (String key : keysToFilter) {
+            info.remove(key);
+        }
+
         for (Map.Entry<String, Object> infoEntry : info.entrySet()) {
 
             Object value = infoEntry.getValue();
@@ -79,6 +86,15 @@ public class OctopusSSOUserConverter {
             }
         }
 
+        return result;
+    }
+
+    private List<String> getKeysToFilter() {
+        List<String> result = new ArrayList<String>();
+        String[] keys = ssoConfiguration.getKeysToFilter().split(",");
+        for (String key : keys) {
+            result.add(key.trim());
+        }
         return result;
     }
 

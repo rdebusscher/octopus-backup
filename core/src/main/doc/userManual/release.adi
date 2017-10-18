@@ -1,6 +1,7 @@
 === 0.9.7.1
 
 . Support for IdentityStores from Java EE Security API (Java EE 8) but also useable on Java EE 7 servers.
+. Improvement in the implementation of the OctopusSSOConverter (user info which is transferred from server to client) and possibility to not send some keys from userInfo map to SSO client.
 . @PublicAPI to indicates classes which should be stable between releases (Safe to use by developers)
 
 === 0.9.7

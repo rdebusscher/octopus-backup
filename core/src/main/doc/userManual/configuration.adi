@@ -332,6 +332,14 @@ With which encoding the idToken returned from the User endpoint is returned. Pos
 
 When the scope contains _octopus_, the default is set to JWT. The signing is performed with the HMAC returned by the clientInfo.getIdTokenSecret method.
 
+==== SSO.user.info.filtered (Octopus SSO Server)
+
+default : *NONE*
+
+A , separated list of user info map key values which should not be transferred to the SSO client. (as part of the Octopus SSO (user info)  Retrieval)
+
+Usefull when the user info map constains a _custom_ class which is not available on the SSO client. It can be defined when you see a warniong in the log that a class could not be located.
+
 ==== SSO.octopus.server (Octopus SSO Client)
 
 default : *(none)*

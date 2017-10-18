@@ -18,6 +18,7 @@ package be.c4j.ee.security.sso.server.endpoint;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.sso.OctopusSSOUser;
 import be.c4j.ee.security.sso.OctopusSSOUserConverter;
+import be.c4j.ee.security.sso.config.OctopusSSOConfiguration;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.server.client.ClientInfo;
 import be.c4j.ee.security.sso.server.client.ClientInfoRetriever;
@@ -93,6 +94,9 @@ public class OctopusSSOEndpointTest {
     @Mock
     private UriInfo uriDetailsMock;
 
+    @Mock
+    private OctopusSSOConfiguration octopusSSOConfigurationMock;
+
     private BeanManagerFake beanManagerFake;
 
     private OctopusSSOUser ssoUser;
@@ -111,7 +115,11 @@ public class OctopusSSOEndpointTest {
         when(ssoServerConfigurationMock.getUserEndpointEncoding()).thenReturn(UserEndpointEncoding.NONE);
 
         ssoUser = new OctopusSSOUser();
-        ReflectionUtil.injectDependencies(octopusSSOEndpoint, new OctopusSSOUserConverter(), new TimeUtil(), ssoUser);
+
+        OctopusSSOUserConverter converter = new OctopusSSOUserConverter();
+        ReflectionUtil.injectDependencies(converter, octopusSSOConfigurationMock);
+
+        ReflectionUtil.injectDependencies(octopusSSOEndpoint, converter, new TimeUtil(), ssoUser);
 
         secretUtil = new SecretUtil();
         secretUtil.init();
@@ -143,6 +151,7 @@ public class OctopusSSOEndpointTest {
         ssoUser.addUserInfo("Extra Key", "The value");
 
         when(uriDetailsMock.getRequestUri()).thenReturn(new URI("http://some.server/oidc/octopus/sso/user"));
+        when(octopusSSOConfigurationMock.getKeysToFilter()).thenReturn("");
 
         ClientInfo clientInfo = new ClientInfo();
         clientInfo.setIdTokenSecret(secretUtil.generateSecretBase64(48));

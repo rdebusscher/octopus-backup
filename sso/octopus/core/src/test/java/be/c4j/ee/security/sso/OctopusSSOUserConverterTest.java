@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso;
 
 import be.c4j.ee.security.model.UserPrincipal;
+import be.c4j.ee.security.sso.config.OctopusSSOConfiguration;
 import be.c4j.ee.security.sso.rest.PrincipalUserInfoJSONProvider;
 import be.c4j.ee.security.sso.testclasses.WithDefaultConstructor;
 import be.c4j.test.util.ReflectionUtil;
@@ -49,6 +50,9 @@ public class OctopusSSOUserConverterTest {
 
     @Mock
     private PrincipalUserInfoJSONProvider jsonProviderMock;
+
+    @Mock
+    private OctopusSSOConfiguration octopusSSOConfigurationMock;
 
     @InjectMocks
     private OctopusSSOUserConverter octopusSSOUserConverter;
@@ -89,6 +93,8 @@ public class OctopusSSOUserConverterTest {
         ssoUser.addUserInfo("UserPrincipal", userPrincipal);
         when(jsonProviderMock.writeValue(userPrincipal)).thenReturn("UserPrincipalSerialization");
 
+        when(octopusSSOConfigurationMock.getKeysToFilter()).thenReturn("");
+
         Map<String, Object> claims = octopusSSOUserConverter.asClaims(ssoUser, jsonProviderMock);
 
         assertThat(claims).containsEntry("id", "IdValue");
@@ -107,6 +113,44 @@ public class OctopusSSOUserConverterTest {
         assertThat(claims).containsEntry("dateProperty", dateValue);
         assertThat(claims).containsEntry("listProperty", stringList);
         assertThat(claims).containsEntry("UserPrincipal", "be.c4j.ee.security.model.UserPrincipal@@UserPrincipalSerialization");
+
+    }
+
+    @Test
+    public void asClaims_filtered() {
+        OctopusSSOUser ssoUser = new OctopusSSOUser();
+
+        ssoUser.setId("IdValue");
+        ssoUser.setLocalId("LocalIdValue");
+
+        ssoUser.setUserName("UserNameValue");
+
+        ssoUser.setLastName("LastNameValue");
+        ssoUser.setFirstName("FirstNameValue");
+        ssoUser.setFullName("FullNameValue");
+        ssoUser.setEmail("EmailValue");
+
+        ssoUser.addUserInfo("token", "ShouldBeRemovedToken");
+        ssoUser.addUserInfo("upstreamToken", "ShouldBeRemovedUpstreamToken");
+        ssoUser.addUserInfo(AUTHORIZATION_INFO, "ShouldBeRemovedAuthorizationInfo");
+
+        ssoUser.addUserInfo("stringProperty", "StringPropertyValue");
+
+        when(octopusSSOConfigurationMock.getKeysToFilter()).thenReturn(" stringProperty , somethingElse");
+
+        Map<String, Object> claims = octopusSSOUserConverter.asClaims(ssoUser, jsonProviderMock);
+
+        assertThat(claims).containsEntry("id", "IdValue");
+        assertThat(claims).containsEntry(LOCAL_ID, "LocalIdValue");
+
+        assertThat(claims).containsEntry(UserInfo.PREFERRED_USERNAME_CLAIM_NAME, "UserNameValue");
+
+        assertThat(claims).containsEntry(UserInfo.FAMILY_NAME_CLAIM_NAME, "LastNameValue");
+        assertThat(claims).containsEntry(UserInfo.GIVEN_NAME_CLAIM_NAME, "FirstNameValue");
+        assertThat(claims).containsEntry(UserInfo.NAME_CLAIM_NAME, "FullNameValue");
+        assertThat(claims).containsEntry(UserInfo.EMAIL_CLAIM_NAME, "EmailValue");
+
+        assertThat(claims).doesNotContainKeys("stringProperty");
 
     }
 
