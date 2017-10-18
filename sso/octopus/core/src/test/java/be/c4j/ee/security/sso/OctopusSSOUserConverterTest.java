@@ -204,6 +204,36 @@ public class OctopusSSOUserConverterTest {
     }
 
     @Test
+    public void fromUserInfo_UnknownClass() throws IllegalAccessException {
+        // Fixing issue #137
+        TestLogger logger = TestLoggerFactory.getTestLogger(OctopusSSOUserConverter.class);
+        ReflectionUtil.injectDependencies(octopusSSOUserConverter, logger);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", "IdValue");
+        jsonObject.put(LOCAL_ID, "LocalIdValue");
+
+        jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
+        jsonObject.put("customKey", "be.atbash.security.demo.ServerClass@@{property=value}");
+        UserInfo userInfo = new UserInfo(jsonObject);
+
+        OctopusSSOUser ssoUser = octopusSSOUserConverter.fromUserInfo(userInfo, jsonProviderMock);
+
+        assertThat(ssoUser.getId()).isEqualTo("IdValue");
+        assertThat(ssoUser.getLocalId()).isEqualTo("LocalIdValue");
+
+        assertThat(ssoUser.getUserName()).isEqualTo("RequiredByOpenIDConnectSpec");
+
+        assertThat(ssoUser.getUserInfo().get("customKey")).isEqualTo("be.atbash.security.demo.ServerClass@@{property=value}");
+
+
+        assertThat(logger.getLoggingEvents()).hasSize(1);
+        assertThat(logger.getLoggingEvents().get(0).getLevel()).isEqualTo(Level.WARN);
+        assertThat(logger.getLoggingEvents().get(0).getMessage()).isEqualTo("Reading serialized userInfo data failed for OctopusSSOUser as class be.atbash.security.demo.ServerClass can't be located");
+
+    }
+
+    @Test
     public void fromUserInfo_NoDefaultConstructor() throws IllegalAccessException {
         TestLogger logger = TestLoggerFactory.getTestLogger(OctopusSSOUserConverter.class);
         ReflectionUtil.injectDependencies(octopusSSOUserConverter, logger);

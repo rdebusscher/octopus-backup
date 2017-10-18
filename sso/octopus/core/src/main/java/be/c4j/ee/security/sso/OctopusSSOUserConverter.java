@@ -128,7 +128,7 @@ public class OctopusSSOUserConverter {
 
     private Class<?> tryToDefineClass(String keyValue) {
         Class<?> result = null;
-        String[] parts = keyValue.split("@", 2);
+        String[] parts = keyValue.split("@@", 2);
         try {
             result = Class.forName(parts[0]);
         } catch (ClassNotFoundException e) {
@@ -136,7 +136,7 @@ public class OctopusSSOUserConverter {
             logger.warn(String.format("Reading serialized userInfo data failed for OctopusSSOUser as class %s can't be located", parts[0]));
         }
 
-        if (!checkDefaultConstructor(result)) {
+        if (result != null && !checkDefaultConstructor(result)) {
             logger.warn(String.format("Reading serialized userInfo data failed for OctopusSSOUser as class %s doesn't have a default constructor", parts[0]));
             result = null;
         }
