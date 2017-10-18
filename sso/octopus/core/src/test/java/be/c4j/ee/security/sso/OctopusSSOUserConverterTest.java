@@ -106,7 +106,7 @@ public class OctopusSSOUserConverterTest {
         assertThat(claims).containsEntry("booleanProperty", Boolean.TRUE);
         assertThat(claims).containsEntry("dateProperty", dateValue);
         assertThat(claims).containsEntry("listProperty", stringList);
-        assertThat(claims).containsEntry("UserPrincipal", "be.c4j.ee.security.model.UserPrincipal@UserPrincipalSerialization");
+        assertThat(claims).containsEntry("UserPrincipal", "be.c4j.ee.security.model.UserPrincipal@@UserPrincipalSerialization");
 
     }
 
@@ -134,7 +134,7 @@ public class OctopusSSOUserConverterTest {
         stringList.add("JUnit");
 
         jsonObject.put("listProperty", stringList);
-        jsonObject.put("UserPrincipal", "be.c4j.ee.security.model.UserPrincipal@UserPrincipalSerialization");
+        jsonObject.put("UserPrincipal", "be.c4j.ee.security.model.UserPrincipal@@UserPrincipalSerialization");
 
         jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
         UserInfo userInfo = new UserInfo(jsonObject);
@@ -182,6 +182,28 @@ public class OctopusSSOUserConverterTest {
     }
 
     @Test
+    public void fromUserInfo_EmailSupport() {
+        // Fixing issue #136
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", "IdValue");
+        jsonObject.put(LOCAL_ID, "LocalIdValue");
+
+        jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
+        jsonObject.put("mail", "some.person@foor.org");
+        UserInfo userInfo = new UserInfo(jsonObject);
+
+        OctopusSSOUser ssoUser = octopusSSOUserConverter.fromUserInfo(userInfo, jsonProviderMock);
+
+        assertThat(ssoUser.getId()).isEqualTo("IdValue");
+        assertThat(ssoUser.getLocalId()).isEqualTo("LocalIdValue");
+
+        assertThat(ssoUser.getUserName()).isEqualTo("RequiredByOpenIDConnectSpec");
+        assertThat(ssoUser.getUserInfo().get("mail")).isEqualTo("some.person@foor.org");
+
+    }
+
+    @Test
     public void fromUserInfo_NoDefaultConstructor() throws IllegalAccessException {
         TestLogger logger = TestLoggerFactory.getTestLogger(OctopusSSOUserConverter.class);
         ReflectionUtil.injectDependencies(octopusSSOUserConverter, logger);
@@ -192,7 +214,7 @@ public class OctopusSSOUserConverterTest {
 
         jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
 
-        jsonObject.put("noDefaultConstructor", "be.c4j.ee.security.sso.testclasses.NoDefaultConstructor@JUnit");
+        jsonObject.put("noDefaultConstructor", "be.c4j.ee.security.sso.testclasses.NoDefaultConstructor@@JUnit");
         UserInfo userInfo = new UserInfo(jsonObject);
 
         OctopusSSOUser ssoUser = octopusSSOUserConverter.fromUserInfo(userInfo, jsonProviderMock);
@@ -200,7 +222,7 @@ public class OctopusSSOUserConverterTest {
         assertThat(ssoUser.getId()).isEqualTo("IdValue");
         assertThat(ssoUser.getLocalId()).isEqualTo("LocalIdValue");
 
-        assertThat(ssoUser.getUserInfo()).containsEntry("noDefaultConstructor", "be.c4j.ee.security.sso.testclasses.NoDefaultConstructor@JUnit");
+        assertThat(ssoUser.getUserInfo()).containsEntry("noDefaultConstructor", "be.c4j.ee.security.sso.testclasses.NoDefaultConstructor@@JUnit");
 
         assertThat(logger.getLoggingEvents()).hasSize(1);
         assertThat(logger.getLoggingEvents().get(0).getLevel()).isEqualTo(Level.WARN);
@@ -217,7 +239,7 @@ public class OctopusSSOUserConverterTest {
 
         jsonObject.put("sub", "RequiredByOpenIDConnectSpec");
 
-        jsonObject.put("withDefaultConstructor", "be.c4j.ee.security.sso.testclasses.WithDefaultConstructor@JUnit");
+        jsonObject.put("withDefaultConstructor", "be.c4j.ee.security.sso.testclasses.WithDefaultConstructor@@JUnit");
         UserInfo userInfo = new UserInfo(jsonObject);
 
         when(jsonProviderMock.readValue("JUnit", WithDefaultConstructor.class)).thenReturn(new WithDefaultConstructor("JUnit"));

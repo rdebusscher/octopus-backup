@@ -40,6 +40,7 @@ import static be.c4j.ee.security.OctopusConstants.LOCAL_ID;
 @ApplicationScoped
 public class OctopusSSOUserConverter {
 
+    private static final String MARKER_CUSTOM_CLASS = "@@";
     @Inject
     private Logger logger;
 
@@ -74,7 +75,7 @@ public class OctopusSSOUserConverter {
             if (Property.isBasicPropertyType(value)) {
                 result.put(infoEntry.getKey(), value);
             } else {
-                result.put(infoEntry.getKey(), value.getClass().getName() + "@" + jsonProvider.writeValue(value));
+                result.put(infoEntry.getKey(), value.getClass().getName() + MARKER_CUSTOM_CLASS + jsonProvider.writeValue(value));
             }
         }
 
@@ -104,12 +105,12 @@ public class OctopusSSOUserConverter {
 
             if (!DEFAULT_PROPERTY_NAMES.contains(keyName)) {
                 String keyValue = getString(jsonObject, keyName);
-                if (keyValue.contains("@")) {
+                if (keyValue.contains(MARKER_CUSTOM_CLASS)) {
 
                     Class<?> aClass = tryToDefineClass(keyValue);
                     if (aClass != null) {
-                        int markerPos = keyValue.indexOf('@');
-                        value = jsonProvider.readValue(keyValue.substring(markerPos + 1), aClass);
+                        int markerPos = keyValue.indexOf(MARKER_CUSTOM_CLASS);
+                        value = jsonProvider.readValue(keyValue.substring(markerPos + MARKER_CUSTOM_CLASS.length()), aClass);
                     } else {
                         value = keyValue; // We don't have the class, we keep the string representation for convenience.
                     }
