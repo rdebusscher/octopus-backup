@@ -60,20 +60,10 @@
     </developers>
 
     <distributionManagement>
-        <repository>
-            <id>nexus_C4J</id>
-            <name>OpenSource Nexus of C4J</name>
-            <url>http://nexus-osc4j.rhcloud.com/content/repositories/releases</url>
-        </repository>
-        <!--repository>
-            <id>bintray-rdebusscher-Octopus</id>
-            <name>rdebusscher-Octopus</name>
-            <url>https://api.bintray.com/maven/rdebusscher/Octopus/Octopus/;publish=1</url>
-        </repository-->
         <snapshotRepository>
-            <id>nexus_C4J</id>
-            <name>OpenSource Nexus of C4J</name>
-            <url>http://nexus-osc4j.rhcloud.com/content/repositories/snapshots</url>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${user.dir}/target/mvn-repo</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -94,6 +84,8 @@
 
         <jadler.version>1.3.0</jadler.version>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+
+        <github.global.server>github</github.global.server>
     </properties>
 
     <modules>
@@ -251,6 +243,33 @@
                     <!-- Resetted the ignore and excluded for the next release -->
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.11</version>
+                <configuration>
+                    <message>Maven artifacts for Octopus ${project.version}</message>  <!-- git commit message -->
+                    <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+                    <outputDirectory>${user.dir}/target/mvn-repo
+                    </outputDirectory> <!-- matches distribution management repository url above -->
+                    <branch>refs/heads/master</branch>                       <!-- remote branch name -->
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <repositoryName>mvn_repo</repositoryName>      <!-- github repo name -->
+                    <repositoryOwner>atbashEE</repositoryOwner>    <!-- github username  -->
+                    <merge>true</merge>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -299,6 +318,26 @@
                 </plugins>
             </build>
 
+        </profile>
+        <profile>
+            <id>release</id>
+            <distributionManagement>
+                <repository>
+                    <id>nexus_C4J</id>
+                    <name>OpenSource Nexus of C4J</name>
+                    <url>http://nexus-osc4j.rhcloud.com/content/repositories/releases</url>
+                </repository>
+                <!--repository>
+                    <id>bintray-rdebusscher-Octopus</id>
+                    <name>rdebusscher-Octopus</name>
+                    <url>https://api.bintray.com/maven/rdebusscher/Octopus/Octopus/;publish=1</url>
+                </repository-->
+                <snapshotRepository>
+                    <id>nexus_C4J</id>
+                    <name>OpenSource Nexus of C4J</name>
+                    <url>http://nexus-osc4j.rhcloud.com/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
         </profile>
 
     </profiles>
