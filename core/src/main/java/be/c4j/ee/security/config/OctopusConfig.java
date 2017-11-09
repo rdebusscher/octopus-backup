@@ -17,9 +17,11 @@ package be.c4j.ee.security.config;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusConfigurationException;
+import be.c4j.ee.security.hash.SimpleHashFactory;
 import be.c4j.ee.security.permission.NamedPermission;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.salt.HashEncoding;
+import be.c4j.ee.security.util.StringUtil;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -27,6 +29,7 @@ import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +49,9 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     private Class<? extends Annotation> customCheckClass;
 
     private List<Debug> debugValues;
+
+    @Inject
+    private StringUtil stringUtil;
 
     protected OctopusConfig() {
     }
@@ -103,6 +109,24 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     @ConfigEntry
     public String getSaltLength() {
         return ConfigResolver.getPropertyValue("saltLength", "0");
+    }
+
+    @ConfigEntry
+    public Integer getHashIterations() {
+        Integer result = null;
+        String hashAlgorithmName = getHashAlgorithmName();
+        if (!stringUtil.isEmpty(hashAlgorithmName)) {
+
+            int defaultValue = SimpleHashFactory.getInstance().getDefaultHashIterations(hashAlgorithmName);
+            String value = ConfigResolver.getPropertyValue("hashIterations", String.valueOf(defaultValue));
+
+            try {
+                result = Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                throw new OctopusConfigurationException(String.format("Parameter hashIterations must a a positive integer value : %s", e.getLocalizedMessage()));
+            }
+        }
+        return result;
     }
 
     // TODO used on the OctopusUserFilter from the core, but basically only for JSF. So we should move OctopususerFilter to JSF Core?

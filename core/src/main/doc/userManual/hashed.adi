@@ -5,6 +5,8 @@ https://crackstation.net/hashing-security.htm
 
 Hashed passwords with a different value for the salt for each user is one of the most secure ways of storing password values. Because from the hashed password, the original value is very hard to retrieve, or practical impossible with the newer hash algorithms like SHA-512.
 
+Since v0.9.7.1, the Key deriviation algorithms are also supported. Although not directly designed for hashing passwords, they can also be used for this purpose. https://en.wikipedia.org/wiki/Key_derivation_function
+
 ==== Setup
 
 There is no additional dependency needed to support hashed passwords. The Core artifact (included by the JSF artifact) contain all the required classes.
@@ -17,7 +19,24 @@ hashAlgorithmName=SHA-256
 
 When this parameter is defined in one of the +octopusConfig.properties+ files, the hashed Password matcher of apache Shiro will be used to compare the entered and the expected password.
 
-Supported hash algorithms are MD2, MD5, SHA-1, SHA-256, SHA-384 and SHA-512.
+Any supported hash or key deriviation algorithm by the JVM can be used as name of the parameter.
+
+For the key deriviation algorithms, the developer has the option to specify only the name (like PBKDF2) and it is translated into the real name used by the JVM like PBKDF2WithHmacSHA1 (Java 7) or PBKDF2WithHmacSHA256 (Java 8).
+But for backwards compatibility of your application, it is better to specify the full name.
+
+Typical real hash functions are SHA-256, SHA-512 etc ... (MD2 and MD5 are also available but no longer considered best practice).
+
+==== Hash iterations
+
+A new configuration parameter is available since v0.9.7.1 to define the number of iterations used in the hashing.
+
+The parameter is +hashIterations+ and is by default 1 for the hashing functions like SHA-256. This to achieve backwards comptability with older versions.
+
+But any (realistic) positive integer value can be specified and will be used to define the number of iterations which are performed.
+
+==== Hash encoding
+
+There are 2 encodings supported, HEX and Base64. Hex is the default but it can be altered by using the parameter +hashEncoding+.
 
 ==== Authentication
 
@@ -74,14 +93,6 @@ byte[] salt = saltHashingUtil.nextSalt();
 ----
 
 The length of this value is determined by the configuration parameter +saltLength+. And longer salts are safer then short salt values.
-
-==== Other utility methods
-
-Since you also need to store the hash in to a database for example, it is easier when this value contains only regular characters (like a to Z) instead of any type of character (byte) which can also be control characters.
-
-Base64 is a typical conversion which you can use to convert any type of byte sequence to a 'readable' string in a revertable way. (this is different from the one way hashing algorithms used above)
-
-For this purpose you can use the +org.apache.shiro.codec.Base64+ class.
 
 
 

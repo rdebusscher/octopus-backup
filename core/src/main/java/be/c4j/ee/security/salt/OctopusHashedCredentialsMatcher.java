@@ -15,15 +15,23 @@
  */
 package be.c4j.ee.security.salt;
 
+import be.c4j.ee.security.hash.SimpleHashFactory;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.crypto.hash.Hash;
 
 /**
  *
  */
 public class OctopusHashedCredentialsMatcher extends HashedCredentialsMatcher {
+
+    private SimpleHashFactory simpleHashFactory;
+
+    public OctopusHashedCredentialsMatcher() {
+        simpleHashFactory = SimpleHashFactory.getInstance();
+    }
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
@@ -32,5 +40,9 @@ public class OctopusHashedCredentialsMatcher extends HashedCredentialsMatcher {
         } else {
             return false;
         }
+    }
+
+    protected Hash hashProvidedCredentials(Object credentials, Object salt, int hashIterations) {
+        return simpleHashFactory.defineHash(getHashAlgorithmName(), credentials, salt, hashIterations);
     }
 }

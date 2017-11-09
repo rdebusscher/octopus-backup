@@ -19,7 +19,10 @@ import be.c4j.ee.security.config.ConfigurationPlugin;
 import be.c4j.ee.security.config.ConfigurationPluginHelper;
 import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.filter.GlobalFilterConfiguration;
+import be.c4j.ee.security.hash.KeyFactoryNameFactory;
+import be.c4j.ee.security.hash.SimpleHashFactory;
 import be.c4j.ee.security.log.InfoVersionLogging;
 import be.c4j.ee.security.realm.OctopusRealmAuthenticator;
 import be.c4j.ee.security.salt.HashEncoding;
@@ -38,6 +41,7 @@ import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -74,11 +78,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
 
             String hashAlgorithmName = config.getHashAlgorithmName();
             if (!hashAlgorithmName.isEmpty()) {
-                try {
-                    MessageDigest.getInstance(hashAlgorithmName);
-                } catch (NoSuchAlgorithmException e) {
-                    throw new IllegalArgumentException("Hash algorithm name unknown : " + hashAlgorithmName, e);
-                }
+                checkHashAlgorithmName(hashAlgorithmName);
                 addHashedCredentialsConfig(ini, hashAlgorithmName);
             }
 
@@ -97,6 +97,11 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         versionLogging.showVersionInfo();
 
         super.setIni(ini);
+    }
+
+    private String checkHashAlgorithmName(String hashAlgorithmName) {
+        SimpleHashFactory factory = SimpleHashFactory.getInstance();
+        return factory.defineRealHashAlgorithmName(hashAlgorithmName);
     }
 
     private void logIniContents(Ini ini) {
@@ -175,6 +180,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         if (config.getHashEncoding() != HashEncoding.HEX) {
             mainSection.put("hashedMatcher.storedCredentialsHexEncoded", "false");
         }
+        mainSection.put("hashedMatcher.hashIterations", String.valueOf(config.getHashIterations()));
         ConfigurationPluginHelper.addToList(ini, IniSecurityManagerFactory.MAIN_SECTION_NAME, "credentialsMatcher.matchers", "$hashedMatcher");
     }
 

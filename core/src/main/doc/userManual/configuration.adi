@@ -154,7 +154,7 @@ When true, the Mobile Renderers of primeFaces are excluded. This can be needed d
 
 default : *(none)*
 
-Name of the MessageDigest algorithm when you use hashed passwords. examples are Md5 and Sha512.
+Name of the MessageDigest algorithm when you use hashed passwords. examples are SHA-512 and PBKDF2 (a key deriviation function).
 
 ==== saltLength
 
@@ -167,6 +167,14 @@ Number of bytes used when creating a salt for the hashing of passwords.  0 means
 default : *HEX*
 
 Defines how the hashed passwords are encoded (HEX or BASE64) before they are compared to the supplied value which should be identically before access is granted. The value specified in the configuration file is case insensitive compared with the allowed values.
+
+==== hashIterations (since v0.9.7.1)
+
+default : *1* or *1024*
+
+Defines the number of iterations that are performed within the hashing algorithm.
+
+The default value 1 is taken for the *'real'* hashing functions like SHA-256 (to achieve backwards compatibility), 1024 is for the Key deriviation functions like PBKDF2.
 
 ==== cacheManager.class
 

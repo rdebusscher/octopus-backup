@@ -17,6 +17,7 @@ package be.c4j.ee.security.salt;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.OctopusConfig;
+import be.c4j.ee.security.hash.SimpleHashFactory;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
@@ -94,12 +95,12 @@ public class SaltHashingUtil {
     }
 
     private String hashInHex(String password, byte[] salt) {
-        SimpleHash hash = new SimpleHash(config.getHashAlgorithmName(), password, salt);
+        SimpleHash hash = SimpleHashFactory.getInstance().defineHash(config.getHashAlgorithmName(), password, salt, config.getHashIterations());
         return hash.toHex();
     }
 
     private String hashInBase64(String password, byte[] salt) {
-        SimpleHash hash = new SimpleHash(config.getHashAlgorithmName(), password, salt);
+        SimpleHash hash = SimpleHashFactory.getInstance().defineHash(config.getHashAlgorithmName(), password, salt, config.getHashIterations());
         return hash.toBase64();
     }
 
