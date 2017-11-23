@@ -16,6 +16,7 @@
 package be.c4j.ee.security.sso.client.callback;
 
 import be.c4j.ee.security.authentication.octopus.OctopusSEConfiguration;
+import be.c4j.ee.security.authentication.octopus.requestor.CustomUserInfoValidator;
 import be.c4j.ee.security.authentication.octopus.requestor.OctopusUserRequestor;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
@@ -69,11 +70,9 @@ public class SSOCallbackServlet extends HttpServlet {
     @Inject
     private SessionUtil sessionUtil;
 
-    private OctopusUserRequestor octopusUserRequestor;
+    private CustomUserInfoValidator customUserInfoValidator;
 
-    /*
-    private PrincipalUserInfoJSONProvider userInfoJSONProvider;
-*/
+    private OctopusUserRequestor octopusUserRequestor;
 
     @Override
     public void init() throws ServletException {
@@ -83,8 +82,10 @@ public class SSOCallbackServlet extends HttpServlet {
             userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
         }
 
+        customUserInfoValidator = BeanProvider.getContextualReference(CustomUserInfoValidator.class, true);
+
         // new OctopusSEConfiguration() -> A bit weird, but due to Deltaspike config, it reads from the correct configuration
-        octopusUserRequestor = new OctopusUserRequestor(new OctopusSEConfiguration(), octopusSSOUserConverter, userInfoJSONProvider);
+        octopusUserRequestor = new OctopusUserRequestor(new OctopusSEConfiguration(), octopusSSOUserConverter, userInfoJSONProvider, customUserInfoValidator);
     }
 
     @Override

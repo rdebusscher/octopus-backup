@@ -40,7 +40,7 @@ public class OpenIdVariableClientData implements Serializable {
     /**
      * Used from within the Octopus SSO client module.
      *
-     * @param rootURL
+     * @param rootURL Root url of the client web application.
      */
     public OpenIdVariableClientData(String rootURL) {
         this.rootURL = rootURL;

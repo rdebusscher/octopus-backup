@@ -66,7 +66,8 @@ public class MainProgram {
 
         AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;
 
-        OctopusUserRequestor octopusUserRequestor = new OctopusUserRequestor(configuration, new OctopusSSOUserConverter(), new DefaultPrincipalUserInfoJSONProvider());
+        OctopusUserRequestor octopusUserRequestor = new OctopusUserRequestor(configuration, new OctopusSSOUserConverter(),
+                new DefaultPrincipalUserInfoJSONProvider(), null);
 
         OpenIdVariableClientData clientData = new OpenIdVariableClientData();
         OctopusSSOUser octopusSSOUser = null;

@@ -51,11 +51,14 @@ public class OctopusUserRequestor extends AbstractRequestor {
     private OctopusSSOUserConverter octopusSSOUserConverter;
 
     private PrincipalUserInfoJSONProvider userInfoJSONProvider;
+    private CustomUserInfoValidator customUserInfoValidator;
 
-    public OctopusUserRequestor(OctopusSEConfiguration configuration, OctopusSSOUserConverter octopusSSOUserConverter, PrincipalUserInfoJSONProvider userInfoJSONProvider) {
+    public OctopusUserRequestor(OctopusSEConfiguration configuration, OctopusSSOUserConverter octopusSSOUserConverter, PrincipalUserInfoJSONProvider userInfoJSONProvider
+            , CustomUserInfoValidator customUserInfoValidator) {
         super(configuration);
         this.octopusSSOUserConverter = octopusSSOUserConverter;
         this.userInfoJSONProvider = userInfoJSONProvider;
+        this.customUserInfoValidator = customUserInfoValidator;
     }
 
     public OctopusSSOUser getOctopusSSOUser(OpenIdVariableClientData variableClientData, BearerAccessToken accessToken) throws URISyntaxException, ParseException, JOSEException, java.text.ParseException, OctopusRetrievalException {
@@ -111,6 +114,10 @@ public class OctopusUserRequestor extends AbstractRequestor {
 
         // We always use scope 'octopus' so JWT is always signed and according spec, we need iss, aud and added nonce ourself.
         List<String> claimsWithIssue = validateUserInfo(userInfo, variableClientData);
+
+        if (customUserInfoValidator != null) {
+            claimsWithIssue = customUserInfoValidator.validateUserInfo(userInfo, variableClientData, claimsWithIssue);
+        }
 
         if (!claimsWithIssue.isEmpty()) {
             StringBuilder claimsWithError = new StringBuilder();

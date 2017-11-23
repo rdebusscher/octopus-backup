@@ -32,21 +32,28 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import net.jadler.Jadler;
 import net.minidev.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -265,10 +272,119 @@ public class OctopusUserRequestorTest {
 
         BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
 
-        OctopusSSOUser ssoUser = octopusUserRequestor.getOctopusSSOUser(clientData, accessToken);
+        octopusUserRequestor.getOctopusSSOUser(clientData, accessToken);
 
-        assertThat(ssoUser.getAccessToken()).isEqualTo(accessToken.getValue());
-        assertThat(ssoUser.getUserInfo()).hasSize(5);
+    }
+
+    @Test
+    public void getOctopusSSOUser_missingAud() throws ParseException, JOSEException, OctopusRetrievalException, com.nimbusds.oauth2.sdk.ParseException, URISyntaxException {
+
+        OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
+
+        TimeUtil timeUtil = new TimeUtil();
+
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+        builder.subject("JUnit");
+        builder.issuer("http://localhost/oidc");
+        builder.audience("JUnit_client");
+        builder.claim("nonce", clientData.getNonce().getValue());
+        builder.expirationTime(timeUtil.addSecondsToDate(2, new Date()));
+
+        SecretUtil secretUtil = new SecretUtil();
+        secretUtil.init();
+        String secret = secretUtil.generateSecretBase64(32);
+
+        when(configurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
+        when(configurationMock.getOctopusSSOServer()).thenReturn("http://localhost/oidc");
+        when(configurationMock.getSSOClientId()).thenReturn("anotherClient");
+        when(configurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
+
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+        SignedJWT signedJWT = new SignedJWT(header, builder.build());
+
+        try {
+            signedJWT.sign(new MACSigner(secret));
+        } catch (JOSEException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+        Jadler.onRequest()
+                .havingMethodEqualTo("GET")
+                .havingPathEqualTo("/oidc/octopus/sso/user")
+                .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
+                .respond()
+                .withBody(signedJWT.serialize())
+                .withContentType(APPLICATION_JWT);
+
+
+        BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
+
+        try {
+            octopusUserRequestor.getOctopusSSOUser(clientData, accessToken);
+            Assert.fail("Exception expected");
+        } catch (OctopusRetrievalException e) {
+            assertThat(e.getMessage()).isEqualTo("JWT claim Validation failed : aud");
+        }
+
+    }
+
+    @Test
+    public void getOctopusSSOUser_customValidator() throws ParseException, JOSEException, OctopusRetrievalException, com.nimbusds.oauth2.sdk.ParseException, URISyntaxException, IllegalAccessException {
+        // Inject custom validator
+        CustomUserInfoValidator customUserInfoValidatorMock = Mockito.mock(CustomUserInfoValidator.class);
+        ReflectionUtil.injectDependencies(octopusUserRequestor, customUserInfoValidatorMock);
+
+        // Change List of Claims
+        List<String> wrongClaims = new ArrayList<String>();
+        wrongClaims.add("JUnit");
+        when(customUserInfoValidatorMock.validateUserInfo(any(UserInfo.class), any(OpenIdVariableClientData.class), ArgumentMatchers.<String>anyList()))
+                .thenReturn(wrongClaims);
+
+        OpenIdVariableClientData clientData = new OpenIdVariableClientData("someRoot");
+
+        TimeUtil timeUtil = new TimeUtil();
+
+        JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+        builder.subject("JUnit");
+        builder.issuer("http://localhost/oidc");
+        builder.audience("JUnit_client");
+        builder.claim("nonce", clientData.getNonce().getValue());
+        builder.expirationTime(timeUtil.addSecondsToDate(2, new Date()));
+
+        SecretUtil secretUtil = new SecretUtil();
+        secretUtil.init();
+        String secret = secretUtil.generateSecretBase64(32);
+
+        when(configurationMock.getUserInfoEndpoint()).thenReturn("http://localhost:" + Jadler.port() + "/oidc/octopus/sso/user");
+        when(configurationMock.getOctopusSSOServer()).thenReturn("http://localhost/oidc");
+        when(configurationMock.getSSOClientId()).thenReturn("anotherClient");
+        when(configurationMock.getSSOIdTokenSecret()).thenReturn(secret.getBytes());
+
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+        SignedJWT signedJWT = new SignedJWT(header, builder.build());
+
+        try {
+            signedJWT.sign(new MACSigner(secret));
+        } catch (JOSEException e) {
+            throw new OctopusUnexpectedException(e);
+        }
+        Jadler.onRequest()
+                .havingMethodEqualTo("GET")
+                .havingPathEqualTo("/oidc/octopus/sso/user")
+                .havingHeaderEqualTo("Authorization", "Bearer TheAccessToken")
+                .respond()
+                .withBody(signedJWT.serialize())
+                .withContentType(APPLICATION_JWT);
+
+
+        BearerAccessToken accessToken = new BearerAccessToken("TheAccessToken");
+
+        try {
+            octopusUserRequestor.getOctopusSSOUser(clientData, accessToken);
+            Assert.fail("Exception expected");
+        } catch (OctopusRetrievalException e) {
+            assertThat(e.getMessage()).isEqualTo("JWT claim Validation failed : JUnit");
+        }
+
     }
 
     @Test(expected = OctopusRetrievalException.class)

@@ -96,6 +96,7 @@ The above configuration options are basically everything which is required to ma
 
 * SSO.application.permission.access
 * With the endpoint +/octopus/alive+ one can verify if the application (Octopus SSO Server) is up and running. Within a Self Contained Systems environment, it can be handy to check if a certain System is available. This endpoint is protected with a rate limit filter of 20 request / second.
+* Custom validation through implementation of _CustomUserInfoValidator_ as CDI bean.
 
 ===== Setup Client (SE)
 
