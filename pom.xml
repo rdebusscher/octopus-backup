@@ -113,10 +113,6 @@
             <id>JBOSS_NEXUS</id>
             <url>http://repository.jboss.org/nexus/content/groups/public</url>
         </repository>
-        <repository>
-            <id>nexus_C4J</id>
-            <url>http://nexus-osc4j.rhcloud.com/content/groups/public/</url>
-        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -362,20 +358,10 @@
             <id>release</id>
             <distributionManagement>
                 <repository>
-                    <id>nexus_C4J</id>
-                    <name>OpenSource Nexus of C4J</name>
-                    <url>http://nexus-osc4j.rhcloud.com/content/repositories/releases</url>
-                </repository>
-                <!--repository>
                     <id>bintray-rdebusscher-Octopus</id>
                     <name>rdebusscher-Octopus</name>
                     <url>https://api.bintray.com/maven/rdebusscher/Octopus/Octopus/;publish=1</url>
-                </repository-->
-                <snapshotRepository>
-                    <id>nexus_C4J</id>
-                    <name>OpenSource Nexus of C4J</name>
-                    <url>http://nexus-osc4j.rhcloud.com/content/repositories/snapshots</url>
-                </snapshotRepository>
+                </repository>
             </distributionManagement>
         </profile>
 
