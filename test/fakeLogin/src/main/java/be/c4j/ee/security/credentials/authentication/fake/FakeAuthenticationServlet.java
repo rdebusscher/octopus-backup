@@ -26,6 +26,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -40,6 +41,9 @@ import java.io.IOException;
  */
 @WebServlet("/fakeLogin")
 public class FakeAuthenticationServlet extends HttpServlet {
+
+    @Inject
+    private Logger logger;
 
     @Inject
     private OctopusJSFConfig octopusConfig;
@@ -88,6 +92,7 @@ public class FakeAuthenticationServlet extends HttpServlet {
 
             }
         } catch (AuthenticationException e) {
+            logger.error(e.getMessage());
             // DataSecurityProvider decided that google user has no access to application
             request.getSession().setAttribute("AuthenticationExceptionMessage", e.getMessage());
             try {

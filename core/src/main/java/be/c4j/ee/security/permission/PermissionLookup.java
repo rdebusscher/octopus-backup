@@ -16,6 +16,7 @@
 package be.c4j.ee.security.permission;
 
 import be.c4j.ee.security.PublicAPI;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,9 @@ public class PermissionLookup<T extends Enum<T>> {
     }
 
     public NamedDomainPermission getPermission(T permissionCode) {
+        if (!map.containsKey(permissionCode)) {
+            throw new OctopusConfigurationException(String.format("Permission enum value %s not mapped", permissionCode));
+        }
         return map.get(permissionCode);
     }
 
