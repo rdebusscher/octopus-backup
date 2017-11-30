@@ -241,6 +241,24 @@
                 <version>2.8</version>
                 <configuration>
                     <!-- Resetted the ignore and excluded for the next release -->
+                    <ignored>
+                        <difference>
+                            <!-- unused class -->
+                            <className>**/sso/rest/AuthenticationInfo</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <!-- unused class -->
+                            <className>**/sso/server/endpoint/JSONHandler</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <!-- internal class, so not a problem -->
+                            <className>**/octopus/requestor/OctopusUserRequestor</className>
+                            <differenceType>7004</differenceType>
+                            <method>*</method>
+                        </difference>
+                    </ignored>
                 </configuration>
             </plugin>
 

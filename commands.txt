@@ -33,6 +33,11 @@ Update source headers
 ---------------------
 mvn license:format -Plicense
 
+Check backwards compatibility
+-----------------------------
+
+mvn clirr:check
+
 Generate PDF doc
 ----------------
 
