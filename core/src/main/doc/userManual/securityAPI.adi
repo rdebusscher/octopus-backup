@@ -21,6 +21,8 @@ Add the following maven dependency to your project, in addition to the other Oct
 
 Add the _IdentityStore_ (or stores) definitions to any CDI bean. That way all beans will be properly created. And since the authentication and authorization data are handled by these _IdentityStore_s, there is no need for implementing the _SecurityDataProvider_. This is handled by the Octopus module.
 
+Of course you can also define your custom _IdentityStore_s as CDI beans.
+
 ===== Tips
 
 When using on a Java EE 7 server

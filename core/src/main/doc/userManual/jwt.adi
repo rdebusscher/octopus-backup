@@ -95,7 +95,7 @@ Each request, JWT is stateless by design, must contain the following parameters
 |=======================
 
 
-The _Authorization_ parameter contains the JWT token, and the general structure looks like
+The _Authorization_ header contains the JWT token (after the key _Bearer_), and the general structure looks like
 
 xxxxx.yyyyy.zzzzz
 
@@ -134,11 +134,19 @@ zzzzz = Signature
 
 Octopus uses RSA keys to bne sure that the request for access can only be originated by 1 third party (the one we have given the private key used to create the signing part of the JWT)
 
+=== OctopusSSOUserConverter
+
+This converter is responsible for converting the information available within the _Userprincipal_ instance to a JSON structure which is transferred as the payload or claims of the JWT as described above.
+
+Also the information within the _userInfo_ map is transferred to the JWT except the information which is added by the Octopus framework itself (like tokens and authenticationInfo)
+
+With the configuration parameter **SSO.user.info.filtered** you can also remove some other values which aren't transferred to the _Octopus client_. Specify the values for the key, each key can be separated by a ,.
+
 === Additional checks on JWT
 
-==== Use case
+==== Custom claims validation
 
-The developer can impose additional checks on the JWT before it is considered valid.
+The developer can impose additional checks on the JWT before it is considered valid. These checks become part of the _jwt_ filter.
 
 It can therefor implement the interface +be.c4j.ee.security.credentials.authentication.jwt.CheckJWTClaims+.
 
@@ -151,4 +159,12 @@ public interface CheckJWTClaims {
 The parameter contains the HTTPServletRequest, header parameters and claims of the JWT. In case, the requirements aren't met for the developer, it can throw an +be.c4j.ee.security.credentials.authentication.jwt.ClaimCredentialsException+. The authentication process will then fail.
 
 The implementation must be a CDI bean, preferably ApplicationScoped since there is no need to keep state.
+
+=== Custom Client validation for Octopus User.
+
+On the client side when receiving the User information, the JWT is validated (like signature checks, expiration time, audience, nonce, etc ...) before it is accepted and claims are read.
+
+The developer can decide that additional checks needs to be performed by creating a CDI bean which implements **be.c4j.ee.security.authentication.octopus.requestor.CustomUserInfoValidator**.
+
+The method return value is the final list with claims which are considered to have a validation issue. The method can thus remove (overrule) some validation issue found by the Octopus framework, or can check the claims and define additional issues (for example based on the custom userInfo map which of course can't be verified by Octopus due to the dynamic and applicaiton specific nature).
 
