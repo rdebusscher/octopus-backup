@@ -427,8 +427,8 @@ public class OctopusInterceptor_MethodLevelTest extends OctopusInterceptorTest {
         List<NamedDomainPermission> allPermissions = new ArrayList<NamedDomainPermission>();
         allPermissions.add(new NamedDomainPermission("permissionName", NAMED_OCTOPUS));
         StringPermissionLookup lookup = new StringPermissionLookup(allPermissions);
-        ReflectionUtil.injectDependencies(lookup, new StringUtil());
         beanManagerFake.registerBean(lookup, StringPermissionLookup.class);
+        beanManagerFake.registerBean(new StringUtil(), StringUtil.class);
 
         finishCDISetup();
 

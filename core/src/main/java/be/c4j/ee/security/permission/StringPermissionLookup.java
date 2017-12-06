@@ -17,6 +17,7 @@ package be.c4j.ee.security.permission;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.util.StringUtil;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -29,7 +30,7 @@ import java.util.*;
 @PublicAPI
 public class StringPermissionLookup {
 
-    @Inject
+    @Inject // see #getPermission(String)
     private StringUtil stringUtil;
 
     private Map<String, NamedDomainPermission> map;
@@ -47,6 +48,12 @@ public class StringPermissionLookup {
     }
 
     public NamedDomainPermission getPermission(String namedPermission) {
+        // This is actually a hack to keep it working within tests.
+        // It is better to do this in the constructor, although also not ideal.
+        // But Within tests an instance of this is made to regsiter as CDI bean with BeanManagerFake thus we don't have the StringUtil available yet.
+        if (stringUtil == null) {
+            BeanProvider.injectFields(this);
+        }
         if (stringUtil.isEmpty(namedPermission)) {
             throw new IllegalArgumentException("namedPermission value can't be null or empty.");
         }

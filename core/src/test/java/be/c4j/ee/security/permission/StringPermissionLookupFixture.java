@@ -33,8 +33,8 @@ public class StringPermissionLookupFixture {
         allPermissions.add(new NamedDomainPermission("permission2", "SPermission:2:*"));
         allPermissions.add(new NamedDomainPermission("permission3", "SPermission:3:*"));
         StringPermissionLookup stringLookup = new StringPermissionLookup(allPermissions);
-        ReflectionUtil.injectDependencies(stringLookup, new StringUtil());
         beanManagerFake.registerBean(stringLookup, StringPermissionLookup.class);
+        beanManagerFake.registerBean(new StringUtil(), StringUtil.class);
     }
 
 }
