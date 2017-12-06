@@ -76,13 +76,13 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
             configureCache(ini);
             configureSessionStorageEvaluator(ini);
 
+            addPluginConfiguration(ini);
+
             String hashAlgorithmName = config.getHashAlgorithmName();
             if (!hashAlgorithmName.isEmpty()) {
                 checkHashAlgorithmName(hashAlgorithmName);
                 addHashedCredentialsConfig(ini, hashAlgorithmName);
             }
-
-            addPluginConfiguration(ini);
 
             addAuthenticationListener(ini);
         } catch (ConfigurationException ex) {

@@ -28,6 +28,7 @@ public final class ConfigurationPluginHelper {
     public static void addToList(Ini ini, String sectionName, String key, String value) {
         Ini.Section section = ini.get(sectionName);
         String currentValue = section.get(key);
+        section.remove(key);  // Otherwise the key stays on the same place in the list and references the new value too early
         if (currentValue == null) {
             section.put(key, value);
         } else {
