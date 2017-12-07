@@ -19,6 +19,7 @@ import be.c4j.ee.security.config.Debug;
 import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.sso.OctopusSSOUser;
+import be.c4j.ee.security.sso.server.endpoint.AccessTokenTransformer;
 import be.c4j.ee.security.sso.server.store.OIDCStoreData;
 import be.c4j.ee.security.sso.server.store.SSOTokenStore;
 import be.c4j.ee.security.token.IncorrectDataToken;
@@ -56,9 +57,12 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     @Inject
     private OctopusConfig octopusConfig;
 
+    private AccessTokenTransformer accessTokenTransformer;
+
     @Override
     public void init() throws ShiroException {
         BeanProvider.injectFields(this);
+        accessTokenTransformer = BeanProvider.getContextualReference(AccessTokenTransformer.class, true);
     }
 
     @Override
@@ -95,11 +99,19 @@ public class SSOAuthenticatingFilter extends AuthenticatingFilter implements Ini
     private OctopusSSOUser createOctopusToken(ServletRequest request, String apiKey, String token) {
         String accessToken = null;
 
-        OctopusSSOUser user = tokenStore.getUserByAccessCode(token);
+        String realToken;
+        // Special custom requirements to the accessToken like signed tokens
+        if (accessTokenTransformer != null) {
+            realToken = accessTokenTransformer.transformAccessToken(token);
+        } else {
+            realToken = token;
+        }
+
+        OctopusSSOUser user = tokenStore.getUserByAccessCode(realToken);
 
         if (user != null) {
             // We have found a User for the token.
-            accessToken = token;
+            accessToken = realToken;
         }
 
         if (user == null) {

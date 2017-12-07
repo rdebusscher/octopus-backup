@@ -108,6 +108,8 @@ public class OctopusSSOEndpoint {
 
     private PermissionJSONProvider permissionJSONProvider;
 
+    private AccessTokenTransformer accessTokenTransformer;
+
     @PostConstruct
     public void init() {
         // The PermissionJSONProvider is located in a JAR With CDI support.
@@ -123,6 +125,8 @@ public class OctopusSSOEndpoint {
         if (userInfoJSONProvider == null) {
             userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
         }
+
+        accessTokenTransformer = BeanProvider.getContextualReference(AccessTokenTransformer.class, true);
     }
 
     @Path("/user")
@@ -142,6 +146,11 @@ public class OctopusSSOEndpoint {
 
         String accessToken = getAccessToken(authorizationHeader);
         //
+
+        // Special custom requirements to the accessToken like signed tokens
+        if (accessTokenTransformer != null) {
+            accessToken = accessTokenTransformer.transformAccessToken(accessToken);
+        }
 
         OIDCStoreData oidcStoreData = tokenStore.getOIDCDataByAccessToken(accessToken);
         if (oidcStoreData == null) {
@@ -197,7 +206,6 @@ public class OctopusSSOEndpoint {
         }
 
         if (scope != null && scope.contains("userinfo")) {
-
 
             Map<String, Object> filteredInfo = new HashMap<String, Object>();
             for (Map.Entry<String, Object> entry : ssoUser.getUserInfo().entrySet()) {
@@ -272,7 +280,6 @@ public class OctopusSSOEndpoint {
             logger.info(String.format("Returning user info for  %s (cookie token = %s)", user.getFullName(), user.getCookieToken()));
         }
     }
-
 
     @Path("/user/permissions/{applicationName}")
     @GET
