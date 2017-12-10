@@ -38,6 +38,7 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.junit.After;
@@ -46,7 +47,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -58,9 +61,10 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-
 
 /**
  *
@@ -88,6 +92,9 @@ public class OctopusSSOEndpointTest {
     @Mock
     private PrincipalUserInfoJSONProvider userInfoJSONProviderMock;
 
+    @Mock
+    private UserEndpointDataTransformer userEndpointDataTransformerMock;
+
     @InjectMocks
     private OctopusSSOEndpoint octopusSSOEndpoint;
 
@@ -108,8 +115,6 @@ public class OctopusSSOEndpointTest {
         beanManagerFake = new BeanManagerFake();
 
         beanManagerFake.registerBean(new TimeUtil(), TimeUtil.class);
-
-        beanManagerFake.endRegistration();
 
         octopusSSOEndpoint.init();
         when(ssoServerConfigurationMock.getUserEndpointEncoding()).thenReturn(UserEndpointEncoding.NONE);
@@ -132,6 +137,8 @@ public class OctopusSSOEndpointTest {
 
     @Test
     public void getUserInfo_octopusScope() throws URISyntaxException, ParseException {
+        beanManagerFake.endRegistration();
+
         OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(0, Scope.parse("openid octopus")));
 
         List<Audience> audience = new ArrayList<Audience>();
@@ -168,9 +175,10 @@ public class OctopusSSOEndpointTest {
         assertThat(jwt.getJWTClaimsSet().getClaims().keySet()).containsOnly("sub", "iss", "name", "id", "exp", "given_name", "localId", "iat", "family_name", "Extra Key", "aud");
     }
 
-
     @Test
     public void getUserInfo_defaultScope() throws URISyntaxException, ParseException, net.minidev.json.parser.ParseException {
+        beanManagerFake.endRegistration();
+
         OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(0, Scope.parse("openid")));
 
         List<Audience> audience = new ArrayList<Audience>();
@@ -193,6 +201,54 @@ public class OctopusSSOEndpointTest {
         JSONObject jsonObject = (JSONObject) parser.parse(data);
 
         assertThat(jsonObject.keySet()).containsOnly("sub", "iss", "aud", "exp", "iat");
+
+        verifyZeroInteractions(clientInfoRetrieverMock);
+
+    }
+
+    @Test
+    public void getUserInfo_customScope() throws URISyntaxException, ParseException, net.minidev.json.parser.ParseException {
+        when(userEndpointDataTransformerMock.transform(any(UserInfo.class), any(OctopusSSOUser.class), any(Scope.class))).thenAnswer(new Answer<UserInfo>() {
+            @Override
+            public UserInfo answer(InvocationOnMock invocation) throws Throwable {
+                Scope scope = invocation.getArgument(2);
+                if (scope.contains("JUnitScope")) {
+                    UserInfo userInfo = invocation.getArgument(0);
+                    userInfo.setClaim("JUnitClaim", "claimValue");
+                    return userInfo;
+                } else {
+                    return invocation.getArgument(0);
+                }
+            }
+        });
+
+        beanManagerFake.registerBean(userEndpointDataTransformerMock, UserEndpointDataTransformer.class);
+        beanManagerFake.endRegistration();
+
+        OIDCStoreData oidcStoreData = new OIDCStoreData(new BearerAccessToken(0, Scope.parse("openid JUnitScope")));
+
+        List<Audience> audience = new ArrayList<Audience>();
+
+        audience.add(new Audience(CLIENT_ID));
+        IDTokenClaimsSet idTokenClaimSet = new IDTokenClaimsSet(new Issuer("tokenIssuer"), new Subject("JUnit"), audience, new Date(), new Date());
+        oidcStoreData.setIdTokenClaimsSet(idTokenClaimSet);
+        oidcStoreData.setClientId(new ClientID(CLIENT_ID));
+
+        when(tokenStoreMock.getOIDCDataByAccessToken("accessToken")).thenReturn(oidcStoreData);
+
+        String authorizationHeader = "Bearer accessToken";
+
+        octopusSSOEndpoint.init();
+
+        Response response = octopusSSOEndpoint.getUserInfo(authorizationHeader, uriDetailsMock);
+
+        String data = response.getEntity().toString();
+        assertThat(data).startsWith("{");
+
+        JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+        JSONObject jsonObject = (JSONObject) parser.parse(data);
+
+        assertThat(jsonObject.keySet()).containsOnly("sub", "iss", "aud", "exp", "iat", "JUnitClaim");
 
         verifyZeroInteractions(clientInfoRetrieverMock);
 

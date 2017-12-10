@@ -110,6 +110,8 @@ public class OctopusSSOEndpoint {
 
     private AccessTokenTransformer accessTokenTransformer;
 
+    private UserEndpointDataTransformer userEndpointDataTransformer;
+
     @PostConstruct
     public void init() {
         // The PermissionJSONProvider is located in a JAR With CDI support.
@@ -127,6 +129,7 @@ public class OctopusSSOEndpoint {
         }
 
         accessTokenTransformer = BeanProvider.getContextualReference(AccessTokenTransformer.class, true);
+        userEndpointDataTransformer = BeanProvider.getContextualReference(UserEndpointDataTransformer.class, true);
     }
 
     @Path("/user")
@@ -216,7 +219,9 @@ public class OctopusSSOEndpoint {
             userInfo.putAll(filteredInfo);
         }
 
-        // TODO Extension so that we can handle custom scopes.
+        if (userEndpointDataTransformer != null) {
+            userInfo = userEndpointDataTransformer.transform(userInfo, ssoUser, scope);
+        }
 
         Response.ResponseBuilder builder = Response.status(Response.Status.OK);
 

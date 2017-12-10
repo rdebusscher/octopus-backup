@@ -1,0 +1,76 @@
+==== Generic OpenIdConnect client
+
+This section describes the response of the User Info endpoint from the Octopus SSO Server (OpenId Connect compliant).
+
+|=======
+|Flow Type | Authorisation code flow | response_type = code
+|scope | openid | minimal default
+|SSO.user.endpoint.encoding parameter | NONE | Default value, results in JSON return
+|=======
+
+Example response
+
+```
+{"sub":"test","aud":"genericOIDCClient","iss":"http:\/\/localhost:8080\/server","exp":1512904435,"iat":1512900835,"nonce":"D2WpaStn4TNVMyG0-Od9AImAtRHyfrWC0oHGo2jP4tk"}
+```
+
+|=======
+|sub | Subject | user name used during login
+|aud | Audience | client Id
+|iss | Issuer | Root of the Octopus SSO server (where it is deployed)
+|exp | Expiration time of token | Do not process the contents of this token after this timestamp.
+|iat | Issued at | Time stamp when information is issued.
+|nonce | Client session identification | Sent by client during Authentication request for mitigating XSRF.
+|=======
+
+
+
+|=======
+|Flow Type | Authorisation code flow | response_type = code
+|scope | openid octopus | custom
+|SSO.user.endpoint.encoding parameter | NONE | But scope _octopus_ forces this value to JWS (signed JWT)
+|=======
+
+Example response
+
+```
+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiYXVkIjoiZ2VuZXJpY09JRENDbGllbnQiLCJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODA4MFwvc2VydmVyIiwibmFtZSI6InRlc3QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0IiwiaWQiOiIwIiwiZXhwIjoxNTEyOTA2MjIwLCJub25jZSI6IjVDUURPNHhKMmVSNGJyZ2dRMVNVYV9feTVPXy1iZWFnWkR1czRZaHd3LTAiLCJsb2NhbElkIjoiMCIsImlhdCI6MTUxMjkwMjYyMH0.UvfpmBxSarInJMgCeCFSEzXWayoF34URi0_wz_pHJt4
+
+```
+
+|=======
+|sub | Subject | user name used during login
+|aud | Audience | client Id
+|iss | Issuer | Root of the Octopus SSO server (where it is deployed)
+|exp | Expiration time of token | Do not process the contents of this token after this timestamp.
+|iat | Issued at | Time stamp when information is issued.
+|nonce | Client session identification | Sent by client during Authentication request for mitigating XSRF.
+|name | |
+|preferred_username | Preferred user name | user name used during login
+|id | | AuthenticationInfoBuilder.principalId
+|localId | |userInfo value from key OctopusConstants.LOCAL_ID or same as id if not defined 
+|family-name | last name | userInfo value from key OctopusConstants.LAST_NAME
+|given-name | first name | userInfo value from key OctopusConstants.FIRST_NAME
+|name | name | userInfo value from key OctopusConstants.FULL_NAME
+|email | email | userInfo value from key OctopusConstants.EMAIL
+|=======
+
+
++ claims corresponding to other values added in userInfo map
+
+This means that for example we have the claims _family-name_ and _lastName_, both with the same value. The first is the official one from the OpenId Connect specification. The last one is the internal name from Octopus.
+
+
+Other supported scopes
+
+**email**
+
+Only email claim is added, does not affect the format (JSON or JWT) how data is send back
+
+**userinfo**
+
+Only the values from the user info map, not really interesting except when you want the result asa JSON and not as a JWT.
+
+**any value**
+
+Define what should be returned for your custom defined scope by implementing _be.c4j.ee.security.sso.server.endpoint.UserEndpointDataTransformer_ and setting the values you want.

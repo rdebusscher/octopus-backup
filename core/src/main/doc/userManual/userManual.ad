@@ -40,6 +40,8 @@ include::securityAPI.adi[]
 
 include::openIDConnect.adi[]
 
+include::OIDCClient.adi[]
+
 === Authorization
 
 include::authorization.adi[]

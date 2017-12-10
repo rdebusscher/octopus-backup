@@ -92,6 +92,20 @@ When using the Octopus client, it becomes very easy to connect an application to
 
 The above configuration options are basically everything which is required to make it work.
 
+===== Configuration user endpoint
+
+The user information, containing the idToken, can be retrieved by calling the endpoint /octopus/sso/user. When you are using the octopus SSO client, this is done automatically.
+
+The Octopus adds by default the _octopus_ scope which results in a response of a _signed jwt_.
+
+By specifying the configuration parameter _SSO.scopes_ (on the client) additional claims can be added by the serverside code by implementing the interface **be.c4j.ee.security.sso.server.endpoint.UserEndpointDataTransformer** as CDI bean.
+
+Be aware that technically you are able to modify and remove claims by your code but this will likely result in errors on the client side when handling the response. (since various clais are required)
+
+The additional claim is stored in the _userInfo_ map from the **UserPrincipal** instance created on the SSO client side.
+
+It is also possible to use non Octopus OpenId Connect clients, the information about these usecases are specified in the section _Generic OIDC clients_ (TODO link to section)
+
 ===== Additional features
 
 * SSO.application.permission.access
