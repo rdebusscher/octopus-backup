@@ -28,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
- * Describe in this block the functionality of the class.
- * Created by rubus on 02/06/2017.
+ *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class InvocationContextWrapperTest {

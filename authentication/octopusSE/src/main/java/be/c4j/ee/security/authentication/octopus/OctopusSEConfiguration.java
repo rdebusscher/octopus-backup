@@ -45,6 +45,7 @@ public class OctopusSEConfiguration extends AbstractOctopusConfig {
 
     public String getOctopusSSOServer() {
         String result = ConfigResolver.getPropertyValue("SSO.octopus.server");
+        // TODO Remove trailing / as it will result in Unexpected Issuer
         if (result == null || result.trim().isEmpty()) {
             throw new OctopusConfigurationException("Value for SSO.octopus.server parameter is empty.");
         }

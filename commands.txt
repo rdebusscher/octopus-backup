@@ -21,7 +21,13 @@ mvn clean install
 
 Deploy to maven repository
 --------------------------
+mvn clean deploy -Prelease
+
+
+for snapshots
+
 mvn clean deploy
+mvn site
 
 
 Check source headers and source files

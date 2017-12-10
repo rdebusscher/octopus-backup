@@ -212,6 +212,8 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
                     throw new AuthenticationException("Invalid token");
                 }
 
+                // TODO Since we are using systemAccount.properties file to see if systemAccount is allowed to connect.
+                // we should add the verification if the correct kid is used (matches the one in the properties file)
                 List<String> audience = signedJWT.getJWTClaimsSet().getAudience();
                 if (!audience.contains(jwtServerConfig.getServerName())) {
                     throw new AuthenticationException("Invalid token");

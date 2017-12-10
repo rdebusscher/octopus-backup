@@ -28,7 +28,7 @@ import java.util.List;
 public interface CustomUserInfoValidator {
 
     /**
-     * Custom validation of the User information retrieved from the User OIDC endpoint. Additional chacks can be performed
+     * Custom validation of the User information retrieved from the User OIDC endpoint. Additional checks can be performed
      * and Added to the list of claims with issues (return vaue !!). It is allowed to remove items from the list.
      * @param userInfo received claims from the OIDC server
      * @param variableClientData Client data (state, nonce, rootURL) -> filled only for Web Application client.
