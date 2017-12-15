@@ -39,8 +39,7 @@ public class SSOServerURLProtectionProvider implements ProgrammaticURLProtection
         Map<String, String> result = new LinkedHashMap<String, String>();  // Keep order of insertion
         // For the rest endpoints retrieving user info / permissions
         result.put("/" + configuration.getSSOEndpointRoot() + "/octopus/sso/permissions/*", "noSessionCreation, anon");
-        result.put("/" + configuration.getSSOEndpointRoot() + "/octopus/**", "noSessionCreation, ssoFilter, user");
-        // Is the user filter needed??, ssoFilter makes that there needs to be a valid 'user' by means of a token.
+        result.put("/" + configuration.getSSOEndpointRoot() + "/octopus/**", "noSessionCreation, ssoFilter");
 
         // URL related to OpenId Connect
         result.put("/octopus/sso/logout", "userRequired");  // So we need a user (from cookie) to be able to logout
