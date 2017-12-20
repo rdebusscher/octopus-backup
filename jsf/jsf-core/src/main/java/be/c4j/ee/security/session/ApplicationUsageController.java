@@ -162,7 +162,11 @@ public class ApplicationUsageController {
 
         // and now it is safe to invalidate the sessions :)
         for (HttpSession httpSession : toBeInvalidated) {
-            httpSession.invalidate();
+            try {
+                httpSession.invalidate();
+            } catch (IllegalStateException e) {
+                // FIXME Logging + finding out why this can happen (missing a cleanup somewhere)
+            }
         }
     }
 
