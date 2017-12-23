@@ -82,6 +82,16 @@ public class OIDCStoreDataTest {
     }
 
     @Test
+    public void scopeFromAccessTokenSet() {
+
+        BearerAccessToken accesToken = new BearerAccessToken(5, Scope.parse("openId Test"));
+        OIDCStoreData oidcStoreData = new OIDCStoreData(accesToken);
+
+        assertThat(oidcStoreData.getScope().contains("Test")).isTrue();
+
+    }
+
+    @Test
     public void getterSetter_noIdTokenClaimSet() {
         List<Audience> audience = Audience.create("JUnit client");
 

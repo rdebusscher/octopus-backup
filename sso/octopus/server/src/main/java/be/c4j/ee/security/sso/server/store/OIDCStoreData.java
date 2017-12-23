@@ -46,6 +46,7 @@ public class OIDCStoreData implements Serializable {
     public OIDCStoreData(BearerAccessToken accessToken) {
         this.accessToken = accessToken;
         expiresOn = TimeUtil.getInstance().addSecondsToDate(accessToken.getLifetime(), new Date());
+        scope = accessToken.getScope();
     }
 
     public ClientID getClientId() {
