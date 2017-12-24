@@ -296,7 +296,7 @@ public class OctopusSSOEndpoint {
         }
 
         Scope scope = (Scope) httpServletRequest.getAttribute(Scope.class.getName());
-        if (scope != null && scope.contains("octopus")) {
+        if (scope != null && (scope.contains("octopus") || scope.contains(ssoServerConfiguration.getScopeForPermissions()) )) {
             return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
         } else {
             return null;

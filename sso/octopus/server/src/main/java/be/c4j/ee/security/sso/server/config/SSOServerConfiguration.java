@@ -157,4 +157,9 @@ public class SSOServerConfiguration extends AbstractOctopusConfig {
         }
         return result;
     }
+
+    @ConfigEntry
+    public String getScopeForPermissions() {
+        return ConfigResolver.getPropertyValue("SSO.scope.user.permissions", "");
+    }
 }

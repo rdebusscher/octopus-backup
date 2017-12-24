@@ -234,7 +234,7 @@ public class OIDCAdapter {
     private void checkCsrfToken() throws IOException {
         logger.debug("checking state cookie for after code");
         if (!checkStateCookie()) {
-            logger.warn("The CSRF token does no match");
+            logger.warn("The CSRF token does not match");
             // The CSRF token do not match, deny access.
             HttpSession sess = request.getSession();
             sess.invalidate();
