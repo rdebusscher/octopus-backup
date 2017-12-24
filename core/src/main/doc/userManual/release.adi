@@ -6,6 +6,7 @@
 . Support for custom _scope_ values in the OpenId Connect protocol (server side)
 . Support for multiple iterations within the hashing of password through the parameter +hashIterations+
 . Custom validation of JWT claims with user info.
+. Possibility to retrieve User permissions for external (non-Octopus) OpenId Connect clients (see SSO.scope.user.permissions parameter)
 . @PublicAPI to indicates classes which should be stable between releases (Safe to use by developers)
 
 === 0.9.7

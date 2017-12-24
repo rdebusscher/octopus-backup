@@ -348,6 +348,12 @@ A , separated list of user info map key values which should not be transferred t
 
 Usefull when the user info map constains a _custom_ class which is not available on the SSO client. It can be defined when you see a warning in the log that a class could not be located.
 
+==== SSO.scope.user.permissions (Octopus SSO Server)
+
+default : *NONE*
+
+The scope value, if present, will lead to return the permissions of users. Useful for external OpenId Connect clients (non Octopus ones). By default, the Octopus clients use the _octopus_ scope for this purpose.
+
 ==== SSO.octopus.server (Octopus SSO Client)
 
 default : *(none)*
