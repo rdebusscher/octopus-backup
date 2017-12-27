@@ -103,7 +103,7 @@ public class SimpleHashFactory {
         return algorithmNameHashTypes.get(hashAlgorithmName).defaultHashIterations;
     }
 
-    private static enum HashType {
+    private enum HashType {
         HASH(1), KEY_FACTORY(1024);
 
         private int defaultHashIterations;
@@ -111,7 +111,6 @@ public class SimpleHashFactory {
         HashType(int defaultHashIterations) {
             this.defaultHashIterations = defaultHashIterations;
         }
-
 
     }
 }

@@ -41,9 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 /**
- * @throws NoSuchAlgorithmException if no provider makes either HmacSHA1 or HMAC-SHA-1 digest
- * algorithms available.
- * @throws InvalidKeyException      The secret provided was not a valid HMAC-SHA-1 key.
+ *
  */
 public class HOTPProvider implements OTPProvider {
 

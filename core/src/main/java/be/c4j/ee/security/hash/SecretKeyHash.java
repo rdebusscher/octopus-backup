@@ -40,7 +40,7 @@ public class SecretKeyHash extends SimpleHash {
     protected byte[] hash(byte[] bytes, byte[] salt, int hashIterations) throws UnknownAlgorithmException {
 
         String keySecretName = SimpleHashFactory.getInstance().defineRealHashAlgorithmName(getAlgorithmName());
-        SecretKeyFactory keyFactory = null;
+        SecretKeyFactory keyFactory;
         try {
             keyFactory = SecretKeyFactory.getInstance(keySecretName);
         } catch (NoSuchAlgorithmException e) {
@@ -52,7 +52,7 @@ public class SecretKeyHash extends SimpleHash {
         String text = new String(bytes, Charset.forName("UTF-8"));
         char[] chars = text.toCharArray();
 
-        byte[] encoded = null;
+        byte[] encoded;
         try {
             encoded = keyFactory.generateSecret(
                     new PBEKeySpec(chars, salt, hashIterations, keySizeBytes * 8)).getEncoded();

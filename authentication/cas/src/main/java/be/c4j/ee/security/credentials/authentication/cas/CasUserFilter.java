@@ -15,7 +15,6 @@
  */
 package be.c4j.ee.security.credentials.authentication.cas;
 
-import be.c4j.ee.security.authentication.ActiveSessionRegistry;
 import be.c4j.ee.security.shiro.OctopusUserFilter;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;
@@ -31,12 +30,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class CasUserFilter extends OctopusUserFilter implements Initializable {
 
-    private ActiveSessionRegistry activeSessionRegistry;
     private CasConfigurationHelper casConfigurationHelper;
 
     @Override
     public void init() throws ShiroException {
-        activeSessionRegistry = BeanProvider.getContextualReference(ActiveSessionRegistry.class);
         casConfigurationHelper = BeanProvider.getContextualReference(CasConfigurationHelper.class);
     }
 

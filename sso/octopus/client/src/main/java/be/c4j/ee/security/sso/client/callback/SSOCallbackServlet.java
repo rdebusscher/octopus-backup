@@ -70,8 +70,6 @@ public class SSOCallbackServlet extends HttpServlet {
     @Inject
     private SessionUtil sessionUtil;
 
-    private CustomUserInfoValidator customUserInfoValidator;
-
     private OctopusUserRequestor octopusUserRequestor;
 
     @Override
@@ -82,7 +80,7 @@ public class SSOCallbackServlet extends HttpServlet {
             userInfoJSONProvider = new DefaultPrincipalUserInfoJSONProvider();
         }
 
-        customUserInfoValidator = BeanProvider.getContextualReference(CustomUserInfoValidator.class, true);
+        CustomUserInfoValidator customUserInfoValidator = BeanProvider.getContextualReference(CustomUserInfoValidator.class, true);
 
         // new OctopusSEConfiguration() -> A bit weird, but due to Deltaspike config, it reads from the correct configuration
         octopusUserRequestor = new OctopusUserRequestor(new OctopusSEConfiguration(), octopusSSOUserConverter, userInfoJSONProvider, customUserInfoValidator);

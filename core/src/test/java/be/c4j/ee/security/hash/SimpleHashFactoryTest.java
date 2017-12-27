@@ -20,9 +20,6 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -72,7 +69,5 @@ public class SimpleHashFactoryTest extends AbstractKeyNameTest {
         assertThat(hash).isExactlyInstanceOf(SecretKeyHash.class);
         assertThat(hash.toHex()).isEqualTo("120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b");
     }
-
-
 
 }

@@ -19,15 +19,11 @@ import be.c4j.ee.security.authentication.octopus.requestor.CustomUserInfoValidat
 import be.c4j.test.util.BeanManagerFake;
 import be.c4j.test.util.ReflectionUtil;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.MockitoRule;
 
 import javax.servlet.ServletException;
 

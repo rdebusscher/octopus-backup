@@ -17,7 +17,6 @@ package be.c4j.ee.security.permission;
 
 import be.c4j.ee.security.util.StringUtil;
 import be.c4j.test.util.BeanManagerFake;
-import be.c4j.test.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
