@@ -22,7 +22,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>jsf-parent</artifactId>
-        <version>0.9.7.1-SNAPSHOT</version>
+        <version>0.9.7.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
     <packaging>jar</packaging>
 
     <artifactId>octopus-javaee6-jsf</artifactId>
-    <version>0.9.7.1-SNAPSHOT</version>
+    <version>0.9.7.1</version>
 
     <name>Octopus JavaServer Faces EE 6 module</name>
 

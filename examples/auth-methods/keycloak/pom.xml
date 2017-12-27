@@ -23,13 +23,13 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus.examples</groupId>
         <artifactId>auth-methods-examples</artifactId>
-        <version>0.9.7.1-SNAPSHOT</version>
+        <version>0.9.7.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>keycloak</artifactId>
 
-    <version>0.9.7.1-SNAPSHOT</version>
+    <version>0.9.7.1</version>
     <packaging>war</packaging>
 
 
