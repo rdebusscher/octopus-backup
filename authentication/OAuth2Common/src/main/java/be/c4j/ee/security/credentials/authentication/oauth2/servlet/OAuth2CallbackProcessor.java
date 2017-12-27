@@ -96,11 +96,10 @@ public abstract class OAuth2CallbackProcessor {
 
         try {
 
+            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
             sessionUtil.invalidateCurrentSession(request);
 
             SecurityUtils.getSubject().login(oAuth2User);
-            // TODO Here we had the custom CallbackURL when we had the applicationName. Test to see if it works now with SSO Server/Client
-            SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
             response.sendRedirect(savedRequest != null ? savedRequest.getRequestUrl() : request.getContextPath());
         } catch (AuthenticationException e) {
             HttpSession sess = request.getSession();
