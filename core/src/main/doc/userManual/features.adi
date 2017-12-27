@@ -16,6 +16,7 @@ This is the list of the most important features of Octopus
 . Support for Self-contained Systems (authentication/authorization redirect to a certain 'module' and adding authentication/authorization info into the header of JAX-RS client calls.)
 . Pluggable authentication modules.
 . Support for OAuth2 providers.
+. Support for IdentityStores from Java EE Security API (Java EE 7/8).
 . Support for CAS Server.
 . Support for Keycloak server.
 . Securing JAX-RS Controller.

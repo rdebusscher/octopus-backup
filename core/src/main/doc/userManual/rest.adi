@@ -232,7 +232,7 @@ The first one is just to translate an unauthorized exception to return a 401 res
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>octopus-rest</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1/version>
     </dependency>
 ----
 
@@ -243,7 +243,7 @@ In the case we use some token based authentication methods, we need the correspo
     <dependency>
         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
         <artifactId>octopus-oauth2-google</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1</version>
     </dependency>
 ----
 

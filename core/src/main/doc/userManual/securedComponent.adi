@@ -1,6 +1,6 @@
 Description of the *securedComponent* custom JSF tag.
 
-==== Attributes
+=== Attributes
 
 . permission : Defines the permission name(s) that will be used for the authorization requirements of the component. Multiple names separated by a ,
 . voter : Defines the voter name(s) that will be used for the authorization requirement of the component. Multiple names separated by a ,
@@ -9,7 +9,7 @@ Description of the *securedComponent* custom JSF tag.
 . combined (default : +false+) : When multiple values are specified (for example multiple permission names), must the user have all the permission names (value true) or only one (value false, the default situation)
 . for : When the tag cannot be nested within the JSF component (Dor example within p:menuItem), it specifies the id for which JSF component this authorization requirements are for.
 
-==== Remarks
+=== Remarks
 
 . The attributes _permission_, _voter_ and _role_ can be used in combination.
 . The value of the _permission_ attribute can be a name (_translated by a _StringLookup_), domain name only (like _demo_ which gets translated to _demo:\*:\*) or a wildcard string (like demo:read:*)

@@ -218,7 +218,7 @@ Based on the selected algorithm (see jwt.algorithms ) the length requirement can
 
 default : *(none)*
 
-Required value when the _jwt_algorithms_ parameter contains the value *AES*. It will be used as the secret key for the AES encrryption and decryption.
+Required value when the _jwt_algorithms_ parameter contains the value *AES*. It will be used as the secret key for the AES encryption and decryption.
 
 The value is Base64 decoded first.
 

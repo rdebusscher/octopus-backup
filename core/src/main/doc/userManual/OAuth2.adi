@@ -7,7 +7,7 @@ Add the following dependency to your project POM.xml file.
     <dependency>
         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
         <artifactId>octopus-oauth2-google</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1</version>
     </dependency>
 ----
 

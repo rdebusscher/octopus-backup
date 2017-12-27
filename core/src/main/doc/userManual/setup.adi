@@ -9,19 +9,11 @@ Add the octopus artifact to your project dependencies for your application serve
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>javaee7-jsf</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1</version>
     </dependency>
 ----
 
-The Octopus artifacts are available in the C4J OS (until end of 2017) and Bintray JCenter maven repositories. You have to add one of the 2 following repository definition to your pom.xml file.
-
-[source,xml]
-----
-    <repository>
-        <id>nexus_C4J</id>
-        <url>http://nexus-osc4j.rhcloud.com/content/groups/public/</url>
-    </repository>
-----
+The Octopus artifacts are available in the Bintray JCenter maven repositories. You have to add one of the 2 following repository definition to your pom.xml file.
 
 [source,xml]
 ----
@@ -32,35 +24,35 @@ The Octopus artifacts are available in the C4J OS (until end of 2017) and Bintra
 ----
 
 The Octopus library has a few transient dependencies which are imported automatically (like Jerry). But it also depends on DeltaSpike, which is not included by default (so that you can define yourself what version of DeltaSpike you want to use in your application without the risk of having a dependency conflict). You need the Core and the security modules.
-1.7.0 is the latest version of DeltaSpike available of the time of the latest update. But any version between 1.0.0 and 1.7.0 can be used.
+1.8.0 is the latest version of DeltaSpike available of the time of the latest update. But any version between 1.0.0 and 1.8.0 can be used.
 
 [source,xml]
 ----
     <dependency>
         <groupId>org.apache.deltaspike.core</groupId>
         <artifactId>deltaspike-core-api</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
         <scope>compile</scope>
     </dependency>
 
     <dependency>
         <groupId>org.apache.deltaspike.core</groupId>
         <artifactId>deltaspike-core-impl</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
         <scope>runtime</scope>
     </dependency>
 
     <dependency>
         <groupId>org.apache.deltaspike.modules</groupId>
         <artifactId>deltaspike-security-module-api</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
         <scope>compile</scope>
     </dependency>
 
     <dependency>
         <groupId>org.apache.deltaspike.modules</groupId>
         <artifactId>deltaspike-security-module-impl</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
         <scope>runtime</scope>
     </dependency>
 ----

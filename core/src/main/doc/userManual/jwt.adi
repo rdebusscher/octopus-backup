@@ -14,13 +14,13 @@ We need the following dependencies in the project setup:
     <dependency>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>octopus-rest</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1</version>
     </dependency>
 
     <dependency>
         <groupId>be.c4j.ee.security.octopus.authentication</groupId>
         <artifactId>jwt</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1</version>
     </dependency>
 
 ----
@@ -53,7 +53,7 @@ Copy the information of the private and public JWK file in the private.jwk and p
 
 Specify the required configuration options in the octopusConfig.properties file (src/main/resources)
 
-[octopusConfig.properties]
+.octopusConfig.properties
 ----
 jwk.file = demo.jwk
 jwt.systemaccounts.map = systemAccounts.properties
@@ -63,7 +63,7 @@ The jwk.file indicates the file with the public key(s) of the RSA key. For an ex
 
 By default, Octopus only allows system accounts and the list of system accounts which are allowed for each api key is defined in the +systemAccounts.properties+ file.
 
-[systemAccounts.properties]
+.systemAccounts.properties
 ----
 cbeba027-39e1-4c70-a584-77081422e16a=xDataScience
 ----
@@ -72,7 +72,7 @@ In the above example, we define that only the accounts xDataScience (the value o
 
 The last configuration step we have to do is to specify the correct filters for the URL of our REST end point.  This is done in the +webapp/WEB-INF/securedURLs.ini+ file.
 
-[webapp/WEB-INF/securedURLs.ini]
+/webapp/WEB-INF/securedURLs.ini
 ----
 /data/** = noSessionCreation, userRest, jwt
 ----

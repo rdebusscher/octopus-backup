@@ -19,7 +19,7 @@ Add the SCS client module as dependency to your project.
         <dependency>
             <groupId>be.c4j.ee.security.octopus.authentication</groupId>
             <artifactId>jwt-scs-client</artifactId>
-            <version>0.9.7</version>
+            <version>0.9.7.1</version>
         </dependency>
 ----
 
@@ -59,7 +59,7 @@ Add the SCS server module as dependency to your project.
      <dependency>
          <groupId>be.c4j.ee.security.octopus.authentication</groupId>
          <artifactId>jwt-scs-server</artifactId>
-         <version>0.9.7</version>
+         <version>0.9.7.1</version>
      </dependency>
 ----
 

@@ -1,5 +1,5 @@
 
-==== Support for the EJB @Asynchronous
+=== Support for the EJB @Asynchronous
 
 Since the creation of the threads to support the asynchronous execution of the EJB methods annotated with @Asynchronous is done deep in the application server code, we need to use a small hack in order to propagate the security information to the new thread.
 
@@ -34,7 +34,7 @@ The calling of this asynchronous EJB method needs to be coded like this
 
 the +prepareForAsyncUsage()+ stores the necessary information into the octopusSecurityContext instance (this CDI bean is defined as Dependent, so every injection gets his own copy). The OctopusInterceptor, which is executed due to the definition within the ejb-jar.xml (see ???), retrieves this security information from the parameter of the method and then performs the required checks.
 
-==== Handling authorization exceptions
+=== Handling authorization exceptions
 
 The regular handling of the authorization checks can not be applied for Asynchronous method calls.
 

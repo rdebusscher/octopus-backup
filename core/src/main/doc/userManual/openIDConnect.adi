@@ -15,7 +15,7 @@ Add the following maven dependency to your project (It is advised to create the 
     <dependency>
         <groupId>be.c4j.ee.security.octopus.sso</groupId>
         <artifactId>octopus-server</artifactId>
-        <version>0.9.7</version>
+        <version>0.9.7.1</version>
     </dependency>
 ----
 
@@ -63,7 +63,7 @@ When using the Octopus client, it becomes very easy to connect an application to
         <dependency>
             <groupId>be.c4j.ee.security.octopus.sso</groupId>
             <artifactId>octopus-client</artifactId>
-            <version>0.9.7</version>
+            <version>0.9.7.1</version>
         </dependency>
 ----
 
