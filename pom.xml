@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>be.c4j.ee.security</groupId>
     <artifactId>parent</artifactId>
-    <version>0.9.7.1</version>
+    <version>0.9.7.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Permission based security for Java EE application</name>

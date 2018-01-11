@@ -21,7 +21,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>authentication</artifactId>
-        <version>0.9.7.1</version>
+        <version>0.9.7.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
     <artifactId>octopus-oauth2-octopus</artifactId>
-    <version>0.9.7.1</version>
+    <version>0.9.7.2-SNAPSHOT</version>
 
     <name>OAuth2 Octopus Authentication</name>
 

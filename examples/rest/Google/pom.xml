@@ -22,7 +22,7 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus.examples</groupId>
         <artifactId>rest-examples</artifactId>
-        <version>0.9.7.1</version>
+        <version>0.9.7.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -31,7 +31,7 @@
 
     <groupId>be.c4j.ee.security.octopus</groupId>
     <artifactId>rest-google</artifactId>
-    <version>0.9.7.1</version>
+    <version>0.9.7.2-SNAPSHOT</version>
 
     <name>Rest endpoint protected by Google OAuth2</name>
 
