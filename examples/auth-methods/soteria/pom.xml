@@ -58,10 +58,23 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- see https://github.com/javaee/security-soteria/issues/193 for the reason -->
+        <!-- Wrong deployment in Maven central !! -->
+        <dependency>
+            <groupId>javax.security.enterprise</groupId>
+            <artifactId>javax.security.enterprise-api</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.soteria</groupId>
             <artifactId>javax.security.enterprise</artifactId>
             <version>1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.security.enterprise</groupId>
+                    <artifactId>javax.security.enterprise-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
