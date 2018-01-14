@@ -1,6 +1,6 @@
 = Octopus Framework
 Rudy De Busscher <rdebusscher@gmail.com>
-v0.9.7.1, 27/12/2017
+v0.9.7.2, ??/??/2018
 
 == Release notes
 
@@ -25,6 +25,8 @@ include::compatibility.adi[]
 == Setup
 
 include::setup.adi[]
+
+include::archetype.adi[]
 
 == Setup details
 

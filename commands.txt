@@ -16,17 +16,17 @@
 
 local build
 -----------
-mvn clean install
+mvn clean install -Darchetype.test.skip=true
 
 
 Deploy to maven repository
 --------------------------
-mvn clean deploy -Prelease
+mvn clean deploy -Prelease -Darchetype.test.skip=true
 
 
 for snapshots
 
-mvn clean deploy
+mvn clean deploy -Darchetype.test.skip=true
 mvn site
 
 

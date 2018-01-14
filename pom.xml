@@ -100,6 +100,7 @@
         <module>pf-renderers</module>
         <module>sso</module>
         <module>test</module>
+        <module>archetypes</module>
         <module>starter</module>
         <module>starter_ee7</module>
         <module>permissionDemo</module>
@@ -323,7 +324,7 @@
                             <properties>
                                 <owner>Rudy De Busscher</owner>
                                 <site>www.c4j.be</site>
-                                <year>2017</year>
+                                <year>2018</year>
                                 <aggregate>true</aggregate>
                             </properties>
                             <excludes>
@@ -336,6 +337,7 @@
                                 <exclude>**/HOTPProvider.java</exclude>
                                 <exclude>**/Base32.java</exclude>
                                 <exclude>**/reflect/**</exclude>
+                                <exclude>**/archetype-resources/**</exclude>
                             </excludes>
                             <mapping>
                                 <java>SLASHSTAR_STYLE</java>

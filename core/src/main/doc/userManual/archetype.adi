@@ -1,0 +1,12 @@
+=== Using a Maven archetype
+
+These manual steps described in the above paragraphs can be performed by a _Maven Archetype_. The easiest way to generate a Maven project with the basic archetype is
+
+* Download/clone the source code from https://bitbucket.org/contribute-group/javaeesecurityfirst/overview[Bitbucket repository]
+* Open a console at the directory /archetypes/basic
+* Execute the command +mvn clean install+   (if you have issues with the integration test of the archetype plugin, use _mvn clean install -Darchetype.test.skip=true_
+
+Go to the place where you want to create your new Java EE 7 - JSF - Octopus based project and execute **mvn archetype:generate -DarchetypeCatalog=local** and select the _basic-octopus-archetype_
+
+Adjust the code to your requirements.
+

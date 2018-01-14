@@ -1,3 +1,7 @@
+=== 0.9.7.2
+
+. Maven archetypes for a basic Java EE 7 web application
+
 === 0.9.7.1
 
 . Support for IdentityStores from Java EE Security API (Java EE 8) but also useable on Java EE 7 servers.
