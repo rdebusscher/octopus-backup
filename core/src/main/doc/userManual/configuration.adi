@@ -80,6 +80,24 @@ default : *false*
 
 When true, each server request will result in a CDI event with payload OctopusAuditEvent.
 
+==== rememberme.cookie.name
+
+default : *Octopus*
+
+The name of the cookie which contains the information for the remember-me functionality (encrypted serialized Principal info)
+
+==== rememberme.cookie.maxage
+
+default : *10h*
+
+The time the cookie with the remember-me cookie is valid. _h_ (hour) and _d_ (day) are supported as _unit_.
+
+==== rememberme.cookie.cipherKey
+
+default : *none*
+
+The base64 encoded byte array which will be uased for the AES encryption of serialized Principal info.
+
 ==== show.debug
 
 default : *(none)*

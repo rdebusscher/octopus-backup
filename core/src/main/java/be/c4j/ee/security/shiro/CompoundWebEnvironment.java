@@ -31,6 +31,7 @@ import org.apache.shiro.config.ConfigurationException;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.util.CollectionUtils;
+import org.apache.shiro.util.StringUtils;
 import org.apache.shiro.web.config.IniFilterChainResolverFactory;
 import org.apache.shiro.web.config.WebIniSecurityManagerFactory;
 import org.apache.shiro.web.env.IniWebEnvironment;
@@ -40,6 +41,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static be.c4j.ee.security.OctopusConstants.DEFAULT_COOKIE_AGE_SECONDS;
+import static be.c4j.ee.security.OctopusConstants.DEFAULT_COOKIE_NAME;
 
 public class CompoundWebEnvironment extends IniWebEnvironment {
 
@@ -59,6 +63,9 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
     public void setIni(Ini ini) {
 
         try {
+            // before the additional ones. So values in the shiro_extra.ini can override the defaults of Octopus
+            configureRememberMe(ini);
+
             processAdditionalIniFiles(ini);
 
             ini.addSection(IniFilterChainResolverFactory.URLS); // Create the empty section
@@ -94,6 +101,16 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
         super.setIni(ini);
     }
 
+    private void configureRememberMe(Ini ini) {
+        Ini.Section mainSection = ini.get(IniSecurityManagerFactory.MAIN_SECTION_NAME);
+        mainSection.put("securityManager.rememberMeManager.cookie.name", config.getRememberMeCookieName());
+        mainSection.put("securityManager.rememberMeManager.cookie.maxAge", String.valueOf(config.getRememberMeCookieAge()));
+
+        if (StringUtils.hasText(config.getRememberMeCookieEncryptionKey())) {
+            mainSection.put("securityManager.rememberMeManager.cipherKey", String.valueOf(config.getRememberMeCookieEncryptionKey()));
+        }
+    }
+
     private String checkHashAlgorithmName(String hashAlgorithmName) {
         SimpleHashFactory factory = SimpleHashFactory.getInstance();
         return factory.defineRealHashAlgorithmName(hashAlgorithmName);
@@ -122,13 +139,41 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                         Ini.Section section = ini.get(sectionEntry.getKey());
                         Map<String, String> sectionValues = new HashMap<String, String>();
                         for (Map.Entry<String, String> sectionValue : sectionEntry.getValue().entrySet()) {
-                            sectionValues.put(sectionValue.getKey(), sectionValue.getValue());
+                            if (shiroKeyAllowed(sectionValue.getKey())) {
+                                sectionValues.put(sectionValue.getKey(), sectionValue.getValue());
+                            }
                         }
                         section.putAll(sectionValues);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * We need to make sure that some values in the shiro_extra.ini doesn't overwrite the config defined in OctopusConfig.properties
+     *
+     * @param key
+     * @return
+     */
+    private boolean shiroKeyAllowed(String key) {
+
+        if ("securityManager.rememberMeManager.cookie.name".equals(key)
+                && !DEFAULT_COOKIE_NAME.equals(config.getRememberMeCookieName())) {
+            return false;
+        }
+
+        if ("securityManager.rememberMeManager.cookie.maxAge".equals(key)
+                && DEFAULT_COOKIE_AGE_SECONDS != config.getRememberMeCookieAge()) {
+            return false;
+        }
+
+        if ("securityManager.rememberMeManager.cipherKey".equals(key)
+                && StringUtils.hasText(config.getRememberMeCookieEncryptionKey())) {
+            return false;
+        }
+
+        return true;
     }
 
     private void configureCache(Ini ini) {

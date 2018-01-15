@@ -107,6 +107,26 @@ An example can be found ???here???
 You can go even further and the complete authentication (checking if the user specified the correct user name and password combination) can be handled externally by a third party system using OAuth2, CAS, SAML, etc ...
 Specific extensions are designed to work with these system and examples are described ???here???
 
+==== Remember-me
+
+When the _rememberMe_ flag is set within the _UsernamePasswordToken_ instance, a cookie is generated which contains the Principal information in a encrypted serialized form.
+
+The encryption, done with the AES algorythm, makes it sure that, although it is shared with the browser, the contents is save.
+
+When no specific encryption key is specified within the configuration (parameter _rememberme.cookie.cipherKey_), a key is generated each tie the application is deployed. This will result in cookie information which becomes unuseable. So make sure you set a value which can be generated with
+
+[source,java]
+----
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] key = new byte[16];
+        secureRandom.nextBytes(key);
+
+        System.out.println(Base64.encodeToString(key));
+    }
+----
+
+For versions prior to 0.9.7.2, the configuration can only be done from within a _shiro_extra.ini_ file. For an example, see the example in this https://rdebusscher.gitbooks.io/octopus-cookbook/content/chapter-7.html[example - section 7.4.1]
 
 ==== Java SE support
 

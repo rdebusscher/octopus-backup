@@ -1,6 +1,7 @@
 === 0.9.7.2
 
 . Maven archetypes for a basic Java EE 7 web application
+. Configuration of remember-me parameters now also from within _octopusConfig.properties_ file.
 
 === 0.9.7.1
 

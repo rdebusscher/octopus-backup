@@ -26,6 +26,8 @@ import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
+import org.apache.shiro.codec.Base64;
+import org.apache.shiro.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -33,6 +35,9 @@ import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
+
+import static be.c4j.ee.security.OctopusConstants.DEFAULT_COOKIE_AGE;
+import static be.c4j.ee.security.OctopusConstants.DEFAULT_COOKIE_NAME;
 
 @ApplicationScoped
 @PublicAPI
@@ -50,10 +55,13 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
 
     private List<Debug> debugValues;
 
+    private CookieAgeConfig cookieAgeConfig;
+
     @Inject
     private StringUtil stringUtil;
 
     protected OctopusConfig() {
+        cookieAgeConfig = new CookieAgeConfig();
     }
 
     @PostConstruct
@@ -191,6 +199,36 @@ public class OctopusConfig extends AbstractOctopusConfig implements ModuleConfig
     @ConfigEntry
     public String getCustomCheckSuffix() {
         return ConfigResolver.getPropertyValue("voter.suffix.check", "AccessDecisionVoter");
+    }
+
+    // TODO Remember-me is something specific for JSF but deeply integrated within core.
+    // In a future version we need to pull it out of the core and make it JSF stuff only
+    @ConfigEntry
+    public String getRememberMeCookieName() {
+        String propertyValue = ConfigResolver.getPropertyValue("rememberme.cookie.name", DEFAULT_COOKIE_NAME);
+        if (!StringUtils.hasText(propertyValue)) {
+            propertyValue = DEFAULT_COOKIE_NAME;
+        }
+        return propertyValue;
+    }
+
+    @ConfigEntry
+    public int getRememberMeCookieAge() {
+        String propertyValue = ConfigResolver.getPropertyValue("rememberme.cookie.maxage", DEFAULT_COOKIE_AGE);
+        if (StringUtils.hasText(propertyValue)) {
+            propertyValue = DEFAULT_COOKIE_AGE;
+        }
+        return cookieAgeConfig.getCookieAge(propertyValue);
+    }
+
+
+    @ConfigEntry
+    public String getRememberMeCookieEncryptionKey() {
+        String propertyValue = ConfigResolver.getPropertyValue("rememberme.cookie.cipherKey");
+        if (StringUtils.hasText(propertyValue) && !Base64.isBase64(propertyValue.getBytes())) {
+            throw new OctopusConfigurationException("Parameter 'rememberme.cookie.cipherKey' can only contain BASE64 characters.");
+        }
+        return propertyValue;
     }
 
     public Class<? extends Annotation> getNamedPermissionCheckClass() {
