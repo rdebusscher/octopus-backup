@@ -137,7 +137,7 @@ public class CompoundWebEnvironment extends IniWebEnvironment {
                 if (additionalIni != null) {
                     for (Map.Entry<String, Ini.Section> sectionEntry : additionalIni.entrySet()) {
                         Ini.Section section = ini.get(sectionEntry.getKey());
-                        Map<String, String> sectionValues = new HashMap<String, String>();
+                        Map<String, String> sectionValues = new TreeMap<String, String>();
                         for (Map.Entry<String, String> sectionValue : sectionEntry.getValue().entrySet()) {
                             if (shiroKeyAllowed(sectionValue.getKey())) {
                                 sectionValues.put(sectionValue.getKey(), sectionValue.getValue());
