@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,30 +62,35 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
         AuthenticationInfo authenticationInfo = super.doSingleRealmAuthentication(realm, token);
         // At this point the user is authenticated, otherwise there was already an exception thrown.
 
-        if (authorizationInfoRequired && realm instanceof OctopusRealm) {
+        if (realm instanceof OctopusRealm) {
+            OctopusRealm octopusRealm = (OctopusRealm) realm;
 
-            ThreadContext.put(IN_AUTHORIZATION_FLAG, new InAuthorization());
-            try {
-                OctopusRealm octopusRealm = (OctopusRealm) realm;
-                AuthorizationInfo authorizationInfo = octopusRealm.doGetAuthorizationInfo(authenticationInfo.getPrincipals());
+            UserPrincipal userPrincipal = authenticationInfo.getPrincipals().oneByType(UserPrincipal.class);
 
-                UserPrincipal userPrincipal = authenticationInfo.getPrincipals().oneByType(UserPrincipal.class);
-                if (userPrincipal != null) {
+            AuthorizationInfo authorizationInfo = userPrincipal.getUserInfo(AUTHORIZATION_INFO);
+
+            if (authorizationInfo == null && authorizationInfoRequired) {
+                // authorizationInfoRequired -> When PrincipalAuthorizationInfoAvailibility implementing bean found
+                // By default only when jwt-scs-client is added to the project
+                // Can also be used (a possibility need to investigate another options) for Octopus SSO client to make sure that with every logon
+                // of the user, the latest permissions are retrieved from the octopus SSO server.
+                // TODO Document this
+
+                ThreadContext.put(IN_AUTHORIZATION_FLAG, new InAuthorization());
+                try {
+                    authorizationInfo = octopusRealm.doGetAuthorizationInfo(authenticationInfo.getPrincipals());
                     userPrincipal.addUserInfo(AUTHORIZATION_INFO, authorizationInfo);
-                    // authorizationInfoRequired -> When PrincipalAuthorizationInfoAvailibility implementing bean found
-                    // By default only when jwt-scs-client is added to the project
-                    // Can also be used (a possibility need to investigate another options) for Octopus SSO client to make sure that with every logon
-                    // of the user, the latest permissions are retrieved from the octopus SSO server.
-                    // TODO Document this
-                    octopusRealm.setAuthorizationCachedData(userPrincipal, authorizationInfo);
+
+                } finally {
+                    ThreadContext.remove(IN_AUTHORIZATION_FLAG);
                 }
 
-            } finally {
-
-                ThreadContext.remove(IN_AUTHORIZATION_FLAG);
             }
-        }
+            if (authorizationInfo != null) {
+                octopusRealm.setAuthorizationCachedData(userPrincipal, authorizationInfo);
+            }
 
+        }
         return authenticationInfo;
     }
 

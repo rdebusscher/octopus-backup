@@ -41,6 +41,7 @@ For the returned Object, you can use the +AuthenticationInfoBuilder+ to create i
 . realmName(String) : name for the realm. Multiple realms are not yet supported by Octopus. (optional)
 . salt(Object) : The salt for the hashed password, see _<<Hashed password,hashPassword>> (optional)
 . addUserInfo(Serializable, Serializable) : Add additional information about the user that can be used by custom permission voters. (optional)
+. addAuthorizationInfo(AuthorizationInfo) : Add authorization info (stored within user info) which will be used to retrieve roles/permission (instead of the getAuthorizationInfo() method)
 . build() : Makes the AuthenticationInfo object.
 
 

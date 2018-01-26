@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@ package be.c4j.ee.security.authentication;
 
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 
 /**
  *
@@ -51,5 +54,16 @@ public class ExternalPasswordAuthenticationInfo extends SimpleAuthenticationInfo
             LOGGER.info("Set name is only possible on an Octopus Principal. Type of principal is " + primaryPrincipal.getClass().getName());
 
         }
+    }
+
+    public void addAuthorizationInfo(AuthorizationInfo info) {
+        Object primaryPrincipal = getPrincipals().getPrimaryPrincipal();
+        if (primaryPrincipal instanceof UserPrincipal) {
+            ((UserPrincipal) primaryPrincipal).addUserInfo(AUTHORIZATION_INFO, info);
+
+        } else {
+            LOGGER.info("Adding user groups is only possible on an Octopus Principal. Type of principal is " + primaryPrincipal.getClass().getName());
+        }
+
     }
 }

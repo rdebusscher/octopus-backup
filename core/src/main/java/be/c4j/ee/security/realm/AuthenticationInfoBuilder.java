@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,17 @@ import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.SimpleByteSource;
+import org.apache.shiro.util.StringUtils;
 
 import javax.enterprise.inject.Typed;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 
 /**
  *
@@ -70,7 +74,7 @@ public class AuthenticationInfoBuilder {
     }
 
     public AuthenticationInfoBuilder realmName(String realmName) {
-        if (realmName == null || realmName.trim().length() == 0) {
+        if (!StringUtils.hasText(realmName)) {
             throw new OctopusConfigurationException("Realm name can't be empty");
         }
         this.realmName = realmName;
@@ -107,6 +111,11 @@ public class AuthenticationInfoBuilder {
         return this;
     }
 
+    public AuthenticationInfoBuilder addAuthorizationInfo(AuthorizationInfo authorizationInfo) {
+        addUserInfo(AUTHORIZATION_INFO, authorizationInfo);
+        return this;
+    }
+
     public AuthenticationInfo build() {
         if (principalId == null) {
             throw new IllegalArgumentException("principalId is required for an authenticated user");
@@ -115,7 +124,6 @@ public class AuthenticationInfoBuilder {
         principal.setNeedsTwoStepAuthentication(needs2StepAuthentication);
         principal.addUserInfo(userInfo);
         AuthenticationInfo result;
-        // TODO We need to check if developer supplied salt() when octopusConfig.saltLength != 0
         if (salt == null) {
             if (externalPasswordCheck) {
                 result = new ExternalPasswordAuthenticationInfo(principal, realmName);
@@ -123,6 +131,8 @@ public class AuthenticationInfoBuilder {
                 result = new SimpleAuthenticationInfo(principal, password, realmName);
             }
         } else {
+            // Using a salt doesn't has anything to do with the salt length parameter (OctopusConfig#getSaltLength)
+            // That parameter is only used when creating new salts (through SaltHashingUtil)
             result = new SimpleAuthenticationInfo(principal, password, salt, realmName);
         }
         return result;
