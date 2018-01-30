@@ -1,14 +1,22 @@
-==== setup
+==== Setup
 
 No additional dependencies are required to support password authentication against an LDAP server.
 
-However, we need a specific Apache Shiro Matcher that will check the supplied user name and passwords against an LDAP instance. That matcher needs to be configured within a +shiro_extra.ini+ file. (Or specified within another ini file but then you need to specify that name in the config)
+However, we need a specific Matcher (provided by Octopus since v0.9.7.2) that will check the supplied username and passwords against an LDAP instance. That matcher needs to be configured within a +shiro_extra.ini+ file. (Or specified within another ini file but then you need to specify that name in the config)
 
 ----
 [main]
-LDAPMatcher = be.c4j.demo.security.LDAPMatcher
+LDAPMatcher = be.c4j.ee.security.credentials.ldap.LDAPCredentialsMatcher
 credentialsMatcher.matcher = $LDAPMatcher
 ----
+
+Quite a lot of configuration parameters can be configured for LDAP, the only one which is required is the URL where the LDAP server can be contacted.
+
+----
+ldap.url=ldap://localhost:33389/
+----
+
+For the other configuration parameters, see the Configuration section.
 
 ==== SecurityDataProvider.getAuthenticationInfo()
 
@@ -28,8 +36,6 @@ public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
         // principalId is used for the authorization
         authenticationInfoBuilder.principalId(usernamePasswordToken.getUsername());
 
-        // username can be handy for auditing purposes
-        authenticationInfoBuilder.userName(usernamePasswordToken.getUsername());
         // This means we have to rely on an additional defined CredentialsMatcher
         authenticationInfoBuilder.externalPasswordCheck();
 
@@ -41,47 +47,18 @@ public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
 }
 ----
 
-==== CredentialsMatcher
+==== Authorization
 
-The matcher can be written using standard Java code (you don't need an additional library for accessing LDAP instances). The following example uses a custom CDI bean to perform the actual verification (code not shown here).
+It is possible to retrieve the groups a user is assigned with the LDAP option here defined.
 
-[source,java]
+The LDAP credential matcher can also retrieve the groups for the user from LDAP and supply it to Octopus with the new option which passes AuthorizationInfo together with the AuthenticationInfo.
+
+To activate it, set the configuration parameter to **GROUPS** (when user is defined at the group with the _member_ attribute) or **CALLER** (when groups are defined at the user with the _memberOf_ attribute)
+
 ----
-public class LDAPMatcher implements CredentialsMatcher, Initializable {
-
-    private LDAPAuthenticator ldapAuthenticator;
-
-    @Override
-    public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-
-        String name = ldapAuthenticator.isValidAuthentication(token.getPrincipal().toString(), new String((char[]) token.getCredentials()));
-        if (name != null && info instanceof ExternalPasswordAuthenticationInfo) {
-            ExternalPasswordAuthenticationInfo externalInfo = (ExternalPasswordAuthenticationInfo) info;
-            externalInfo.setName(name);
-            //externalInfo.addUserInfo("key", serializableValue);
-        }
-        return name != null;
-    }
-
-    @Override
-    public void init() throws ShiroException {
-        ldapAuthenticator = BeanProvider.getContextualReference(LDAPAuthenticator.class);
-    }
-}
+ldap.groups.loaded=GROUPS
 ----
 
-The class implements +org.apache.shiro.util.Initializable+, the Apache Shiro equivalent of the PostConstruct in Java EE. It allows you to prepare the instance for all dependencies.  Here it uses the *DeltaSpike BeanProvider* to retrieve the CDI instance.
+See the other LDAP configuration properties how you can define the group filter, attributes names, etc ...
 
-The ldapAuthenticator returns the name of the authenticated user (if the credentials are valid)
-
-The +AuthenticationInfo+ class as parameter of +doCredentialsMatch()+ method, is supplied by Apache Shiro but Octopus makes an extension, +ExternalPasswordAuthenticationInfo+ when we have an external password check (as specified by +externalPasswordCheck()+ method of the +AuthenticationInfoBuilder+. This extended class allows you to set additional user info which can be used later on.
-
-[source,java]
-----
-    @Inject
-    private UserPrincipal principal;
-
-    public void doSomething() {
-       principal.getUserInfo("key");
-    }
-----
+The group names are passed as roles to the AuthorizationInfoBuilder.  You can use them as roles within Octopus, or when you have defined an **RolePermissionResolver** they are converted to _permissions_

@@ -102,7 +102,7 @@ public class AppAuthentication implements SecurityDataProvider {
 When you as developer can't supply Octopus with the username and password information, there exists 2 other mechanisms. See also _<<Authentication methods,AuthMethods>>_.
 
 For example, when the password is only available in an external system, like LDAP, you need to use the +externalPasswordCheck()+ method and a specific +Matcher+ to validate the username and password.
-An example can be found ???here???
+An example can be found https://rdebusscher.gitbooks.io/octopus-cookbook/content/chapter-8.html[Octopus Gitbook]
 
 You can go even further and the complete authentication (checking if the user specified the correct user name and password combination) can be handled externally by a third party system using OAuth2, CAS, SAML, etc ...
 Specific extensions are designed to work with these system and examples are described ???here???

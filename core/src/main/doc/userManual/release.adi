@@ -1,7 +1,9 @@
 === 0.9.7.2
 
 . Maven archetypes for a basic Java EE 7 web application
+. LDAP Credential matchers provided by Octopus
 . Configuration of remember-me parameters now also from within _octopusConfig.properties_ file.
+. Possibility to return also _AuthorizationInfo_ from _getAuthenticationInfo()_ (mainly for external passwords verifications)
 
 === 0.9.7.1
 
