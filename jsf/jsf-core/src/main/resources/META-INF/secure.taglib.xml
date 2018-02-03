@@ -121,6 +121,15 @@
         <tag-name>securedListener</tag-name>
         <handler-class>be.c4j.ee.security.view.component.secured.PermissionListenerHandler</handler-class>
         <attribute>
+            <description>Defines the listener which is executed when the permission/role/voter specifies that the user
+                has access. Method needs a single argument of type UIComponent.
+            </description>
+            <name>listener</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+
+        <attribute>
             <description>Defines the voter(s) that will be used for this. multiple names separated by a ,</description>
             <name>voter</name>
             <required>false</required>
@@ -168,8 +177,8 @@
     </tag>
 
     <tag>
-    <tag-name>securedPage</tag-name>
-    <handler-class>be.c4j.ee.security.view.component.secured.SecuredPageHandler</handler-class>
+        <tag-name>securedPage</tag-name>
+        <handler-class>be.c4j.ee.security.view.component.secured.SecuredPageHandler</handler-class>
 
         <attribute>
             <description>Defines the voter(s) that will be used for this. multiple names separated by a ,</description>
