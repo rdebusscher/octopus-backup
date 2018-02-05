@@ -323,7 +323,6 @@
                             <header>header_template.tpl</header>
                             <properties>
                                 <owner>Rudy De Busscher</owner>
-                                <site>www.c4j.be</site>
                                 <year>2018</year>
                                 <aggregate>true</aggregate>
                             </properties>
