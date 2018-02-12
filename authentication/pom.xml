@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+    Copyright 2014-2018 Rudy De Busscher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@
         <module>casSE</module>
         <module>cas</module>
         <module>jwt</module>
+        <module>jwt-common</module>
         <module>jwt-scs-common</module>
         <module>jwt-scs-client</module>
         <module>jwt-scs-server</module>
@@ -52,6 +53,7 @@
         <module>keycloak</module>
         <module>octopusSE</module>
         <module>soteria</module>
+        <module>mp-jwt-client</module>
     </modules>
 
 </project>

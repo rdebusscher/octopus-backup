@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import java.util.Map;
 public class MappingSystemAccountToApiKey {
 
     @Inject
-    private SCSConfig scsConfig;
+    private JWTConfig jwtConfig;
 
     @Inject
     private SystemAccountMapReader systemAccountMapReader;
@@ -48,7 +48,7 @@ public class MappingSystemAccountToApiKey {
     public void init() {
         systemAccountsMapping = new HashMap<String, List<String>>();
 
-        String accountsMapFile = scsConfig.getSystemAccountsMapFile();
+        String accountsMapFile = jwtConfig.getSystemAccountsMapFile();
         if (stringUtil.isEmpty(accountsMapFile)) {
             systemAccountUsageActive = false;
             return;

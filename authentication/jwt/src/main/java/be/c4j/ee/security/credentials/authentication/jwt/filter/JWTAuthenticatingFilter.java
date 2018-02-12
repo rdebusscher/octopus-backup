@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.jwt.filter;
 
-import be.c4j.ee.security.credentials.authentication.jwt.jwt.JWKManager;
 import be.c4j.ee.security.credentials.authentication.jwt.jwt.JWTHelper;
+import be.c4j.ee.security.jwt.JWKManager;
 import be.c4j.ee.security.token.IncorrectDataToken;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.ShiroException;

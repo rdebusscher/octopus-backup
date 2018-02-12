@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package be.c4j.ee.security.jwt;
 
 import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
-import be.c4j.ee.security.jwt.config.SCSConfig;
+import be.c4j.ee.security.jwt.config.JWTConfig;
 import be.c4j.ee.security.util.StringUtil;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -39,7 +39,7 @@ import java.util.Scanner;
 public class JWKManager {
 
     @Inject
-    private SCSConfig scsConfig;
+    private JWTConfig jwtConfig;
 
     @Inject
     private StringUtil stringUtil;
@@ -53,7 +53,7 @@ public class JWKManager {
 
     private JWKSet readJWKSet() {
         JWKSet result;
-        String jwkFile = scsConfig.getJWKFile();
+        String jwkFile = jwtConfig.getLocationJWKFile();
         if (stringUtil.isEmpty(jwkFile)) {
             throw new OctopusConfigurationException("A value for the parameter jwk.file is required");
         }
@@ -88,4 +88,11 @@ public class JWKManager {
         return jwkSet.getKeyByKeyId(apiKey);
     }
 
+    public boolean hasSingleKey() {
+        return jwkSet.getKeys().size() == 1;
+    }
+
+    public JWK getSingleKey() {
+        return jwkSet.getKeys().iterator().next();
+    }
 }

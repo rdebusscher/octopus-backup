@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,13 @@ import static org.mockito.Mockito.when;
 
 /**
  *
- *
  */
+
 @RunWith(MockitoJUnitRunner.class)
 public class MappingSystemAccountToApiKeyTest {
 
-
     @Mock
-    private SCSConfig SCSConfigMock;
+    private JWTConfig jwtConfigMock;
 
     @InjectMocks
     private MappingSystemAccountToApiKey mapping;
@@ -50,7 +49,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getAccountList() {
 
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -62,7 +61,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getAccountList_nonExisting() {
 
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -74,7 +73,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getApiKey() {
 
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -86,7 +85,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getApiKey_scenario2() {
 
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -98,7 +97,7 @@ public class MappingSystemAccountToApiKeyTest {
     @Test
     public void getApiKey_nonExisting() {
 
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey.properties");
 
         mapping.init();
 
@@ -109,7 +108,7 @@ public class MappingSystemAccountToApiKeyTest {
 
     @Test
     public void getOnlyAccount() {
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey_v2.properties");
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn("MappingSystemAccountToApiKey_v2.properties");
 
         mapping.init();
 
@@ -120,7 +119,7 @@ public class MappingSystemAccountToApiKeyTest {
 
     @Test
     public void isSystemAccountUsageActive() {
-        when(SCSConfigMock.getSystemAccountsMapFile()).thenReturn(null);
+        when(jwtConfigMock.getSystemAccountsMapFile()).thenReturn(null);
 
         mapping.init();
 

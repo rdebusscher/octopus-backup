@@ -29,35 +29,38 @@
     <packaging>jar</packaging>
 
     <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-    <artifactId>jwt</artifactId>
+    <artifactId>jwt-common</artifactId>
     <version>0.9.7.2-SNAPSHOT</version>
 
-    <name>JWT signed tokens as authentication</name>
+    <name>Common classes for JWT handling (SCS and MicroProfile)</name>
 
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-            <version>6.0</version>
+            <version>7.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-
             <groupId>be.c4j.ee.security.octopus</groupId>
-            <artifactId>octopus-jsf-core</artifactId>
+            <artifactId>octopus-core</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>be.c4j.ee.security.octopus.authentication</groupId>
-            <artifactId>jwt-common</artifactId>
-            <version>0.9.7.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+
+        <!-- test dependencies -->
+
+        <dependency>
+            <groupId>be.c4j.ee.security.octopus</groupId>
+            <artifactId>octopus-core-se</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

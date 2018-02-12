@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
+package be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.rest;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
-import be.c4j.ee.security.credentials.authentication.jwt.client.JWTSystemToken;
-import be.c4j.ee.security.jwt.config.MappingSystemAccountToApiKey;
+import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvider;
+import be.c4j.ee.security.credentials.authentication.jwt.client.rest.AbstractRestClient;
+import be.c4j.ee.security.credentials.authentication.jwt.client.rest.URLArgument;
+import be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.MPJWTUserToken;
+import be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk.KeySelector;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.HttpMethod;
@@ -33,22 +37,18 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static be.c4j.ee.security.OctopusConstants.*;
+import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_HEADER;
+import static be.c4j.ee.security.OctopusConstants.BEARER;
 
 /**
  *
  */
-@Dependent  // As we can set the systemAccount differently
+@ApplicationScoped
 @PublicAPI
-public class OctopusSCSSystemRestClient extends AbstractRestClient {
+public class OctopusMPJWTUserRestClient extends AbstractRestClient {
 
     @Inject
-    private JWTSystemToken jwtSystemToken;
-
-    @Inject
-    private MappingSystemAccountToApiKey mappingSystemAccountToApiKey;
-
-    private String systemAccount;
+    private MPJWTUserToken jwtUserToken;
 
     @PostConstruct
     public void init() {
@@ -64,11 +64,6 @@ public class OctopusSCSSystemRestClient extends AbstractRestClient {
         if (clientCustomization != null) {
             clientCustomization.customize(client, this.getClass());
         }
-
-        if (mappingSystemAccountToApiKey.containsOnlyOneMapping()) {
-            systemAccount = mappingSystemAccountToApiKey.getOnlyAccount();
-        }
-
     }
 
     private Configuration getConfiguration(ClientCustomization clientCustomization) {
@@ -83,31 +78,51 @@ public class OctopusSCSSystemRestClient extends AbstractRestClient {
         return client;
     }
 
-    public void addAuthenticationHeader(Invocation.Builder builder) {
-        builder.header(AUTHORIZATION_HEADER, getAuthenticationHeader());
-        builder.header(X_API_KEY, mappingSystemAccountToApiKey.getApiKey(systemAccount));
+    public void addAuthenticationHeader(Invocation.Builder builder, String kid,String url, JWTClaimsProvider jwtClaimsProvider) {
+        String authenticationHeader = getAuthenticationHeader(kid, url, jwtClaimsProvider);
+        if (authenticationHeader != null) {
+            builder.header(AUTHORIZATION_HEADER, authenticationHeader);
+        }
     }
 
-    private String getAuthenticationHeader() {
-        return BEARER + " " + jwtSystemToken.createJWTSystemToken(systemAccount);
+    private String getAuthenticationHeader(String kid, String url, JWTClaimsProvider jwtClaimsProvider) {
+        String token = this.jwtUserToken.createJWTUserToken(kid, url, jwtClaimsProvider);
+        if (token == null) {
+            return null;
+        }
+        return BEARER + " " + token;
     }
 
     public <T> T get(String url, Class<T> classType, URLArgument... urlArguments) {
+        return get(url, classType, null, null, urlArguments);
+    }
+
+    public <T> T get(String url, Class<T> classType, String kid, URLArgument... urlArguments) {
+        return get(url, classType, null, kid, urlArguments);
+    }
+
+    public <T> T get(String url, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String kid, URLArgument... urlArguments) {
         Invocation.Builder builder = createRequestBuilder(url, urlArguments);
 
-        addAuthenticationHeader(builder);
+        addAuthenticationHeader(builder, kid, url, jwtClaimsProvider);
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .get();
-
         handleErrorReturns(url, response, HttpMethod.GET);
         return response.readEntity(classType);
     }
 
     public <T> T post(String url, Object postBody, Class<T> classType, URLArgument... urlArguments) {
-        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
+        return post(url, postBody, classType, null, null, urlArguments);
+    }
 
-        addAuthenticationHeader(builder);
+    public <T> T post(String url, Object postBody, Class<T> classType, String kid, URLArgument... urlArguments) {
+        return post(url, postBody, classType, null, kid, urlArguments);
+    }
+
+    public <T> T post(String url, Object postBody, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String kid, URLArgument... urlArguments) {
+        Invocation.Builder builder = createRequestBuilder(url, urlArguments);
+        addAuthenticationHeader(builder, kid, url, jwtClaimsProvider);
 
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -118,8 +133,16 @@ public class OctopusSCSSystemRestClient extends AbstractRestClient {
     }
 
     public <T> T put(String url, Object putBody, Class<T> classType, URLArgument... urlArguments) {
+        return put(url, putBody, classType, null, null, urlArguments);
+    }
+
+    public <T> T put(String url, Object putBody, Class<T> classType, String kid, URLArgument... urlArguments) {
+        return put(url, putBody, classType, null, kid, urlArguments);
+    }
+
+    public <T> T put(String url, Object putBody, Class<T> classType, JWTClaimsProvider jwtClaimsProvider, String kid, URLArgument... urlArguments) {
         Invocation.Builder builder = createRequestBuilder(url, urlArguments);
-        addAuthenticationHeader(builder);
+        addAuthenticationHeader(builder, kid, url, jwtClaimsProvider);
 
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
@@ -130,19 +153,24 @@ public class OctopusSCSSystemRestClient extends AbstractRestClient {
     }
 
     public boolean delete(String url, URLArgument... urlArguments) {
+        return delete(url, null, null, urlArguments);
+    }
+
+    public boolean delete(String url, String kid, URLArgument... urlArguments) {
+        return delete(url, null, kid, urlArguments);
+    }
+
+    public boolean delete(String url, JWTClaimsProvider jwtClaimsProvider, String kid, URLArgument... urlArguments) {
         Invocation.Builder builder = createRequestBuilder(url, urlArguments);
-        addAuthenticationHeader(builder);
+        addAuthenticationHeader(builder, kid, url, jwtClaimsProvider);
 
         Response response = builder
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .delete();
 
         handleErrorReturns(url, response, HttpMethod.DELETE);
-        return true; // TODO, should we return void
+        return true;// TODO, should we return void
 
     }
 
-    public void setSystemAccount(String systemAccount) {
-        this.systemAccount = systemAccount;
-    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,9 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
     @Inject
     private StringUtil stringUtil;
 
+    @Inject
+    private JWTConfig jwtConfig;
+
     private JWTOperation jwtOperation;
     private JWEAlgorithm jweAlgorithm;
     private JWTSignature jwtSignature;
@@ -55,11 +58,11 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
             throw new OctopusConfigurationException("Parameter jwt.aes.secret is required when jwt.algorithms contains AES");
         }
 
-        if (jweAlgorithm == JWEAlgorithm.EC && stringUtil.isEmpty(getJWKFile())) {
+        if (jweAlgorithm == JWEAlgorithm.EC && stringUtil.isEmpty(jwtConfig.getLocationJWKFile())) {
             throw new OctopusConfigurationException("Parameter jwk.file is required when jwt.algorithms contains EC");
         }
 
-        if (jweAlgorithm == JWEAlgorithm.RSA && stringUtil.isEmpty(getJWKFile())) {
+        if (jweAlgorithm == JWEAlgorithm.RSA && stringUtil.isEmpty(jwtConfig.getLocationJWKFile())) {
             throw new OctopusConfigurationException("Parameter jwk.file is required when jwt.algorithms contains RSA");
         }
     }
@@ -112,24 +115,6 @@ public class SCSConfig extends AbstractOctopusConfig implements ModuleConfig {
     @ConfigEntry(noLogging = true)
     public String getAESTokenSecret() {
         return ConfigResolver.getPropertyValue("jwt.aes.secret");
-    }
-
-    @ConfigEntry
-    public String getJWKFile() {
-        return ConfigResolver.getPropertyValue("jwk.file");
-    }
-
-    @ConfigEntry
-    public String getSystemAccountsMapFile() {
-        String propertyValue = ConfigResolver.getPropertyValue("jwt.systemaccounts.map");
-        // TODO We can't require that jwt.systemaccounts.map is specified when jwk.file is defined.
-        // Use case where we want to have encryption of UserClientRest.
-        /*
-        if (getJWKFile() != null && (propertyValue == null || propertyValue.trim().isEmpty())) {
-            throw new OctopusConfigurationException("jwt.systemaccounts.map configuration property is required when jwk.file is set");
-        }
-        */
-        return propertyValue;
     }
 
     @ConfigEntry

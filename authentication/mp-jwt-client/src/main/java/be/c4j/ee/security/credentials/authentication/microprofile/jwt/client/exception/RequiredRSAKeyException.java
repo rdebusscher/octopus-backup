@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.jwt.client;
+package be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.exception;
 
-import be.c4j.ee.security.model.UserPrincipal;
-
-import java.util.Map;
+import org.apache.shiro.ShiroException;
 
 /**
  *
  */
 
-public interface JWTClaimsProvider {
+public class RequiredRSAKeyException extends ShiroException {
 
-
-    Map<String, Object> defineAdditionalClaims(UserPrincipal userPrincipal);
-
+    public RequiredRSAKeyException() {
+        super("KeySelector must return a RSA key for the signing of the MP JWT Auth token.");
+    }
 }

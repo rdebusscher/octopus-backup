@@ -306,13 +306,17 @@ Required value when the _jwt_algorithms_ parameter contains the value *AES*. It 
 
 The value is Base64 decoded first.
 
-==== jwk.file (JWT User Server and JWT User Client Only)
+==== jwk.file (JWT User Server, JWT User Client, MicroProfile JWT Client and MicroProfile JWT Server Only)
 
 default : *(none)*
 
+JWT User Server, JWT User Client
 Required value when the _jwt_algorithms_ parameter contains the value *EC* or *RSA*. It needs to indicate a JWK file location (relative and absolute path are allowed) containing the private or public part of the key for the encryption / decryption.
 
-==== jwt.token.timeToLive (JWT User Client only)
+MicroProfile
+Always required
+
+==== jwt.token.timeToLive (JWT User Client and MicroProfile JWT Client only)
 
 default : *2*
 
@@ -353,6 +357,12 @@ Root of the Octopus OAuth2/openIdConnect deployment to use with the octopus-oaut
 default : */data*
 
 Root of the Octopus OAuth2/openIdConnect Rest endpoints. Typical the value defined within the @ApplicationPath annotation. See also the section of Creation your custom OAuth2/OpenIdConnect server ???
+
+==== jwt.token.issuer (MicroProfile JWT Client only)
+
+default : *(none)*
+
+Required, it is the value of the _iss_ claim for the JWT token.
 
 ==== keycloak.file (keycloak only)
 

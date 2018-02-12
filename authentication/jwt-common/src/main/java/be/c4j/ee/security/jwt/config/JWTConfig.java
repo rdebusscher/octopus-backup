@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.jwt.config;
+package be.c4j.ee.security.jwt.config;
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.config.AbstractOctopusConfig;
@@ -38,11 +38,7 @@ public class JWTConfig extends AbstractOctopusConfig implements ModuleConfig {
 
     @ConfigEntry
     public String getLocationJWKFile() {
-        String propertyValue = ConfigResolver.getPropertyValue("jwk.file");
-        if (stringUtil.isEmpty(propertyValue)) {
-            throw new OctopusConfigurationException("jwk.file configuration property is required");
-        }
-        return propertyValue;
+        return ConfigResolver.getPropertyValue("jwk.file");
     }
 
     @ConfigEntry

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@ package be.c4j.ee.security.credentials.authentication.jwt.jwt;
 
 import be.c4j.ee.security.credentials.authentication.jwt.CheckJWTClaims;
 import be.c4j.ee.security.credentials.authentication.jwt.JWTUser;
-import be.c4j.ee.security.credentials.authentication.jwt.config.JWTConfig;
+import be.c4j.ee.security.jwt.JWKManager;
+import be.c4j.ee.security.jwt.config.JWTConfig;
 import be.c4j.ee.security.systemaccount.SystemAccountAuthenticationToken;
 import be.c4j.ee.security.systemaccount.SystemAccountMapReader;
 import be.c4j.ee.security.systemaccount.SystemAccountPrincipal;

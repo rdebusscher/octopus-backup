@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
-
 
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.authentication.octopus.client.ClientCustomization;
@@ -42,7 +41,7 @@ import static be.c4j.ee.security.OctopusConstants.*;
  */
 @ApplicationScoped
 @PublicAPI
-public class OctopusSCSUserRestClient extends AbstractSCSRestClient {
+public class OctopusSCSUserRestClient extends AbstractRestClient {
 
     @Inject
     private JWTUserToken jwtUserToken;

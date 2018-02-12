@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class SCSConfigTest {
     @Before
     public void setup() throws IllegalAccessException {
         scsConfig = new SCSConfig();
-        ReflectionUtil.injectDependencies(scsConfig, new StringUtil());
+        ReflectionUtil.injectDependencies(scsConfig, new StringUtil(), new JWTConfig());
     }
 
     @After
@@ -197,26 +197,4 @@ public class SCSConfigTest {
     public void getHMACTokenSecret_MissingValue() {
         scsConfig.getHMACTokenSecret();
     }
-
-    @Test
-    public void getSystemAccountsMapFile() {
-        Map<String, String> values = new HashMap<String, String>();
-        values.put("jwt.systemaccounts.map", "mapping.properties");
-        values.put("jwk.file", "keys.jwk");
-        TestConfigSource.defineConfigValue(values);
-
-        String accountsMapFile = scsConfig.getSystemAccountsMapFile();
-        assertThat(accountsMapFile).isEqualTo("mapping.properties");
-    }
-
-    @Test
-    public void getSystemAccountsMapFile_optional() {
-        Map<String, String> values = new HashMap<String, String>();
-        TestConfigSource.defineConfigValue(values);
-
-        String systemAccountsMapFile = scsConfig.getSystemAccountsMapFile();
-        assertThat(systemAccountsMapFile).isNullOrEmpty();
-
-    }
-
 }

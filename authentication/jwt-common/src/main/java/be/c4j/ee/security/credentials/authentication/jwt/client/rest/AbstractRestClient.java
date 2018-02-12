@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response;
  *
  */
 
-public abstract class AbstractSCSRestClient {
+public abstract class AbstractRestClient {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -66,10 +66,8 @@ public abstract class AbstractSCSRestClient {
         }
     }
 
-
     private String getURLMessageWhenException(String errorType, String url, String httpMethod) {
         return String.format("%s during call to '%s' (%s)", errorType, url, httpMethod);
     }
-
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.c4j.ee.security.credentials.authentication.jwt.client.rest;
+package be.c4j.ee.security.credentials.authentication.jwt.client;
 
+import be.c4j.ee.security.PublicAPI;
+import be.c4j.ee.security.model.UserPrincipal;
 
-public class URLArgument {
+import java.util.Map;
 
-    private String argName;
-    private String argValue;
+/**
+ * Defines the additional claims which are added to the JWT token (SCS and MP JWT Auth)
+ */
+@PublicAPI
+public interface JWTClaimsProvider {
 
-    public URLArgument(String argName, String argValue) {
-        this.argName = argName;
-        this.argValue = argValue;
-    }
-
-    public String getArgName() {
-        return argName;
-    }
-
-    public String getArgValue() {
-        return argValue;
-    }
+    Map<String, Object> defineAdditionalClaims(UserPrincipal userPrincipal);
 
 }

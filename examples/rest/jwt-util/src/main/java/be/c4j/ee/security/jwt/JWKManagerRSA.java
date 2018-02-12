@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 package be.c4j.ee.security.jwt;
 
 import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import org.apache.shiro.codec.Base64;
+import org.apache.shiro.codec.CodecSupport;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -36,18 +39,48 @@ public class JWKManagerRSA {
     }
 
     public static void main(String[] args) {
-        String xApiKey = UUID.randomUUID().toString();
-        //JWK jwk = make(2048, KeyUse.SIGNATURE, new Algorithm("PS512"), xApiKey);
-        JWK jwk = make(2048, KeyUse.ENCRYPTION, new Algorithm("PS512"), xApiKey);
+        String keyId = UUID.randomUUID().toString();
+        //JWK jwk = make(2048, KeyUse.SIGNATURE, new Algorithm("PS512"), keyId);
+        JWK jwk = make(2048, KeyUse.ENCRYPTION, new Algorithm("PS512"), keyId);
 
-        System.out.println("x-api-key");
-        System.out.println(xApiKey);
+        System.out.println("keyId");
+        System.out.println(keyId);
 
-        System.out.println("Private");
+        System.out.println("Private JWK");
         System.out.println(jwk.toJSONString());
 
-        System.out.println("Public");
+        RSAKey rsaKey = (RSAKey) jwk;
+        System.out.println("Private pkss#8 PEM");
+        outputPrivatePEM(rsaKey);
+
+        System.out.println("Public JWK");
         System.out.println(jwk.toPublicJWK().toJSONString());
+
+        System.out.println("Public X509 PEM");
+        outputPublicPEM(rsaKey);
+
+    }
+
+    private static void outputPublicPEM(RSAKey rsaKey) {
+        try {
+            System.out.println("-----BEGIN RSA PUBLIC KEY-----");
+            byte[] encoded = Base64.encodeChunked(rsaKey.toRSAPublicKey().getEncoded());
+            System.out.print(CodecSupport.toString(encoded));
+            System.out.println("-----END RSA PUBLIC KEY-----");
+        } catch (JOSEException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void outputPrivatePEM(RSAKey rsaKey) {
+        try {
+            System.out.println("-----BEGIN RSA PRIVATE KEY-----");
+            byte[] encoded = Base64.encodeChunked(rsaKey.toRSAPrivateKey().getEncoded());
+            System.out.print(CodecSupport.toString(encoded));
+            System.out.println("-----END RSA PRIVATE KEY-----");
+        } catch (JOSEException e) {
+            e.printStackTrace();
+        }
     }
 
     private static RSAKey make(Integer keySize, KeyUse keyUse, Algorithm keyAlg, String kid) {

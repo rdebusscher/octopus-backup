@@ -131,6 +131,10 @@ include::fakeLogin.adi[]
 
 include::SCSModule.adi[]
 
+== MicroProfile JWT Auth support
+
+include::mp.adi[]
+
 == Additional Security measures (OWASP based)
 
 include::security.adi[]
