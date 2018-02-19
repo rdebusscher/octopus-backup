@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,5 +65,11 @@ public class NamedDomainPermissionTest {
     public void testBypassBugWithinSetTargets() {
         NamedDomainPermission permission = new NamedDomainPermission("PERMISSION1", "Permission:1:*");
         assertThat(permission.toString()).isEqualTo("permission:1:*");
+    }
+
+    @Test
+    public void testBugNamedWithOnlyDomain() {
+        NamedDomainPermission permission = new NamedDomainPermission("PERMISSION1", DOMAIN);
+        assertThat(permission.hashCode()).isEqualTo(829247423);
     }
 }

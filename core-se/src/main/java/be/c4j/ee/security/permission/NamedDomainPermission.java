@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,8 @@ public class NamedDomainPermission extends DomainPermission implements NamedPerm
             // of the method and thus set parts not called and thus wrong values.
             // This is tested by be.c4j.ee.security.permission.NamedDomainPermissionTest.testBypassBugithinSetTargets()
             setActions(parts.get(1));
-            this.name = someName;
         }
+        this.name = someName;
     }
 
     public String getName() {
