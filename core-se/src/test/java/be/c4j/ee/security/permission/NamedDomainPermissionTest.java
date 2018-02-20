@@ -62,6 +62,14 @@ public class NamedDomainPermissionTest {
     }
 
     @Test
+    public void testGetWildcardNotation_simpleName() {
+        namedDomainPermission = new NamedDomainPermission("test", DOMAIN);
+        String expected = DOMAIN + ":*:*";
+        assertThat(namedDomainPermission.getWildcardNotation()).isEqualTo(expected.toLowerCase());
+
+    }
+
+    @Test
     public void testBypassBugWithinSetTargets() {
         NamedDomainPermission permission = new NamedDomainPermission("PERMISSION1", "Permission:1:*");
         assertThat(permission.toString()).isEqualTo("permission:1:*");

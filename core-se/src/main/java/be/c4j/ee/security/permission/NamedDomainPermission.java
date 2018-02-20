@@ -75,11 +75,15 @@ public class NamedDomainPermission extends DomainPermission implements NamedPerm
 
     private String collectionNotationFor(Set<String> entries) {
         StringBuilder result = new StringBuilder();
-        for (String entry : entries) {
-            if (result.length() > 0) {
-                result.append(SUBPART_DIVIDER_TOKEN);
+        if (entries != null) {
+            for (String entry : entries) {
+                if (result.length() > 0) {
+                    result.append(SUBPART_DIVIDER_TOKEN);
+                }
+                result.append(entry);
             }
-            result.append(entry);
+        } else {
+            result.append(WILDCARD_TOKEN);
         }
         return result.toString();
     }
