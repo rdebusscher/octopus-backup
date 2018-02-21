@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 Rudy De Busscher
+ * Copyright 2014-2018 Rudy De Busscher (https://www.atbash.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.exc
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.exception.UserNameRequiredException;
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk.DefaultKeySelector;
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk.KeySelector;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
@@ -36,13 +37,12 @@ import net.minidev.json.JSONArray;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 
@@ -63,6 +63,8 @@ public class MPJWTUserToken {
 
     private KeySelector keySelector;
 
+    private ClaimAudienceProvider claimAudienceProvider;
+
     @PostConstruct
     public void init() {
         KeySelector keySelector = BeanProvider.getContextualReference(KeySelector.class, true);
@@ -71,6 +73,8 @@ public class MPJWTUserToken {
         } else {
             this.keySelector = new DefaultKeySelector();
         }
+
+        claimAudienceProvider = BeanProvider.getContextualReference(ClaimAudienceProvider.class, true);
     }
 
     public String createJWTUserToken(String kid, String url, JWTClaimsProvider claimsProvider) {
@@ -91,6 +95,8 @@ public class MPJWTUserToken {
                 .build();
 
         JWTClaimsSet.Builder claimSetBuilder = new JWTClaimsSet.Builder();
+        claimSetBuilder.audience(defineAudienceClaim(url));
+
         definePayload(claimSetBuilder);
 
         Date issueTime = new Date();
@@ -123,8 +129,26 @@ public class MPJWTUserToken {
 
     }
 
+    private List<String> defineAudienceClaim(String url) {
+        List<String> result = new ArrayList<String>();
+        if (claimAudienceProvider != null) {
+            result.addAll(claimAudienceProvider.getAudience(url));
+        }
+        String audienceDefault = mpjwtClientConfig.getTokenAudienceDefault();
+        if (StringUtils.hasText(audienceDefault)) {
+            result.add(audienceDefault);
+        }
+        if (result.isEmpty()) {
+            throw new OctopusConfigurationException("audience is required for MicroProfile JWT Auth. Parameter 'jwt.token.audience' and ClaimAudienceProvider implementation did not return any value.");
+        }
+        return result;
+    }
+
     private String defineHeaderKeyId(String kid) {
         String result = kid;
+        if (result == null) {
+            result = mpjwtClientConfig.getJWTTokenKidDefault();
+        }
         if (result == null) {
             result = mpjwtClientConfig.getServerName();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 Rudy De Busscher
+ * Copyright 2014-2018 Rudy De Busscher (https://www.atbash.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class MPJWTClientConfig {
 
     @ConfigEntry
     public int getJWTTimeToLive() {
-        String propertyValue = ConfigResolver.getPropertyValue("jwt.token.timeToLive", "2");
+        String propertyValue = ConfigResolver.getPropertyValue("jwt.token.timeToLive", "60");
         Integer result;
         try {
             result = Integer.valueOf(propertyValue);
@@ -49,9 +49,20 @@ public class MPJWTClientConfig {
     public String getServerName() {
         String result = ConfigResolver.getPropertyValue("jwt.token.issuer");
         if (!StringUtils.hasText(result)) {
-            throw new OctopusConfigurationException("Parameter 'jwt.token.issuer' is required when using MicroProfile JWT AUth module");
+            throw new OctopusConfigurationException("Parameter 'jwt.token.issuer' is required when using MicroProfile JWT Auth module");
         }
         return result;
     }
 
+    @ConfigEntry
+    public String getTokenAudienceDefault() {
+        return ConfigResolver.getPropertyValue("jwt.token.audience");
+        // jwt.token.audience or value from ClaimAudienceProvider is required
+
+    }
+
+    @ConfigEntry
+    public String getJWTTokenKidDefault() {
+        return ConfigResolver.getPropertyValue("jwt.token.kid");
+    }
 }

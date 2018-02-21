@@ -58,6 +58,10 @@ In theory, all Shiro defined filters can be used. But only these seems us useful
 
 *LinkedinAuthcFilter*  Uses the value in the +Authorization+ header as a bearer token/access token and verifies it with LinkedIn.
 
+==== MicroProfile JWT module
+
+*mpUser*  Filter which takes a JWT token defined within the MicroProfile JWT Auth specification for authentication and authorization.
+
 ==== CAS module
 
 *user*   is redefined specific for CAS functionality.

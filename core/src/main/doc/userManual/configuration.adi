@@ -318,7 +318,7 @@ Always required
 
 ==== jwt.token.timeToLive (JWT User Client and MicroProfile JWT Client only)
 
-default : *2*
+default : *2* (jwt user client), *60* (MicroProfile)
 
 The number of seconds the generated JWT will be valid.
 
@@ -363,6 +363,30 @@ Root of the Octopus OAuth2/openIdConnect Rest endpoints. Typical the value defin
 default : *(none)*
 
 Required, it is the value of the _iss_ claim for the JWT token.
+
+==== jwt.token.audience (MicroProfile JWT Client only)
+
+default : *(none)*
+
+Optional, when defined, it specifies the _aud_ claim for the JWT token.  Developer can also define the _Audience_ value by defining a CDI bean implementing _be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.ClaimAudienceProvider_.
+
+==== jwt.token.kid (MicroProfile JWT Client only)
+
+default : *(none)*
+
+Optional, when defined, it specifies the _kid_ header claim value for the JWT token.  Developer can also specify the value through the parameter of _be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.rest.OctopusMPJWTUserRestClient_ methods.
+
+==== mp.iss (MicroProfile JWT Server only)
+
+default : *(none)*
+
+Required, the value of the _iss_ claim of an incoming MicroProfile JWT Auth token before it is considered as valid.
+
+==== mp.aud (MicroProfile JWT Server only)
+
+default : *(none)*
+
+Required, the value of the _aud_ claim of an incoming MicroProfile JWT Auth token before it is considered as valid.
 
 ==== keycloak.file (keycloak only)
 

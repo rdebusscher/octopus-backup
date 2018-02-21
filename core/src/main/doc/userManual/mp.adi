@@ -103,25 +103,60 @@ Public JWK: A JWK file containing the public part of the same RSA key which octo
 Public X509 PEM: A Base64 encoded version of the public key within X509 format.
 
 
-==== Using Systam accounts
+==== Using System accounts
 
 FIXME
 
+=== Endpoints protected with MicroProfile JWT Auth
 
-.octopusConfig.properties
+Since v0.9.7.2, Octopus has support for using the MicroProfile JWT defined token as authentorization and authentication source.
+
+==== Use case
+
+This feagure allows you to use Octopus based applications or micro-services within an environment where the authentication and authorization information is contained within a JWT token as specified by the MicroProfile JWT Auth specification.
+
+==== Setup support using JWT token
+
+We need the following dependency in the project setup:
+
+[source,xml]
 ----
-jwk.file = demo.jwk
-jwt.systemaccounts.map = systemAccounts.properties
+    <dependency>
+        <groupId>be.c4j.ee.security.octopus.authentication</groupId>
+        <artifactId>mp-jwt-server</artifactId>
+        <version>0.9.7.2</version>
+    </dependency>
+
 ----
 
-The jwk.file indicates the file with the public key(s) of the RSA key. For an example, you can also look at the public.jwk file in the /examples/rest/jwt-util module.
+This artefact contains the **mpUser** filter which takes the JWT token information and transform it into Octopus information.
 
-By default, Octopus only allows system accounts and the list of system accounts which are allowed for each api key is defined in the +systemAccounts.properties+ file.
+==== Configuration
 
-.systemAccounts.properties
+Within the _securedURLs.ini_ file we can define that a certain URL or set of URLs needs to be protected with the MicroProfile JWT token.
+
 ----
-cbeba027-39e1-4c70-a584-77081422e16a=xDataScience
+/data/** = noSessionCreation, mpUser
 ----
 
-In the above example, we define that only the accounts xDataScience (the value of the sub claim in the JWT token) is allowed for the api key.  See further for an example of a valid JWT token.
+Or when adding the octopus-rest artifact, we can use the _userRest_ filter.
+
+----
+/data/** = userRest, mpUser
+----
+
+The following configuration needs to be done in the _octopusConfig.properties_
+
+----
+jwk.file=demo.jwk
+
+mp.aud=MPServerApp
+----
+
+It defines the location where the RSA keys can be found for the verification of the singing and the expected _Audience_ claim value.
+
+The groups claim is translated to Roles and Permissions as follows
+
+* The name contains a colon (:), like demo:read:* -> A (WildCard)permission is created for the value.
+* The name does not contain a colon, like group1 -> A permission is created for the value (just like the String permissions described here ??) and defined as a role. This role can be converted by a _RoleLookup_ or _RolePermissionResolver_ if defined.
 

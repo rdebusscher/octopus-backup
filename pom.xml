@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+    Copyright 2014-2018 Rudy De Busscher (https://www.atbash.be)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -228,6 +228,8 @@
                         <exclude>README.md</exclude>
                         <!-- Third party licensed-->
                         <exclude>**/HOTPProvider.java</exclude>
+                        <!-- Archetype file are excluded-->
+                        <exclude>archetypes-resources/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -343,6 +345,13 @@
                                 <css>SLASHSTAR_STYLE</css>
                             </mapping>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.mycila</groupId>
+                                <artifactId>license-maven-plugin-git</artifactId>
+                                <version>3.0</version>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <goals>

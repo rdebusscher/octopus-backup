@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 Rudy De Busscher
+ * Copyright 2014-2018 Rudy De Busscher (https://www.atbash.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvide
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.config.MPJWTClientConfig;
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.exception.UserNameRequiredException;
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk.KeySelector;
+import be.c4j.ee.security.exception.OctopusConfigurationException;
 import be.c4j.ee.security.model.UserPrincipal;
 import be.c4j.ee.security.permission.NamedDomainPermission;
 import be.c4j.ee.security.role.NamedApplicationRole;
@@ -53,7 +54,6 @@ import java.util.Map;
 
 import static be.c4j.ee.security.OctopusConstants.AUTHORIZATION_INFO;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -107,6 +107,7 @@ public class MPJWTUserTokenTest {
 
         when(mpjwtClientConfigMock.getServerName()).thenReturn("serverName");  // No KeyId so we take server name
         when(mpjwtClientConfigMock.getJWTTimeToLive()).thenReturn(3);
+        when(mpjwtClientConfigMock.getTokenAudienceDefault()).thenReturn("theAudience");
 
         String userToken = mpjwtUserToken.createJWTUserToken(null, null, null);
 
@@ -115,7 +116,7 @@ public class MPJWTUserTokenTest {
         validateHeader(signedJWT, "serverName");
 
         JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-        assertThat(claimsSet.toJSONObject().keySet()).containsOnly("iss", "groups", "id", "exp", "iat", "jti", "sub", "preferred_username");
+        assertThat(claimsSet.toJSONObject().keySet()).containsOnly("iss", "aud", "groups", "id", "exp", "iat", "jti", "sub", "preferred_username");
 
         assertThat(claimsSet.getIssuer()).isEqualTo("serverName");
         assertThat(claimsSet.getExpirationTime().getTime() - claimsSet.getIssueTime().getTime()).isEqualTo(3000);
@@ -149,6 +150,7 @@ public class MPJWTUserTokenTest {
 
         when(mpjwtClientConfigMock.getServerName()).thenReturn("serverName");
         when(mpjwtClientConfigMock.getJWTTimeToLive()).thenReturn(3);
+        when(mpjwtClientConfigMock.getTokenAudienceDefault()).thenReturn("theAudience");
 
         String userToken = mpjwtUserToken.createJWTUserToken(KEY_ID, null, null);
 
@@ -160,7 +162,7 @@ public class MPJWTUserTokenTest {
 
     @Test(expected = UserNameRequiredException.class)
     public void createJWTUserToken_4() throws ParseException {
-        // userName is required (preferred_username/subject/upn fro spec
+        // userName is required (preferred_username/subject/upn from spec
         when(userPrincipalMock.getId()).thenReturn("LoggedIn");
 
         mpjwtUserToken.createJWTUserToken(KEY_ID, null, null);
@@ -180,6 +182,7 @@ public class MPJWTUserTokenTest {
 
         when(mpjwtClientConfigMock.getServerName()).thenReturn("serverName");  // No KeyId so we take server name
         when(mpjwtClientConfigMock.getJWTTimeToLive()).thenReturn(3);
+        when(mpjwtClientConfigMock.getTokenAudienceDefault()).thenReturn("theAudience");
 
         Map<String, Object> claims = new HashMap<String, Object>();
         claims.put("claim1", "valueClaim1");
@@ -192,7 +195,7 @@ public class MPJWTUserTokenTest {
         SignedJWT signedJWT = SignedJWT.parse(userToken);
 
         JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-        assertThat(claimsSet.toJSONObject().keySet()).containsOnly("iss", "groups", "id", "exp", "iat", "jti", "sub", "preferred_username", "claim1", "claim2");
+        assertThat(claimsSet.toJSONObject().keySet()).containsOnly("iss", "aud", "groups", "id", "exp", "iat", "jti", "sub", "preferred_username", "claim1", "claim2");
 
     }
 
@@ -210,6 +213,7 @@ public class MPJWTUserTokenTest {
 
         when(mpjwtClientConfigMock.getServerName()).thenReturn("serverName");  // No KeyId so we take server name
         when(mpjwtClientConfigMock.getJWTTimeToLive()).thenReturn(3);
+        when(mpjwtClientConfigMock.getTokenAudienceDefault()).thenReturn("theAudience");
 
         String userToken = mpjwtUserToken.createJWTUserToken(null, null, null);
 
@@ -217,7 +221,19 @@ public class MPJWTUserTokenTest {
         SignedJWT signedJWT = SignedJWT.parse(userToken);
 
         JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-        assertThat(claimsSet.toJSONObject().keySet()).containsOnly("iss", "groups", "id", "exp", "iat", "jti", "sub", "preferred_username", "upn");
+        assertThat(claimsSet.toJSONObject().keySet()).containsOnly("iss", "aud", "groups", "id", "exp", "iat", "jti", "sub", "preferred_username", "upn");
+
+    }
+
+    @Test(expected = OctopusConfigurationException.class)
+    public void createJWTUserToken_7() throws ParseException {
+        // Missing aud
+        when(userPrincipalMock.getId()).thenReturn("LoggedIn");
+        when(userPrincipalMock.getUserName()).thenReturn(USERNAME);
+
+        when(mpjwtClientConfigMock.getServerName()).thenReturn("serverName");  // No KeyId so we take server name
+
+        mpjwtUserToken.createJWTUserToken(null, null, null);
 
     }
 

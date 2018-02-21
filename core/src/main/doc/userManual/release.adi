@@ -1,6 +1,7 @@
 === 0.9.7.2
 
 . Creating MicroProfile JWT Auth token (automatic from UserPrincipal) and calling MicroProfile endpoint.
+. Using MicroProfile JWT Auth token for authentication purposes.
 . Maven archetypes for a basic Java EE 7 web application
 . LDAP Credential matchers provided by Octopus
 . Configuration of remember-me parameters now also from within _octopusConfig.properties_ file.
