@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (https://www.atbash.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,11 @@ public class ExceptionFilter extends AdviceFilter {
             if (sessionCreationEnabled != null && !sessionCreationEnabled) {
                 // We assume we are in a REST/JAX_RS call and thus return JSON
                 HttpServletResponse servletResponse = (HttpServletResponse) response;
-                servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                servletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
                 String code = unexpectedException == null ? "OCT-001" : "OCT-002";
                 ErrorInfo info = new ErrorInfo(code, exception.getMessage());
-
+                servletResponse.setHeader("Content-Type", "application/json");
                 servletResponse.getWriter().print(info.toJSON());
 
                 exception = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (https://www.atbash.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package be.c4j.ee.security.shiro;
 
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
+import be.c4j.ee.security.filter.ErrorInfo;
 import org.apache.shiro.web.filter.authc.UserFilter;
 
 import javax.servlet.ServletException;
@@ -39,8 +40,14 @@ public class RestUserFilter extends UserFilter {
         Throwable unauthorized = OctopusUnauthorizedException.getUnauthorizedException(exception);
         if (unauthorized != null) {
             try {
-                ((HttpServletResponse) response).setStatus(401);
-                response.getOutputStream().println(unauthorized.getMessage());
+
+                HttpServletResponse servletResponse = (HttpServletResponse) response;
+                servletResponse.reset();
+
+                servletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                ErrorInfo info = new ErrorInfo("OCT-002", exception.getMessage());
+                servletResponse.setHeader("Content-Type", "application/json");
+                servletResponse.getWriter().print(info.toJSON());
                 exception = null;
             } catch (Exception e) {
                 exception = e;
