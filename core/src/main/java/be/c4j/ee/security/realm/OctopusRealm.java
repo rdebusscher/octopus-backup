@@ -213,13 +213,17 @@ public class OctopusRealm extends AuthorizingRealm {
 
     public void setAuthorizationCachedData(UserPrincipal userPrincipal, AuthorizationInfo authorizationInfo) {
         Cache<Object, AuthorizationInfo> cache = getAuthorizationCache();
-        if (cache == null && isAuthorizationCachingEnabled()) {
+        if (cache == null && isAuthorizationCachingEnabled() && authorizationInfo != null) {
             cache = createAuthorizationCache();
 
         }
         if (cache != null) {
-            // If we have a cache at this moment, store the data in the cache.
-            cache.put(userPrincipal, authorizationInfo);
+            if (authorizationInfo != null) {
+                // If we have a cache at this moment, store the data in the cache.
+                cache.put(userPrincipal, authorizationInfo);
+            } else {
+                cache.remove(userPrincipal);
+            }
         }
     }
 

@@ -86,9 +86,8 @@ public class OctopusRealmAuthenticator extends ModularRealmAuthenticator {
                 }
 
             }
-            if (authorizationInfo != null) {
-                octopusRealm.setAuthorizationCachedData(userPrincipal, authorizationInfo);
-            }
+
+            octopusRealm.setAuthorizationCachedData(userPrincipal, authorizationInfo);
 
         }
         return authenticationInfo;
