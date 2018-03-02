@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+    Copyright 2014-2018 Rudy De Busscher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -38,6 +38,12 @@
             <groupId>be.c4j.ee.security.octopus.sso</groupId>
             <artifactId>octopus-sso-core</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- force the version since oauth2-oidc-sdk uses a version range-->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
 
         <!-- TODO Why is this not included as transitive dependency -->
