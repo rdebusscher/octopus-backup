@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import be.c4j.ee.security.config.OctopusConfig;
 import be.c4j.ee.security.config.VoterNameFactory;
 import be.c4j.ee.security.exception.OctopusUnauthorizedException;
 import be.c4j.ee.security.exception.SecurityViolationInfoProducer;
-import be.c4j.ee.security.permission.GenericPermissionVoter;
+import be.c4j.ee.security.role.GenericRoleVoter;
 import be.c4j.ee.security.role.NamedRole;
 import be.c4j.ee.security.util.AnnotationUtil;
 import be.c4j.ee.security.util.CDIUtil;
@@ -69,7 +69,6 @@ public class SecurityCheckNamedRoleCheck implements SecurityCheck {
             }
         }
 
-
         return result;
     }
 
@@ -81,8 +80,8 @@ public class SecurityCheckNamedRoleCheck implements SecurityCheck {
         for (Object permissionConstant : AnnotationUtil.getRoleValues(customNamedCheck)) {
             String beanName = nameFactory.generateRoleBeanName(((NamedRole) permissionConstant).name());
 
-            GenericPermissionVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
-                    , GenericPermissionVoter.class);
+            GenericRoleVoter voter = CDIUtil.getContextualReferenceByName(beanmanager, beanName
+                    , GenericRoleVoter.class);
             result.addAll(voter.checkPermission(context));
 
         }
