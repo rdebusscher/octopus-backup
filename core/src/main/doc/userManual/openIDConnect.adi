@@ -30,6 +30,7 @@ This class will be consulted to retrieve information about the client applicatio
 The method +retrieveInfo+ returns this information in the format of an instance of +be.c4j.ee.security.sso.server.client.ClientInfo+
 
 * String callbackURL : The callback URL of the client application which must match the value supplied by the client application.
+* List<String> additionalCallbackURL : Additional callback URLs which are also considered as valid values for the request parameter.
 * boolean octopusClient : If marked the client as Octopus client, the callback URL is automatically appended with +/octopus/sso/SSOCallback+ which is the default location of the callback servlet defined in the Octopus client artifact.
 * boolean directAccessAllowed : Is direct access with username and passwords allowed (through the Rest client = the password grant type)
 * String idTokenSecret : Base64 encoded byte array used as the secret for the signing of the JWT containing the idToken. Must match the value used at the 'Client' side.'.

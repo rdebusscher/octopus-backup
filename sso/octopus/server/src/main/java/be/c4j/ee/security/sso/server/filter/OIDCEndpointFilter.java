@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -250,10 +251,8 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
             result = new ErrorInfo(errorObject);
         }
 
-
         if (result == null) {
             ClientInfo clientInfo = clientInfoRetriever.retrieveInfo(clientAuthentication.getClientID().getValue());
-
 
             // TODO clientInfo should never be null, is already checked by the clientAuthenticationVerifier.
             if (!checkRedirectURI(httpRequest, clientInfo, grantType)) {
@@ -276,7 +275,19 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
     private boolean checkRedirectURI(HTTPRequest httpRequest, ClientInfo clientInfo, GrantType grantType) {
         boolean result = true;
         if (GrantType.AUTHORIZATION_CODE.equals(grantType) || GrantType.IMPLICIT.equals(grantType)) {
-            result = clientInfo.getActualCallbackURL().equals(httpRequest.getQueryParameters().get("redirect_uri"));
+            String redirectUri = httpRequest.getQueryParameters().get("redirect_uri");
+            result = checkCallbackUrl(clientInfo, redirectUri);
+        }
+        return result;
+    }
+
+    private boolean checkCallbackUrl(ClientInfo clientInfo, String redirectUri) {
+        boolean result = clientInfo.getActualCallbackURL().equals(redirectUri);
+        if (!result && clientInfo.hasMultipleCallbackURL()) {
+            Iterator<String> iterator = clientInfo.getAdditionalCallbackURLs().iterator();
+            while (!result && iterator.hasNext()) {
+                result = iterator.next().equals(redirectUri);
+            }
         }
         return result;
     }
@@ -294,7 +305,6 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
             return new ErrorInfo(queryParameters, e.getErrorObject());
         }
 
-
         String clientId = request.getClientID().getValue();
 
         // Check to see if the application is configured
@@ -305,13 +315,14 @@ public class OIDCEndpointFilter extends UserFilter implements Initializable {
             return new ErrorInfo(request, OAuth2Error.INVALID_CLIENT.appendDescription(": " + msg));
         }
 
+        String redirectUri = request.getRedirectionURI().toString();
+        boolean result = checkCallbackUrl(clientInfo, redirectUri);
 
-        if (!request.getRedirectionURI().toString().equals(clientInfo.getActualCallbackURL())) {
+        if (!result) {
             String msg = "Unknown \"redirect_uri\" parameter value";
             LOGGER.info(msg + " = " + request.getRedirectionURI());
             return new ErrorInfo(request, OAuth2Error.INVALID_CLIENT.appendDescription(": " + msg));
         }
-
 
         ssoHelper.markAsSSOLogin(httpServletRequest, clientId);
         httpServletRequest.setAttribute(AbstractRequest.class.getName(), request);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@ package be.c4j.ee.security.sso.server.client;
 import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import com.nimbusds.jose.util.Base64;
+import org.apache.shiro.util.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -29,6 +32,8 @@ import java.net.URISyntaxException;
 public class ClientInfo {
 
     private String callbackURL;
+    private boolean multipleCallbackURL;
+    private List<String> additionalCallbackURLs = new ArrayList<String>();  // TODO Verify if we return to the redirect_uri from the request or to the callbackURL.
     private boolean octopusClient;
     private boolean directAccessAllowed;
     private String idTokenSecret;  // For the idToken of the UserInfoEndpoint (signing of the JWT)
@@ -47,6 +52,11 @@ public class ClientInfo {
     }
 
     public void setCallbackURL(String callbackURL) {
+        this.callbackURL = processCallbackURL(callbackURL);
+    }
+
+    private String processCallbackURL(String callbackURL) {
+        String result;
         URI uri;
         try {
             uri = new URI(callbackURL);
@@ -54,10 +64,34 @@ public class ClientInfo {
             // As we should have checked that it is a valid URL
             throw new OctopusUnexpectedException(e);
         }
-        this.callbackURL = uri.normalize().toString();
-        if (this.callbackURL.endsWith("/")) {
-            this.callbackURL = this.callbackURL.substring(0, this.callbackURL.length() - 1);
+        result = uri.normalize().toString();
+        if (result.endsWith("/")) {
+            result = result.substring(0, result.length() - 1);
         }
+        return result;
+    }
+
+    public boolean hasMultipleCallbackURL() {
+        return multipleCallbackURL;
+    }
+
+    public void additionalCallbackURL(String callbackURL) {
+        // TODO We need some kind of builder so that we don't have the issue with setOctopusClient when this method is already called.
+        if (!StringUtils.hasText(this.callbackURL)) {
+            throw new ClientInfoCallbackException();
+        }
+        multipleCallbackURL = true;
+        String url = processCallbackURL(callbackURL);
+
+        if (octopusClient) {
+            url = url + "/octopus/sso/SSOCallback";
+        }
+
+        additionalCallbackURLs.add(url);
+    }
+
+    public List<String> getAdditionalCallbackURLs() {
+        return additionalCallbackURLs;
     }
 
     public boolean isOctopusClient() {
@@ -65,6 +99,10 @@ public class ClientInfo {
     }
 
     public void setOctopusClient(boolean octopusClient) {
+        if (!additionalCallbackURLs.isEmpty()) {
+            // The additionalCallbackURL uses the octopusClient value, so we can't change it now.
+            throw new ClientInfoOctopusClientException();
+        }
         this.octopusClient = octopusClient;
     }
 
@@ -87,7 +125,6 @@ public class ClientInfo {
     public byte[] getClientSecretByte() {
         return new Base64(clientSecret).decode();
     }
-
 
     public void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;

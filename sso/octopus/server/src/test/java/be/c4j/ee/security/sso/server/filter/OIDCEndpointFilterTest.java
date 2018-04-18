@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,6 +261,51 @@ public class OIDCEndpointFilterTest {
         // client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&code=81np_6iMIkw52117lb_YF71seITMdzOGqmyC02se3jY&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback&client_assertion=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vLWNsaWVudElkIiwiYXVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL3NlY3VyaXR5XC9vY3RvcHVzXC9zc29cL3Rva2VuIiwiaXNzIjoiZGVtby1jbGllbnRJZCIsImV4cCI6MTQ4OTQ5NzY5NywianRpIjoiOWJXQmRlU3pNdnhCbDJiTmpkc1lrN2NiN2VqU092ZDJWVnpqS2VETFNZcyJ9.2pPH6hqARMyRDpW7kn00qVgeN7y0UF0iDgNeyX-1gkshDJBCKmt7NcqgRPTLUh05VY7az0N98cRS608KzfJ2oQ
     }
 
+    @Test
+    public void onPreHandle_token_happyCase_fromAdditional() throws Exception {
+
+        StringBuffer url = new StringBuffer();
+        url.append("http://some.server/oidc/octopus/sso/token");
+        when(httpServletRequestMock.getRequestURL()).thenReturn(url);
+        when(httpServletRequestMock.getMethod()).thenReturn("POST");
+        when(httpServletRequestMock.getRequestURI()).thenReturn("/octopus/sso/token");
+
+        String secretString = generateSecret();
+
+        String jwtData = generateJWT("junit_client_id", secretString, new URI("http://some.server/oidc/octopus/sso/token"));
+        String body = jwtData + "&code=81np_6iMIkw52117lb_YF71seITMdzOGqmyC02se3jY&grant_type=authorization_code&redirect_uri=http%3A%2F%2Falias%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback";
+
+        // Read the info from the client
+        BufferedReader readerMock = Mockito.mock(BufferedReader.class);
+        when(readerMock.readLine()).thenReturn(body);
+        when(httpServletRequestMock.getReader()).thenReturn(readerMock);
+
+        // To make the rest of the code happy
+        when(httpServletRequestMock.getContextPath()).thenReturn("/oidc");
+        ThreadContext.bind(subjectMock);
+        when(subjectMock.getPrincipal()).thenReturn(new Object());  // Anything will do as principal
+
+        // Client JWT validation
+        List<Secret> secrets = new ArrayList<Secret>();
+        secrets.add(new Secret(secretString));
+        when(clientCredentialsSelectorMock.selectClientSecrets(new ClientID("junit_client_id"), ClientAuthenticationMethod.CLIENT_SECRET_JWT, null)).thenReturn(secrets);
+
+        ClientInfo clientInfo = new ClientInfo();
+        clientInfo.setOctopusClient(true);
+        clientInfo.setCallbackURL("http://localhost:8080/sso-app2");
+        clientInfo.additionalCallbackURL("http://alias/sso-app2");
+        when(clientInfoRetrieverMock.retrieveInfo("junit_client_id")).thenReturn(clientInfo);
+
+        boolean data = endpointFilter.onPreHandle(httpServletRequestMock, null, null);
+        assertThat(data).isEqualTo(true);
+
+        verify(httpServletRequestMock, times(2)).setAttribute(anyString(), ArgumentMatchers.any());
+
+        // client_assertion=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vLWNsaWVudElkIiwiYXVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL3NlY3VyaXR5XC9vY3RvcHVzXC9zc29cL3Rva2VuIiwiaXNzIjoiZGVtby1jbGllbnRJZCIsImV4cCI6MTQ4OTQ5NzY5NywianRpIjoiOWJXQmRlU3pNdnhCbDJiTmpkc1lrN2NiN2VqU092ZDJWVnpqS2VETFNZcyJ9.2pPH6hqARMyRDpW7kn00qVgeN7y0UF0iDgNeyX-1gkshDJBCKmt7NcqgRPTLUh05VY7az0N98cRS608KzfJ2oQ&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer
+
+        // client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&code=81np_6iMIkw52117lb_YF71seITMdzOGqmyC02se3jY&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsso-app2%2Foctopus%2Fsso%2FSSOCallback&client_assertion=eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vLWNsaWVudElkIiwiYXVkIjoiaHR0cDpcL1wvbG9jYWxob3N0OjgwODBcL3NlY3VyaXR5XC9vY3RvcHVzXC9zc29cL3Rva2VuIiwiaXNzIjoiZGVtby1jbGllbnRJZCIsImV4cCI6MTQ4OTQ5NzY5NywianRpIjoiOWJXQmRlU3pNdnhCbDJiTmpkc1lrN2NiN2VqU092ZDJWVnpqS2VETFNZcyJ9.2pPH6hqARMyRDpW7kn00qVgeN7y0UF0iDgNeyX-1gkshDJBCKmt7NcqgRPTLUh05VY7az0N98cRS608KzfJ2oQ
+    }
+
     private String generateSecret() {
         byte[] secret = new byte[32];
         SecureRandom secureRandom = new SecureRandom();
@@ -286,7 +331,6 @@ public class OIDCEndpointFilterTest {
         return httpRequest.getQuery();
     }
 
-
     @Test
     public void onPreHandle_token_NoClientAuth() throws Exception {
 
@@ -311,7 +355,6 @@ public class OIDCEndpointFilterTest {
 
         verify(httpServletRequestMock, never()).setAttribute(anyString(), ArgumentMatchers.any());
     }
-
 
     @Test
     public void onPreHandle_token_MissingAuthorizationCode() throws Exception {
