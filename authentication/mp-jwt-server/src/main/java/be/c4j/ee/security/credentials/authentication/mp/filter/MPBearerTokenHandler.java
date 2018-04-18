@@ -56,7 +56,7 @@ public class MPBearerTokenHandler {
             }
 
             JWSVerifier verifier;
-            RSAPublicKey publicKey = (RSAPublicKey) keySelector.selectSecretKey(header.getKeyID());
+            RSAPublicKey publicKey = keySelector.selectSecretKey(header.getKeyID());
             if (publicKey == null) {
                 logger.error(String.format("MicroProfile JWT Auth Token Error : Unknown kid %s", header.getKeyID()));
                 throw new AuthenticationException("Invalid MicroProfile JWT Auth token");

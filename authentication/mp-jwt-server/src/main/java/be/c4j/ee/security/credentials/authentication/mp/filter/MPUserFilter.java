@@ -91,7 +91,7 @@ public class MPUserFilter extends AuthenticatingFilter implements Initializable 
     }
 
     private MPJWTToken createMPUserToken(String token) {
-        MPJWTToken result = null;
+        MPJWTToken result;
 
         // Parse and verify token
         SignedJWT signedJWT = tokenHandler.processToken(token);

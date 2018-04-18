@@ -53,14 +53,13 @@ public class ExceptionFilter extends AdviceFilter {
                 servletResponse.setHeader("Content-Type", "application/json");
                 servletResponse.getWriter().print(info.toJSON());
 
-                exception = null;
             } else {
                 // Since we are in a finally block, this exception takes over and thus erasing all information we have about stacktraces
                 // OWASP A6
                 throw new OctopusUnexpectedException("Something went wrong");
             }
         }
-        super.cleanup(request, response, null);
+        super.cleanup(request, response, null); // TODO is this correct that we don't pass the Exception existing
     }
 
     private Throwable getUnexpectedException(Throwable exception) {

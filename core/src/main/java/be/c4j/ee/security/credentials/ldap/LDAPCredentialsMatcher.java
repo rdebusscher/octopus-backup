@@ -197,7 +197,7 @@ public class LDAPCredentialsMatcher implements CredentialsMatcher, Initializable
 
     private List<SearchResult> searchGroups(LdapContext searchContext, String callerDn) {
 
-        String filter = null;
+        String filter;
         // Filter should have exactly one "%s", where callerDn will be substituted.
         filter = String.format(groupFilter, callerDn);
 

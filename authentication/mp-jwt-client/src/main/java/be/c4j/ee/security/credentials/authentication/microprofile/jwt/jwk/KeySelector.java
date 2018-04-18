@@ -16,7 +16,6 @@
 package be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk;
 
 import be.c4j.ee.security.PublicAPI;
-import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
 
 /**

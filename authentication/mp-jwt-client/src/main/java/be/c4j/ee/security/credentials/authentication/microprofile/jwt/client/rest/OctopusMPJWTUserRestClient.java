@@ -21,12 +21,10 @@ import be.c4j.ee.security.credentials.authentication.jwt.client.JWTClaimsProvide
 import be.c4j.ee.security.credentials.authentication.jwt.client.rest.AbstractRestClient;
 import be.c4j.ee.security.credentials.authentication.jwt.client.rest.URLArgument;
 import be.c4j.ee.security.credentials.authentication.microprofile.jwt.client.MPJWTUserToken;
-import be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk.KeySelector;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Client;

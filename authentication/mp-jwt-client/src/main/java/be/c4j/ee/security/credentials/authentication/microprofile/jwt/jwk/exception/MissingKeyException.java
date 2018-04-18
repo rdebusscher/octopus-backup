@@ -15,7 +15,6 @@
  */
 package be.c4j.ee.security.credentials.authentication.microprofile.jwt.jwk.exception;
 
-import be.c4j.ee.security.extension.OctopusBaseExtension;
 import org.apache.shiro.ShiroException;
 
 /**

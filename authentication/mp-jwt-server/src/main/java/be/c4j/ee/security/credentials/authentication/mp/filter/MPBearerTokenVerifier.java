@@ -54,7 +54,6 @@ public class MPBearerTokenVerifier {
      * See Minimum MP-JWT Required Claims.
      *
      * @param header
-     * @param jwtClaimsSet
      * @return
      */
     public boolean verify(JWSHeader header) {
@@ -74,7 +73,6 @@ public class MPBearerTokenVerifier {
      * Verifies if the claimSet is valid according to MP JWT Auth spec.
      * See Minimum MP-JWT Required Claims.
      *
-     * @param header
      * @param jwtClaimsSet
      * @return
      */

@@ -19,7 +19,6 @@ import be.c4j.ee.security.config.AbstractOctopusConfig;
 import be.rubus.web.jerry.config.logging.ConfigEntry;
 import be.rubus.web.jerry.config.logging.ModuleConfig;
 import org.apache.deltaspike.core.api.config.ConfigResolver;
-import org.apache.shiro.util.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 

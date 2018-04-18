@@ -33,6 +33,7 @@ import java.util.Map;
 /**
  *
  */
+@SuppressWarnings("ALL")
 public final class CDIUtil {
 
     private static final Map<Class<?>, Method> OPTIONAL_BEAN_INFO = new HashMap<Class<?>, Method>();
