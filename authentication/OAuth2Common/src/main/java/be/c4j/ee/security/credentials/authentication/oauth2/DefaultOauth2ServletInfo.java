@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2;
 
+import be.c4j.ee.security.PublicAPI;
+import be.c4j.ee.security.exception.OctopusIllegalActionException;
 import be.c4j.ee.security.exception.OctopusUnexpectedException;
 import be.c4j.ee.security.util.StringUtil;
 import org.apache.shiro.web.util.SavedRequest;
@@ -39,6 +41,7 @@ import java.util.List;
  */
 @SessionScoped
 @Named
+@PublicAPI
 public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable {
 
     @Inject
@@ -84,6 +87,9 @@ public class DefaultOauth2ServletInfo implements OAuth2ServletInfo, Serializable
                     result = providerInfo.getServletPath();
                 }
             }
+        }
+        if (stringUtil.isEmpty(result)) {
+            throw new OctopusIllegalActionException(String.format("Provider selection '%s' not found. Wrong value passed to DefaultOauth2ServletInfo#authenticateWith()?", userProviderSelection));
         }
         return result;
     }

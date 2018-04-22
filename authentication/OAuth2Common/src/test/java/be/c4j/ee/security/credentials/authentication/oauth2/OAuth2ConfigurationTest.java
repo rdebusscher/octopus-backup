@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,21 +209,27 @@ public class OAuth2ConfigurationTest {
         assertThat(clientSecret).isEqualTo("test2ClientSecret");
     }
 
-
     public static class TestOAuth2ProviderMetaData implements OAuth2ProviderMetaData {
 
         private String name;
+        private String servletPath;
 
         public TestOAuth2ProviderMetaData() {
+            this(null, null);
         }
 
         public TestOAuth2ProviderMetaData(String name) {
+            this(name, null);
+        }
+
+        public TestOAuth2ProviderMetaData(String name, String servletPath) {
             this.name = name;
+            this.servletPath = servletPath;
         }
 
         @Override
         public String getServletPath() {
-            return null;
+            return servletPath;
         }
 
         @Override
