@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,8 @@ public class SSOCallbackServlet extends HttpServlet {
     @Inject
     private SessionUtil sessionUtil;
 
-    private OctopusUserRequestor octopusUserRequestor;
+    // TODO Are servlets serialized?
+    private transient OctopusUserRequestor octopusUserRequestor;
 
     @Override
     public void init() throws ServletException {

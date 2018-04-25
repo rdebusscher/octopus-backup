@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public abstract class AbstractOctopusAuthenticationToken implements Authenticati
 
     protected String fullName;
 
-    protected Map<String, Object> userInfo = new HashMap<String, Object>();
+    protected Map<String, Object> userInfo = new HashMap<String, Object>(); // FIXME Serializable
 
     @Override
     public String getName() {

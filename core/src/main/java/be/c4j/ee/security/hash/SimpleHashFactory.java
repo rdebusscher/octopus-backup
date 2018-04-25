@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public class SimpleHashFactory {
             String keyFactoryName = factory.getKeyFactoryName(hashAlgorithmName);
 
             try {
-                SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryName);
+                SecretKeyFactory.getInstance(keyFactoryName); // No assignment -> exception thrown or not is all we need to know.
                 result = keyFactoryName;
                 algorithmNameHashTypes.put(hashAlgorithmName, HashType.KEY_FACTORY);
             } catch (NoSuchAlgorithmException e1) {

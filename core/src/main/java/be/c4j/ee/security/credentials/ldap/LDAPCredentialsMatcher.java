@@ -250,7 +250,7 @@ public class LDAPCredentialsMatcher implements CredentialsMatcher, Initializable
         } catch (InvalidSearchControlsException e) {
             throw new OctopusConfigurationException("Invalid search controls");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new OctopusUnexpectedException(e);
         }
     }
 
@@ -261,6 +261,7 @@ public class LDAPCredentialsMatcher implements CredentialsMatcher, Initializable
     }
 
     private static LdapContext createLdapContext(String url, String bindDn, String bindCredential) {
+        // Hashtable required by InitialLdapContext
         Hashtable<String, String> environment = new Hashtable<String, String>();
 
         environment.put(INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import be.c4j.ee.security.jwt.config.SCSConfig;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -30,14 +30,13 @@ import java.util.Map;
 @ApplicationScoped
 public class EncryptionHandlerFactory {
 
-
     @Inject
     private SCSConfig scsConfig;
 
     @Inject
     private JWKManager jwkManager;
 
-    private Map<JWEAlgorithm, EncryptionHandler> handlerInstances = new HashMap<JWEAlgorithm, EncryptionHandler>();
+    private Map<JWEAlgorithm, EncryptionHandler> handlerInstances = new EnumMap<JWEAlgorithm, EncryptionHandler>(JWEAlgorithm.class);
 
     public EncryptionHandler getEncryptionHandler(JWEAlgorithm jweAlgorithm) {
         EncryptionHandler result;

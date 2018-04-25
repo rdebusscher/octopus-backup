@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@ package be.c4j.ee.security.test;
 
 import be.c4j.ee.security.PublicAPI;
 
+import java.io.Serializable;
+
 /**
  *
  */
 @PublicAPI
-public interface AuthenticatedPageInfo {
+public interface AuthenticatedPageInfo extends Serializable {
 
     String getAuthenticatedPage();
 

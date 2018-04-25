@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,8 +61,9 @@ import java.io.IOException;
 @WebServlet("/octopus/sso/token")
 public class TokenServlet extends HttpServlet {
 
-    private Logger logger = LoggerFactory.getLogger(TokenServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenServlet.class);
 
+    // These properties aren't related to any user info, so safe to use here.
     @Inject
     private SSOProducerBean ssoProducerBean;
 
@@ -190,7 +191,7 @@ public class TokenServlet extends HttpServlet {
         }
 
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("(SSO Server) Exchange Authorization code in an Access token ( %s -> %s )", codeGrant.getAuthorizationCode(), oidcStoreData.getAccessToken().getValue()));
+            LOGGER.info(String.format("(SSO Server) Exchange Authorization code in an Access token ( %s -> %s )", codeGrant.getAuthorizationCode(), oidcStoreData.getAccessToken().getValue()));
         }
 
         return defineResponse(oidcStoreData);
@@ -240,7 +241,7 @@ public class TokenServlet extends HttpServlet {
     private void showDebugInfo(OctopusSSOUser user) {
         // TODO verify usage of String.format and + in logging.
         if (octopusConfig.showDebugFor().contains(Debug.SSO_FLOW)) {
-            logger.info(String.format("(SSO Server) User %s is authenticated and cookie written if needed.", user.getFullName()));
+            LOGGER.info(String.format("(SSO Server) User %s is authenticated and cookie written if needed.", user.getFullName()));
         }
     }
 }

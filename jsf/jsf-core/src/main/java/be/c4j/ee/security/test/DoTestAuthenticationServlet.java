@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import java.net.URLEncoder;
 @WebServlet("/doTestAuthentication")
 public class DoTestAuthenticationServlet extends HttpServlet {
 
+    // These properties doesn't contain any user specific info so are ok to use here (thread safety)
     @Inject
     private OctopusJSFConfig octopusConfig;
 
@@ -90,7 +91,7 @@ public class DoTestAuthenticationServlet extends HttpServlet {
             String path = uri.getPath();
             int idx = -1;
             if (path != null) {
-                idx = path.indexOf("/", 1);
+                idx = path.indexOf('/', 1);
                 if (idx == -1) {
                     idx = 0; // app deployed without root
                 }

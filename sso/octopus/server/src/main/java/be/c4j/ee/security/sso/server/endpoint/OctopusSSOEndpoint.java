@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,14 +251,14 @@ public class OctopusSSOEndpoint {
         // Spec defines that we need also aud, but this is already set from idTokenClaimSet
 
         JSONObject jsonObject = userInfo.toJSONObject();
-        for (String key : jsonObject.keySet()) {
-            if ("aud".equals(key)) {
+        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+            if ("aud".equals(entry.getKey())) {
                 // due to octopusSSOUserConverter.fromIdToken(jwtClaimsSet); earlier, there was a conversion from jwtClaimsSet to JSonObject
                 // Which converted the Audience List to a single String.  If we don't put it in the correct type again, the new SignedJWT 3 statements further on
                 // Will fail on the audience and leave it out from the SignedJWT.
-                claimSetBuilder.claim(key, Collections.singletonList(jsonObject.get(key)));
+                claimSetBuilder.claim(entry.getKey(), Collections.singletonList(entry.getValue()));
             } else {
-                claimSetBuilder.claim(key, jsonObject.get(key));
+                claimSetBuilder.claim(entry.getKey(), entry.getValue());
             }
         }
 
@@ -296,7 +296,7 @@ public class OctopusSSOEndpoint {
         }
 
         Scope scope = (Scope) httpServletRequest.getAttribute(Scope.class.getName());
-        if (scope != null && (scope.contains("octopus") || scope.contains(ssoServerConfiguration.getScopeForPermissions()) )) {
+        if (scope != null && (scope.contains("octopus") || scope.contains(ssoServerConfiguration.getScopeForPermissions()))) {
             return fromPermissionsToMap(ssoPermissionProvider.getPermissionsForUserInApplication(application, ssoUser));
         } else {
             return null;

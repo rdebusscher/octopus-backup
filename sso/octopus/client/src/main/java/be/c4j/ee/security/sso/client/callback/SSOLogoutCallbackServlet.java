@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ public class SSOLogoutCallbackServlet extends HttpServlet {
     }
 
     private String retrieveToken(HttpServletRequest req) {
+        // FIXME Not all flows have the access_token
         SSOFlow ssoType = config.getSSOType();
 
         return req.getParameter("access_token");

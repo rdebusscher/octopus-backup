@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.oauth2.info;
 
+import be.c4j.ee.security.PublicAPI;
 import be.c4j.ee.security.credentials.authentication.oauth2.OAuth2User;
 import be.c4j.ee.security.realm.AuthenticationInfoBuilder;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -25,8 +26,8 @@ import java.util.Map;
 /**
  * Use this class witin be.c4j.ee.security.realm.SecurityDataProvider#getAuthenticationInfo(org.apache.shiro.authc.AuthenticationToken)
  */
+@PublicAPI
 public class OAuth2AuthenticationInfoBuilder {
-
 
     private OAuth2User oauth2User;
 

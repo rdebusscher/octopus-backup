@@ -15,6 +15,7 @@
  */
 package be.c4j.ee.security.credentials.authentication.mp.token;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Map;
 /**
  * Represent the MP Auth token (can be used in a
  */
-public class MPJWTToken {
+public class MPJWTToken implements Serializable {
 
     private String iss; // issuer
     private List<String> aud; // audience

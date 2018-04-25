@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,6 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
             permissionJSONProvider = new PermissionJSONProvider();
         }
 
-
     }
 
     @Override
@@ -124,9 +123,7 @@ public class SCSAuthenticatingFilter extends AuthenticatingFilter implements Ini
         String token = httpServletRequest.getHeader(AUTHORIZATION_HEADER);
 
         AuthenticationToken result = createToken(apiKey, token);
-        if (result != null) {
-            request.setAttribute(NO_STORAGE, Boolean.TRUE);
-        }
+        request.setAttribute(NO_STORAGE, Boolean.TRUE);
         return result;
 
     }

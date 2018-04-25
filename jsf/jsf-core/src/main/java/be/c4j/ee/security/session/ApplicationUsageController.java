@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Rudy De Busscher (www.c4j.be)
+ * Copyright 2014-2018 Rudy De Busscher (www.c4j.be)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import be.c4j.ee.security.model.UserPrincipal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.util.WebUtils;
+import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -41,6 +42,9 @@ public class ApplicationUsageController {
 
     @Inject
     private OctopusJSFConfig octopusJSFConfig;
+
+    @Inject
+    private Logger logger;
 
     private Map<String, ApplicationUsageInfo> applicationUsage = new HashMap<String, ApplicationUsageInfo>();
     // sessionId
@@ -165,7 +169,8 @@ public class ApplicationUsageController {
             try {
                 httpSession.invalidate();
             } catch (IllegalStateException e) {
-                // FIXME Logging + finding out why this can happen (missing a cleanup somewhere)
+                // FIXME finding out why this can happen (missing a cleanup somewhere)
+                logger.warn(e.getMessage());
             }
         }
     }
