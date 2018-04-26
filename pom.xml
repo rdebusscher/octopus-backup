@@ -272,6 +272,63 @@
                             <className>**/sso/server/endpoint/JSONHandler</className>
                             <differenceType>8001</differenceType>
                         </difference>
+
+                        <difference>
+                            <!-- internal class -->
+                            <className>**/jwt/config/JWTConfig</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <!-- internal class -->
+                            <className>**/jwt/config/MappingSystemAccountToApiKey</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+
+                        <difference>
+                            <!-- internal class, so not a problem -->
+                            <className>**/jwt/config/SCSConfig</className>
+                            <differenceType>7002</differenceType>
+                            <method>*</method>
+                        </difference>
+                        <difference>
+                            <!-- internal class, so not a problem -->
+                            <className>**/octopus/debug/CorrelationCounter</className>
+                            <differenceType>6006</differenceType>
+                            <field>*</field>
+                        </difference>
+                        <difference>
+                            <!-- internal class, moved to jwt-common, so not a problem -->
+                            <className>**/jwt/client/JWTClaimsProvider</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <!-- internal class, moved to jwt-common, so not a problem -->
+                            <className>**/jwt/client/rest/URLArgument</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <!-- internal class, moved to jwt-common, so not a problem -->
+                            <className>**/jwt/client/rest/AbstractSCSRestClient</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+                        <difference>
+                            <!-- internal class, so not a problem -->
+                            <className>**/jwt/client/rest/OctopusSCSSystemRestClient</className>
+                            <differenceType>5001</differenceType>
+                            <to>**/jwt/client/rest/AbstractSCSRestClient</to>
+                        </difference>
+                        <difference>
+                            <!-- internal class, so not a problem -->
+                            <className>**/jwt/client/rest/OctopusSCSUserRestClient</className>
+                            <differenceType>5001</differenceType>
+                            <to>**/jwt/client/rest/AbstractSCSRestClient</to>
+                        </difference>
+                        <difference>
+                            <!-- documented -->
+                            <className>**/jwt/JWKManager</className>
+                            <differenceType>8001</differenceType>
+                        </difference>
+
                         <difference>
                             <!-- internal class, so not a problem -->
                             <className>**/octopus/requestor/OctopusUserRequestor</className>

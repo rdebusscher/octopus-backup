@@ -8,6 +8,10 @@
 . Configuration of remember-me parameters now also from within _octopusConfig.properties_ file.
 . Possibility to return also _AuthorizationInfo_ from _getAuthenticationInfo()_ (mainly for external passwords verifications)
 
+Breaking changes
+
+. If you used JWKManger yourself (through @Inject), it is moved to another package.
+
 === 0.9.7.1
 
 . Support for IdentityStores from Java EE Security API (Java EE 8) but also useable on Java EE 7 servers.
