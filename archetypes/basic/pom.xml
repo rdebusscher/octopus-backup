@@ -22,7 +22,7 @@
 
     <groupId>be.atbash.ee.security.octopus.archetype</groupId>
     <artifactId>basic-octopus-archetype</artifactId>
-    <version>0.9.7.2-SNAPSHOT</version>
+    <version>0.9.7</version>
     <packaging>maven-archetype</packaging>
 
     <name>basic-octopus-archetype</name>

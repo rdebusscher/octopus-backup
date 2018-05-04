@@ -24,7 +24,7 @@
     <parent>
         <groupId>be.c4j.ee.security</groupId>
         <artifactId>parent</artifactId>
-        <version>0.9.7.2-SNAPSHOT</version>
+        <version>0.9.7.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

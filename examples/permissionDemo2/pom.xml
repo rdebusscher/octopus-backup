@@ -24,13 +24,13 @@
     <parent>
         <groupId>be.c4j.ee.security.octopus</groupId>
         <artifactId>examples</artifactId>
-        <version>0.9.7.2-SNAPSHOT</version>
+        <version>0.9.7.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>be.c4j.ee.security.demo</groupId>
     <artifactId>permission2</artifactId>
-    <version>0.9.7.2-SNAPSHOT</version>
+    <version>0.9.7.2</version>
     <packaging>war</packaging>
     <name>Permission demo (String permissions, Java EE 6)</name>
 
